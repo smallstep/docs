@@ -37,12 +37,21 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
   $ gcloud services enable privateca.googleapis.com
   ```
 
-#### 2. Create a Root CA.
+#### 2. Create a CA Pool
 
   Run:
 
    ```shell
-   gcloud beta privateca roots create example-root-ca \
+   gcloud privateca pools create example-ca-pool --location us-west1
+  ```
+
+#### 3. Create and Enable a Root CA
+
+To create, run:
+
+  ```shell
+   gcloud privateca roots create example-root-ca \
+       --pool example-ca-pool \
        --location us-west1 \
        --subject "CN=Example Root CA, O=Example LLC" \
        --key-algorithm ec-p256-sha256 \
@@ -51,7 +60,7 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
 
   <Alert severity="info">
     <div> 
-      See <Code>gcloud beta privateca roots create --help</Code> for more options.
+      See <Code>gcloud privateca roots create --help</Code> for more options.
       You can customize values for <Code>KeyUsage</Code>, <Code>MaxPathLen</Code>,
       <Code>KeyAlgorithm</Code>, and more.
     </div>
@@ -59,31 +68,61 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
 
   Be sure to change the Common Name and Organization to your liking.
 
-#### 3. Create an Intermediate CA.
+To enable CA, run:
 
-  Run:
+  ```
+    gcloud privateca roots enable example-root-ca \
+      --pool example-ca-pool \
+      --location us-west1 
+  ```
 
-   ```shell
-   gcloud beta privateca subordinates create example-intermediate-ca \
+#### 4. Create and Enable an Intermediate CA.
+
+  To create, run:
+
+   ```shell 
+   gcloud privateca subordinates create example-intermediate-ca \
+       --pool example-ca-pool \
        --location us-west1 \
-       --issuer example-root-ca \
+       --issuer-ca example-root-ca \
+       --issuer-pool example-ca-pool \
        --issuer-location us-west1 \
        --subject "CN=Example Intermediate CA, O=Example LLC" \
        --key-algorithm ec-p256-sha256 \
-       --reusable-config "subordinate-server-tls-pathlen-0"
+       --max-chain-length 1 
    ```
 
-  <Alert severity="info">
-    <div> 
-      See <Code>gcloud beta privateca roots create --help</Code> for more options.
-      You can customize values for  <Code>KeyUsage</Code>, <Code>MaxPathLen</Code>,
-      <Code>KeyAlgorithm</Code>, and more.
-    </div>
-  </Alert>
+  To enable, run:
 
-  Be sure to change the Common Name and Organization to your liking.
+   ```shell
+   gcloud privateca subordinates enable example-intermediate-ca \
+       --pool example-ca-pool \
+       --location us-west1
+   ```
 
-#### 4. Configure a service account with necessary role bindings to request and manage X.509 Certificates using CAS. 
+#### 5. (Optional) Test Root and Intermediate CA
+
+To inspect the root and intermediate CA, you need to have the following dependencies installed:
+* [step](https://smallstep.com/cli/)
+* [jq](https://stedolan.github.io/jq/) 
+
+Run:
+
+```shell
+gcloud privateca roots describe example-root-ca \
+--project smallstep-cas-test --location us-west1 \
+--pool example-ca-pool --format json | jq -r '.pemCaCertificates[0]' | step certificate inspect
+```
+
+Run:
+
+```shell
+gcloud privateca subordinates describe example-intermediate-ca \
+--project smallstep-cas-test --location us-west1 \
+--pool example-ca-pool --format json | jq -r '.pemCaCertificates[0]' | step certificate inspect
+```
+
+#### 6. Configure a service account with necessary role bindings to request and manage X.509 Certificates using CAS. 
 
   Run:
 
@@ -101,7 +140,7 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
       --role=roles/privateca.certificateRequester
   ```
 
-#### 5. Launch a "Smallstep ACME Registration Authority for CAS" deployment
+#### 7. Launch a "Smallstep ACME Registration Authority for CAS" deployment
 
 1. Select "Smallstep ACME Registration Authority for CAS" from GCP marketplace
 and hit the `Launch` button.
@@ -120,7 +159,7 @@ and hit the `Launch` button.
 
         Get this value from the command line:
         ```shell
-        gcloud beta privateca subordinates describe example-intermediate-ca --location us-west1 --format='get(name)'
+        gcloud privateca subordinates describe example-intermediate-ca --pool example-ca-pool --location us-west1 --format='get(name)'
         ```
 
 3. Optional fields in the Launcher UI.
@@ -144,7 +183,7 @@ and hit the `Launch` button.
 
   ![](/static/images/cas-deploy.png)
 
-#### 6. Let's test out our deployment!
+#### 8. Let's test out our deployment!
 
 In this example we'll use [certbot](https://certbot.eff.org/) to test our 
 new ACME RA for CAS, but any popular ACME client should work.
@@ -174,7 +213,7 @@ new ACME RA for CAS, but any popular ACME client should work.
 3. Download the root certificate.
 
   ```shell
-  gcloud beta privateca roots describe example-root-ca --location us-west1 --format='get(pemCaCertificates)' > /tmp/root_ca.crt
+  gcloud privateca roots describe example-root-ca --pool example-ca-pool --location us-west1 --format='get(pemCaCertificates)' > /tmp/root_ca.crt
   ```
 
 4. Create a new certificate using the ACME RA for CAS.
@@ -187,7 +226,7 @@ new ACME RA for CAS, but any popular ACME client should work.
   $ export PROJECT_ID=$(curl http://metadata.google.internal/computeMetadata/v1/project/project-id --silent --fail -H "Metadata-Flavor: Google")
 
   # Get a certificate!
-  $ sudo REQUESTS_CA_BUNDLE=/tmp/root_ca.crt certbot certonly -n --standalone -d $HOST --server https://acme-registration-authority-for-gcp-cas-1-vm.c.$PROJECT_ID.internal/acme/acme/directory --agree-tos --email tester@smallstep.com
+  $ sudo REQUESTS_CA_BUNDLE=/tmp/root_ca.crt certbot certonly -n --standalone -d $HOST --server https://acme-registration-authority-for-gcp-c-1-vm.c.$PROJECT_ID.internal/acme/acme/directory --agree-tos --email tester@smallstep.com
   ```
 
   Hooray!
