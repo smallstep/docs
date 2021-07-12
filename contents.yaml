@@ -61,6 +61,10 @@ step_ca:
     path: step-ca/basic-certificate-authority-operations
   - title: Configuration
     path: step-ca/configuration
+  - title: Provisioners
+    path: step-ca/provisioners
+  - title: Templates
+    path: step-ca/templates
   - title: Production Considerations
     path: step-ca/certificate-authority-server-production
   - title: Integrations

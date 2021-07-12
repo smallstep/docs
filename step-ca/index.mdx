@@ -41,11 +41,11 @@ For example, you can have your CA issue certificates in exchange for:
   - ID tokens from Okta, G Suite, Azure AD, Auth0.
   - ID tokens from an OAuth OIDC service that you host, like [Keycloak](https://www.keycloak.org/) or [Dex](https://github.com/dexidp/dex)
 - [Cloud instance identity documents](https://smallstep.com/blog/embarrassingly-easy-certificates-on-aws-azure-gcp/), for VMs on AWS, GCP, and Azure
-- [Single-use, short-lived JWK tokens](/docs/step-ca/configuration#jwk) issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
+- [Single-use, short-lived JWK tokens](/docs/step-ca/provisioners#jwk) issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
 
 ### Templates
 
-[X.509 Templates](/docs/step-ca/configuration#x509-templates) let you customize your certificates, eg:
+[X.509 Templates](/docs/step-ca/templates#x509-templates) let you customize your certificates, eg:
 - Add custom SANs or non-standard X.509 Object Identifiers (OIDs) to certificates
 - Restrict certificates by domain name or key size
 - Issue CA certificates with longer path lengths for multiple intermediaries
