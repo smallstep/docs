@@ -1,0 +1,82 @@
+import React from 'react';
+import { Box, Container } from '@material-ui/core';
+import { MDXProvider } from '@mdx-js/react';
+import { Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
+import apacheconf from 'refractor/lang/apacheconf';
+import diff from 'refractor/lang/diff';
+import go from 'refractor/lang/go';
+import ini from 'refractor/lang/ini';
+import json from 'refractor/lang/json';
+import nginx from 'refractor/lang/nginx';
+import powershell from 'refractor/lang/powershell';
+import python from 'refractor/lang/python';
+import shellSession from 'refractor/lang/shell-session';
+import yaml from 'refractor/lang/yaml';
+import ThemeTopLayout from 'gatsby-theme-material-ui-top-layout/src/components/top-layout';
+
+import H1 from '../../components/H1';
+import H2 from '../../components/H2';
+import H3 from '../../components/H3';
+import HN from '../../components/HN';
+import Li from '../../components/Li';
+import Em from '../../components/Em';
+import Strong from '../../components/Strong';
+import Image from '../../components/Image';
+import CodeBlock from '../../components/CodeBlock';
+import Link from '../../components/Link';
+import Table from '../../components/Table';
+import TableHead from '../../components/TableHead';
+import TableBody from '../../components/TableBody';
+import TableRow from '../../components/TableRow';
+import TableCell from '../../components/TableCell';
+
+const components = {
+  h1: H1,
+  h2: H2,
+  h3: H3,
+  h4: HN,
+  h5: HN,
+  h6: HN,
+  p: Paragraph,
+  a: Link,
+  pre: CodeBlock,
+  blockquote: BlockQuote,
+  inlineCode: Code,
+  li: Li,
+  em: Em,
+  strong: Strong,
+  img: Image,
+  table: Table,
+  thead: TableHead,
+  tbody: TableBody,
+  tr: TableRow,
+  th: TableCell,
+  td: TableCell,
+};
+
+export default function TopLayout({ children, theme }) {
+  return (
+    <MDXProvider components={components}>
+      <CodeBlock.GrammarProvider
+        grammars={[
+          apacheconf,
+          diff,
+          go,
+          ini,
+          json,
+          nginx,
+          powershell,
+          python,
+          shellSession,
+          yaml,
+        ]}
+      >
+        <ThemeTopLayout theme={theme}>
+          <Box p={4}>
+            <Container maxWidth="md">{children}</Container>
+          </Box>
+        </ThemeTopLayout>
+      </CodeBlock.GrammarProvider>
+    </MDXProvider>
+  );
+}

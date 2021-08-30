@@ -1,0 +1,33 @@
+{
+  "name": "practicalzt",
+  "version": "1.0.0",
+  "description": "Practical Zero Trust",
+  "repository": "git@github.com:smallstep/practicalzt.git",
+  "author": "Smallstep",
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "gatsby develop",
+    "build": "gatsby build"
+  },
+  "dependencies": {
+    "@emotion/core": "^10.0.16",
+    "@material-ui/core": "^4.9.13",
+    "@material-ui/styles": "^4.9.13",
+    "@mdx-js/mdx": "^1.6.22",
+    "@mdx-js/react": "^1.6.22",
+    "@smallstep/step-ui": "./vendor/step-ui",
+    "gatsby": "^3.12.1",
+    "gatsby-plugin-compile-es6-packages": "^2.1.1",
+    "gatsby-plugin-mdx": "^2.12.0",
+    "gatsby-plugin-next-seo": "^1.8.0",
+    "gatsby-source-filesystem": "^3.12.0",
+    "gatsby-theme-material-ui": "^2.0.1",
+    "gatsby-transformer-yaml": "^3.12.0",
+    "react": "^16.13.1",
+    "react-dom": "^16.13.1",
+    "react-helmet-async": "^1.1.2",
+    "react-moment": "^0.9.6",
+    "refractor": "^2.10.0",
+    "rxjs": "^6.5.2"
+  }
+}
