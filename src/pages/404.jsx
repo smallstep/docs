@@ -9,7 +9,7 @@ const Page = () => (
     </Heading>
     <Paragraph>
       Were you looking for our awesome how-tos on{' '}
-      <Link to="/practical-zero-trust">Pratical Zero Trust</Link>?
+      <Link to="/">Pratical Zero Trust</Link>?
     </Paragraph>
   </>
 );

@@ -1,4 +1,5 @@
 module.exports = {
+  pathPrefix: '/practical-zero-trust',
   plugins: [
     {
       resolve: `gatsby-plugin-compile-es6-packages`,

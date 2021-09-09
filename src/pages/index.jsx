@@ -9,7 +9,7 @@ const Page = ({ data }) => (
       {data.allMetadataYaml.edges.map(({ node }) => (
         <li key={node.doc}>
           <Link
-            to={`/practical-zero-trust/${node.doc}/how-to-get-tls-certificates-and-keep-them-renewed`}
+            to={`/${node.doc}/how-to-get-tls-certificates-and-keep-them-renewed`}
           >
             {node.name}
           </Link>
