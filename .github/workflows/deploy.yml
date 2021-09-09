@@ -55,4 +55,3 @@ jobs:
         path: public
         destination: ${{ secrets.GCP_GCS_BUCKET }}
         parent: false
-        predefinedAcl: publicRead
