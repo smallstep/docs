@@ -25,6 +25,7 @@ jobs:
         cache: 'yarn'
     - run: yarn install
     - run: yarn build
+    - run: tree public
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
