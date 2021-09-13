@@ -1,0 +1,12 @@
+slug: nginx
+name: Nginx
+writtenAt: 2021-08-31
+updatedAt: 2021-08-31
+protocol: https
+port: 443
+paths:
+  rootCert: /etc/ssl/root_ca.crt
+  serverCert: /etc/ssl/server.crt
+  serverKey: /etc/ssl/server.key
+chart: ingress-nginx
+acme: false

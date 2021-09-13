@@ -6,10 +6,10 @@ const Page = ({ data }) => (
   <>
     <Heading variant="h2">Practical Zero Trust</Heading>
     <Paragraph component="ul">
-      {data.allMetadataYaml.edges.map(({ node }) => (
-        <li key={node.doc}>
+      {data.allDocsYaml.edges.map(({ node }) => (
+        <li key={node.slug}>
           <Link
-            to={`/${node.doc}-tls`}
+            to={`/${node.slug}-tls`}
           >
             {node.name}
           </Link>
@@ -21,10 +21,10 @@ const Page = ({ data }) => (
 
 export const query = graphql`
   query {
-    allMetadataYaml {
+    allDocsYaml {
       edges {
         node {
-          doc
+          slug
           name
         }
       }
