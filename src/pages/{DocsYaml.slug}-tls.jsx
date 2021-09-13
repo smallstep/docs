@@ -4,7 +4,7 @@ import { GatsbySeo } from 'gatsby-plugin-next-seo';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext } from '../context';
-import MDXContent from '../components/MDXContent';
+import MDXBlock from '../components/MDXBlock';
 
 const Page = ({ data }) => {
   const { docsYaml: doc, allMdx } = data;
@@ -35,13 +35,13 @@ const Page = ({ data }) => {
         <Heading variant="h4">
           Create a private key and request a certificate
         </Heading>
-        <MDXContent path="sections/01-try/01-certificate" />
+        <MDXBlock path="sections/01-try/01-certificate" />
         <Heading variant="h4">
           Configure {doc.name} to use the certificate
         </Heading>
-        <MDXContent path="sections/01-try/02-server" />
+        <MDXBlock path="sections/01-try/02-server" />
         <Heading variant="h4">Connect to {doc.name} from your client</Heading>
-        <MDXContent path="sections/01-try/03-test" />
+        <MDXBlock path="sections/01-try/03-test" />
 
         <Heading variant="h3">Part 2. Operationalize it</Heading>
         <Heading variant="h4">Automate {doc.name} certificate renewal</Heading>

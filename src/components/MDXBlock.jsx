@@ -3,7 +3,7 @@ import { MDXRenderer } from 'gatsby-plugin-mdx';
 
 import { DocContext } from '../context';
 
-const MDXContent = ({ path }) => {
+const MDXBlock = ({ path }) => {
   const { doc, content } = useContext(DocContext);
 
   return (
@@ -13,4 +13,4 @@ const MDXContent = ({ path }) => {
   );
 };
 
-export default MDXContent;
+export default MDXBlock;

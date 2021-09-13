@@ -30,6 +30,13 @@ import TableBody from '../../components/TableBody';
 import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
 
+import MDXBlock from '../../components/MDXBlock';
+import Alert from '../../components/Alert';
+import AlertTitle from '../../components/AlertTitle';
+import Aside from '../../components/Aside';
+import Footnote from '../../components/Footnote';
+import Reference from '../../components/Reference';
+
 const components = {
   h1: H1,
   h2: H2,
@@ -54,9 +61,11 @@ const components = {
   td: TableCell,
 };
 
+const shortcodes = { MDXBlock, Alert, AlertTitle, Aside, Footnote, Reference };
+
 export default function TopLayout({ children, theme }) {
   return (
-    <MDXProvider components={components}>
+    <MDXProvider components={{ ...components, ...shortcodes }}>
       <CodeBlock.GrammarProvider
         grammars={[
           apacheconf,
