@@ -18,11 +18,11 @@ const Page = ({ data }) => {
     <>
       <GatsbySeo
         type="article"
-        title={`${metadata.name} — How to get TLS certificates and keep them renewed | Practical Zero Trust`}
+        title={`${metadata.name} TLS — How to get TLS certificates and keep them renewed | Practical Zero Trust`}
         description={`Practical step-by-step instructions for implementing zero trust principals with ${metadata.name}.`}
       />
 
-      <Heading variant="h1">{metadata.name} Practical Zero Trust</Heading>
+      <Heading variant="h1">{metadata.name} TLS | Practical Zero Trust</Heading>
       <Heading variant="h2">
         How to get {metadata.name} TLS certificates and keep them renewed
       </Heading>
