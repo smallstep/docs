@@ -31,6 +31,7 @@ import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
 
 import MDXBlock from '../../components/MDXBlock';
+import DocConfig from '../../components/DocConfig';
 import Alert from '../../components/Alert';
 import AlertTitle from '../../components/AlertTitle';
 import Aside from '../../components/Aside';
@@ -61,7 +62,15 @@ const components = {
   td: TableCell,
 };
 
-const shortcodes = { MDXBlock, Alert, AlertTitle, Aside, Footnote, Reference };
+const shortcodes = {
+  MDXBlock,
+  DocConfig,
+  Alert,
+  AlertTitle,
+  Aside,
+  Footnote,
+  Reference,
+};
 
 export default function TopLayout({ children, theme }) {
   return (

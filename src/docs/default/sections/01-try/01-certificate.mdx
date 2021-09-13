@@ -1,0 +1,52 @@
+<p>
+  Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to
+  speak private TLS, you will need a certificate issued by a trusted
+  certificate authority (CA). If your organization already runs its
+  own CA and you have a private key and certificate for your{' '}
+  <DocConfig>{({ name }) => name}</DocConfig> server, along with your
+  CA's root certificate, you can skip to the next step.
+</p>
+
+<Alert severity="info">
+  <div>
+    If your organization does not yet run its own internal CA, you can
+    read more about creating and running a CA using the open source
+    smallstep software{' '}
+    <a href="/docs/getting-started/">
+      here
+    </a>
+    .
+  </div>
+</Alert>
+
+<Alert severity="success">
+  <div>
+    To get up and running quickly, we recommend creating a{' '}
+    <a href="https://info.smallstep.com/certificate-manager-early-access-mvp/">
+      free hosted smallstep Certificate Manager authority
+    </a>
+    .
+  </div>
+</Alert>
+
+<p>
+  To request a certificate from your CA using the
+  <a href="https://smallstep.com/docs/step-cli"><inlineCode>step</inlineCode></a>{' '}
+  CLI, bootstrap your CA with <inlineCode>step ca bootstrap</inlineCode> and run the
+  following command (sub the server name for the actual name / DNS name of your{' '}
+  <DocConfig>{({ name }) => name}</DocConfig> server).
+</p>
+
+<MDXBlock path="snippets/certificate" />
+
+Your certificate and private key will be saved in `server.crt` and `server.key` respectively.
+
+Request a copy of your CA root certificate, which will be used to make
+sure each application can trust certificates presented by other
+applications.
+
+```shell
+step ca root ca.crt
+```
+
+Your certificate will be saved in `ca.crt`.
