@@ -1,0 +1,13 @@
+We've created a `systemd`-based certificate renewal timer that works with `step`. Check out our documentation on [Renewal using systemd timers](https://smallstep.com/docs/step-ca/certificate-authority-server-production#renewal-using-systemd-timers) for background on how these timers work.
+
+To install the certificate renewal timer, run:
+
+```bash
+cd /etc/systemd/system
+sudo curl -sL https://raw.githubusercontent.com/smallstep/certificates/master/systemd/cert-renewer@.service \
+     -o cert-renewer@.service
+sudo curl -sL https://raw.githubusercontent.com/smallstep/certificates/master/systemd/cert-renewer@.timer \
+     -o cert-renewer@.timer
+```
+
+This time will check your certificate files every five minutes and renew them after two-thirds of their lifetime has elapsed.
