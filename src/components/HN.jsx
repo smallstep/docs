@@ -1,13 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
-import { useTheme } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { Heading } from '@smallstep/step-ui';
 
 import { makeSlug } from '../utils';
 
+const useStyles = makeStyles(theme => ({
+  heading: {
+    fontWeight: theme.typography.fontWeightMedium,
+  },
+}));
+
 const HN = ({ mt, mb, children }) => {
-  const theme = useTheme();
+  const classes = useStyles();
 
   return (
     <Heading
@@ -16,9 +21,7 @@ const HN = ({ mt, mb, children }) => {
       variant="body1"
       mt={mt}
       mb={mb}
-      css={css`
-        font-weight: ${theme.typography.fontWeightMedium};
-      `}
+      className={classes.heading}
     >
       {children}
     </Heading>

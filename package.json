@@ -28,6 +28,7 @@
     "react-helmet-async": "^1.1.2",
     "react-moment": "^0.9.6",
     "refractor": "^2.10.0",
-    "rxjs": "^6.5.2"
+    "rxjs": "^6.5.2",
+    "slugify": "^1.6.0"
   }
 }

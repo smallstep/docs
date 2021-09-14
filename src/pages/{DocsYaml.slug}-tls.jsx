@@ -1,15 +1,29 @@
 import React from 'react';
 import { graphql } from 'gatsby';
 import { GatsbySeo } from 'gatsby-plugin-next-seo';
+import { makeStyles } from '@material-ui/styles';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext } from '../context';
 import MDXBlock from '../components/MDXBlock';
 import DocConfig from '../components/DocConfig';
+import HBase from '../components/HBase';
 import Alert from '../components/Alert';
+import Li from '../components/Li';
+import Em from '../components/Em';
+
+const useStyles = makeStyles(theme => ({
+  timestamp: {
+    color: theme.palette.text.secondary,
+  },
+}));
 
 const Page = ({ data }) => {
   const { docsYaml: doc, allMdx } = data;
+
+  const classes = useStyles();
 
   const content = allMdx.edges.reduce(
     (obj, { node }) => ({
@@ -29,40 +43,71 @@ const Page = ({ data }) => {
 
       <DocContext.Provider value={{ doc, content }}>
         <Heading variant="h1">{doc.name} TLS / Practical Zero Trust</Heading>
-        <Heading variant="h2">
+        <Heading component="h2" variant="h3">
           How to get {doc.name} TLS certificates and keep them renewed
         </Heading>
+        <Paragraph variant="body2" className={classes.timestamp}><DocConfig>{({ written, updated }) => `Written ${written}${updated ? `, updated ${updated}` : ''}`}</DocConfig></Paragraph>
+        <HBase variant="h4">
+          Zero trust for the real world
+        </HBase>
+        <Paragraph>
+          While there's little question about the value of a zero trust security model in modern infrastructure, there's often a great deal of confusion as to what "zero trust" means for the practitioners who are responsible for
+          its implementation. The <Em>Practical Zero Trust</Em> project aims to remove some of that confusion with two high-level goals:
+        </Paragraph>
 
-        <Heading variant="h3">Part 1. Try it</Heading>
-        <Heading variant="h4">
-          Create a private key and request a certificate
-        </Heading>
+    <Paragraph component="ol">
+      <Li>
+        To demonstrate that "zero trust" for infrastructure simply means implementing the already-broadly-supported TLS protocol
+      </Li>
+      <Li>
+        To provide concrete, step-by-step instructions on how to actually configure and operationalize TLS for each piece of your infrastructure
+      </Li>
+    </Paragraph>
         <Paragraph>
           This article will guide you through using a private certificate
           authority (CA) to authenticate and encrypt{' '}
-          <DocConfig>{({ name }) => name}</DocConfig> traffic with TLS. If you
-          are looking for public Web TLS/SSL certificates for a website, see{' '}
-          <a href="https://letsencrypt.org/">Let's Encrypt</a>.
+          <DocConfig>{({ name }) => name}</DocConfig> traffic with TLS.
         </Paragraph>
-        <MDXBlock path="sections/01-try/01-certificate" />
-        <Heading variant="h4">
+        <MDXBlock path="sections/01-intro" />
+        <HBase variant="h3">Try it</HBase>
+        <HBase variant="h4">
+          Create a private key and request a certificate
+        </HBase>
+        <MDXBlock path="sections/02-try/01-certificate" />
+        <HBase variant="h4">
           Configure {doc.name} to use the certificate
-        </Heading>
-        <MDXBlock path="sections/01-try/02-server" />
-        <Heading variant="h4">Connect to {doc.name} from your client</Heading>
-        <MDXBlock path="sections/01-try/03-test" />
-
-        <Heading variant="h3">Part 2. Operationalize it</Heading>
-        <Heading variant="h4">Automate {doc.name} certificate renewal</Heading>
+        </HBase>
+        <MDXBlock path="sections/02-try/02-server" />
+        <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
+        <MDXBlock path="sections/02-try/03-test" />
+        <HBase variant="h3">Operationalize it</HBase>
+        <HBase variant="h4">Automate {doc.name} certificate renewal</HBase>
         <Paragraph>
-          Some tabs here indicating different approaches to renewal depending on
-          the supported deployments. The ACME content will only live under the
-          ACME tab.
+          [explanatory copy about non-acme vs acme (more work but standard if
+          you have a use case)]
         </Paragraph>
-        <Heading variant="h4">
+        <Tabs value="jwk">
+          <Tab label="Non-ACME" value="jwk" />
+          <Tab label="ACME" value="acme" />
+        </Tabs>
+        <Tabs orientation="vertical" value="builtin">
+          <Tab label="Built-in" value="builtin" />
+          <Tab label="Linux w/ systemd" value="systemd" />
+          <Tab label="Linux (non-systemd / Docker)" value="linux" />
+          <Tab label="Kubernetes" value="kubernetes" />
+        </Tabs>
+        <HBase variant="h4">
           Distribute your root certificate to end users and systems
-        </Heading>
+        </HBase>
         <Paragraph>Some stuff here about distributing roots.</Paragraph>
+        <HBase variant="h3">Research notes</HBase>
+        <Paragraph>
+          In researching XXX TLS, we did some thorough investigation. Here are
+          our rough notes if you are interested in diving deeper.
+        </Paragraph>
+        [folded raw notes]
+        <HBase variant="h3">Further reading</HBase>
+        <Paragraph>[structured links]</Paragraph>
       </DocContext.Provider>
     </>
   );
@@ -73,6 +118,8 @@ export const query = graphql`
     docsYaml(id: { eq: $id }) {
       slug
       name
+      written
+      updated
       paths {
         rootCert
         serverCert
@@ -84,12 +131,6 @@ export const query = graphql`
         node {
           slug
           body
-          frontmatter {
-            links {
-              text
-              url
-            }
-          }
         }
       }
     }

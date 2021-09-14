@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
 import copy from 'clipboard-copy';
 import { Subject, from } from 'rxjs';
 import { switchMap, tap, delay } from 'rxjs/operators';
-import { useTheme } from '@material-ui/styles';
+import { makeStyles, useTheme } from '@material-ui/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
@@ -15,6 +14,31 @@ import { makeSlug } from '../utils';
 
 const WEBSITE_BASE_URL = 'https://smallstep.com';
 
+const useStyles = makeStyles((theme) => ({
+  heading: {
+    display: 'flex',
+    alignItems: 'center',
+    [theme.breakpoints.up('md')]: {
+      marginLeft: '-38px',
+      flexDirection: 'row-reverse',
+      justifyContent: 'flex-end',
+    },
+  },
+  permalink: {
+    marginLeft: theme.spacing(1),
+    [theme.breakpoints.up('md')]: {
+      marginLeft: 0,
+      marginRight: theme.spacing(1),
+    },
+  },
+  permalinkButton: {
+    color: theme.palette.text.grey,
+    [theme.breakpoints.up('md')]: {
+      color: theme.palette.text.primary,
+    },
+  },
+}));
+
 const HBase = ({ component, variant, color, mt, mb, children }) => {
   const [hover, setHover] = useState(false);
   const [copyHover, setCopyHover] = useState(false);
@@ -23,12 +47,12 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   const [tooltip, setTooltip] = useState(copyMessage);
   const copyClick$ = useState(new Subject())[0];
 
+  const classes = useStyles();
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const slug = makeSlug(children);
-  // TODO does this work?
-  const url = `${WEBSITE_BASE_URL}${window.pathname}#${slug}`;
+  const url = `${WEBSITE_BASE_URL}${window.location.pathname}#${slug}`;
 
   const showTooltip = mdUp && copyHover;
 
@@ -36,7 +60,7 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   useEffect(() => {
     const sub = copyClick$
       .pipe(
-        switchMap(text =>
+        switchMap((text) =>
           from(copy(text)).pipe(
             tap(() => setTooltip('Copied!')),
             delay(3000)
@@ -53,38 +77,22 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   return (
     <Heading
       id={slug}
-      component={component}
+      component={component || variant}
       variant={variant}
       color={color}
       mt={mt}
       mb={mb}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
-      css={css`
-        display: flex;
-        align-items: center;
-        ${theme.breakpoints.up('md')} {
-          margin-left: -38px;
-          flex-direction: row-reverse;
-          justify-content: flex-end;
-        }
-      `}
+      className={classes.heading}
     >
       <div>{children}</div>
-      <div
-        css={css`
-          margin-left: ${theme.spacing(1)}px;
-          ${theme.breakpoints.up('md')} {
-            margin-left: 0;
-            margin-right: ${theme.spacing(1)}px;
-          }
-        `}
-      >
+      <div className={classes.permalink}>
         <Tooltip title={tooltip} placement="bottom" open={showTooltip}>
           <IconButton
             size="small"
             href={url}
-            onClick={event => {
+            onClick={(event) => {
               if (!mdUp) {
                 return;
               }
@@ -93,13 +101,8 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
             }}
             onMouseEnter={() => setCopyHover(true)}
             onMouseLeave={() => setCopyHover(false)}
-            css={css`
-              color: ${theme.palette.text.grey};
-              ${theme.breakpoints.up('md')} {
-                color: ${theme.palette.text.primary};
-                visibility: ${hover ? 'visible' : 'hidden'};
-              }
-            `}
+            className={classes.permalinkButton}
+            style={{ visibility: hover ? 'visible' : 'hidden' }}
           >
             <LinkIcon />
           </IconButton>
@@ -110,7 +113,7 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
 };
 
 HBase.propTypes = {
-  component: PropTypes.string.isRequired,
+  component: PropTypes.string,
   variant: PropTypes.string.isRequired,
   color: PropTypes.string,
   mt: PropTypes.number,
@@ -119,6 +122,7 @@ HBase.propTypes = {
 };
 
 HBase.defaultProps = {
+  component: null,
   color: undefined,
   mt: 4,
   mb: 2,

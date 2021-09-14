@@ -1,12 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
-import { useTheme } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { CodeBlock as SuiCodeBlock } from '@smallstep/step-ui';
 
+const useStyles = makeStyles(theme => ({
+  pre: {
+    backgroundColor: theme.palette.background.secondary,
+    padding: theme.spacing(2),
+    overflow: 'auto',
+  },
+  code: {
+    fontFamily: 'Cousine, monospace, monospace',
+    fontSize: theme.typography.body1.fontSize,
+    fontWeight: theme.typography.body1.fontWeight,
+  },
+}));
+
 const CodeBlock = ({ mt, mb, children, ...props }) => {
-  const theme = useTheme();
+  const classes = useStyles();
 
   if (typeof children === 'string') {
     return (
@@ -22,20 +34,8 @@ const CodeBlock = ({ mt, mb, children, ...props }) => {
   if (language === 'raw') {
     return (
       <Box mt={mt} mb={mb}>
-        <pre
-          css={css`
-            background-color: ${theme.palette.background.secondary};
-            padding: ${theme.spacing(2)}px;
-            overflow: auto;
-
-            code {
-              font-family: Cousine, monospace, monospace;
-              font-size: ${theme.typography.body1.fontSize};
-              font-weight: ${theme.typography.body1.fontWeight};
-            }
-          `}
-        >
-          <code>{children}</code>
+        <pre className={classes.pre}>
+          <code className={classes.code}>{children}</code>
         </pre>
       </Box>
     );

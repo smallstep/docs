@@ -1,21 +1,25 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
-import { useTheme } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 
+const useStyles = makeStyles(theme => ({
+  wrapper: {
+    width: theme.spacing(3),
+  },
+  text: {
+    fontSize: theme.typography.body2.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+  },
+}));
+
 const Footnote = ({ id, marker, children }) => {
-  const theme = useTheme();
+  const classes = useStyles();
 
   return (
     <Box id={id} mt={2}>
-      <Box display="inline-block" width={theme.spacing(3)}>
-        <span
-          css={css`
-            font-size: ${theme.typography.body2.fontSize};
-            font-weight: ${theme.typography.fontWeightMedium};
-          `}
-        >
+      <Box display="inline-block" className={classes.wrapper}>
+        <span className={classes.text}>
           {marker}
         </span>
       </Box>

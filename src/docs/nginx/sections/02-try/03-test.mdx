@@ -1,1 +1,5 @@
-Curl or web browser instructions here
+To make sure Nginx is presenting a valid certificate, you can use the `curl` command, passing it your root certificate for use in verifying the server.
+
+```shell
+curl --cacert ca.crt https://server.internal.mycompany.net
+```
