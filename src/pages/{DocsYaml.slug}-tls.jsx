@@ -107,6 +107,16 @@ const Page = ({ data }) => {
           <Tab label="Linux (non-systemd / Docker)" value="linux" />
           <Tab label="Kubernetes" value="kubernetes" />
         </Tabs>
+
+        <HBase variant="h5">Built-in / ACME</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/01-builtin" />
+        <HBase variant="h5">Systemd / Generic</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/01-template/01-generic" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/02-override" />
+        <HBase variant="h5">Systemd / ACME</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/01-template/02-acme" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/02-override" />
+
         <HBase variant="h4">
           Distribute your root certificate to end users and systems
         </HBase>
