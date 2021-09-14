@@ -1,0 +1,67 @@
+To try the server we will use `grpcurl`, and we will have to pass the flag
+`-cacert` with the root certificate of the `step-ca` instance, if we don't do
+this, the client will not trust the server, and the request will fail:
+
+```bash
+$ grpcurl -cacert ca.crt \
+-d '{"name": "Smallstep"}' myserver.mycompany.net:443 helloworld.Greeter/SayHello
+{
+  "message": "Hello Smallstep"
+} 
+```
+
+If instead of using `grpcurl` we will create a simple gRPC client using Go, we
+also need to load the root certificate to validate the server certificate with
+it:
+
+```go
+package main
+
+import (
+	"context"
+	"crypto/x509"
+	"log"
+	"os"
+	"time"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/examples/helloworld/helloworld"
+)
+
+func main() {
+	// Address of the server to connect to
+	address := "myserver.mycompany.net:443"
+	// Path to the root CA
+	caCert := "/home/step/certs/root_ca.crt"
+
+	// Read the root CA and create the certificate pool to use
+	b, err := os.ReadFile(caCert)
+	if err != nil {
+		log.Fatalf("error reading %s: %v", caCert, err)
+	}
+	pool := x509.NewCertPool()
+	pool.AppendCertsFromPEM(b)
+
+	// Connect to the remote host using our root CA
+	conn, err := grpc.Dial(address,
+		grpc.WithTransportCredentials(credentials.NewClientTLSFromCert(pool, "")),
+	)
+	if err != nil {
+		log.Fatalf("did not connect: %v", err)
+	}
+	defer conn.Close()
+
+	// Create the client and do a request
+	client := helloworld.NewGreeterClient(conn)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	r, err := client.SayHello(ctx, &helloworld.HelloRequest{
+		Name: "Smallstep",
+	})
+	if err != nil {
+		log.Fatalf("could not greet: %v", err)
+	}
+	log.Printf("Greeting: %s", r.GetMessage())
+}
+```

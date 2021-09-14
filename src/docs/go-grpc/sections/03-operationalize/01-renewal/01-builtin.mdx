@@ -1,0 +1,77 @@
+The above example will work as long as the certificates do not expire. By
+default, `step-ca` certificates expire after 24 hours, so to go above that, we
+need a way to renew the server certificates automatically.
+
+One of the best options is to use the ACME protocol, and instead of using `step`
+to create the certificate, we will use the package
+[acme/autocert](https://pkg.go.dev/golang.org/x/crypto/acme/autocert) that
+provides an easy way to support ACME on Go gRPC (and HTTP) servers. It provides
+automatic access to certificates from Let's Encrypt or a private ACME server
+like `step-ca`.
+
+Using `acme/autocert` the `autocert.Manager` will now take care of creating a
+CSR and requesting a certificate using the ACME protocol. It will also take care
+of renewing the certificate when it's necessary. Here is the main function using
+`acme/autocert`:
+
+```go
+// Path to the root CA
+caCert := "/home/step/certs/root_ca.crt"
+// ACME directory URL
+directory := "https://ra.mycompany.net/acme/acme/directory"
+// The domain to use
+domain := "myserver.mycompany.net"
+
+// Generate an account key for ACME
+key, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
+if err != nil {
+	log.Fatalf("error generating key: %v", err)
+}
+
+// Read the root CA and create the certificate pool to use
+b, err := os.ReadFile(caCert)
+if err != nil {
+	log.Fatalf("error reading %s: %v", caCert, err)
+}
+pool := x509.NewCertPool()
+pool.AppendCertsFromPEM(b)
+transport := http.DefaultTransport.(*http.Transport).Clone()
+transport.TLSClientConfig = &tls.Config{
+	RootCAs: pool,
+}
+
+// Create the acme client configured with our private ACME server
+client = &acme.Client{
+	Key:          key,
+	DirectoryURL: directory,
+	HTTPClient:   &http.Client{
+		Transport: transport,
+	},
+}
+
+// Configure the acme/autocert manager that will get the server certificate
+// using the tls-alpn-01 challenge.
+m := &autocert.Manager{
+		Prompt:      autocert.AcceptTOS,
+		HostPolicy:  autocert.HostWhitelist(domain),
+		Client:      client,
+		Cache:       autocert.DirCache("secret-dir"),
+		RenewBefore: 8 * time.Hour,
+}
+
+// Prepare a listener in the port :443, required for the tls-alpn-01 challenge
+lis, err := net.Listen("tcp", ":443")
+if err != nil {
+	log.Fatalf("failed to listen: %v", err)
+}
+
+// Start the gRPC server with the TLS credentials from the manager
+srv := grpc.NewServer(grpc.Creds(credentials.NewTLS(m.TLSConfig())))
+helloworld.RegisterGreeterServer(srv, &helloServer{})
+reflection.Register(srv)
+
+log.Printf("server listening at %v", lis.Addr())
+if err := srv.Serve(lis); err != nil {
+	log.Fatalf("failed to serve: %v", err)
+}
+```

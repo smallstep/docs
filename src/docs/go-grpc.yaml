@@ -1,0 +1,19 @@
+slug: go-grpc
+name: Go gRPC
+written: September 14, 2021
+updated: September 14, 2021
+protocol: gRPC
+port: 443
+# paths:
+#   serverCert: /etc/ssl/server.crt
+#   serverKey: /etc/ssl/server.key
+#   rootCert: /etc/ssl/root_ca.crt
+# chart: ingress-nginx
+acme: true
+links:
+  - text: 'gRPC'
+    url: https://grpc.io
+  - text: 'Go gRPC Quickstart'
+    url: https://grpc.io/docs/languages/go/quickstart/
+  - text: 'Go gRPC package reference'
+    url: https://pkg.go.dev/google.golang.org/grpc
