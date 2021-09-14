@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   wrapper: {
     width: theme.spacing(3),
   },
@@ -19,9 +19,7 @@ const Footnote = ({ id, marker, children }) => {
   return (
     <Box id={id} mt={2}>
       <Box display="inline-block" className={classes.wrapper}>
-        <span className={classes.text}>
-          {marker}
-        </span>
+        <span className={classes.text}>{marker}</span>
       </Box>
       {children}
     </Box>

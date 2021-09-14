@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { CodeBlock as SuiCodeBlock } from '@smallstep/step-ui';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   pre: {
     backgroundColor: theme.palette.background.secondary,
     padding: theme.spacing(2),

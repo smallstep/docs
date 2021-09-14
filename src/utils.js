@@ -1,10 +1,10 @@
 import { Children } from 'react';
 import slugify from 'slugify';
 
-export const getChildrenText = children => {
+export const getChildrenText = (children) => {
   let text = '';
 
-  Children.map(children, child => {
+  Children.map(children, (child) => {
     if (typeof child === 'string') {
       text += child;
     } else {
@@ -15,7 +15,7 @@ export const getChildrenText = children => {
   return text;
 };
 
-export const makeSlug = children =>
+export const makeSlug = (children) =>
   slugify(getChildrenText(children).toLowerCase(), {
     remove: /[^ a-z0-9-]/g,
     lower: true,

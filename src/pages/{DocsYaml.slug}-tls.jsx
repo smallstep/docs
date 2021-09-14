@@ -14,7 +14,7 @@ import Alert from '../components/Alert';
 import Li from '../components/Li';
 import Em from '../components/Em';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   timestamp: {
     color: theme.palette.text.secondary,
   },
@@ -42,27 +42,40 @@ const Page = ({ data }) => {
       />
 
       <DocContext.Provider value={{ doc, content }}>
-        <Heading variant="h1">{doc.name} TLS / Practical Zero Trust</Heading>
+        <Heading variant="h1">
+          {doc.name} TLS &mdash; Practical Zero Trust
+        </Heading>
         <Heading component="h2" variant="h3">
           How to get {doc.name} TLS certificates and keep them renewed
         </Heading>
-        <Paragraph variant="body2" className={classes.timestamp}><DocConfig>{({ written, updated }) => `Written ${written}${updated ? `, updated ${updated}` : ''}`}</DocConfig></Paragraph>
-        <HBase variant="h4">
-          Zero trust for the real world
-        </HBase>
+        <Paragraph variant="body2" className={classes.timestamp}>
+          <DocConfig>
+            {({ written, updated }) =>
+              `Written ${written}${updated ? `, updated ${updated}` : ''}`
+            }
+          </DocConfig>
+        </Paragraph>
+        <HBase variant="h4">Zero trust for the real world</HBase>
         <Paragraph>
-          While there's little question about the value of a zero trust security model in modern infrastructure, there's often a great deal of confusion as to what "zero trust" means for the practitioners who are responsible for
-          its implementation. The <Em>Practical Zero Trust</Em> project aims to remove some of that confusion with two high-level goals:
+          While there's little question about the value of a zero trust security
+          model in modern infrastructure, there's often a great deal of
+          confusion as to what "zero trust" means for the practitioners who are
+          responsible for its implementation. The <Em>Practical Zero Trust</Em>{' '}
+          project aims to remove some of that confusion with two high-level
+          goals:
         </Paragraph>
 
-    <Paragraph component="ol">
-      <Li>
-        To demonstrate that "zero trust" for infrastructure simply means implementing the already-broadly-supported TLS protocol
-      </Li>
-      <Li>
-        To provide concrete, step-by-step instructions on how to actually configure and operationalize TLS for each piece of your infrastructure
-      </Li>
-    </Paragraph>
+        <Paragraph component="ol">
+          <Li>
+            To demonstrate that "zero trust" for infrastructure simply means
+            implementing the already-broadly-supported TLS protocol
+          </Li>
+          <Li>
+            To provide concrete, step-by-step instructions on how to actually
+            configure and operationalize TLS for each piece of your
+            infrastructure
+          </Li>
+        </Paragraph>
         <Paragraph>
           This article will guide you through using a private certificate
           authority (CA) to authenticate and encrypt{' '}
@@ -74,9 +87,7 @@ const Page = ({ data }) => {
           Create a private key and request a certificate
         </HBase>
         <MDXBlock path="sections/02-try/01-certificate" />
-        <HBase variant="h4">
-          Configure {doc.name} to use the certificate
-        </HBase>
+        <HBase variant="h4">Configure {doc.name} to use the certificate</HBase>
         <MDXBlock path="sections/02-try/02-server" />
         <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
         <MDXBlock path="sections/02-try/03-test" />
@@ -105,9 +116,11 @@ const Page = ({ data }) => {
           In researching XXX TLS, we did some thorough investigation. Here are
           our rough notes if you are interested in diving deeper.
         </Paragraph>
-        [folded raw notes]
+        <Paragraph>[folded raw notes]</Paragraph>
         <HBase variant="h3">Further reading</HBase>
         <Paragraph>[structured links]</Paragraph>
+        <HBase variant="h3">Contribute to this document</HBase>
+        <Paragraph>[link to GH]</Paragraph>
       </DocContext.Provider>
     </>
   );

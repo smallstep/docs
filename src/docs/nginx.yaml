@@ -11,7 +11,7 @@ paths:
 chart: ingress-nginx
 acme: false
 links:
-  - text: "Nginx: Configuring HTTPS servers"
+  - text: 'Nginx: Configuring HTTPS servers'
     url: https://nginx.org/en/docs/http/configuring_https_servers.html
-  - text: "Nginx: Module ngx_http_ssl_module"
+  - text: 'Nginx: Module ngx_http_ssl_module'
     url: https://nginx.org/en/docs/http/ngx_http_ssl_module.html

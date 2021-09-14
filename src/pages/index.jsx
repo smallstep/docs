@@ -8,11 +8,7 @@ const Page = ({ data }) => (
     <Paragraph component="ul">
       {data.allDocsYaml.edges.map(({ node }) => (
         <li key={node.slug}>
-          <Link
-            to={`/${node.slug}-tls`}
-          >
-            {node.name}
-          </Link>
+          <Link to={`/${node.slug}-tls`}>{node.name}</Link>
         </li>
       ))}
     </Paragraph>

@@ -5,7 +5,7 @@ import { Heading } from '@smallstep/step-ui';
 
 import { makeSlug } from '../utils';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   heading: {
     fontWeight: theme.typography.fontWeightMedium,
   },

@@ -1,39 +1,43 @@
 <p>
-  Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to
-  speak TLS, you will need a certificate issued by a trusted
-  CA. If your organization already runs its own CA and you have a
-  private key and certificate for your{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> server&mdash;along with your
-  CA's root certificate&mdash;you can skip to the <DocConfig>{({ name }) => name}</DocConfig> server configuration below. If your organization does not yet run its own private CA, you can:
+  Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to speak TLS,
+  you will need a certificate issued by a trusted CA. If your organization
+  already runs its own CA and you have a private key and certificate for your{' '}
+  <DocConfig>{({ name }) => name}</DocConfig> server&mdash;along with your CA's
+  root certificate&mdash;you can skip to the{' '}
+  <DocConfig>{({ name }) => name}</DocConfig> server configuration below. If
+  your organization does not yet run its own private CA, you can:
 </p>
 <ul>
   <li>
-  Get up and running quickly by creating a{' '}
-  <a href="https://info.smallstep.com/certificate-manager-early-access-mvp/">free hosted smallstep Certificate Manager
-  authority</a>
+    Get up and running quickly by creating a{' '}
+    <a href="https://info.smallstep.com/certificate-manager-early-access-mvp/">
+      free hosted smallstep Certificate Manager authority
+    </a>
   </li>
   <li>
-  Read more about creating and running a CA using the open source
-  smallstep software <a href="/docs/step-ca/getting-started">here</a>
+    Read more about creating and running a CA using the open source smallstep
+    software <a href="/docs/step-ca/getting-started">here</a>
   </li>
-  </ul>
+</ul>
 
-
-<Alert severity="warning">If you
-  prefer to use public Web TLS/SSL certificates for a website, you{' '}
-  can get those certificates from <a href="https://letsencrypt.org/">Let's Encrypt</a>{' '}
-  using the ACME instructions below. However, keep in mind that if you are deploying
-  internal websites, it may still be a good idea to use a private CA to keep your
-  certificates out of public Certificate Transparency (CT) logs and to allow for more flexible
-  certificate issuance without the need to resolve public DNS.
+<Alert severity="warning">
+  If you prefer to use public Web TLS/SSL certificates, you can get those
+  certificates from <a href="https://letsencrypt.org/">Let's Encrypt</a> using
+  the ACME instructions below. However, keep in mind that if you are deploying
+  internal websites, it may still be a good idea to use a private CA to keep
+  your certificates out of public Certificate Transparency (CT) logs and to
+  allow for more flexible certificate issuance without the need to resolve
+  public DNS.
 </Alert>
 
 <p>
   To request a certificate from your CA using the{' '}
-  <a href="https://smallstep.com/docs/step-cli"><inlineCode>step</inlineCode></a>{' '}
-  CLI, bootstrap your CA with <inlineCode>step ca bootstrap</inlineCode> and run the
-  following command (sub the server name for the actual name / DNS name of your{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> server).
+  <a href="https://smallstep.com/docs/step-cli">
+    <inlineCode>step</inlineCode>
+  </a>{' '}
+  CLI, bootstrap your CA with <inlineCode>step ca bootstrap</inlineCode> and run
+  the following command (sub the server name for the actual name / DNS name of
+  your <DocConfig>{({ name }) => name}</DocConfig> server).
 </p>
 
 <MDXBlock path="snippets/certificate" />

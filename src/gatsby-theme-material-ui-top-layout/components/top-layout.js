@@ -68,6 +68,7 @@ const shortcodes = {
   Alert,
   AlertTitle,
   Aside,
+  CodeBlock,
   Footnote,
   Reference,
 };

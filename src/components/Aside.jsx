@@ -4,7 +4,7 @@ import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { Paragraph } from '@smallstep/step-ui';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   aside: {
     backgroundColor: theme.palette.background.cream,
   },
@@ -14,12 +14,7 @@ const Aside = ({ children }) => {
   const classes = useStyles();
 
   return (
-    <Box
-      component="aside"
-      m={8}
-      p={4}
-      className={classes.aside}
-    >
+    <Box component="aside" m={8} p={4} className={classes.aside}>
       <Paragraph component="div" mb={0}>
         {children}
       </Paragraph>
