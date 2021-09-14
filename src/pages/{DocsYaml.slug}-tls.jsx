@@ -116,6 +116,14 @@ const Page = ({ data }) => {
         <HBase variant="h5">Systemd / ACME</HBase>
         <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/01-template/02-acme" />
         <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/02-override" />
+        <HBase variant="h5">Linux / Generic</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/03-linux/01-generic" />
+        <HBase variant="h5">Linux / ACME</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/03-linux/02-acme" />
+        <HBase variant="h5">Kubernetes / Generic</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/04-kubernetes/01-generic" />
+        <HBase variant="h5">Kubernetes / ACME</HBase>
+        <MDXBlock path="sections/03-operationalize/01-renewal/04-kubernetes/02-acme" />
 
         <HBase variant="h4">
           Distribute your root certificate to end users and systems
