@@ -11,8 +11,11 @@ like `step-ca`.
 
 Using `acme/autocert` the `autocert.Manager` will now take care of creating a
 CSR and requesting a certificate using the ACME protocol. It will also take care
-of renewing the certificate when it's necessary. Here is the main function using
-`acme/autocert`:
+of renewing the certificate, to do this we need to make sure to set a proper
+`RenewBefore`. By default this value is set to 30 days, but if our certificate
+lifetime is 24 hours, we can renew 8 hours before the expiration.
+
+Here is the main function using `acme/autocert`:
 
 ```go
 // Path to the root CA
