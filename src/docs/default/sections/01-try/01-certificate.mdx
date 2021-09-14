@@ -1,33 +1,19 @@
-<p>
-  Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to
-  speak TLS, you will need a certificate issued by a trusted
-  certificate authority (CA). If your organization already runs its
-  own CA and you have a private key and certificate for your{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> server, along with your
-  CA's root certificate, you can skip to the next step.
-</p>
-
-<Alert severity="info">
+<Alert>
   <div>
-    If your organization does not yet run its own internal CA, you can
-    read more about creating and running a CA using the open source
-    smallstep software{' '}
-    <a href="/docs/getting-started/">
-      here
-    </a>
-    .
+    Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to
+    speak TLS, you will need a certificate issued by your trusted
+    CA. If your organization already runs its own CA and you have a
+    private key and certificate for your{' '}
+    <DocConfig>{({ name }) => name}</DocConfig> server, along with your
+    CA's root certificate, you can skip to the next step.
   </div>
 </Alert>
 
-<Alert severity="success">
-  <div>
-    To get up and running quickly, we recommend creating a{' '}
-    <a href="https://info.smallstep.com/certificate-manager-early-access-mvp/">
-      free hosted smallstep Certificate Manager authority
-    </a>
-    .
-  </div>
-</Alert>
+If your organization does not yet run its own internal CA, you can
+read more about creating and running a CA using the open source
+smallstep software [here](/docs/getting-started). To get up and running
+quickly, we recommend creating a [free hosted smallstep Certificate Manager
+authority](https://info.smallstep.com/certificate-manager-early-access-mvp/).
 
 <p>
   To request a certificate from your CA using the

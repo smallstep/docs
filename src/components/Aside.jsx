@@ -1,21 +1,24 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
-import { useTheme } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { Paragraph } from '@smallstep/step-ui';
 
+const useStyles = makeStyles(theme => ({
+  aside: {
+    backgroundColor: theme.palette.background.cream,
+  },
+}));
+
 const Aside = ({ children }) => {
-  const theme = useTheme();
+  const classes = useStyles();
 
   return (
     <Box
       component="aside"
       m={8}
       p={4}
-      css={css`
-        background-color: ${theme.palette.background.cream};
-      `}
+      className={classes.aside}
     >
       <Paragraph component="div" mb={0}>
         {children}

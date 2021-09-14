@@ -5,6 +5,8 @@ import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext } from '../context';
 import MDXBlock from '../components/MDXBlock';
+import DocConfig from '../components/DocConfig';
+import Alert from '../components/Alert';
 
 const Page = ({ data }) => {
   const { docsYaml: doc, allMdx } = data;
@@ -35,6 +37,13 @@ const Page = ({ data }) => {
         <Heading variant="h4">
           Create a private key and request a certificate
         </Heading>
+        <Paragraph>
+          This article will guide you through using a private certificate
+          authority (CA) to encrypt <DocConfig>{({ name }) => name}</DocConfig>{' '}
+          traffic with TLS. If you are looking for public Web TLS/SSL
+          certificates for a website, see{' '}
+          <a href="https://letsencrypt.org/">Let's Encrypt</a>.
+        </Paragraph>
         <MDXBlock path="sections/01-try/01-certificate" />
         <Heading variant="h4">
           Configure {doc.name} to use the certificate
