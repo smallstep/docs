@@ -39,9 +39,9 @@ const Page = ({ data }) => {
         </Heading>
         <Paragraph>
           This article will guide you through using a private certificate
-          authority (CA) to encrypt <DocConfig>{({ name }) => name}</DocConfig>{' '}
-          traffic with TLS. If you are looking for public Web TLS/SSL
-          certificates for a website, see{' '}
+          authority (CA) to authenticate and encrypt{' '}
+          <DocConfig>{({ name }) => name}</DocConfig> traffic with TLS. If you
+          are looking for public Web TLS/SSL certificates for a website, see{' '}
           <a href="https://letsencrypt.org/">Let's Encrypt</a>.
         </Paragraph>
         <MDXBlock path="sections/01-try/01-certificate" />
