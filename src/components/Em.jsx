@@ -1,16 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
+import { makeStyles } from '@material-ui/styles';
 
-const Em = ({ children }) => (
-  <span
-    css={css`
-      font-style: italic;
-    `}
-  >
-    {children}
-  </span>
-);
+const useStyles = makeStyles({
+  em: {
+    fontStyle: 'italic',
+  },
+});
+
+const Em = ({ children }) => {
+  const classes = useStyles();
+
+  return <span className={classes.em}>{children}</span>;
+};
 
 Em.propTypes = {
   children: PropTypes.node.isRequired,
