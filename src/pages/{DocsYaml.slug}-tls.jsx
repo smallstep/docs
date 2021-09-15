@@ -134,7 +134,7 @@ const Page = ({ data }) => {
           In researching XXX TLS, we did some thorough investigation. Here are
           our rough notes if you are interested in diving deeper.
         </Paragraph>
-        <Paragraph>[folded raw notes]</Paragraph>
+        <MDXBlock path="sections/04-research-notes" />
         <HBase variant="h3">Further reading</HBase>
         <Paragraph>[structured links]</Paragraph>
         <HBase variant="h3">Contribute to this document</HBase>
