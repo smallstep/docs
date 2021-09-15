@@ -1,1 +1,23 @@
-[explanatory copy about non-acme vs acme (more work but standard if you have a use case)]
+It's one thing to be able to get a certificate to your server
+and configure it to speak TLS.
+However, that's not the full story for certificates.
+
+You might have noticed that certificates issued by a Smallstep CA
+follow best practices and have very short lifetimes.
+In fact, our default is just a single day!
+So, what should you do tomorrow or the next day
+when your certificate is no longer valid?
+
+The answer to that question exposes
+why so many TLS certificates in the wild still use long-lived lifetimes
+despite their poor security characteristics:
+people are manually renewing them,
+and this just doesn't scale with short lifetimes.
+
+To solve this problem, we will automate certificate renewal.
+Smallstep CAs offer a variety of mechanisms to automate certificate renewal.
+The simplest password-based mechanism is covered below.
+However, if you have the time to invest in setting up your infrastructure,
+you can also rely on ACME, the standard protocol designed
+by ISRG (Let's Encrypt) specifically for TLS certificate renewal.
+Both approaches are covered here in detail.
