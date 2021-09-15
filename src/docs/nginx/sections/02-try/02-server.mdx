@@ -3,7 +3,7 @@ In your Nginx configuration's server block, enable `ssl` for the listening socke
 ```nginx
 server {
     listen              443 ssl;
-    server_name         server.internal.mycompany.net;
+    server_name         myserver.mycompany.net;
     ssl_certificate     /path/to/server.crt;
     ssl_certificate_key /path/to/server.key;
     ssl_protocols       TLSv1.2 TLSv1.3;
