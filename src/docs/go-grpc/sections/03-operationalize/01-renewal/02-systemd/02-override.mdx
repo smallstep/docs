@@ -1,0 +1,5 @@
+When we renew the certificates using a systemd service, it doesn't make sense to
+use `autocert/acme`. We will need to build a method that builds a
+`*tls.Certificate` on every connection based on the renewed files. We probably
+should cache the `*tls.Certificate`, and monitor periodically if the certificate
+has changed and only return a new certificate if it has changed.
