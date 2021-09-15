@@ -8,7 +8,6 @@ import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext } from '../context';
 import MDXBlock from '../components/MDXBlock';
-import DocConfig from '../components/DocConfig';
 import HBase from '../components/HBase';
 import Alert from '../components/Alert';
 import Li from '../components/Li';
@@ -49,11 +48,8 @@ const Page = ({ data }) => {
           How to get {doc.name} TLS certificates and keep them renewed
         </Heading>
         <Paragraph variant="body2" className={classes.timestamp}>
-          <DocConfig>
-            {({ written, updated }) =>
-              `Written ${written}${updated ? `, updated ${updated}` : ''}`
-            }
-          </DocConfig>
+          Written {doc.written}
+          {doc.updated && `, updated ${doc.updated}`}
         </Paragraph>
         <HBase variant="h4">Zero trust for the real world</HBase>
         <Paragraph>
@@ -78,8 +74,8 @@ const Page = ({ data }) => {
         </Paragraph>
         <Paragraph>
           This article will guide you through using a private certificate
-          authority (CA) to authenticate and encrypt{' '}
-          <DocConfig>{({ name }) => name}</DocConfig> traffic with TLS.
+          authority (CA) to authenticate and encrypt {doc.name} traffic with
+          TLS.
         </Paragraph>
         <MDXBlock path="sections/01-intro" />
         <HBase variant="h3">Try it</HBase>
