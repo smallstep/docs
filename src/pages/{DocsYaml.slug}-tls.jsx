@@ -63,10 +63,7 @@ const Page = ({ data }) => {
         <MDXBlock path="sections/02-try/03-test" />
         <HBase variant="h3">Operationalize it</HBase>
         <HBase variant="h4">Automate {doc.name} certificate renewal</HBase>
-        <Paragraph>
-          [explanatory copy about non-acme vs acme (more work but standard if
-          you have a use case)]
-        </Paragraph>
+        <MDXBlock path="sections/03-operationalize/01-renewal/01-intro" />
         <Tabs value="jwk">
           <Tab label="Non-ACME" value="jwk" />
           <Tab label="ACME" value="acme" />
@@ -79,21 +76,21 @@ const Page = ({ data }) => {
         </Tabs>
 
         <HBase variant="h5">Built-in / ACME</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/01-builtin" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin" />
         <HBase variant="h5">Systemd / Generic</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/01-template/01-generic" />
-        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/02-override" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/01-generic" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
         <HBase variant="h5">Systemd / ACME</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/01-template/02-acme" />
-        <MDXBlock path="sections/03-operationalize/01-renewal/02-systemd/02-override" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/02-acme" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
         <HBase variant="h5">Linux / Generic</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/03-linux/01-generic" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-generic" />
         <HBase variant="h5">Linux / ACME</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/03-linux/02-acme" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-acme" />
         <HBase variant="h5">Kubernetes / Generic</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/04-kubernetes/01-generic" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/01-generic" />
         <HBase variant="h5">Kubernetes / ACME</HBase>
-        <MDXBlock path="sections/03-operationalize/01-renewal/04-kubernetes/02-acme" />
+        <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/02-acme" />
 
         <HBase variant="h4">
           Distribute your root certificate to end users and systems
