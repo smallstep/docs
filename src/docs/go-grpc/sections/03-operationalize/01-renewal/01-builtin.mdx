@@ -10,10 +10,13 @@ automatic access to certificates from Let's Encrypt or a private ACME server
 like `step-ca`.
 
 Using `acme/autocert` the `autocert.Manager` will now take care of creating a
-CSR and requesting a certificate using the ACME protocol. It will also take care
-of renewing the certificate, to do this we need to make sure to set a proper
-`RenewBefore`. By default this value is set to 30 days, but if our certificate
-lifetime is 24 hours, we can renew 8 hours before the expiration.
+certificate signing request (CSR) and requesting a certificate using the ACME
+protocol. It will also take care of renewing the certificate, to do this we need
+to make sure to set a proper `RenewBefore` according to the lifetime of your
+certificates. By default, `RenewBefore` is set to 30 days before the expiration,
+but if our certificate lifetime is 24 hours the renewal will kick on every
+connection, to avoid this we can for example renew 8 hours before the expiration
+setting `RenewBefore` to `8 * time.Hour`.
 
 Here is the main function using `acme/autocert`:
 
@@ -78,3 +81,13 @@ if err := srv.Serve(lis); err != nil {
 	log.Fatalf("failed to serve: %v", err)
 }
 ```
+
+The CSRs created by `acme/autocert` will use a ECDSA P-256 key, but if a client
+does not support ii, it will automatically create a CSR with an RSA key size of
+2048 bits and do the ACME flow to get it sign.
+
+TLS cipher suites and the TLS version can be configured in the manager's
+`*tls.Config`. The default behavior is to use a safe list of all the ones
+supported by Go. With TLS 1.3 the cipher suites are restricted to
+`TLS_AES_128_GCM_SHA256`, `TLS_AES_256_GCM_SHA384`, and
+`TLS_CHACHA20_POLY1305_SHA256`.
