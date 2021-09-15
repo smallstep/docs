@@ -1,13 +1,11 @@
-Copy your server certificate and key into `/etc/ssl/server.crt` and `/etc/ssl/server.key` respectively.
-
 In your Nginx configuration's server block, enable `ssl` for the listening socket and specify the locations of the server's certificate and private key. We'll also tell Nginx to use TLS protocols and our preferred ciphers:
 
 ```nginx
 server {
     listen              443 ssl;
     server_name         server.internal.mycompany.net;
-    ssl_certificate     /etc/ssl/server.crt;
-    ssl_certificate_key /etc/ssl/server.key;
+    ssl_certificate     /path/to/server.crt;
+    ssl_certificate_key /path/to/server.key;
     ssl_protocols       TLSv1.2 TLSv1.3;
     ssl_ciphers         HIGH:!aNULL:!MD5;
     # ...

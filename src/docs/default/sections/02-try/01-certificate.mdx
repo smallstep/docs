@@ -1,33 +1,32 @@
 <p>
-  Before you can teach <DocConfig>{({ name }) => name}</DocConfig> to speak TLS,
-  you will need a certificate issued by a trusted CA. If your organization
-  already runs its own CA and you have a private key and certificate for your{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> server&mdash;along with your CA's
-  root certificate&mdash;you can skip to the{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> server configuration below. If
-  your organization does not yet run its own private CA, you can:
+  Before you can configure <DocConfig>{({ name }) => name}</DocConfig> TLS you
+  will need a certificate issued by a trusted certificate authority (CA). If you
+  already have a <DocConfig>{({ name }) => name}</DocConfig> TLS certificate,
+  private key, and CA root certificate from your organization's existing CA you
+  can skip to the <DocConfig>{({ name }) => name}</DocConfig> TLS configuration
+  section below. If you need to generate a certificate you can:
 </p>
 <ul>
   <li>
-    Get up and running quickly by creating a{' '}
+    Use a{' '}
     <a href="https://info.smallstep.com/certificate-manager-early-access-mvp/">
-      free hosted smallstep Certificate Manager authority
+      free hosted Smallstep Certificate Manager authority
     </a>
   </li>
   <li>
-    Read more about creating and running a CA using the open source smallstep
-    software <a href="/docs/step-ca/getting-started">here</a>
+    Roll your own with{' '}
+    <a href="/docs/step-ca">
+      open source <inlineCode>step-ca</inlineCode>
+    </a>
   </li>
 </ul>
 
 <Alert severity="warning">
-  If you prefer to use public Web TLS/SSL certificates, you can get those
-  certificates from <a href="https://letsencrypt.org/">Let's Encrypt</a> using
-  the ACME instructions below. However, keep in mind that if you are deploying
-  internal websites, it may still be a good idea to use a private CA to keep
-  your certificates out of public Certificate Transparency (CT) logs and to
-  allow for more flexible certificate issuance without the need to resolve
-  public DNS.
+  This tutorial is designed for private networks, not publicly trusted websites
+  or endpoints. If you are looking to automate certificates for public websites,
+  servers, or endpoints we recommend using{' '}
+  <a href="https://letsencrypt.org/">Let's Encrypt</a> and the ACME instructions
+  below.
 </Alert>
 
 <p>

@@ -36,7 +36,7 @@ const Page = ({ data }) => {
     <>
       <GatsbySeo
         type="article"
-        title={`${doc.name} TLS — How to get TLS certificates and keep them renewed | Practical Zero Trust`}
+        title={`${doc.name} TLS — How to get and renew ${doc.name} TLS certificates | Practical Zero Trust`}
         description={`Practical step-by-step instructions for implementing zero trust principals with ${doc.name}.`}
       />
 
@@ -45,37 +45,11 @@ const Page = ({ data }) => {
           {doc.name} TLS &mdash; Practical Zero Trust
         </Heading>
         <Heading component="h2" variant="h3">
-          How to get {doc.name} TLS certificates and keep them renewed
+          How to get and renew {doc.name} TLS certificates.
         </Heading>
-        <Paragraph variant="body2" className={classes.timestamp}>
+        <Paragraph variant="body2" className={classes.timestamp} mb={4}>
           Written {doc.written}
-          {doc.updated && `, updated ${doc.updated}`}
-        </Paragraph>
-        <HBase variant="h4">Zero trust for the real world</HBase>
-        <Paragraph>
-          While there's little question about the value of a zero trust security
-          model in modern infrastructure, there's often a great deal of
-          confusion as to what "zero trust" means for the practitioners who are
-          responsible for its implementation. The <Em>Practical Zero Trust</Em>{' '}
-          project aims to remove some of that confusion with two high-level
-          goals:
-        </Paragraph>
-
-        <Paragraph component="ol">
-          <Li>
-            To demonstrate that "zero trust" for infrastructure simply means
-            implementing the already-broadly-supported TLS protocol
-          </Li>
-          <Li>
-            To provide concrete, step-by-step instructions on how to actually
-            configure and operationalize TLS for each piece of your
-            infrastructure
-          </Li>
-        </Paragraph>
-        <Paragraph>
-          This article will guide you through using a private certificate
-          authority (CA) to authenticate and encrypt {doc.name} traffic with
-          TLS.
+          {doc.updated && `, last updated ${doc.updated}`}
         </Paragraph>
         <MDXBlock path="sections/01-intro" />
         <HBase variant="h3">Try it</HBase>
