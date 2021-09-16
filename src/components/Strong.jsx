@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/styles';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   strong: {
     fontWeight: theme.typography.fontWeightMedium,
   },
@@ -11,11 +11,7 @@ const useStyles = makeStyles(theme => ({
 const Strong = ({ children }) => {
   const classes = useStyles();
 
-  return (
-    <span className={classes.strong}>
-      {children}
-    </span>
-  );
+  return <span className={classes.strong}>{children}</span>;
 };
 
 Strong.propTypes = {

@@ -52,7 +52,6 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-
   const showTooltip = mdUp && copyHover;
 
   const slug = makeSlug(children);
