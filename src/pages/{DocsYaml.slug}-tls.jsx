@@ -156,14 +156,13 @@ const Page = ({ data, location }) => {
 
           <TabContext value={deployment}>
             <TabList onChange={handleDeploymentChange}>
-              {/* TODO builtin */}
               <Tab label="Linux (systemd)" value="linux" />
               <Tab label="Docker" value="docker" />
               <Tab label="Kubernetes" value="kubernetes" />
             </TabList>
 
             <TabPanel value="builtin">
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin-acme.mdx" />
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin-acme" />
             </TabPanel>
 
             <TabPanel value="linux">
