@@ -259,6 +259,9 @@ export const query = graphql`
         dnsName
         port
       }
+      kubernetes {
+        ingressClass
+      }
       acme
     }
     allMdx {

@@ -14,7 +14,7 @@ const Aside = ({ children }) => {
   const classes = useStyles();
 
   return (
-    <Box component="aside" m={8} p={4} className={classes.aside}>
+    <Box component="aside" m={6} p={4} className={classes.aside}>
       <Paragraph component="div" mb={0}>
         {children}
       </Paragraph>
