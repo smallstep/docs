@@ -30,8 +30,9 @@ import TableBody from '../../components/TableBody';
 import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
 
-import MDXBlock from '../../components/MDXBlock';
+import PageConfig from '../../components/PageConfig';
 import DocConfig from '../../components/DocConfig';
+import MDXBlock from '../../components/MDXBlock';
 import Alert from '../../components/Alert';
 import AlertTitle from '../../components/AlertTitle';
 import Aside from '../../components/Aside';
@@ -63,8 +64,9 @@ const components = {
 };
 
 const shortcodes = {
-  MDXBlock,
+  PageConfig,
   DocConfig,
+  MDXBlock,
   Alert,
   AlertTitle,
   Aside,
