@@ -1,0 +1,11 @@
+<DocConfig>
+  {({ name, server }) => (
+    <p>
+      Now that your certificate is issued (and kept updated) in the{' '}
+      <inlineCode>tls-{server.name}</inlineCode> secret, you'll need to
+      configure your {name} deployment to mount that secret to disk, then to
+      reload the certificate (or restart its process) each time the certificate
+      is updated on disk. Refer to the {name} documentation for specifics.
+    </p>
+  )}
+</DocConfig>

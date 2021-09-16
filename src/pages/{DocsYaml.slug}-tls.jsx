@@ -219,7 +219,10 @@ const Page = ({ data, location }) => {
                 <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme" />
+                <>
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/01-certificate" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/02-configuration" />
+                </>
               )}
             </TabPanel>
           </TabContext>
