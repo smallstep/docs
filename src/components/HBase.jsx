@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { useLocation } from '@reach/router';
 import copy from 'clipboard-copy';
 import { Subject, from } from 'rxjs';
 import { switchMap, tap, delay } from 'rxjs/operators';
@@ -43,6 +42,7 @@ const useStyles = makeStyles((theme) => ({
 const HBase = ({ component, variant, color, mt, mb, children }) => {
   const [hover, setHover] = useState(false);
   const [copyHover, setCopyHover] = useState(false);
+  const [url, setUrl] = useState();
 
   const copyMessage = 'Copy link to clipboard';
   const [tooltip, setTooltip] = useState(copyMessage);
@@ -52,11 +52,17 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   const theme = useTheme();
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
-  const slug = makeSlug(children);
-  const location = useLocation();
-  const url = `${WEBSITE_BASE_URL}${location.pathname}#${slug}`;
 
   const showTooltip = mdUp && copyHover;
+
+  const slug = makeSlug(children);
+  const search = typeof window !== 'undefined' && window.location.search;
+
+  useEffect(() => {
+    const { pathname, search } = window.location;
+    const url = `${WEBSITE_BASE_URL}${pathname}${search}#${slug}`;
+    setUrl(url);
+  }, [slug, search]);
 
   // listen for copy button clicks and show "Copied!" text
   useEffect(() => {
