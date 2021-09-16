@@ -1,12 +1,16 @@
-<p>
-  There are various approaches for configuring TLS certificate renewal in
-  Kubernetes. For this tutorial, we will assume you are using{' '}
-  <a href="https://helm.sh/">Helm</a> and will manage certificate renewal using
-  the open source <a href="https://cert-manager.io/docs/">cert-manager</a>{' '}
-  project. You may repurpose various pieces for your own configuration by
-  following the cert-manager or <DocConfig>{({ name }) => name}</DocConfig>{' '}
-  documentation.
-</p>
+<DocConfig>
+  {({ name }) => (
+    <p>
+      There are various approaches for configuring TLS certificate renewal in
+      Kubernetes. For this tutorial, we will assume you are using{' '}
+      <a href="https://helm.sh/">Helm</a> and will manage certificate renewal
+      using the open source{' '}
+      <a href="https://cert-manager.io/docs/">cert-manager</a> project. You may
+      repurpose various pieces for your own configuration by following the
+      cert-manager or {name} documentation.
+    </p>
+  )}
+</DocConfig>
 
 First, install cert-manager in your cluster with Helm:
 
@@ -19,16 +23,17 @@ helm install cert-manager jetstack/cert-manager --namespace cert-manager --creat
 In cert-manager, a custom resource type `Certificate` represents
 each TLS certififcate and specifies how to store it.
 
-<p>
-  Create a new <inlineCode>Certificate</inlineCode> resource{' '}
-  <DocConfig>
-    {({ slug }) => <inlineCode>{slug}-certificate.yaml</inlineCode>}
-  </DocConfig>{' '}
-  for your <DocConfig>{({ name }) => name}</DocConfig> server and apply it to
-  your cluster. Make sure you specify the same DNS name configured above, and
-  keep track of the Kuberentes secret name where cert-manager will store your
-  certificate and private key.
-</p>
+<DocConfig>
+  {({ name, server }) => (
+    <p>
+      Create a new <inlineCode>Certificate</inlineCode> resource{' '}
+      <inlineCode>{server.name}-certificate.yaml</inlineCode> for your {name}{' '}
+      server. Make sure you specify the same DNS name configured above, and keep
+      track of the Kuberentes secret name where cert-manager will store your
+      certificate and private key.
+    </p>
+  )}
+</DocConfig>
 
 <DocConfig>
   {({ server }) => (
@@ -47,5 +52,29 @@ spec:
     kind: Issuer
     group: cert-manager.io`}
     </CodeBlock>
+  )}
+</DocConfig>
+
+Customize the `Certificate` name and the `secretName` to suit your own naming style in your Kubernetes cluster, then apply it with `kubectl`.
+
+<DocConfig>
+  {({ server }) => (
+    <CodeBlock autoCopy language="shell">
+      {`kubectl apply -f ${server.name}-certificate.yaml`}
+    </CodeBlock>
+  )}
+</DocConfig>
+
+<DocConfig>
+  {({ server }) => (
+    <p>
+      This configuration specifies that cert-manager should issue and renew a
+      TLS certificate with the DNS name{' '}
+      <inlineCode>{server.dnsName}</inlineCode> and store the certificate and
+      private key in a Kubernetes secret named{' '}
+      <inlineCode>tls-{server.name}</inlineCode>. The certificate is valid for
+      24 hours, and cert-manager will automatically renew it before expiration
+      and update the <inlineCode>tls-{server.name}</inlineCode> secret.
+    </p>
   )}
 </DocConfig>
