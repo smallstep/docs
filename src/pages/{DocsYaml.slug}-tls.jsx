@@ -22,6 +22,12 @@ const useStyles = makeStyles((theme) => ({
   timestamp: {
     color: theme.palette.text.secondary,
   },
+  tabPanel: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: theme.spacing(4),
+    paddingBotom: 0,
+  },
 }));
 
 const Page = ({ data, location }) => {
@@ -168,11 +174,11 @@ const Page = ({ data, location }) => {
               <Tab label="Kubernetes" value="kubernetes" />
             </TabList>
 
-            <TabPanel value="builtin">
+            <TabPanel className={classes.tabPanel} value="builtin">
               <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin-acme" />
             </TabPanel>
 
-            <TabPanel value="linux">
+            <TabPanel className={classes.tabPanel} value="linux">
               {provisioner === 'jwk' && (
                 <>
                   <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-template/jwk" />
@@ -187,7 +193,7 @@ const Page = ({ data, location }) => {
               )}
             </TabPanel>
 
-            <TabPanel value="docker">
+            <TabPanel className={classes.tabPanel} value="docker">
               {provisioner === 'jwk' && (
                 <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/docker/jwk" />
               )}
@@ -196,7 +202,7 @@ const Page = ({ data, location }) => {
               )}
             </TabPanel>
 
-            <TabPanel value="kubernetes">
+            <TabPanel className={classes.tabPanel} value="kubernetes">
               {provisioner === 'jwk' && (
                 <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/jwk" />
               )}
