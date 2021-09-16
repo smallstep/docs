@@ -156,7 +156,15 @@ const Page = ({ data, location }) => {
 
           <TabContext value={deployment}>
             <TabList onChange={handleDeploymentChange}>
-              <Tab label="Linux (systemd)" value="linux" />
+              <Tab
+                label="Built-In ACME"
+                value="builtin"
+                style={{
+                  display:
+                    provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
+                }}
+              />
+              <Tab label="Linux" value="linux" />
               <Tab label="Docker" value="docker" />
               <Tab label="Kubernetes" value="kubernetes" />
             </TabList>
@@ -232,6 +240,7 @@ export const query = graphql`
       name
       written
       updated
+      acme
       paths {
         rootCert
         serverCert
