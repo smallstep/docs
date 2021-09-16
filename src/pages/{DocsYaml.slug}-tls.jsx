@@ -101,7 +101,7 @@ const Page = ({ data, location }) => {
             {doc.name} TLS &mdash; Practical Zero Trust
           </Heading>
           <Heading component="h2" variant="h3">
-            How to get and renew {doc.name} TLS certificates.
+            How to get and renew {doc.name} TLS certificates
           </Heading>
           <Paragraph variant="body2" className={classes.timestamp}>
             Written {doc.written}
@@ -126,7 +126,9 @@ const Page = ({ data, location }) => {
 
         <Box mb={6}>
           <HBase variant="h3">Operationalize it</HBase>
-          <HBase variant="h4">Automate {doc.name} certificate renewal</HBase>
+          <HBase variant="h4">
+            Automate {doc.name} TLS certificate renewal
+          </HBase>
           <MDXBlock path="sections/03-operationalize/01-renewal/01-intro" />
 
           <Box my={4}>
