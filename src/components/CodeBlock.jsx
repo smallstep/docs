@@ -66,7 +66,7 @@ CodeBlock.propTypes = {
 
 CodeBlock.defaultProps = {
   mt: 2,
-  mb: 2,
+  mb: 4,
 };
 
 export default CodeBlock;

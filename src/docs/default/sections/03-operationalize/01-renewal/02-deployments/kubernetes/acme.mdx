@@ -1,0 +1,51 @@
+<p>
+  There are various approaches for configuring TLS certificate renewal in
+  Kubernetes. For this tutorial, we will assume you are using{' '}
+  <a href="https://helm.sh/">Helm</a> and will manage certificate renewal using
+  the open source <a href="https://cert-manager.io/docs/">cert-manager</a>{' '}
+  project. You may repurpose various pieces for your own configuration by
+  following the cert-manager or <DocConfig>{({ name }) => name}</DocConfig>{' '}
+  documentation.
+</p>
+
+First, install cert-manager in your cluster with Helm:
+
+```shell
+helm repo add jetstack https://charts.jetstack.io
+helm repo update
+helm install cert-manager jetstack/cert-manager --namespace cert-manager --create-namespace --set installCRDs=true
+```
+
+In cert-manager, a custom resource type `Certificate` represents
+each TLS certififcate and specifies how to store it.
+
+<p>
+  Create a new <inlineCode>Certificate</inlineCode> resource{' '}
+  <DocConfig>
+    {({ slug }) => <inlineCode>{slug}-certificate.yaml</inlineCode>}
+  </DocConfig>{' '}
+  for your <DocConfig>{({ name }) => name}</DocConfig> server and apply it to
+  your cluster. Make sure you specify the same DNS name configured above, and
+  keep track of the Kuberentes secret name where cert-manager will store your
+  certificate and private key.
+</p>
+
+<DocConfig>
+  {({ server }) => (
+    <CodeBlock autoCopy language="yaml">
+      {`apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: ${server.name}
+spec:
+  secretName: tls-${server.name}
+  duration: 24h
+  dnsNames:
+    - ${server.dnsName}
+  issuerRef:
+    name: acme-issuer
+    kind: Issuer
+    group: cert-manager.io`}
+    </CodeBlock>
+  )}
+</DocConfig>

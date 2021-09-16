@@ -245,12 +245,12 @@ export const query = graphql`
       name
       written
       updated
-      acme
-      paths {
-        rootCert
-        serverCert
-        serverKey
+      server {
+        name
+        dnsName
+        port
       }
+      acme
     }
     allMdx {
       edges {
