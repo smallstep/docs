@@ -98,7 +98,7 @@ const Page = ({ data, location }) => {
         description={`Practical step-by-step instructions for implementing zero trust principals with ${doc.name}.`}
       />
 
-      <DocContext.Provider value={{ doc, content }}>
+      <DocContext.Provider value={{ doc, content, provisioner, deployment }}>
         <Box mb={4}>
           <Heading variant="h1">
             {doc.name} TLS &mdash; Practical Zero Trust
@@ -110,6 +110,9 @@ const Page = ({ data, location }) => {
             Written {doc.written}
             {doc.updated && `, last updated ${doc.updated}`}
           </Paragraph>
+        </Box>
+
+        <Box mb={4}>
           <MDXBlock path="sections/01-intro" />
         </Box>
 
@@ -224,17 +227,14 @@ const Page = ({ data, location }) => {
           <HBase variant="h4">
             Distribute your root certificate to end users and systems
           </HBase>
-          <Paragraph>Some stuff here about distributing roots.</Paragraph>
+          <MDXBlock path="sections/03-operationalize/02-root" />
         </Box>
 
-        {content[`${doc.slug}/sections/04-research-notes`] && (
+        {content[`${doc.slug}/sections/04-research-notes/02-notes`] && (
           <Box mb={6}>
             <HBase variant="h3">Research notes</HBase>
-            <Paragraph>
-              In researching {doc.name} TLS, we did some thorough investigation.
-              Here are our rough notes if you are interested in diving deeper.
-            </Paragraph>
-            <MDXBlock path="sections/04-research-notes" />
+            <MDXBlock path="sections/04-research-notes/01-intro" />
+            <MDXBlock path="sections/04-research-notes/02-notes" />
           </Box>
         )}
 
