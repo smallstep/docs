@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useLocation } from '@reach/router';
 import copy from 'clipboard-copy';
 import { Subject, from } from 'rxjs';
 import { switchMap, tap, delay } from 'rxjs/operators';
@@ -52,7 +53,8 @@ const HBase = ({ component, variant, color, mt, mb, children }) => {
   const mdUp = useMediaQuery(theme.breakpoints.up('md'));
 
   const slug = makeSlug(children);
-  const url = `${WEBSITE_BASE_URL}${window.location.pathname}#${slug}`;
+  const location = useLocation();
+  const url = `${WEBSITE_BASE_URL}${location.pathname}#${slug}`;
 
   const showTooltip = mdUp && copyHover;
 
