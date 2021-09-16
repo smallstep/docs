@@ -8,9 +8,7 @@ import FormControl from '@material-ui/core/FormControl';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
-import TabContext from '@material-ui/lab/TabContext';
-import TabList from '@material-ui/lab/TabList';
-import TabPanel from '@material-ui/lab/TabPanel';
+import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
@@ -163,69 +161,85 @@ const Page = ({ data, location }) => {
           </Box>
 
           <Box mb={4}>
-            {provisioner === 'jwk' && (
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/jwk" />
-            )}
-            {provisioner === 'acme' && (
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/acme" />
-            )}
+            <MDXBlock
+              show={provisioner === 'jwk'}
+              path="sections/03-operationalize/01-renewal/02-provisioner/jwk"
+            />
+            <MDXBlock
+              show={provisioner === 'acme'}
+              path="sections/03-operationalize/01-renewal/02-provisioner/acme"
+            />
           </Box>
 
-          <TabContext value={deployment}>
-            <TabList onChange={handleDeploymentChange}>
-              <Tab
-                label="Built-In ACME"
-                value="builtin"
-                style={{
-                  display:
-                    provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
-                }}
-              />
-              <Tab label="Linux" value="linux" />
-              <Tab label="Docker" value="docker" />
-              <Tab label="Kubernetes" value="kubernetes" />
-            </TabList>
+          <Tabs value={deployment} onChange={handleDeploymentChange}>
+            <Tab
+              label="Built-In ACME"
+              value="builtin"
+              style={{
+                display:
+                  provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
+              }}
+            />
+            <Tab label="Linux" value="linux" />
+            <Tab label="Docker" value="docker" />
+            <Tab label="Kubernetes" value="kubernetes" />
+          </Tabs>
 
-            <TabPanel className={classes.tabPanel} value="builtin">
-              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/builtin-acme" />
-            </TabPanel>
+          <div
+            className={classes.tabPanel}
+            style={{ display: deployment === 'builtin' ? 'block' : 'none' }}
+          >
+            <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/builtin-acme" />
+          </div>
 
-            <TabPanel className={classes.tabPanel} value="linux">
-              {provisioner === 'jwk' && (
-                <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/jwk" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
-                </>
-              )}
-              {provisioner === 'acme' && (
-                <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/acme" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
-                </>
-              )}
-            </TabPanel>
+          <div
+            className={classes.tabPanel}
+            style={{ display: deployment === 'linux' ? 'block' : 'none' }}
+          >
+            <MDXBlock
+              show={provisioner === 'jwk'}
+              path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/jwk"
+            />
+            <MDXBlock
+              show={provisioner === 'acme'}
+              path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/acme"
+            />
+            <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
+          </div>
 
-            <TabPanel className={classes.tabPanel} value="docker">
-              {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/jwk" />
-              )}
-              {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/acme" />
-              )}
-            </TabPanel>
+          <div
+            className={classes.tabPanel}
+            style={{ display: deployment === 'docker' ? 'block' : 'none' }}
+          >
+            <MDXBlock
+              show={provisioner === 'jwk'}
+              path="sections/03-operationalize/01-renewal/03-deployments/docker/jwk"
+            />
+            <MDXBlock
+              show={provisioner === 'acme'}
+              path="sections/03-operationalize/01-renewal/03-deployments/docker/acme"
+            />
+          </div>
 
-            <TabPanel className={classes.tabPanel} value="kubernetes">
-              {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/jwk" />
-              )}
-              {provisioner === 'acme' && (
-                <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/01-certificate" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/02-configuration" />
-                </>
-              )}
-            </TabPanel>
-          </TabContext>
+          <div
+            className={classes.tabPanel}
+            style={{
+              display: deployment === 'kubernetes' ? 'block' : 'none',
+            }}
+          >
+            <MDXBlock
+              show={provisioner === 'jwk'}
+              path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/jwk"
+            />
+            <MDXBlock
+              show={provisioner === 'acme'}
+              path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/01-certificate"
+            />
+            <MDXBlock
+              show={provisioner === 'acme'}
+              path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme/02-configuration"
+            />
+          </div>
 
           <HBase variant="h4">
             Distribute your root certificate to end users and systems
