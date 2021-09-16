@@ -3,13 +3,12 @@ name: Nginx
 written: September 15, 2021
 updated: ''
 protocol: https
-port: 443
-paths:
-  serverCert: /path/to/server.crt
-  serverKey: /path/to/server.key
-  rootCert: /path/to/ca.crt
-chart: ingress-nginx
+server:
+  name: myserver
+  dnsName: myserver.mycompany.net
+  port: 443
 acme: false
+chart: ingress-nginx
 links:
   - text: 'Nginx: Configuring HTTPS servers'
     url: https://nginx.org/en/docs/http/configuring_https_servers.html

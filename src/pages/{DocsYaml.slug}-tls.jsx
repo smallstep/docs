@@ -17,13 +17,16 @@ import { Heading, Paragraph } from '@smallstep/step-ui';
 import { DocContext } from '../context';
 import MDXBlock from '../components/MDXBlock';
 import HBase from '../components/HBase';
-import Alert from '../components/Alert';
-import Li from '../components/Li';
-import Em from '../components/Em';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
     color: theme.palette.text.secondary,
+  },
+  tabPanel: {
+    paddingLeft: 0,
+    paddingRight: 0,
+    paddingTop: theme.spacing(4),
+    paddingBotom: 0,
   },
 }));
 
@@ -40,12 +43,17 @@ const Page = ({ data, location }) => {
       queryString.parse(location.search);
 
     const initialProvisioner = queryProvisioner || 'jwk';
-    const initialDeployment =
-      initialProvisioner === 'acme' && doc.acme ? 'builtin' : 'linux';
+    let initialDeployment;
+    if (queryDeployment) {
+      initialDeployment = queryDeployment;
+    } else {
+      initialDeployment =
+        initialProvisioner === 'acme' && doc.acme ? 'builtin' : 'linux';
+    }
 
     setProvisioner(initialProvisioner);
     setDeployment(initialDeployment);
-  }, [location.search]);
+  }, [location.search, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
     const initialDeployment =
@@ -90,18 +98,21 @@ const Page = ({ data, location }) => {
         description={`Practical step-by-step instructions for implementing zero trust principals with ${doc.name}.`}
       />
 
-      <DocContext.Provider value={{ doc, content }}>
+      <DocContext.Provider value={{ doc, content, provisioner, deployment }}>
         <Box mb={4}>
           <Heading variant="h1">
             {doc.name} TLS &mdash; Practical Zero Trust
           </Heading>
           <Heading component="h2" variant="h3">
-            How to get and renew {doc.name} TLS certificates.
+            How to get and renew {doc.name} TLS certificates
           </Heading>
           <Paragraph variant="body2" className={classes.timestamp}>
             Written {doc.written}
             {doc.updated && `, last updated ${doc.updated}`}
           </Paragraph>
+        </Box>
+
+        <Box mb={4}>
           <MDXBlock path="sections/01-intro" />
         </Box>
 
@@ -121,7 +132,9 @@ const Page = ({ data, location }) => {
 
         <Box mb={6}>
           <HBase variant="h3">Operationalize it</HBase>
-          <HBase variant="h4">Automate {doc.name} certificate renewal</HBase>
+          <HBase variant="h4">
+            Automate {doc.name} TLS certificate renewal
+          </HBase>
           <MDXBlock path="sections/03-operationalize/01-renewal/01-intro" />
 
           <Box my={4}>
@@ -149,48 +162,64 @@ const Page = ({ data, location }) => {
             </FormControl>
           </Box>
 
+          <Box mb={4}>
+            {provisioner === 'jwk' && (
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/jwk" />
+            )}
+            {provisioner === 'acme' && (
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/acme" />
+            )}
+          </Box>
+
           <TabContext value={deployment}>
             <TabList onChange={handleDeploymentChange}>
-              {/* TODO builtin */}
-              <Tab label="Linux (systemd)" value="linux" />
+              <Tab
+                label="Built-In ACME"
+                value="builtin"
+                style={{
+                  display:
+                    provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
+                }}
+              />
+              <Tab label="Linux" value="linux" />
               <Tab label="Docker" value="docker" />
               <Tab label="Kubernetes" value="kubernetes" />
             </TabList>
 
-            <TabPanel value="builtin">
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin" />
+            <TabPanel className={classes.tabPanel} value="builtin">
+              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/builtin-acme" />
             </TabPanel>
 
-            <TabPanel value="linux">
+            <TabPanel className={classes.tabPanel} value="linux">
               {provisioner === 'jwk' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/01-generic" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/jwk" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
                 </>
               )}
               {provisioner === 'acme' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/02-acme" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/acme" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
                 </>
               )}
             </TabPanel>
 
-            <TabPanel value="docker">
+            <TabPanel className={classes.tabPanel} value="docker">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-generic" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/acme" />
               )}
             </TabPanel>
 
-            <TabPanel value="kubernetes">
+            <TabPanel className={classes.tabPanel} value="kubernetes">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/01-generic" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/02-acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme" />
               )}
             </TabPanel>
           </TabContext>
@@ -198,17 +227,14 @@ const Page = ({ data, location }) => {
           <HBase variant="h4">
             Distribute your root certificate to end users and systems
           </HBase>
-          <Paragraph>Some stuff here about distributing roots.</Paragraph>
+          <MDXBlock path="sections/03-operationalize/02-root" />
         </Box>
 
-        {content[`${doc.slug}/sections/04-research-notes`] && (
+        {content[`${doc.slug}/sections/04-research-notes/02-notes`] && (
           <Box mb={6}>
             <HBase variant="h3">Research notes</HBase>
-            <Paragraph>
-              In researching {doc.name} TLS, we did some thorough investigation.
-              Here are our rough notes if you are interested in diving deeper.
-            </Paragraph>
-            <MDXBlock path="sections/04-research-notes" />
+            <MDXBlock path="sections/04-research-notes/01-intro" />
+            <MDXBlock path="sections/04-research-notes/02-notes" />
           </Box>
         )}
 
@@ -228,11 +254,12 @@ export const query = graphql`
       name
       written
       updated
-      paths {
-        rootCert
-        serverCert
-        serverKey
+      server {
+        name
+        dnsName
+        port
       }
+      acme
     }
     allMdx {
       edges {
