@@ -163,39 +163,39 @@ const Page = ({ data, location }) => {
             </TabList>
 
             <TabPanel value="builtin">
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin" />
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin-acme.mdx" />
             </TabPanel>
 
             <TabPanel value="linux">
               {provisioner === 'jwk' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/01-generic" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-template/jwk" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-override" />
                 </>
               )}
               {provisioner === 'acme' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/01-template/02-acme" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/systemd/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-template/acme" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-override" />
                 </>
               )}
             </TabPanel>
 
             <TabPanel value="docker">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-generic" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/docker/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/docker/acme" />
               )}
             </TabPanel>
 
             <TabPanel value="kubernetes">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/01-generic" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/02-acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/acme" />
               )}
             </TabPanel>
           </TabContext>
