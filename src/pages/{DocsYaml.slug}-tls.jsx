@@ -159,6 +159,15 @@ const Page = ({ data, location }) => {
             </FormControl>
           </Box>
 
+          <Box mb={4}>
+            {provisioner === 'jwk' && (
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/jwk" />
+            )}
+            {provisioner === 'acme' && (
+              <MDXBlock path="sections/03-operationalize/01-renewal/02-provisioner/acme" />
+            )}
+          </Box>
+
           <TabContext value={deployment}>
             <TabList onChange={handleDeploymentChange}>
               <Tab
@@ -175,39 +184,39 @@ const Page = ({ data, location }) => {
             </TabList>
 
             <TabPanel className={classes.tabPanel} value="builtin">
-              <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/builtin-acme" />
+              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/builtin-acme" />
             </TabPanel>
 
             <TabPanel className={classes.tabPanel} value="linux">
               {provisioner === 'jwk' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-template/jwk" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/jwk" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
                 </>
               )}
               {provisioner === 'acme' && (
                 <>
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/01-template/acme" />
-                  <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/linux/02-override" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/acme" />
+                  <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
                 </>
               )}
             </TabPanel>
 
             <TabPanel className={classes.tabPanel} value="docker">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/docker/jwk" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/docker/acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/docker/acme" />
               )}
             </TabPanel>
 
             <TabPanel className={classes.tabPanel} value="kubernetes">
               {provisioner === 'jwk' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/jwk" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/jwk" />
               )}
               {provisioner === 'acme' && (
-                <MDXBlock path="sections/03-operationalize/01-renewal/02-deployments/kubernetes/acme" />
+                <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/acme" />
               )}
             </TabPanel>
           </TabContext>
