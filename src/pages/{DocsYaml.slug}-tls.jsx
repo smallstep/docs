@@ -40,8 +40,13 @@ const Page = ({ data, location }) => {
       queryString.parse(location.search);
 
     const initialProvisioner = queryProvisioner || 'jwk';
-    const initialDeployment =
-      initialProvisioner === 'acme' && doc.acme ? 'builtin' : 'linux';
+    let initialDeployment;
+    if (queryDeployment) {
+      initialDeployment = queryDeployment;
+    } else {
+      initialDeployment =
+        initialProvisioner === 'acme' && doc.acme ? 'builtin' : 'linux';
+    }
 
     setProvisioner(initialProvisioner);
     setDeployment(initialDeployment);
