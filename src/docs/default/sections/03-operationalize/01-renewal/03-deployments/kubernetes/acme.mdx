@@ -101,7 +101,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: ${kubernetes.ingressClass}`}
+          class: ${kubernetes.ingressClass || 'nginx'}`}
     </CodeBlock>
   )}
 </DocConfig>
@@ -122,10 +122,11 @@ kubectl apply -f my-ca-issuer.yaml
       response. For this reason, your Kubernetes cluster must have some HTTP
       ingress configured, and your DNS name must resolve to that ingress. In the
       above example, we assume your ingress has a class name{' '}
-      <inlineCode>{kubernetes.ingressClass}</inlineCode>, and cert-manager will
-      automatically intercept ACME requests to that ingress to solve the HTTP01
-      ACME challenge sent by your CA. This effectively "authenticates" your ACME
-      client with the CA, and the CA will then sign the certificate.
+      <inlineCode>{kubernetes.ingressClass || 'nginx'}</inlineCode>, and
+      cert-manager will automatically intercept ACME requests to that ingress to
+      solve the HTTP01 ACME challenge sent by your CA. This effectively
+      "authenticates" your ACME client with the CA, and the CA will then sign
+      the certificate.
     </p>
   )}
 </DocConfig>
