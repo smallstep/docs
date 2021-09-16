@@ -1,19 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
+import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 
-const Image = ({ mt, mb, src, alt }) => (
-  <Box component="span" mt={mt} mb={mb}>
-    <img
-      src={src}
-      alt={alt}
-      css={css`
-        max-width: 100%;
-      `}
-    />
-  </Box>
-);
+const useStyles = makeStyles(() => ({
+  image: {
+    maxWidth: '100%',
+  },
+}));
+
+const Image = ({ mt, mb, src, alt }) => {
+  const classes = useStyles();
+
+  return (
+    <Box component="span" mt={mt} mb={mb}>
+      <img src={src} alt={alt} className={classes.image} />
+    </Box>
+  );
+};
 
 Image.propTypes = {
   mt: PropTypes.number,

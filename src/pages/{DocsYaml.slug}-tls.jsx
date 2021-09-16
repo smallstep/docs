@@ -17,9 +17,6 @@ import { Heading, Paragraph } from '@smallstep/step-ui';
 import { DocContext } from '../context';
 import MDXBlock from '../components/MDXBlock';
 import HBase from '../components/HBase';
-import Alert from '../components/Alert';
-import Li from '../components/Li';
-import Em from '../components/Em';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
@@ -50,7 +47,7 @@ const Page = ({ data, location }) => {
 
     setProvisioner(initialProvisioner);
     setDeployment(initialDeployment);
-  }, [location.search]);
+  }, [location.search, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
     const initialDeployment =

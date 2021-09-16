@@ -1,18 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
+import { makeStyles } from '@material-ui/styles';
 import { Link } from '@smallstep/step-ui';
 
-const Reference = ({ id, marker }) => (
-  <Link
-    href={`#${id}`}
-    css={css`
-      text-decoration: none;
-    `}
-  >
-    <sup>{marker}</sup>
-  </Link>
-);
+const useStyles = makeStyles(() => ({
+  link: {
+    textDecoration: 'none',
+  },
+}));
+
+const Reference = ({ id, marker }) => {
+  const classes = useStyles();
+
+  return (
+    <Link href={`#${id}`} className={classes.link}>
+      <sup>{marker}</sup>
+    </Link>
+  );
+};
 
 Reference.propTypes = {
   id: PropTypes.string.isRequired,

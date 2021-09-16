@@ -1,17 +1,18 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { css } from '@emotion/core';
-import { useTheme } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles(theme => ({
+  strong: {
+    fontWeight: theme.typography.fontWeightMedium,
+  },
+}));
 
 const Strong = ({ children }) => {
-  const theme = useTheme();
+  const classes = useStyles();
 
   return (
-    <span
-      css={css`
-        font-weight: ${theme.typography.fontWeightMedium};
-      `}
-    >
+    <span className={classes.strong}>
       {children}
     </span>
   );
