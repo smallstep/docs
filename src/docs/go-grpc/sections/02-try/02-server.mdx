@@ -1,5 +1,5 @@
-We're going to create a simple gRPC server in Go that loads an X.509 certificate
-and its key to authenticate to clients using just server authentication.
+We're going to create a simple gRPC server in Go that loads an X.509 certificate and its key,
+so that clients can connect using TLS server authentication.
 
 First, let's create our Go module:
 
@@ -9,10 +9,9 @@ cd helloworld
 go mod init example.com/helloworld
 ```
 
-Now we're going to implement this
-[helloworld.proto](https://github.com/grpc/grpc-go/blob/master/examples/helloworld/helloworld/helloworld.proto)
-in a file named `main.go`. The code loads the X.509 certificate and its key and
-runs a gRPC server:
+Now we're going to implement the [helloworld.proto](https://github.com/grpc/grpc-go/blob/master/examples/helloworld/helloworld/helloworld.proto) `Greeting` service in a file named `main.go`.
+The code loads the X.509 certificate and its key
+and starts a gRPC server:
 
 ```go
 package main
@@ -66,10 +65,10 @@ func main() {
 
 Now let's download the dependencies and compile it:
 
-```shell
-go mod tidy
-go build main.go
-```
+<CodeBlock language="shell" copyText="go mod tidy && go build main.go">
+{`go mod tidy
+go build main.go`}
+</CodeBlock>
 
 And finally, we are going to start the server:
 
