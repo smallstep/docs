@@ -4,10 +4,9 @@ Before cert-manager knows how to use your CA
 to issue and renew your certificate, we'll need to create
 that `StepIssuer` resource and configure it to point to your private CA.
 
-First, let's grab the name and kid from the JWK provisioner we created earlier.
+First, let's grab the `name` and key `kid` from the JWK provisioner we created earlier.
 
 ```shell
-# TODO kid may not be in this list
 step ca provisioner list
 ```
 
@@ -18,7 +17,8 @@ step ca root -f >(step base64) 2> /dev/null
 ```
 
 Create `my-ca-issuer.yaml` and fill in the CA URL and provisioner details
-with your own.
+with your own. `caBundle` refers to the base64-encoded version
+of your root certificate.
 
 <DocConfig>
   {({ kubernetes }) => (
@@ -43,6 +43,7 @@ spec:
 
 You'll notice the `passwordRef` configuration above, which declares a secret
 where step-issuer can expect to find your JWK provisioner password.
+You can name this whatever you'd like.
 Create the secret in your cluster, then apply your `StepIssuer` resource.
 
 <CodeBlock
