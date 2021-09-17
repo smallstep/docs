@@ -35,10 +35,12 @@ each TLS certififcate and specifies how to store it.
   )}
 </DocConfig>
 
-<DocConfig>
-  {({ server }) => (
-    <CodeBlock autoCopy language="yaml">
-      {`apiVersion: cert-manager.io/v1
+<PageConfig>
+  {({ provisioner }) => (
+    <DocConfig>
+      {({ server }) => (
+        <CodeBlock autoCopy language="yaml">
+          {`apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: ${server.name}
@@ -48,14 +50,18 @@ spec:
   dnsNames:
     - ${server.dnsName}
   issuerRef:
-    name: acme-issuer
-    kind: Issuer
-    group: cert-manager.io`}
-    </CodeBlock>
+    name: my-ca
+    kind: ${provisioner === 'jwk' ? 'StepIssuer' : 'Issuer'}
+    group: ${
+      provisioner === 'jwk' ? 'certmanager.step.sm' : 'cert-manager.io'
+    }`}
+        </CodeBlock>
+      )}
+    </DocConfig>
   )}
-</DocConfig>
+</PageConfig>
 
-Customize the `Certificate` name and the `secretName` to suit your own naming style in your Kubernetes cluster, then apply it with `kubectl`.
+Customize the `Certificate` name, `secretName`, and issuer name to suit your own naming style in your Kubernetes cluster, then apply it with `kubectl`.
 
 <DocConfig>
   {({ server }) => (

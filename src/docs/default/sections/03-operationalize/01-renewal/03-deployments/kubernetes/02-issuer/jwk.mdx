@@ -1,0 +1,35 @@
+You'll also notice the above `Certificate` resource has an `issuerRef` specifying
+a cert-manager `StepIssuer` resource named `my-ca`. Before cert-manager knows how to use your CA to
+issue and renew your certificate, we'll need to create and configure that `Issuer` resource
+to point to your private CA. Create `my-ca-issuer.yaml` and fill in the CA
+URL with your own. Also, makes sure the secret reference matches the name you used in the certificate
+resource.
+
+<DocConfig>
+  {({ server, kubernetes }) => (
+    <CodeBlock autoCopy language="yaml">
+      {`# TODO StepIssuer resource and some prose about where to get JWK details`}
+    </CodeBlock>
+  )}
+</DocConfig>
+
+Then apply:
+
+```shell
+kubectl apply -f my-ca-issuer.yaml
+```
+
+<DocConfig>
+  {({ name, server }) => (
+    <p>
+      If all went as expected now that both your{' '}
+      <inlineCode>Certificate</inlineCode> and your{' '}
+      <inlineCode>StepIssuer</inlineCode> are configured, cert-manager should
+      have reached out to your Smallstep CA, issued (or begun issuing) the
+      certificate, and created the <inlineCode>tls-{server.name}</inlineCode>{' '}
+      secret with your certificate and private key. We'll reference this secret
+      later when we configure {name} to use this certificate and private key for
+      TLS.
+    </p>
+  )}
+</DocConfig>
