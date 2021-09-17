@@ -1,14 +1,13 @@
 slug: go-grpc
 name: Go gRPC
 written: September 14, 2021
-updated: September 14, 2021
+updated: September 16, 2021
 protocol: gRPC
 port: 443
-# paths:
-#   serverCert: /etc/ssl/server.crt
-#   serverKey: /etc/ssl/server.key
-#   rootCert: /etc/ssl/root_ca.crt
-# chart: ingress-nginx
+server:
+  name: myserver
+  dnsName: myserver.mycompany.net
+  port: 443
 acme: true
 links:
   - text: 'gRPC'
@@ -17,3 +16,5 @@ links:
     url: https://grpc.io/docs/languages/go/quickstart/
   - text: 'Go gRPC package reference'
     url: https://pkg.go.dev/google.golang.org/grpc
+  - text: 'Full code'
+    url: https://github.com/smallstep/go-grpc-example
