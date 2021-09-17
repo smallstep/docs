@@ -9,6 +9,8 @@ server:
   dnsName: myserver.mycompany.net
   port: 443
 acme: true
+kubernetes:
+  ingressClass: null
 links:
   - text: 'gRPC'
     url: https://grpc.io
