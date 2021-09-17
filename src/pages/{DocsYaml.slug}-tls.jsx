@@ -54,16 +54,17 @@ const Page = ({ data, location }) => {
   }, [location.search, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
-    const initialDeployment =
-      value === 'acme' && doc.acme ? 'builtin' : 'linux';
+    const updatedDeployment =
+      value === 'jwk' && deployment === 'builtin' ? 'linux' : deployment;
+
     setProvisioner(value);
-    setDeployment(initialDeployment);
+    setDeployment(updatedDeployment);
     window.history.pushState(
       {},
       '',
       `${location.pathname}?${queryString.stringify({
         provisioner: value,
-        deployment: initialDeployment,
+        deployment: updatedDeployment,
       })}`
     );
   };
