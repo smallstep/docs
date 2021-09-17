@@ -1,12 +1,15 @@
-You'll also notice the above `Certificate` resource has an `issuerRef` specifying
-a cert-manager `Issuer` resource named `my-ca`. Before cert-manager knows how to use your CA to
-issue and renew your certificate, we'll need to create and configure that `Issuer` resource
-to point to your private ACME CA (or RA if you've configured one). Create `my-ca-issuer.yaml` and fill in the CA
-URL with your own. Also, makes sure the secret reference matches the name you used in the certificate
-resource.
+You'll also notice the above `Certificate` resource has an `issuerRef`
+specifying a cert-manager `Issuer` resource named `my-ca`.
+Before cert-manager knows how to use your CA
+to issue and renew your certificate, we'll need to create
+that `Issuer` resource and configure it to point
+to your private ACME CA (or RA if you've configured one).
+Create `my-ca-issuer.yaml` and fill in the CA URL with your own.
+The `Issuer` will keep an account key in a Kubernetes secret
+which is configurable here as well.
 
 <DocConfig>
-  {({ server, kubernetes }) => (
+  {({ kubernetes }) => (
     <CodeBlock autoCopy language="yaml">
       {`apiVersion: cert-manager.io/v1
 kind: Issuer
@@ -16,7 +19,7 @@ spec:
   acme:
     server: https://my-ca-url.my-team.ca.smallstep.com
     privateKeySecretRef:
-      name: tls-${server.name}
+      name: my-ca-account-key
     solvers:
     - http01:
         ingress:
@@ -66,10 +69,11 @@ kubectl apply -f my-ca-issuer.yaml
 
 <Aside>
 <p>
-If you prefer to use the DNS01 ACME challenge—which proves that you control the domain
-by updating a DNS record rather than resoling an HTTP request—your cert-manager <inlineCode>Issuer</inlineCode> can be configured as follows. This could be
-useful if you do not have any ingress to your cluster or otherwise are unable to resolve HTTP requests
-to your specified DNS name.
+  If you prefer to use the DNS01 ACME challenge—which proves that you control
+  the domain by updating a DNS record rather than resoling an HTTP request—your
+  cert-manager <inlineCode>Issuer</inlineCode> can be configured as follows.
+  This could be useful if you do not have any ingress to your cluster or
+  otherwise are unable to resolve HTTP requests to your specified DNS name.
 </p>
 
 <DocConfig>
@@ -96,11 +100,12 @@ spec:
 </DocConfig>
 
 <p>
-The example above is configured for Google Cloud DNS,
-but you can refer to the{' '}
-<a href="https://cert-manager.io/docs/configuration/acme/dns01/">cert-manager DNS01 documentation</a>{' '}
-for specifics on how to configure your DNS provider.
-cert-manager will automatically handle updating your DNS zone
-to respond to ACME challenges from your CA.
+  The example above is configured for Google Cloud DNS, but you can refer to the{' '}
+  <a href="https://cert-manager.io/docs/configuration/acme/dns01/">
+    cert-manager DNS01 documentation
+  </a>{' '}
+  for specifics on how to configure your DNS provider. cert-manager will
+  automatically handle updating your DNS zone to respond to ACME challenges from
+  your CA.
 </p>
 </Aside>

@@ -7,7 +7,7 @@ server:
   name: myserver
   dnsName: myserver.mycompany.net
   port: 443
-acme: false
+acme: true
 kubernetes:
   ingressClass: nginx
 links:
