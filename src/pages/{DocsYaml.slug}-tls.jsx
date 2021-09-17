@@ -151,7 +151,7 @@ const Page = ({ data, location }) => {
                   <FormControlLabel
                     value="jwk"
                     control={<Radio color="primary" />}
-                    label="Generic (password-based)"
+                    label="Generic (password-based, etc.)"
                   />
                   <FormControlLabel
                     value="acme"

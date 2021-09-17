@@ -17,6 +17,7 @@ metadata:
   name: my-ca
 spec:
   acme:
+    # TODO add full URL path and configure for private acme (non-LE)
     server: https://my-ca-url.my-team.ca.smallstep.com
     privateKeySecretRef:
       name: my-ca-account-key
