@@ -122,13 +122,13 @@ const Page = ({ data, location }) => {
             <HBase variant="h4">
               Create a private key and request a certificate
             </HBase>
-            <MDXBlock path="sections/10-try/00-certificate" />
+            <MDXBlock path="sections/10-try/10-certificate" />
             <HBase variant="h4">
               Configure {doc.name} to use the certificate
             </HBase>
-            <MDXBlock path="sections/10-try/10-server" />
+            <MDXBlock path="sections/10-try/20-server" />
             <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
-            <MDXBlock path="sections/10-try/20-test" />
+            <MDXBlock path="sections/10-try/30-test" />
           </Box>
 
           <Box mb={6}>
@@ -136,7 +136,7 @@ const Page = ({ data, location }) => {
             <HBase variant="h4">
             Issue A Certificate For {doc.name} TLS
             </HBase>
-            <MDXBlock path="sections/20-operationalize/00-enrollment" />
+            <MDXBlock path="sections/20-operationalize/00-intro" />
 
             <HBase variant="h4">
             Configuring Automated {doc.name} TLS Renewal
@@ -234,16 +234,16 @@ const Page = ({ data, location }) => {
                 display: deployment === 'kubernetes' ? 'block' : 'none',
               }}
             >
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/00-certificate" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-issuer/jwk"
+                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-issuer/acme"
+                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/acme"
               />
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-configuration" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/30-configuration" />
             </div>
 
             <HBase variant="h4">
