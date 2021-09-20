@@ -205,13 +205,13 @@ const Page = ({ data, location }) => {
             >
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/20-deployments/linux/01-template/jwk"
+                path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/20-deployments/linux/01-template/acme"
+                path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/acme"
               />
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/02-override" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/20-override" />
             </div>
 
             <div
