@@ -5,7 +5,7 @@ updated: ''
 protocol: https
 server:
   name: myserver
-  dnsName: myserver.mycompany.net
+  dnsName: myserver.example.net
   port: 443
 acme: false
 kubernetes:
