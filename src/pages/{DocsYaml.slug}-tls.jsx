@@ -54,16 +54,17 @@ const Page = ({ data, location }) => {
   }, [location.search, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
-    const initialDeployment =
-      value === 'acme' && doc.acme ? 'builtin' : 'linux';
+    const updatedDeployment =
+      value === 'jwk' && deployment === 'builtin' ? 'linux' : deployment;
+
     setProvisioner(value);
-    setDeployment(initialDeployment);
+    setDeployment(updatedDeployment);
     window.history.pushState(
       {},
       '',
       `${location.pathname}?${queryString.stringify({
         provisioner: value,
-        deployment: initialDeployment,
+        deployment: updatedDeployment,
       })}`
     );
   };
@@ -150,7 +151,7 @@ const Page = ({ data, location }) => {
                   <FormControlLabel
                     value="jwk"
                     control={<Radio color="primary" />}
-                    label="Generic (password-based)"
+                    label="Generic (password-based, etc.)"
                   />
                   <FormControlLabel
                     value="acme"
