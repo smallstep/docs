@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+
 import { graphql } from 'gatsby';
 import { GatsbySeo } from 'gatsby-plugin-next-seo';
 import queryString from 'query-string';
@@ -113,7 +114,7 @@ const Page = ({ data, location }) => {
           </Box>
 
           <Box mb={4}>
-            <MDXBlock path="sections/01-intro" />
+            <MDXBlock path="sections/00-intro" />
           </Box>
 
           <Box mb={6}>
@@ -121,22 +122,26 @@ const Page = ({ data, location }) => {
             <HBase variant="h4">
               Create a private key and request a certificate
             </HBase>
-            <MDXBlock path="sections/02-try/01-certificate" />
+            <MDXBlock path="sections/10-try/00-certificate" />
             <HBase variant="h4">
               Configure {doc.name} to use the certificate
             </HBase>
-            <MDXBlock path="sections/02-try/02-server" />
+            <MDXBlock path="sections/10-try/10-server" />
             <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
-            <MDXBlock path="sections/02-try/03-test" />
+            <MDXBlock path="sections/10-try/20-test" />
           </Box>
 
           <Box mb={6}>
-            <HBase variant="h3">Operationalize it</HBase>
+            <HBase variant="h3">Operationalize It</HBase>
             <HBase variant="h4">
-              Automate {doc.name} TLS certificate renewal
+            Issue A Certificate For {doc.name} TLS
             </HBase>
-            <MDXBlock path="sections/03-operationalize/01-renewal/01-intro" />
+            <MDXBlock path="sections/20-operationalize/00-enrollment" />
 
+            <HBase variant="h4">
+            Configuring Automated {doc.name} TLS Renewal
+            </HBase>
+            <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
             <Box my={4}>
               <FormControl component="fieldset">
                 <Heading variant="h6" mb={2}>
@@ -165,11 +170,11 @@ const Page = ({ data, location }) => {
             <Box mb={4}>
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/03-operationalize/01-renewal/02-provisioner/jwk"
+                path="sections/20-operationalize/10-renewal/10-provisioner/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/03-operationalize/01-renewal/02-provisioner/acme"
+                path="sections/20-operationalize/10-renewal/10-provisioner/acme"
               />
             </Box>
 
@@ -191,7 +196,7 @@ const Page = ({ data, location }) => {
               className={classes.tabPanel}
               style={{ display: deployment === 'builtin' ? 'block' : 'none' }}
             >
-              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/builtin-acme" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/builtin-acme" />
             </div>
 
             <div
@@ -200,13 +205,13 @@ const Page = ({ data, location }) => {
             >
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/jwk"
+                path="sections/20-operationalize/10-renewal/20-deployments/linux/01-template/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/03-operationalize/01-renewal/03-deployments/linux/01-template/acme"
+                path="sections/20-operationalize/10-renewal/20-deployments/linux/01-template/acme"
               />
-              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/linux/02-override" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/02-override" />
             </div>
 
             <div
@@ -215,11 +220,11 @@ const Page = ({ data, location }) => {
             >
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/03-operationalize/01-renewal/03-deployments/docker/jwk"
+                path="sections/20-operationalize/10-renewal/20-deployments/docker/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/03-operationalize/01-renewal/03-deployments/docker/acme"
+                path="sections/20-operationalize/10-renewal/20-deployments/docker/acme"
               />
             </div>
 
@@ -229,29 +234,29 @@ const Page = ({ data, location }) => {
                 display: deployment === 'kubernetes' ? 'block' : 'none',
               }}
             >
-              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/01-certificate" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/00-certificate" />
               <MDXBlock
                 show={provisioner === 'jwk'}
-                path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/02-issuer/jwk"
+                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-issuer/jwk"
               />
               <MDXBlock
                 show={provisioner === 'acme'}
-                path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/02-issuer/acme"
+                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-issuer/acme"
               />
-              <MDXBlock path="sections/03-operationalize/01-renewal/03-deployments/kubernetes/03-configuration" />
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-configuration" />
             </div>
 
             <HBase variant="h4">
               Distribute your root certificate to end users and systems
             </HBase>
-            <MDXBlock path="sections/03-operationalize/02-root" />
+            <MDXBlock path="sections/20-operationalize/20-root" />
           </Box>
 
-          {content[`${doc.slug}/sections/04-research-notes/02-notes`] && (
+          {content[`${doc.slug}/sections/30-research-notes/10-notes`] && (
             <Box mb={6}>
               <HBase variant="h3">Research notes</HBase>
-              <MDXBlock path="sections/04-research-notes/01-intro" />
-              <MDXBlock path="sections/04-research-notes/02-notes" />
+              <MDXBlock path="sections/30-research-notes/00-intro" />
+              <MDXBlock path="sections/30-research-notes/10-notes" />
             </Box>
           )}
 
