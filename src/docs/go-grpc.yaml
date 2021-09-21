@@ -2,7 +2,7 @@ slug: go-grpc
 name: Go gRPC
 written: September 14, 2021
 updated: September 20, 2021
-protocol: gRPC
+protocol: grpc
 server:
   name: helloworld
   dnsName: helloworld.default.svc.cluster.local
