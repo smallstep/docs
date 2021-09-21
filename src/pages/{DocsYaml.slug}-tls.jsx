@@ -11,6 +11,10 @@ import RadioGroup from '@material-ui/core/RadioGroup';
 import Radio from '@material-ui/core/Radio';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
+import ExpansionPanel from '@material-ui/core/ExpansionPanel';
+import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
+import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext, PageContext } from '../context';
@@ -253,7 +257,18 @@ const Page = ({ data, location }) => {
             <Box mb={6}>
               <HBase variant="h3">Research notes</HBase>
               <MDXBlock path="sections/30-research-notes/00-intro" />
-              <MDXBlock path="sections/30-research-notes/10-notes" />
+              <ExpansionPanel>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                  <Heading variant="h5" mb={0}>
+                    Full research notes
+                  </Heading>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                  <Box width="100%" px={4}>
+                    <MDXBlock path="sections/30-research-notes/10-notes" />
+                  </Box>
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
             </Box>
           )}
 

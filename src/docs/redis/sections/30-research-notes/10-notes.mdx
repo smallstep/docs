@@ -1,4 +1,5 @@
-### General notes
+<h3 mt={0}>General notes</h3>
+
 - Redis client & server (`redis-cli` and `redis-server`) do not use your system's trust store. They require explicitly configuration of trusted CA root(s) (i.e., trust store).
     - I tested two popular SDKs (`node-redis` & `go-redis/redis`) and they both used the *language-default behavior*.
         - `golang` uses the system truststore
