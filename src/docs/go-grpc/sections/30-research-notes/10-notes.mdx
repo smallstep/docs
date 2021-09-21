@@ -1,0 +1,7 @@
+Even that `step-ca` supports to grant certificates using ACME to hostnames like
+`localhost`, `acme/autocert` requires domains with at least a dot (`.`) in it.
+
+You might have noticed that in the kubernetes example we're not using the
+built-in ACME binary. It works also in Kuberentes, but you won't be able to
+scale it to use multiple pods because the ACME flow requires to know a previous
+state, and our examples and `acme/autocert` are stateless.
