@@ -8,6 +8,8 @@ server:
   dnsName: myserver.example.net
   port: 443
 acme: false
+linux:
+  systemdUnitName: nginx
 kubernetes:
   ingressClass: nginx
 links:

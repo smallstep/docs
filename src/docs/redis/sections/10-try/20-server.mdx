@@ -16,3 +16,10 @@ redis-server \
 	--tls-ca-cert-file /path/to/ca.crt \
 	--tls-auth-clients no
 ```
+
+- `6379` is the default port that `redis-cli` (and probably SDKs) connect to.
+- Setting `--port 0` disables the non-TLS TCP socket.
+- `--tls-auth-client no` disables client authentication (which is on by default).
+- The server's private key can be password-protected using PEM encryption.
+  Use `step crypto change-pass` to encrypt the private key.
+  Then, the server will prompt for the password at startup, or you can provide it using `--tls-key-file-pass <password>`.
