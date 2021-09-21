@@ -8,6 +8,8 @@ server:
   dnsName: helloworld.default.svc.cluster.local
   port: 443
 acme: true
+linux:
+  systemdUnitName: go-grpc
 kubernetes:
   ingressClass: null
 links:
