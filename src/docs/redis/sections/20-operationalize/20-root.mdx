@@ -1,5 +1,0 @@
-Here are some notes on root distribution for Redis.
-
-- "Adding SAN validation also makes sense (again, optionally) but will probably be more difficult to do, as Redis tends to use IPs rather than hostnames in all sorts of places. [https://github.com/redis/redis/issues/7946#issuecomment-714660881](https://github.com/redis/redis/issues/7946#issuecomment-714660881)
-    - "The best option is to disable matching of hostname to certificate name. As long as your CA is private the security implications should be minor" [https://github.com/redis/redis/issues/7928#issuecomment-714462007](https://github.com/redis/redis/issues/7928#issuecomment-714462007)
-- The `tls-ca-cert-dir` directive is complicated: [https://github.com/redis/redis/issues/7392](https://github.com/redis/redis/issues/7392)
