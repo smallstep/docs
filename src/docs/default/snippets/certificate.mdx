@@ -1,3 +1,7 @@
-```shell
-step ca certificate "myserver.example.net" server.crt server.key
-```
+<DocConfig>
+  {({ server }) => (
+    <CodeBlock autoCopy language="shell">
+      {`step ca certificate "${server.dnsName}" server.crt server.key`}
+    </CodeBlock>
+  )}
+</DocConfig>
