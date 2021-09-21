@@ -45,7 +45,7 @@ kind: Certificate
 metadata:
   name: ${server.name}
 spec:
-  secretName: tls-${server.name}
+  secretName: ${server.name}-tls
   duration: 24h
   dnsNames:
     - ${server.dnsName}
@@ -78,9 +78,9 @@ Customize the `Certificate` name, `secretName`, and issuer name to suit your own
       TLS certificate with the DNS name{' '}
       <inlineCode>{server.dnsName}</inlineCode> and store the certificate and
       private key in a Kubernetes secret named{' '}
-      <inlineCode>tls-{server.name}</inlineCode>. The certificate is valid for
+      <inlineCode>{server.name}-tls</inlineCode>. The certificate is valid for
       24 hours, and cert-manager will automatically renew it before expiration
-      and update the <inlineCode>tls-{server.name}</inlineCode> secret.
+      and update the <inlineCode>{server.name}-tls</inlineCode> secret.
     </p>
   )}
 </DocConfig>
