@@ -88,7 +88,7 @@ spec:
   acme:
     server: https://my-ca-url.my-team.ca.smallstep.com
     privateKeySecretRef:
-      name: tls-${server.name}
+      name: ${server.name}-tls
     solvers:
     - dns01:
         cloudDNS:
