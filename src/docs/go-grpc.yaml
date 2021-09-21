@@ -4,8 +4,8 @@ written: September 14, 2021
 updated: September 16, 2021
 protocol: gRPC
 server:
-  name: myserver
-  dnsName: myserver.mycompany.net
+  name: helloworld
+  dnsName: helloworld.default.svc.cluster.local
   port: 443
 acme: true
 kubernetes:
