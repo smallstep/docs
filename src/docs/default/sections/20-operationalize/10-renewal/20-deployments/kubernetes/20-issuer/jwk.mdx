@@ -48,9 +48,9 @@ Create the secret in your cluster, then apply your `StepIssuer` resource.
 
 <CodeBlock
   language="shell"
-  copyText="kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11 && kubectl apply -f my-ca-issuer.yaml"
+  copyText=" kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11 && kubectl apply -f my-ca-issuer.yaml"
 >
-  {`kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11
+  {` kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11
 kubectl apply -f my-ca-issuer.yaml`}
 </CodeBlock>
 
