@@ -41,9 +41,11 @@ services:
 
 As we can see we're starting 3 different services:
 
-* `step-ca.docker` with `step-ca` configured with an ACME provisioner
+* `step-ca.docker` with `step-ca` configured with an ACME provisioner and a
+pre-generated PKI in the pki directory
 * `server.docker` with our `server-acme` from `go-grpc-example`
-* `client.docker` just running `bash` and finishing, we'll use this for testing
+* `client.docker` just running `bash` and finishing,
+ we'll use this for testing
 
 To start the services, we just `cd` into `go-grpc-example` and run:
 
