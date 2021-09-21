@@ -1,0 +1,16 @@
+<DocConfig>
+  {({ name }) => (
+    <p>
+      We've created a <inlineCode>systemd</inlineCode> renewal timer for
+      renewing certificates with a Smallstep CA (see non-ACME Linux
+      instructions). However, we haven't yet investigated how to modify that
+      timer for ACME use cases. We're working on it, but feel free to{' '}
+      <a href="https://github.com/smallstep/practicalzt">
+        contribute this content
+      </a>{' '}
+      directly on GitHub. At this point, you will need to manually create the{' '}
+      <inlineCode>cert-renewer@.service</inlineCode> and{' '}
+      <inlineCode>cert-renewer@.timer</inlineCode> template files.
+    </p>
+  )}
+</DocConfig>
