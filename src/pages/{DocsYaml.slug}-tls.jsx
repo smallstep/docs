@@ -134,12 +134,7 @@ const Page = ({ data, location }) => {
           <Box mb={6}>
             <HBase variant="h3">Operationalize It</HBase>
             <HBase variant="h4">
-            Issue A Certificate For {doc.name} TLS
-            </HBase>
-            <MDXBlock path="sections/20-operationalize/00-intro" />
-
-            <HBase variant="h4">
-            Configuring Automated {doc.name} TLS Renewal
+              Configuring Automated {doc.name} TLS Renewal
             </HBase>
             <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
             <Box my={4}>
