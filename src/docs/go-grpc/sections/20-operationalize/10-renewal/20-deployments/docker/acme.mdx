@@ -1,0 +1,75 @@
+We're not going to use docker-compose to set up `step-ca` with our
+`go-grpc-example` and use ACME to get and automatically renew a certificate
+using `acme/autocert`.
+
+If we haven't done it before, we need to pull the example repository:
+
+```shell
+git clone https://github.com/smallstep/go-grpc-example.git
+```
+
+In that repository we have a docker-compose YAML file that looks like:
+
+```yaml
+version: '3'
+services:
+  step-ca.docker:
+    image: smallstep/step-ca:latest
+    volumes:
+      - "./pki:/home/step"
+  server.docker:
+    image: smallstep/go-grpc-example:latest
+    environment:
+      - DOMAIN=server.docker
+      - STEP_CA_URL=https://step-ca.docker:9000
+      - STEP_CA_FINGERPRINT=d4944875d7c94905aac7232f4a7155e6e46fffa2464f1b98e088f57c34e16199
+    depends_on:
+      - step-ca.docker
+  client.docker:
+    image: smallstep/go-grpc-example:latest
+    environment:
+      - DOMAIN=server.docker
+      - STEP_CA_URL=https://step-ca.docker:9000
+      - STEP_CA_FINGERPRINT=d4944875d7c94905aac7232f4a7155e6e46fffa2464f1b98e088f57c34e16199
+    depends_on:
+      - step-ca.docker
+    healthcheck:
+      disable: true
+    command:
+      - bash
+```
+
+As we can see we're starting 3 different services:
+
+* `step-ca.docker` with `step-ca` configured with an ACME provisioner
+* `server.docker` with our `server-acme` from `go-grpc-example`
+* `client.docker` just running `bash` and finishing, we'll use this for testing
+
+To start the services, we just `cd` into `go-grpc-example` and run:
+
+```bash
+docker-compose up
+```
+
+After a few seconds you will be able to see how `server.docker` hitting
+`step-ca.docker` to get a new certificate using ACME.
+
+And finally, to test the service in a new terminal, we go to the same directory
+and run:
+
+<CodeBlock language="shell-session" copyText='docker-compose run client.docker'>
+{`$ docker-compose run client.docker
+Creating go-grpc-example_client.docker_run ... done
+The root certificate has been saved in /home/step/certs/root_ca.crt.
+Your configuration has been saved in /home/step/config/defaults.json.
+bash-5.1$`}
+</CodeBlock>
+
+This will open a shell in the `client.docker` service, and we will use our
+client app to test it:
+
+<CodeBlock language="shell-session" copyText='client --address server.docker:443 --cacert certs/root_ca.crt'>
+{`$ client --address server.docker:443 --cacert certs/root_ca.crt
+What's your name? Smallstep
+Greeting: Hello Smallstep`}
+</CodeBlock>
