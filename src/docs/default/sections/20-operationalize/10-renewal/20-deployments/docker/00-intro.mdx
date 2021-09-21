@@ -1,0 +1,29 @@
+**Automating certificate management in Docker containers**
+
+There are several approaches one could take for automating certificate management in Docker service containers:
+
+- **Self-contained**:
+  The Docker image for the service is augmented with certificate management functions,
+  usually by overriding the `ENTRYPOINT`.
+  While some might argue that this violates the single responsibility principle,
+  we believe certificate management is well within the responsibility of the service.
+- **Sidecar**:
+  The service container runs unmodified,
+  certificates are mounted via shared volume mounts,
+  and a separate sidecar container is responsible for certificate enrollment, renewal, and deployment.
+  Deployment can happen via an API call directly to the service
+  (if it supports online certificate reloading via API),
+  or by updating the service container via a [Docker socket proxy](https://github.com/tecnativa/docker-socket-proxy) call.
+- **Host-based**:
+  The host is responsible for renewing certificates (supplied via volume mounts)
+  and triggering a reload of certificate files (or restarting the containers) when they are renewed.
+- **Host-based, with notifier**:
+  The service's certificates are mounted via shared volume mounts,
+  and the host is responsible for renewing the certificates.
+  The Docker image is augmented with a certificate watcher that can restart the service or refresh certificates whenever the certificate files change.
+
+To support the broadest range of environments where containers are run,
+**we prefer the self-contained approach**.
+While it requires building a custom Docker image,
+it solves the problems of root distribution, enrollment, and renewal
+without require volume mounts or access to the host environment.
