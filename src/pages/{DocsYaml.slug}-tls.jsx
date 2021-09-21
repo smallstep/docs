@@ -218,6 +218,7 @@ const Page = ({ data, location }) => {
               className={classes.tabPanel}
               style={{ display: deployment === 'docker' ? 'block' : 'none' }}
             >
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/docker/00-intro" />
               <MDXBlock
                 show={provisioner === 'jwk'}
                 path="sections/20-operationalize/10-renewal/20-deployments/docker/jwk"
