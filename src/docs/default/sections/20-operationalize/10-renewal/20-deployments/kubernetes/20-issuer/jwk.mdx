@@ -48,9 +48,9 @@ Create the secret in your cluster, then apply your `StepIssuer` resource.
 
 <CodeBlock
   language="shell"
-  copyText=" kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11 && kubectl apply -f my-ca-issuer.yaml"
+  copyText="kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11 && kubectl apply -f my-ca-issuer.yaml"
 >
-  {` kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11
+  {`kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11
 kubectl apply -f my-ca-issuer.yaml`}
 </CodeBlock>
 
@@ -61,7 +61,7 @@ kubectl apply -f my-ca-issuer.yaml`}
       <inlineCode>Certificate</inlineCode> and your{' '}
       <inlineCode>StepIssuer</inlineCode> are configured, cert-manager should
       have reached out to your Smallstep CA, issued (or begun issuing) the
-      certificate, and created the <inlineCode>tls-{server.name}</inlineCode>{' '}
+      certificate, and created the <inlineCode>{server.name}-tls</inlineCode>{' '}
       secret with your certificate and private key.
     </p>
   )}

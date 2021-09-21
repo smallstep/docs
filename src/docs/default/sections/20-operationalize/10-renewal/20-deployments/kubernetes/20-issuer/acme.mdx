@@ -61,7 +61,7 @@ kubectl apply -f my-ca-issuer.yaml
       <inlineCode>Certificate</inlineCode> and your{' '}
       <inlineCode>Issuer</inlineCode> are configured, cert-manager should have
       issued (or begun issuing) the certificate and created the{' '}
-      <inlineCode>tls-{server.name}</inlineCode> secret with your certificate
+      <inlineCode>{server.name}-tls</inlineCode> secret with your certificate
       and private key. We'll reference this secret later when we configure{' '}
       {name} to use this certificate and private key for TLS.
     </p>
