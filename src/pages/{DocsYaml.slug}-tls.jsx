@@ -134,12 +134,7 @@ const Page = ({ data, location }) => {
           <Box mb={6}>
             <HBase variant="h3">Operationalize It</HBase>
             <HBase variant="h4">
-            Issue A Certificate For {doc.name} TLS
-            </HBase>
-            <MDXBlock path="sections/20-operationalize/00-intro" />
-
-            <HBase variant="h4">
-            Configuring Automated {doc.name} TLS Renewal
+              Configuring Automated {doc.name} TLS Renewal
             </HBase>
             <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
             <Box my={4}>
@@ -218,6 +213,7 @@ const Page = ({ data, location }) => {
               className={classes.tabPanel}
               style={{ display: deployment === 'docker' ? 'block' : 'none' }}
             >
+              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/docker/00-intro" />
               <MDXBlock
                 show={provisioner === 'jwk'}
                 path="sections/20-operationalize/10-renewal/20-deployments/docker/jwk"
@@ -260,10 +256,15 @@ const Page = ({ data, location }) => {
             </Box>
           )}
 
-          <HBase variant="h3">Further reading</HBase>
-          <Paragraph>[structured links]</Paragraph>
+          {content[`${doc.slug}/sections/40-further-reading`] && (
+            <Box mb={6}>
+              <HBase variant="h3">Further reading</HBase>
+              <MDXBlock path="sections/40-further-reading" />
+            </Box>
+          )}
+
           <HBase variant="h3">Contribute to this document</HBase>
-          <Paragraph>[link to GH]</Paragraph>
+          <MDXBlock path="sections/50-contribute" />
         </DocContext.Provider>
       </PageContext.Provider>
     </>
@@ -281,6 +282,9 @@ export const query = graphql`
         name
         dnsName
         port
+      }
+      linux {
+        systemdUnitName
       }
       kubernetes {
         ingressClass
