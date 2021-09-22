@@ -22,7 +22,7 @@ const IngressTemplate = ({
     </Box>
 
     <Box mb={6}>
-      <HBase variant="h4">Configuring Automated {doc.name} TLS Renewal</HBase>
+      <HBase variant="h4">Configure Automated {doc.name} TLS Renewal</HBase>
       <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
       <Box my={4}>
         <ProvisionerSelector
