@@ -38,11 +38,10 @@ kubectl apply -f my-ca-issuer.yaml
   reason, your Kubernetes cluster must have some HTTP ingress configured, and
   your DNS name must resolve to that ingress. In the above example, we assume
   your ingress has a class name{' '}
-  <inlineCode>{props.doc.kubernetes.ingressClass}</inlineCode>, and
-  cert-manager will automatically intercept ACME requests to that ingress to
-  solve the HTTP01 ACME challenge sent by your CA. This effectively
-  "authenticates" your ACME client with the CA, and the CA will then sign the
-  certificate.
+  <inlineCode>{props.doc.kubernetes.ingressClass}</inlineCode>, and cert-manager
+  will automatically intercept ACME requests to that ingress to solve the HTTP01
+  ACME challenge sent by your CA. This effectively "authenticates" your ACME
+  client with the CA, and the CA will then sign the certificate.
 </p>
 
 <p>
