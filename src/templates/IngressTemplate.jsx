@@ -17,7 +17,7 @@ const IngressTemplate = ({
     </Box>
 
     <Box mb={6}>
-      <HBase variant="h4">Set up a private Certificate Authority</HBase>
+      <HBase variant="h4">Set up a private certificate authority</HBase>
       <MDXBlock path="sections/10-try/10-certificate" />
     </Box>
 
