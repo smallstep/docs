@@ -17,6 +17,11 @@ const IngressTemplate = ({
     </Box>
 
     <Box mb={6}>
+      <HBase variant="h4">Set up a private Certificate Authority</HBase>
+      <MDXBlock path="sections/10-try/10-certificate" />
+    </Box>
+
+    <Box mb={6}>
       <HBase variant="h4">Configuring Automated {doc.name} TLS Renewal</HBase>
       <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
       <Box my={4}>
