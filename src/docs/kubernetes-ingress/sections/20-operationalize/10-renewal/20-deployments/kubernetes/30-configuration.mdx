@@ -1,0 +1,42 @@
+Telling your ingress to make use of the certificate and private key
+in the `tls-myserver` secret is as easy as adding a `tls` block
+to your exsting `Ingress` resources.
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: myserver
+  labels: ...
+  annotations: ...
+spec:
+  rules:
+    - host: myserver.example.net
+      http:
+        paths:
+          - backend:
+              serviceName: my-service
+              servicePort: 5000
+            path: /
+  tls:
+    - hosts:
+        - myserver.company.net
+      secretName: tls-myserver
+```
+
+Voila! Your ingress controller will pick up this `tls` configuration
+and automatically serve the renewed certificate each time
+the `tls-myserver` secret is updated.
+
+Use `curl` to check that your TLS configuraiton is working as expected.
+You'll need to pass your CA root certificate as an argument
+so `curl` can verify the ingress certificate.
+
+<CodeBlock
+  language="shell-session"
+  copyText="curl --cacert ca.crt https://myserver.example.net"
+>
+  {`$ curl --cacert ca.crt https://myserver.example.net
+HTTP/2 200
+...`}
+</CodeBlock>

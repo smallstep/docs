@@ -9,6 +9,7 @@ import { Heading, Paragraph } from '@smallstep/step-ui';
 
 import { DocContext } from '../context';
 import ServerTemplate from '../templates/ServerTemplate';
+import IngressTemplate from '../templates/IngressTemplate';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
@@ -124,14 +125,25 @@ const Page = ({ data, location }) => {
           </Paragraph>
         </Box>
 
-        <ServerTemplate
-          doc={doc}
-          content={content}
-          provisioner={provisioner}
-          deployment={deployment}
-          onProvisionerChange={handleProvisionerChange}
-          onDeploymentChange={handleDeploymentChange}
-        />
+        {doc.template === 'server' && (
+          <ServerTemplate
+            doc={doc}
+            content={content}
+            provisioner={provisioner}
+            deployment={deployment}
+            onProvisionerChange={handleProvisionerChange}
+            onDeploymentChange={handleDeploymentChange}
+          />
+        )}
+
+        {doc.template === 'ingress' && (
+          <IngressTemplate
+            doc={doc}
+            content={content}
+            provisioner={provisioner}
+            onProvisionerChange={handleProvisionerChange}
+          />
+        )}
       </DocContext.Provider>
     </>
   );
@@ -142,6 +154,7 @@ export const query = graphql`
     docsYaml(id: { eq: $id }) {
       slug
       name
+      template
       written
       updated
       server {
