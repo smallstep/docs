@@ -8,7 +8,7 @@ server:
   dnsName: redis.example.net
   port: 6379
 acme: false
-kubernetes:
-  ingressClass: nginx
 linux:
   systemdUnitName: redis-server
+kubernetes:
+  ingressClass: nginx
