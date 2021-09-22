@@ -17,8 +17,7 @@ metadata:
   name: my-ca
 spec:
   acme:
-    # TODO add full URL path and configure for private acme (non-LE)
-    server: https://my-ca-url.my-team.ca.smallstep.com
+    server: https://my-ca-url.my-team.ca.smallstep.com/acme/acme/directory
     privateKeySecretRef:
       name: my-ca-account-key
     solvers:
@@ -86,7 +85,7 @@ metadata:
   name: my-ca
 spec:
   acme:
-    server: https://my-ca-url.my-team.ca.smallstep.com
+    server: https://my-ca-url.my-team.ca.smallstep.com/acme/acme/directory
     privateKeySecretRef:
       name: ${server.name}-tls
     solvers:
