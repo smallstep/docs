@@ -12,12 +12,3 @@ linux:
   systemdUnitName: redis-server
 kubernetes:
   ingressClass: nginx
-links:
-  - text: 'Redis: TLS Support'
-    url: https://redis.io/topics/encryption
-  - text: 'A Guide to Using Built-in TLS with Redis'
-    url: https://nishanths.svbtle.com/setting-up-redis-with-tls
-  - text: 'Digital Ocean: using stunnel with older versions of Redis that don''t support TLS'
-    url: https://www.digitalocean.com/community/tutorials/how-to-connect-to-managed-redis-over-tls-with-stunnel-and-redis-cli
-  - text: 'Original GitHub issue discussing adding TLS support'
-    url: https://github.com/redis/redis/issues/2178](https://github.com/redis/redis/issues/2178
