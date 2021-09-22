@@ -88,7 +88,7 @@ const Page = ({ data, location }) => {
     <>
       <GatsbySeo
         type="article"
-        title={`${doc.name} TLS — How to get and renew ${doc.name} TLS certificates | Practical Zero Trust`}
+        title={`${doc.name} TLS — How to get and renew ${doc.name} TLS certificates — Practical Zero Trust`}
         description={`Practical step-by-step instructions for implementing zero trust principals with ${doc.name}.`}
       />
 
