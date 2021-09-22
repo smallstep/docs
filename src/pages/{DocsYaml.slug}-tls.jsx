@@ -46,7 +46,7 @@ const Page = ({ data, location }) => {
 
     setProvisioner(initialProvisioner);
     setDeployment(initialDeployment);
-  }, [location.search, doc.acme]);
+  }, [location.search, doc.template, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
     const updatedDeployment =
