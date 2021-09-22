@@ -23,7 +23,9 @@ const Page = ({ data, location }) => {
   const classes = useStyles();
 
   const [provisioner, setProvisioner] = useState('jwk');
-  const [deployment, setDeployment] = useState('linux');
+  const [deployment, setDeployment] = useState(
+    doc.template === 'ingress' ? 'kubernetes' : 'linux'
+  );
 
   useEffect(() => {
     const { provisioner: queryProvisioner, deployment: queryDeployment } =
@@ -31,11 +33,15 @@ const Page = ({ data, location }) => {
 
     const initialProvisioner = queryProvisioner || 'jwk';
     let initialDeployment;
+
     if (queryDeployment) {
       initialDeployment = queryDeployment;
+    } else if (doc.template === 'ingress') {
+      initialDeployment = 'kubernetes';
+    } else if (initialProvisioner === 'acme' && doc.acme) {
+      initialDeployment = 'builtin';
     } else {
-      initialDeployment =
-        initialProvisioner === 'acme' && doc.acme ? 'builtin' : 'linux';
+      initialDeployment = 'linux';
     }
 
     setProvisioner(initialProvisioner);
