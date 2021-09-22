@@ -1,6 +1,7 @@
 module.exports = {
   pathPrefix: '/practical-zero-trust',
   plugins: [
+    `gatsby-plugin-remove-trailing-slashes`,
     {
       resolve: `gatsby-plugin-compile-es6-packages`,
       options: {
