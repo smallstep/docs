@@ -1,11 +1,9 @@
-**Automating certificate management in Docker containers**
-
 When working with certificate in containers, you'll need to decide how and where and when to handle each of these tasks:
 
-- Root distribution: Getting the container to trust the CA
-- Enrollment: Issuing the service a new TLS certificate from the CA
-- Renewal: Renewing the certificate when it nears expiry
-- Deployment: Moving the certificate into place and signaling a certificate reload (or restarting the service)
+- **Root distribution**: Getting the container to trust the CA
+- **Enrollment**: Issuing the service a new TLS certificate from the CA
+- **Renewal**: Renewing the certificate when it nears expiry
+- **Deployment**: Moving the certificate into place and signaling a certificate reload (or restarting the service)
 
 There are several approaches one could take for full automation. Here are a few:
 
