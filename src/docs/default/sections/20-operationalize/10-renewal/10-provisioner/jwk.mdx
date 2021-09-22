@@ -3,12 +3,12 @@ The right provisioner depends on your operational environment.
 <p>
   The JWK provisioner supports passwords and one-time tokens. It's simple and
   general purpose. To add a JWK provisioner called{' '}
-  <inlineCode>{props.doc.server.name}</inlineCode> to a hosted Certificate
-  Manager authority (if you haven't already), run:
+  <inlineCode>{props.doc.slug}</inlineCode> to a hosted Certificate Manager
+  authority (if you haven't already), run:
 </p>
 
 <CodeBlock autoCopy language="shell">
-  {`step beta ca provisioner add ${props.doc.server.name} --type JWK --create --x509-default-dur 720h`}
+  {`step beta ca provisioner add ${props.doc.slug} --type JWK --create --x509-default-dur 720h`}
 </CodeBlock>
 
 For instructions on adding provisioners to open source `step-ca`, or to learn more about other provisioner types, see _[Configuring `step-ca` Provisioners](https://smallstep.com/docs/step-ca/provisioners)_.
