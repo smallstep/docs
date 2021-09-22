@@ -1,5 +1,6 @@
 slug: redis
 name: Redis
+template: server
 written: September 20, 2021
 updated: ''
 protocol: RESP

@@ -1,10 +1,10 @@
 import { useContext } from 'react';
 
-import { PageContext } from '../context';
+import { DocContext } from '../context';
 
 const PageConfig = ({ children }) => {
-  const value = useContext(PageContext);
-  return children(value);
+  const { provisioner, deployment } = useContext(DocContext);
+  return children({ provisioner, deployment });
 };
 
 export default PageConfig;
