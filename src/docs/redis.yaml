@@ -11,5 +11,3 @@ server:
 acme: false
 linux:
   systemdUnitName: redis-server
-kubernetes:
-  ingressClass: nginx
