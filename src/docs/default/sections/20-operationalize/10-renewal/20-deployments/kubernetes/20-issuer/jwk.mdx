@@ -20,10 +20,8 @@ Create `my-ca-issuer.yaml` and fill in the CA URL and provisioner details
 with your own. `caBundle` refers to the base64-encoded version
 of your root certificate.
 
-<DocConfig>
-  {({ kubernetes }) => (
-    <CodeBlock autoCopy language="yaml">
-      {`apiVersion: certmanager.step.sm/v1beta1
+<CodeBlock autoCopy language="yaml">
+  {`apiVersion: certmanager.step.sm/v1beta1
 kind: StepIssuer
 metadata:
   name: my-ca
@@ -37,9 +35,7 @@ spec:
     passwordRef:
       name: my-ca-provisioner-password
       key: password`}
-    </CodeBlock>
-  )}
-</DocConfig>
+</CodeBlock>
 
 You'll notice the `passwordRef` configuration above, which declares a secret
 where step-issuer can expect to find your JWK provisioner password.
@@ -54,15 +50,11 @@ Create the secret in your cluster, then apply your `StepIssuer` resource.
 kubectl apply -f my-ca-issuer.yaml`}
 </CodeBlock>
 
-<DocConfig>
-  {({ name, server }) => (
-    <p>
-      If all went as expected now that both your{' '}
-      <inlineCode>Certificate</inlineCode> and your{' '}
-      <inlineCode>StepIssuer</inlineCode> are configured, cert-manager should
-      have reached out to your Smallstep CA, issued (or begun issuing) the
-      certificate, and created the <inlineCode>{server.name}-tls</inlineCode>{' '}
-      secret with your certificate and private key.
-    </p>
-  )}
-</DocConfig>
+<p>
+  If all went as expected now that both your{' '}
+  <inlineCode>Certificate</inlineCode> and your{' '}
+  <inlineCode>StepIssuer</inlineCode> are configured, cert-manager should have
+  reached out to your Smallstep CA, issued (or begun issuing) the certificate,
+  and created the <inlineCode>{props.doc.server.name}-tls</inlineCode> secret
+  with your certificate and private key.
+</p>

@@ -1,12 +1,8 @@
 To start the renewal timer, run:
 
-<DocConfig>
-  {({ linux }) => (
-    <CodeBlock autoCopy language="bash">
-      {`sudo systemctl daemon-reload
-sudo systemctl enable --now cert-renewer@${linux.systemdUnitName}.timer`}
-    </CodeBlock>
-  )}
-</DocConfig>
+<CodeBlock autoCopy language="bash">
+  {`sudo systemctl daemon-reload
+sudo systemctl enable --now cert-renewer@${props.doc.linux.systemdUnitName}.timer`}
+</CodeBlock>
 
 You'll see that the timer is active, by checking the output of `systemctl list-timers`.

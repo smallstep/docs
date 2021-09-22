@@ -1,11 +1,11 @@
 <p>
-  Before you can configure <DocConfig>{({ name }) => name}</DocConfig> TLS, you
-  will need a certificate issued by a trusted certificate authority (CA). If you
-  already have a certificate, private key, and CA root certificate from your
-  organization's existing CA, you can skip to the{' '}
-  <DocConfig>{({ name }) => name}</DocConfig> TLS configuration section below.
-  If you need to generate a certificate, you can:
+  Before you can configure {props.doc.name} TLS, you will need a certificate
+  issued by a trusted certificate authority (CA). If you already have a
+  certificate, private key, and CA root certificate from your organization's
+  existing CA, you can skip to the {props.doc.name} TLS configuration section
+  below. If you need to generate a certificate, you can:
 </p>
+
 <ul>
   <li>
     Use a{' '}
@@ -36,7 +36,8 @@
   </a>{' '}
   CLI, bootstrap your CA with <inlineCode>step ca bootstrap</inlineCode> and run
   the following command (sub the server name for the actual name / DNS name of
-  your <DocConfig>{({ name }) => name}</DocConfig> server).
+  your {props.doc.name} server).
+
 </p>
 
 <MDXBlock path="snippets/certificate" />
