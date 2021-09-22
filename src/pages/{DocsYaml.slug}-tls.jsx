@@ -5,31 +5,14 @@ import { GatsbySeo } from 'gatsby-plugin-next-seo';
 import queryString from 'query-string';
 import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
-import FormControl from '@material-ui/core/FormControl';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import Radio from '@material-ui/core/Radio';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
-import { DocContext, PageContext } from '../context';
-import MDXBlock from '../components/MDXBlock';
-import HBase from '../components/HBase';
+import { DocContext } from '../context';
+import ServerTemplate from '../templates/ServerTemplate';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
     color: theme.palette.text.secondary,
-  },
-  tabPanel: {
-    paddingLeft: 0,
-    paddingRight: 0,
-    paddingTop: theme.spacing(4),
-    paddingBotom: 0,
   },
 }));
 
@@ -102,210 +85,54 @@ const Page = ({ data, location }) => {
         description={`Practical step-by-step instructions for implementing zero trust principals with ${doc.name}.`}
       />
 
-      <PageContext.Provider value={{ provisioner, deployment }}>
-        <DocContext.Provider
-          value={{
-            doc: {
-              protocol: 'https',
-              acme: false,
-              ...doc,
-              server: {
-                name: 'myserver',
-                dnsName: 'myserver.example.net',
-                port: 443,
-                ...doc.server,
-              },
-              linux: {
-                systemdUnitName: doc.slug,
-                ...doc.linux,
-              },
-              kubernetes: {
-                ingressClass: 'nginx',
-                ...doc.kubernetes,
-              },
+      <DocContext.Provider
+        value={{
+          doc: {
+            protocol: 'https',
+            acme: false,
+            ...doc,
+            server: {
+              name: 'myserver',
+              dnsName: 'myserver.example.net',
+              port: 443,
+              ...doc.server,
             },
-            content,
-          }}
-        >
-          <Box mb={4}>
-            <Heading variant="h1">
-              {doc.name} TLS &mdash; Practical Zero Trust
-            </Heading>
-            <Heading component="h2" variant="h3">
-              How to get and renew {doc.name} TLS certificates
-            </Heading>
-            <Paragraph variant="body2" className={classes.timestamp}>
-              Written {doc.written}
-              {doc.updated && `, last updated ${doc.updated}`}
-            </Paragraph>
-          </Box>
+            linux: {
+              systemdUnitName: doc.slug,
+              ...doc.linux,
+            },
+            kubernetes: {
+              ingressClass: 'nginx',
+              ...doc.kubernetes,
+            },
+          },
+          content,
+          provisioner,
+          deployment,
+        }}
+      >
+        <Box mb={4}>
+          <Heading variant="h1">
+            {doc.name} TLS &mdash; Practical Zero Trust
+          </Heading>
+          <Heading component="h2" variant="h3">
+            How to get and renew {doc.name} TLS certificates
+          </Heading>
+          <Paragraph variant="body2" className={classes.timestamp}>
+            Written {doc.written}
+            {doc.updated && `, last updated ${doc.updated}`}
+          </Paragraph>
+        </Box>
 
-          <Box mb={4}>
-            <MDXBlock path="sections/00-intro" />
-          </Box>
-
-          <Box mb={6}>
-            <HBase variant="h3">Try it</HBase>
-            <HBase variant="h4">
-              Create a private key and request a certificate
-            </HBase>
-            <MDXBlock path="sections/10-try/10-certificate" />
-            <HBase variant="h4">
-              Configure {doc.name} to use the certificate
-            </HBase>
-            <MDXBlock path="sections/10-try/20-server" />
-            <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
-            <MDXBlock path="sections/10-try/30-test" />
-          </Box>
-
-          <Box mb={6}>
-            <HBase variant="h3">Operationalize It</HBase>
-            <HBase variant="h4">
-              Configuring Automated {doc.name} TLS Renewal
-            </HBase>
-            <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
-            <Box my={4}>
-              <FormControl component="fieldset">
-                <Heading variant="h6" mb={2}>
-                  Show me instructions for...
-                </Heading>
-                <RadioGroup
-                  aria-label="provisioner"
-                  name="provisioner"
-                  value={provisioner}
-                  onChange={handleProvisionerChange}
-                >
-                  <FormControlLabel
-                    value="jwk"
-                    control={<Radio color="primary" />}
-                    label="Generic (password-based, etc.)"
-                  />
-                  <FormControlLabel
-                    value="acme"
-                    control={<Radio color="primary" />}
-                    label="ACME"
-                  />
-                </RadioGroup>
-              </FormControl>
-            </Box>
-
-            <Box mb={4}>
-              <MDXBlock
-                show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/10-provisioner/jwk"
-              />
-              <MDXBlock
-                show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/10-provisioner/acme"
-              />
-            </Box>
-
-            <Tabs value={deployment} onChange={handleDeploymentChange}>
-              <Tab
-                label="Built-In ACME"
-                value="builtin"
-                style={{
-                  display:
-                    provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
-                }}
-              />
-              <Tab label="Linux" value="linux" />
-              <Tab label="Docker" value="docker" />
-              <Tab label="Kubernetes" value="kubernetes" />
-            </Tabs>
-
-            <div
-              className={classes.tabPanel}
-              style={{ display: deployment === 'builtin' ? 'block' : 'none' }}
-            >
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/builtin-acme" />
-            </div>
-
-            <div
-              className={classes.tabPanel}
-              style={{ display: deployment === 'linux' ? 'block' : 'none' }}
-            >
-              <MDXBlock
-                show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/jwk"
-              />
-              <MDXBlock
-                show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/acme"
-              />
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/20-override" />
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/30-enable" />
-            </div>
-
-            <div
-              className={classes.tabPanel}
-              style={{ display: deployment === 'docker' ? 'block' : 'none' }}
-            >
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/docker/00-intro" />
-              <MDXBlock
-                show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/20-deployments/docker/jwk"
-              />
-              <MDXBlock
-                show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/20-deployments/docker/acme"
-              />
-            </div>
-
-            <div
-              className={classes.tabPanel}
-              style={{
-                display: deployment === 'kubernetes' ? 'block' : 'none',
-              }}
-            >
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
-              <MDXBlock
-                show={provisioner === 'jwk'}
-                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/jwk"
-              />
-              <MDXBlock
-                show={provisioner === 'acme'}
-                path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/acme"
-              />
-              <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/30-configuration" />
-            </div>
-
-            <HBase variant="h4">
-              Distribute your root certificate to end users and systems
-            </HBase>
-            <MDXBlock path="sections/20-operationalize/20-root" />
-          </Box>
-
-          {content[`${doc.slug}/sections/30-research-notes/10-notes`] && (
-            <Box mb={6}>
-              <HBase variant="h3">Research notes</HBase>
-              <MDXBlock path="sections/30-research-notes/00-intro" />
-              <ExpansionPanel>
-                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                  <Heading variant="h5" mb={0}>
-                    Full research notes
-                  </Heading>
-                </ExpansionPanelSummary>
-                <ExpansionPanelDetails>
-                  <Box width="100%" px={4}>
-                    <MDXBlock path="sections/30-research-notes/10-notes" />
-                  </Box>
-                </ExpansionPanelDetails>
-              </ExpansionPanel>
-            </Box>
-          )}
-
-          {content[`${doc.slug}/sections/40-further-reading`] && (
-            <Box mb={6}>
-              <HBase variant="h3">Further reading</HBase>
-              <MDXBlock path="sections/40-further-reading" />
-            </Box>
-          )}
-
-          <HBase variant="h3">Contribute to this document</HBase>
-          <MDXBlock path="sections/50-contribute" />
-        </DocContext.Provider>
-      </PageContext.Provider>
+        <ServerTemplate
+          doc={doc}
+          content={content}
+          provisioner={provisioner}
+          deployment={deployment}
+          onProvisionerChange={handleProvisionerChange}
+          onDeploymentChange={handleDeploymentChange}
+        />
+      </DocContext.Provider>
     </>
   );
 };
