@@ -1,12 +1,6 @@
-<DocConfig>
-  {({ name }) => (
-    <p>
-      We haven't yet investigated the specifics for {name}. Refer to the {name}{' '}
-      documentation for more details, and feel free to{' '}
-      <a href="https://github.com/smallstep/practicalzt">
-        contribute this content
-      </a>{' '}
-      directly on GitHub.
-    </p>
-  )}
-</DocConfig>
+<p>
+  We haven't yet investigated the specifics for {props.doc.name}. Refer to the{' '}
+  {props.doc.name} documentation for more details, and feel free to{' '}
+  <a href="https://github.com/smallstep/practicalzt">contribute this content</a>{' '}
+  directly on GitHub.
+</p>
