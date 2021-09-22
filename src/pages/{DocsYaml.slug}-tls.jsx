@@ -103,7 +103,30 @@ const Page = ({ data, location }) => {
       />
 
       <PageContext.Provider value={{ provisioner, deployment }}>
-        <DocContext.Provider value={{ doc, content }}>
+        <DocContext.Provider
+          value={{
+            doc: {
+              protocol: 'https',
+              acme: false,
+              ...doc,
+              server: {
+                name: 'myserver',
+                dnsName: 'myserver.example.net',
+                port: 443,
+                ...doc.server,
+              },
+              linux: {
+                systemdUnitName: doc.slug,
+                ...doc.linux,
+              },
+              kubernetes: {
+                ingressClass: 'nginx',
+                ...doc.kubernetes,
+              },
+            },
+            content,
+          }}
+        >
           <Box mb={4}>
             <Heading variant="h1">
               {doc.name} TLS &mdash; Practical Zero Trust
