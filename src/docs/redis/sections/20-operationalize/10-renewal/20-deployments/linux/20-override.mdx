@@ -3,9 +3,9 @@ we will need a Redis-specific systemd override file that can tell Redis to refre
 To install the override, run:
 
 <DocConfig>
-{({ linux }) => (
+  {({ linux }) => (
     <CodeBlock autoCopy language="bash">
-{`sudo mkdir /etc/systemd/system/cert-renewer@${linux.systemdUnitName}.service.d
+      {`sudo mkdir /etc/systemd/system/cert-renewer@${linux.systemdUnitName}.service.d
 cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@${linux.systemdUnitName}.service.d/override.conf
 [Service]
 ; "Environment=" overrides are applied per environment variable. This line does not
@@ -19,7 +19,7 @@ ExecStartPost=
 ExecStartPost=redis-cli --user "\\\$REDIS_USERNAME" --tls --cacert /var/lib/redis/ca.crt config set tls-cert-file \\\$CERT_LOCATION
 EOF`}
     </CodeBlock>
-)}
+  )}
 </DocConfig>
 
 If you use password authentication in Redis,

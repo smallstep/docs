@@ -17,14 +17,14 @@ const ProvisionerSelector = ({ provisioner, onProvisionerChange }) => (
       onChange={onProvisionerChange}
     >
       <FormControlLabel
-        value="jwk"
-        control={<Radio color="primary" />}
-        label="Generic (password-based, etc.)"
-      />
-      <FormControlLabel
         value="acme"
         control={<Radio color="primary" />}
         label="ACME"
+      />
+      <FormControlLabel
+        value="jwk"
+        control={<Radio color="primary" />}
+        label="Other provisioners"
       />
     </RadioGroup>
   </FormControl>

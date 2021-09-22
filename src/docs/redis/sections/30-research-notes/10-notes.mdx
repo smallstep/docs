@@ -1,20 +1,20 @@
 <h3 mt={0}>General notes</h3>
 
 - Redis client & server (`redis-cli` and `redis-server`) do not use your system's trust store. They require explicitly configuration of trusted CA root(s) (i.e., trust store).
-    - I tested two popular SDKs (`node-redis` & `go-redis/redis`) and they both used the *language-default behavior*.
-        - `golang` uses the system truststore
-        - `node` ships their own trust store, but you can use the `EXTRA_CA_CERTS` env var to add more
+  - I tested two popular SDKs (`node-redis` & `go-redis/redis`) and they both used the _language-default behavior_.
+    - `golang` uses the system truststore
+    - `node` ships their own trust store, but you can use the `EXTRA_CA_CERTS` env var to add more
 - `redis-cli` doesn't do name validation on the server certificate. The server's hostname does not need to match the certificate subject (CN/SANs).
-    - Anyone who is able to get a certificate from your trusted CA could MITM connections from the `redis-cli` client.
-    - I tested two popular SDKs (`node-redis` & `go-redis/redis`) and they both implement proper certificate path validation and verify the server name.
-    - I don't want to endorse what `redis-cli` is doing here, but I suppose it isn't too terrible if you trust everything that can get a certificate from your CA. However, I'd check client libraries carefully to make sure there aren't any that 1) trust the system trust store, and 2) disable server name verification. In that scenario, anyone with a Web PKI certificate would be able to MITM your Redis server.
-- User authentication is "partial" because, while the Redis server supports optional or mandatory client certificates (mTLS), it does not do *any* authorization or mapping between certificate subject and Redis user.
-    - Functionally this establishes a sort of "cryptographic boundary", where any client can connect to Redis as long as it's able to get a certificate from the trusted CA.
-    - The expectation appears to be that the standard username/password authentication would occur over the [m]TLS-encrypted channel.
-    - Client authentication can also be enabled for clustered / replicated deployments. Client certificates are then required for establishing cluster bus and replication connections.
-        - You can provide a different certificate for Redis servers to use as client certs for these connections (e.g., with a different key use). However, you can't configure a different root CA (i.e., the same root CA is used to verify client certs for normal clients, replicas, and cluster nodes).
-        - For replication, you can use the `masterauth` directive to specify a password / shared secret to authenticate replicas. This would allow you to authenticate replicas and would prevent normal clients from connecting to the replication API.
-        - The cluster bus does not appear to have any additional authentication mechanism. Presumably, that means normal clients could use client certs to connect to authenticate to the cluster bus API as cluster nodes. I haven't tested this though.
+  - Anyone who is able to get a certificate from your trusted CA could MITM connections from the `redis-cli` client.
+  - I tested two popular SDKs (`node-redis` & `go-redis/redis`) and they both implement proper certificate path validation and verify the server name.
+  - I don't want to endorse what `redis-cli` is doing here, but I suppose it isn't too terrible if you trust everything that can get a certificate from your CA. However, I'd check client libraries carefully to make sure there aren't any that 1) trust the system trust store, and 2) disable server name verification. In that scenario, anyone with a Web PKI certificate would be able to MITM your Redis server.
+- User authentication is "partial" because, while the Redis server supports optional or mandatory client certificates (mTLS), it does not do _any_ authorization or mapping between certificate subject and Redis user.
+  - Functionally this establishes a sort of "cryptographic boundary", where any client can connect to Redis as long as it's able to get a certificate from the trusted CA.
+  - The expectation appears to be that the standard username/password authentication would occur over the [m]TLS-encrypted channel.
+  - Client authentication can also be enabled for clustered / replicated deployments. Client certificates are then required for establishing cluster bus and replication connections.
+    - You can provide a different certificate for Redis servers to use as client certs for these connections (e.g., with a different key use). However, you can't configure a different root CA (i.e., the same root CA is used to verify client certs for normal clients, replicas, and cluster nodes).
+    - For replication, you can use the `masterauth` directive to specify a password / shared secret to authenticate replicas. This would allow you to authenticate replicas and would prevent normal clients from connecting to the replication API.
+    - The cluster bus does not appear to have any additional authentication mechanism. Presumably, that means normal clients could use client certs to connect to authenticate to the cluster bus API as cluster nodes. I haven't tested this though.
 
 ### Refreshing the Certificate
 
@@ -29,13 +29,12 @@ redis-cli --user "$REDIS_USERNAME" --tls --cacert /path/to/root_ca.crt config se
   This is the recommended approach to force a certificate reload.
   Note that the value here is the filesystem path to the server's certificate.
   We're not actually changing it, we're literally reading the existing value and then writing that value again.
-    - Note also this can be a relative path, which is super weird since you're setting it via an API and don't really know the server's working directory. Still, we're just setting it to the same value it was at startup.
+  - Note also this can be a relative path, which is super weird since you're setting it via an API and don't really know the server's working directory. Still, we're just setting it to the same value it was at startup.
 - Another quirk here is that, if the server's certificate expires, the client won't connect and we can't get the server to reload its cert without killing it and restarting it.
   An `--insecure` option was added to `redis-cli` in version `6.2` which fixes this.
-
 
 ### Root Distribution
 
 - "Adding SAN validation also makes sense (again, optionally) but will probably be more difficult to do, as Redis tends to use IPs rather than hostnames in all sorts of places. [https://github.com/redis/redis/issues/7946#issuecomment-714660881](https://github.com/redis/redis/issues/7946#issuecomment-714660881)
-    - "The best option is to disable matching of hostname to certificate name. As long as your CA is private the security implications should be minor" [https://github.com/redis/redis/issues/7928#issuecomment-714462007](https://github.com/redis/redis/issues/7928#issuecomment-714462007)
+  - "The best option is to disable matching of hostname to certificate name. As long as your CA is private the security implications should be minor" [https://github.com/redis/redis/issues/7928#issuecomment-714462007](https://github.com/redis/redis/issues/7928#issuecomment-714462007)
 - The `tls-ca-cert-dir` directive is complicated: [https://github.com/redis/redis/issues/7392](https://github.com/redis/redis/issues/7392)

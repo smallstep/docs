@@ -22,8 +22,9 @@ const IngressTemplate = ({
     </Box>
 
     <Box mb={6}>
-      <HBase variant="h4">Configure Automated {doc.name} TLS Renewal</HBase>
+      <HBase variant="h4">Select a provisioner</HBase>
       <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
+
       <Box my={4}>
         <ProvisionerSelector
           provisioner={provisioner}
@@ -31,7 +32,7 @@ const IngressTemplate = ({
         />
       </Box>
 
-      <Box mb={4}>
+      <Box mb={6}>
         <MDXBlock
           show={provisioner === 'jwk'}
           path="sections/20-operationalize/10-renewal/10-provisioner/jwk"
@@ -41,6 +42,10 @@ const IngressTemplate = ({
           path="sections/20-operationalize/10-renewal/10-provisioner/acme"
         />
       </Box>
+
+      <HBase variant="h4" mb={4}>
+        Configure Automated {doc.name} TLS Renewal
+      </HBase>
 
       <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
       <MDXBlock
