@@ -1,14 +1,8 @@
 import React from 'react';
 import { Box } from '@material-ui/core';
 import { MDXProvider } from '@mdx-js/react';
-import {
-  Container,
-  Paragraph,
-  BlockQuote,
-  Code,
-  Link as SuiLink,
-  Logo,
-} from '@smallstep/step-ui';
+import { Container, Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
+import { SiteLayout } from '@smallstep/layouts';
 import apacheconf from 'refractor/lang/apacheconf';
 import diff from 'refractor/lang/diff';
 import go from 'refractor/lang/go';
@@ -96,16 +90,11 @@ export default function TopLayout({ children, theme }) {
         ]}
       >
         <ThemeTopLayout theme={theme}>
-          <Container size="md">
-            <Box width={200} mt={6} mb={2}>
-              <SuiLink href="https://smallstep.com" underline="none">
-                <Logo />
-              </SuiLink>
+          <SiteLayout>
+            <Box py={4}>
+              <Container size="md">{children}</Container>
             </Box>
-          </Container>
-          <Box py={4}>
-            <Container size="md">{children}</Container>
-          </Box>
+          </SiteLayout>
         </ThemeTopLayout>
       </CodeBlock.GrammarProvider>
     </MDXProvider>

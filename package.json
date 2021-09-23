@@ -18,6 +18,7 @@
     "@material-ui/styles": "^4.9.13",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
+    "@smallstep/layouts": "./src/layouts",
     "@smallstep/step-ui": "./vendor/step-ui",
     "gatsby": "^3.12.1",
     "gatsby-plugin-compile-es6-packages": "^2.1.1",

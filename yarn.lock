@@ -1652,6 +1652,9 @@
     escape-string-regexp "^2.0.0"
     lodash.deburr "^4.1.0"
 
+"@smallstep/layouts@./src/layouts":
+  version "0.0.1"
+
 "@smallstep/step-ui@./vendor/step-ui":
   version "0.0.1"
   dependencies:
