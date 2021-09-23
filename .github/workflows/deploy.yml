@@ -11,15 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: '14'
         cache: 'yarn'
+
+    - name: Clone practicalzt
+      uses: actions/checkout@v2
+
+    - name: Clone web repo for site layout
+      uses: actions/checkout@v2
+      with:
+        repository: smallstep/web
+        path: web
+
+    - run: pwd
+    - run: ls -al
+
+    - name: Build and copy web layouts
+      run: ./scripts/build-layouts.sh
+
     - run: yarn install
     - run: yarn build
     - run: tree public
+
     - name: Upload build artifacts
       uses: actions/upload-artifact@v2
       with:
