@@ -103,7 +103,7 @@ export default function TopLayout({ children, theme }) {
               </SuiLink>
             </Box>
           </Container>
-          <Box p={4}>
+          <Box py={4}>
             <Container size="md">{children}</Container>
           </Box>
         </ThemeTopLayout>
