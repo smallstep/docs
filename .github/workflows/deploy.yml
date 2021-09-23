@@ -10,10 +10,10 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    steps:
     - name: Clone practicalzt
       uses: actions/checkout@v2
 
-    steps:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
