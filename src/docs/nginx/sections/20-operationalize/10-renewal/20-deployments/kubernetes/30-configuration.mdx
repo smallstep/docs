@@ -1,0 +1,45 @@
+Now that your certificate is issued (and kept updated)
+in the `myserver-tls` secret, you'll need to configure Nginx
+to actually use that certificate.
+
+In the "Try It" section above, we showed how to configure
+a standalone Nginx server to use a certificate and private key.
+However, in Kubernetes, it's much more common to have Nginx
+deployed as an ingress controller.
+
+For this example, we will assume that you already
+have <a href="https://kubernetes.github.io/ingress-nginx/">ingress-nginx</a>
+deployed into your cluster. In that case, telling your ingress
+to make use of the certificate and private key in the `myserver-tls` secret
+is as easy as adding a `tls` block to your exsting `Ingress` resource.
+
+```yaml
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  name: myserver
+  labels: ...
+  annotations: ...
+spec:
+  rules:
+    - host: myserver.example.net
+      http:
+        paths:
+          - backend:
+              serviceName: my-service
+              servicePort: 5000
+            path: /
+  tls:
+    - hosts:
+        - myserver.company.net
+      secretName: myserver-tls
+```
+
+Voila! ingress-nginx will pick up this `tls` configuration
+and automatically serve the renewed certificate each time
+the `myserver-tls` secret is updated.
+
+As in the section above, you can test your configuration
+using `curl` and your CA root certificate.
+
+<MDXBlock path="snippets/test" />
