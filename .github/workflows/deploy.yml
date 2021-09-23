@@ -10,15 +10,15 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    - name: Clone practicalzt
+      uses: actions/checkout@v2
+
     steps:
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: '14'
         cache: 'yarn'
-
-    - name: Clone practicalzt
-      uses: actions/checkout@v2
 
     - name: Clone web repo for site layout
       uses: actions/checkout@v2
