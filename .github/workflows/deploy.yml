@@ -50,3 +50,5 @@ jobs:
         path: public
         destination: ${{ secrets.GCP_GCS_BUCKET }}/practical-zero-trust
         parent: false
+        headers: |-
+          cache-control: public, max-age=0
