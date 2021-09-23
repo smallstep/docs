@@ -3,9 +3,9 @@ import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
-import ExpansionPanel from '@material-ui/core/ExpansionPanel';
-import ExpansionPanelSummary from '@material-ui/core/ExpansionPanelSummary';
-import ExpansionPanelDetails from '@material-ui/core/ExpansionPanelDetails';
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import { Heading } from '@smallstep/step-ui';
 
@@ -158,18 +158,18 @@ const ServerTemplate = ({
         <Box mb={6}>
           <HBase variant="h3">Research notes</HBase>
           <MDXBlock path="sections/30-research-notes/00-intro" />
-          <ExpansionPanel>
-            <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+          <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
               <Heading variant="h5" mb={0}>
                 Full research notes
               </Heading>
-            </ExpansionPanelSummary>
-            <ExpansionPanelDetails>
+            </AccordionSummary>
+            <AccordionDetails>
               <Box width="100%" px={4}>
                 <MDXBlock path="sections/30-research-notes/10-notes" />
               </Box>
-            </ExpansionPanelDetails>
-          </ExpansionPanel>
+            </AccordionDetails>
+          </Accordion>
         </Box>
       )}
 
