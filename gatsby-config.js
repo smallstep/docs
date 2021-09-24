@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 module.exports = {
   pathPrefix: '/practical-zero-trust',
   assetPrefix: 'https://pzt.infra.smallstep.com',
