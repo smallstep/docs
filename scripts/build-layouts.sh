@@ -1,15 +1,15 @@
 #!/bin/env bash
 
-yarn install --cwd /home/runner/work/practicalzt/web
+yarn install --cwd deps/web
 
-pushd /home/runner/work/practicalzt/web/packages/step-ui
+pushd deps/web/packages/step-ui
 yarn build
 popd
 
-pushd /home/runner/work/practicalzt/web/packages/layouts
+pushd deps/web/packages/layouts
 yarn build
 popd
 
 rm -rf vendor/layouts
 mkdir -p vendor/layouts
-cp -r /home/runner/work/practicalzt/web/packages/layouts/package.json /home/runner/work/practicalzt/web/packages/layouts/dist  vendor/layouts/
+cp -r deps/web/packages/layouts/package.json deps/web/packages/layouts/dist  vendor/layouts/
