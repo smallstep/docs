@@ -5,11 +5,11 @@ import { MDXRenderer } from 'gatsby-plugin-mdx';
 import { DocContext } from '../context';
 
 const MDXBlock = ({ show, path }) => {
-  const { doc, content } = useContext(DocContext);
+  const { doc, provisioner, deployment, content } = useContext(DocContext);
 
   return (
     <div style={{ display: show ? 'block' : 'none' }}>
-      <MDXRenderer>
+      <MDXRenderer doc={doc} page={{ provisioner, deployment }}>
         {(content[`${doc.slug}/${path}`] || content[`default/${path}`]).body}
       </MDXRenderer>
     </div>

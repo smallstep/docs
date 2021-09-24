@@ -1,6 +1,8 @@
 module.exports = {
   pathPrefix: '/practical-zero-trust',
+  assetPrefix: 'https://pzt.infra.smallstep.com',
   plugins: [
+    `gatsby-plugin-remove-trailing-slashes`,
     {
       resolve: `gatsby-plugin-compile-es6-packages`,
       options: {

@@ -1,20 +1,6 @@
-You may have noticed that certificates issued by a Smallstep CA
-follow best practices and have very short lifetimes.
-In fact, our default is just a single day.
-So, what should you do tomorrow or the next day
-when your certificate is no longer valid?
+Smallstep CAs use _provisioners_ to authenticate certificate requests using passwords, one-time tokens, single sign-on, and a variety of other mechanisms.
 
-The answer to that question exposes
-why so many TLS certificates in the wild still use long-lived lifetimes
-despite their poor security characteristics:
-people are manually renewing them,
-and this doesn't scale with short lifetimes.
+- **ACME** ([RFC8555](https://datatracker.ietf.org/doc/html/rfc8555)) is an open standard, used by [Let's Encrypt](https://letsencrypt.org), for authenticating certificate requests. To use ACME on a private network you need to run an ACME server. ACME is harder to setup, but has a [large client ecosystem](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients) (some software even has built-in support).
+- **Other provisioners** use the open source [`step` CLI](https://smallstep.com/docs/step-cli) and do not require a local network agent. The instructions below focus on the JWK provisioner, but can be repurposed with small tweaks to operationalize all non-ACME provisioners.
 
-To solve this problem, we will automate certificate renewal.
-Smallstep CAs offer a variety of mechanisms (called _provisioners_)
-to automate certificate renewal.
-The simplest generic password-based mechanism is covered below.
-However, if you have the time to invest in setting up your infrastructure,
-you can also rely on ACME, the standard protocol designed
-by ISRG (Let's Encrypt) specifically for TLS certificate renewal.
-Both approaches are covered here in detail.
+To learn more, see _[Configuring `step-ca` Provisioners](https://smallstep.com/docs/step-ca/provisioners)_.

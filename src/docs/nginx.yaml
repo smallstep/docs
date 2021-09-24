@@ -1,5 +1,6 @@
 slug: nginx
 name: Nginx
+template: server
 written: September 15, 2021
 updated: ''
 protocol: https

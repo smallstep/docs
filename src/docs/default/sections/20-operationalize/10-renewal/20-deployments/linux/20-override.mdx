@@ -1,10 +1,18 @@
 <p>
-    The <inlineCode>cert-renewer@.service</inlineCode> and <inlineCode>cert-renewer@.timer</inlineCode> files define a <i>service unit template</i>.
-    Templates are never run directly,
-    but we will run an instance of them for <DocConfig>{({ name }) => name}</DocConfig> certificate renewals.
-    That service will be called <inlineCode>cert-renewer@<DocConfig>{({ linux }) => linux.systemdUnitName}</DocConfig>.service</inlineCode>,
-    which parallels the <inlineCode><DocConfig>{({ linux }) => linux.systemdUnitName}</DocConfig>.service</inlineCode> unit name
-    used by <DocConfig>{({ name }) => name}</DocConfig> on systemd-based Linux distributions.
-    Because the two units share this value in their name,
-    the <inlineCode>cert-renewer@<DocConfig>{({ linux }) => linux.systemdUnitName}</DocConfig>.service</inlineCode> renewer will attempt to reload or restart <inlineCode><DocConfig>{({ linux }) => linux.systemdUnitName}</DocConfig>.service</inlineCode> after it renews the certificate.
+  The <inlineCode>cert-renewer@.service</inlineCode> and{' '}
+  <inlineCode>cert-renewer@.timer</inlineCode> files define a{' '}
+  <i>service unit template</i>. Templates are never run directly, but we will
+  run an instance of them for {props.doc.name} certificate renewals. That
+  service will be called{' '}
+  <inlineCode>
+    cert-renewer@{props.doc.linux.systemdUnitName}.service
+  </inlineCode>
+  , which parallels the <inlineCode>
+    {props.doc.linux.systemdUnitName}.service
+  </inlineCode> unit name used by {props.doc.name} on systemd-based Linux distributions.
+  Because the two units share this value in their name, the <inlineCode>
+    cert-renewer@{props.doc.linux.systemdUnitName}.service
+  </inlineCode> renewer will attempt to reload or restart <inlineCode>
+    {props.doc.linux.systemdUnitName}.service
+  </inlineCode> after it renews the certificate.
 </p>

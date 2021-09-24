@@ -1,0 +1,23 @@
+To renew and hot-reload the Redis server certificate,
+we will need a Redis-specific systemd override file that can tell Redis to refresh its certificates.
+To install the override, run:
+
+```bash
+sudo mkdir /etc/systemd/system/cert-renewer@redis-server.service.d
+cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@redis-server.service.d/override.conf
+[Service]
+; "Environment=" overrides are applied per environment variable. This line does not
+; affect any other variables set in the service template.
+Environment=CERT_LOCATION=/var/lib/redis/redis.crt \\
+            KEY_LOCATION=/var/lib/redis/redis.key \\
+            REDIS_USERNAME=default \\
+            REDISCLI_AUTH=""
+; Empty ExecStartPost (Don't attempt to restart redis-server.service)
+ExecStartPost=
+ExecStartPost=redis-cli --user "\\REDIS_USERNAME" --tls --cacert /var/lib/redis/ca.crt config set tls-cert-file \\CERT_LOCATION
+EOF
+```
+
+If you use password authentication in Redis,
+you'll need to update the `REDIS_USERNAME` and/or `REDISCLI_AUTH`.
+Otherwise, leave them alone.
