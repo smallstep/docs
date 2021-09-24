@@ -25,11 +25,8 @@ jobs:
       with:
         repository: smallstep/web
         ref: master
-        path: web
+        path: ~/work/practicalzt/web
         ssh-key: ${{ secrets.WEB_SSH_KEY }}
-
-    - run: pwd
-    - run: ls -al
 
     - name: Build and copy web layouts
       run: ./scripts/build-layouts.sh
