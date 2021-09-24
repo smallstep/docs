@@ -2,21 +2,24 @@ import React from 'react';
 import { Box } from '@material-ui/core';
 import { Container, Logo, Link as SuiLink } from '@smallstep/step-ui';
 
-const SiteLayout = ({ children }) => [
+const SiteLayout = ({ children }) =>
   React.createElement(
-    Container,
-    { size: 'md' },
+    React.Fragment,
+    null,
     React.createElement(
-      Box,
-      { width: 200, mt: 6, mb: 2 },
+      Container,
+      { size: 'md' },
       React.createElement(
-        SuiLink,
-        { href: 'https://smallstep.com', underline: 'none' },
-        React.createElement(Logo)
+        Box,
+        { width: 200, mt: 6, mb: 2 },
+        React.createElement(
+          SuiLink,
+          { href: 'https://smallstep.com', underline: 'none' },
+          React.createElement(Logo)
+        )
       )
-    )
-  ),
-  children,
-];
+    ),
+    children
+  );
 
 export default SiteLayout;

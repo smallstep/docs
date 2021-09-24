@@ -1,8 +1,7 @@
 import React from 'react';
-import { Box } from '@material-ui/core';
 import { MDXProvider } from '@mdx-js/react';
-import { Container, Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
-import { SiteLayout } from '@smallstep/layouts';
+import { ApolloProvider } from '@apollo/react-hooks';
+import { Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
 import apacheconf from 'refractor/lang/apacheconf';
 import diff from 'refractor/lang/diff';
 import go from 'refractor/lang/go';
@@ -31,6 +30,8 @@ import TableBody from '../../components/TableBody';
 import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
 
+import { client } from '../../graphql';
+import SiteLayout from '../../components/SiteLayout';
 import MDXBlock from '../../components/MDXBlock';
 import Alert from '../../components/Alert';
 import AlertTitle from '../../components/AlertTitle';
@@ -89,13 +90,11 @@ export default function TopLayout({ children, theme }) {
           yaml,
         ]}
       >
-        <ThemeTopLayout theme={theme}>
-          <SiteLayout>
-            <Box py={4}>
-              <Container size="md">{children}</Container>
-            </Box>
-          </SiteLayout>
-        </ThemeTopLayout>
+        <ApolloProvider client={client}>
+          <ThemeTopLayout theme={theme}>
+            <SiteLayout>{children}</SiteLayout>
+          </ThemeTopLayout>
+        </ApolloProvider>
       </CodeBlock.GrammarProvider>
     </MDXProvider>
   );
