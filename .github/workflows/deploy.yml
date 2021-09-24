@@ -26,6 +26,7 @@ jobs:
         repository: smallstep/web
         ref: master
         path: web
+        ssh-key: ${{ secrets.WEB_SSH_KEY }}
 
     - run: pwd
     - run: ls -al
