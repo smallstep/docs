@@ -31,11 +31,17 @@ jobs:
     - name: Build and copy web layouts
       run: ./scripts/build-layouts.sh
 
+    - name: Create .env file
+      run: |
+          cat << EOF >> .env.production
+          GATSBY_CLYM_PROPERTY_ID=${{ secrets.CLYM_PROPERTY_ID }}
+          GATSBY_INTERCOM_APP_ID=${{ secrets.INTERCOM_APP_ID }}
+          EOF
+      env:
+        NODE_ENV: production
+
     - run: yarn install
     - run: yarn build
-      env:
-        GATSBY_CLYM_PROPERTY_ID: ${{ secrets.CLYM_PROPERTY_ID }}
-        GATSBY_INTERCOM_APP_ID: ${{ secrets.INTERCOM_APP_ID }}
     - run: tree public
 
     - name: Upload build artifacts
