@@ -1,3 +1,10 @@
 To make sure Nginx is presenting a valid certificate, you can use the `curl` command, passing it your root certificate for use in verifying the server.
 
-<MDXBlock path="snippets/test" />
+<CodeBlock
+  language="shell-session"
+  copyText="curl --cacert ca.crt https://myserver.example.net"
+>
+  {`$ curl --cacert ca.crt https://myserver.example.net
+HTTP/2 200
+...`}
+</CodeBlock>
