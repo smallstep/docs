@@ -1,9 +1,4 @@
-The above example will work as long as the certificates do not expire. By
-default, smallstep certificates expire after 24 hours, so to go above that, we
-need a way to renew the server certificates automatically.
-
-One of the best options is to use the ACME protocol, and instead of using `step`
-to create the certificate, we will use the Go package
+Instead of using `step` to create the certificate, we will use the Go package
 [acme/autocert](https://pkg.go.dev/golang.org/x/crypto/acme/autocert) that
 provides an easy way to support ACME on Go gRPC (and HTTP) servers. It provides
 automatic access to certificates from Let's Encrypt or a private ACME server
