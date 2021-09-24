@@ -1,0 +1,81 @@
+When we renew the certificates using a systemd service, it doesn't make sense to
+use `autocert/acme`. We will need to build a method that builds a
+`*tls.Certificate` on every connection based on the renewed files. We probably
+should cache the `*tls.Certificate`, and monitor periodically if the certificate
+has changed and only return a new certificate if it has changed.
+
+To do that [go.step.sm/crypto](https://pkg.go.dev/go.step.sm/crypto) includes a
+method that allows to use a certificate and key files as parameters and
+automatically reads them again before the certificate expires.
+
+```go
+package main
+
+import (
+	"context"
+	"crypto/tls"
+	"flag"
+	"log"
+	"net"
+
+	"go.step.sm/crypto/tlsutil"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/examples/helloworld/helloworld"
+	"google.golang.org/grpc/reflection"
+)
+
+type helloServer struct {
+	helloworld.UnimplementedGreeterServer
+}
+
+func (*helloServer) SayHello(ctx context.Context, in *helloworld.HelloRequest) (*helloworld.HelloReply, error) {
+	log.Printf("method=SayHello name=%s", in.GetName())
+	return &helloworld.HelloReply{Message: "Hello " + in.GetName()}, nil
+}
+
+func main() {
+	var address, certFile, keyFile string
+	flag.StringVar(&address, "address", ":443", "The address to listen to.")
+	flag.StringVar(&certFile, "cert", "", "Server certificate file.")
+	flag.StringVar(&keyFile, "key", "", "Private key file.")
+	flag.Parse()
+
+	if certFile == "" {
+		log.Fatalln("flag --cert is required")
+	}
+	if keyFile == "" {
+		log.Fatalln("flag --key is required")
+	}
+
+	c, err := tlsutil.NewServerCredentialsFromFile(certFile, keyFile)
+	if err != nil {
+		log.Fatal("error creating server credentials: %v", err)
+	}
+
+	opts := []grpc.ServerOption{
+		grpc.Creds(credentials.NewTLS(c.TLSConfig())),
+	}
+
+	lis, err := net.Listen("tcp", address)
+	if err != nil {
+		log.Fatalf("failed to listen: %v", err)
+	}
+
+	srv := grpc.NewServer(opts...)
+	helloworld.RegisterGreeterServer(srv, &helloServer{})
+	reflection.Register(srv)
+
+	log.Printf("server listening at %v", lis.Addr())
+	if err := srv.Serve(lis); err != nil {
+		log.Fatalf("failed to serve: %v", err)
+	}
+}
+```
+
+In our example repository,
+[go-grpc-example](https://github.com/smallstep/go-grpc-example), this method is
+implemented in the `server-cert` binary.
+[Here](https://github.com/smallstep/go-grpc-example/blob/main/server-cert/main.go)
+is the same code with some small improvements to optionally support mTLS too.

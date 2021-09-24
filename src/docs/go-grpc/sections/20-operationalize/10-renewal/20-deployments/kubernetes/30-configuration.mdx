@@ -1,0 +1,35 @@
+Now that your certificate is issued (and kept updated) in the helloworld-tls
+secret, you'll need to configure your gRPC server to actually use that
+certificate. To do this we're going to use the [helm](https://helm.sh) chart
+available in the [go-grpc-example](https://github.com/smallstep/go-grpc-example)
+repository.
+
+Let's clone it first:
+
+```shell 
+git clone https://github.com/smallstep/go-grpc-example.git
+```
+
+And install the chart running the following command:
+
+```shell
+helm install \
+   --set helloworld.acme=false \
+   --set helloworld.secretServerCerts=helloworld-tls \
+   helloworld ./charts/helloworld
+```
+
+The attribute `helloworld.acme=false` indicates that we want to use the
+`server-cert` binary that loads a file instead of using the built-in ACME. And
+`helloworld.secretServerCerts=helloworld-tls` points to the secret where the
+certificate and key are.
+
+Now let's test it with the client inside the helloworld pod:
+
+<CodeBlock language="shell-session" copyText='kubectl exec -it deploy/helloworld -- client --address helloworld.default.svc.cluster.local:443 --cacert /home/step/certs/root_ca.crt'>
+{`$ kubectl exec -it deploy/helloworld -- client \\
+    --address helloworld.default.svc.cluster.local:443 \\
+    --cacert /home/step/certs/root_ca.crt
+What's your name? Smallstep
+Greeting: Hello Smallstep`}
+</CodeBlock>
