@@ -2,8 +2,11 @@ Now let's use `grpcurl` to test the server.
 We'll pass the flag `-cacert` with our root CA certificate file.
 Without this, the client will not trust the server, and the request will fail:
 
-<CodeBlock language="shell-session" copyText='grpcurl -cacert ca.crt -d &apos;{"name": "Smallstep"}&apos; myserver.mycompany.net:443 helloworld.Greeter/SayHello'>
-{`$ grpcurl -cacert ca.crt \\
+<CodeBlock
+  language="shell-session"
+  copyText='grpcurl -cacert ca.crt -d &apos;{"name": "Smallstep"}&apos; myserver.mycompany.net:443 helloworld.Greeter/SayHello'
+>
+  {`$ grpcurl -cacert ca.crt \\
 -d '{"name": "Smallstep"}' myserver.mycompany.net:443 helloworld.Greeter/SayHello
 {
   "message": "Hello Smallstep"

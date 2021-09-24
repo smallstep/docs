@@ -15,7 +15,7 @@ services:
   step-ca.docker:
     image: smallstep/step-ca:latest
     volumes:
-      - "./pki:/home/step"
+      - './pki:/home/step'
   server-acme.docker:
     image: smallstep/go-grpc-example:latest
     environment:
@@ -52,12 +52,12 @@ services:
 
 As we can see we're starting 3 different services:
 
-* `step-ca.docker` with `step-ca` configured with an ACME provisioner and a
-pre-generated PKI in the `pki` directory
-* `server-acme.docker` with our `server-acme` from `go-grpc-example`
-* `server-cert.docker` with our `server-cert` from `go-grpc-example`, we won't
-be using this in this example
-* `client.docker` just running `bash` and finishing, we'll use this for testing
+- `step-ca.docker` with `step-ca` configured with an ACME provisioner and a
+  pre-generated PKI in the `pki` directory
+- `server-acme.docker` with our `server-acme` from `go-grpc-example`
+- `server-cert.docker` with our `server-cert` from `go-grpc-example`, we won't
+  be using this in this example
+- `client.docker` just running `bash` and finishing, we'll use this for testing
 
 To start the services, we just `cd` into `go-grpc-example` and run:
 
@@ -71,8 +71,8 @@ After a few seconds you will be able to see how `server-acme.docker` hitting
 And finally, to test the service in a new terminal, we go to the same directory
 and run:
 
-<CodeBlock language="shell-session" copyText='docker-compose run client.docker'>
-{`$ docker-compose run client.docker
+<CodeBlock language="shell-session" copyText="docker-compose run client.docker">
+  {`$ docker-compose run client.docker
 Creating go-grpc-example_client.docker_run ... done
 The root certificate has been saved in /home/step/certs/root_ca.crt.
 Your configuration has been saved in /home/step/config/defaults.json.
@@ -82,8 +82,11 @@ bash-5.1$`}
 This will open a shell in the `client.docker` service, and we will use our
 client app to test it:
 
-<CodeBlock language="shell-session" copyText='client --address server-acme.docker:443 --cacert certs/root_ca.crt'>
-{`$ client --address server-acme.docker:443 --cacert certs/root_ca.crt
+<CodeBlock
+  language="shell-session"
+  copyText="client --address server-acme.docker:443 --cacert certs/root_ca.crt"
+>
+  {`$ client --address server-acme.docker:443 --cacert certs/root_ca.crt
 What's your name? Smallstep
 Greeting: Hello Smallstep`}
 </CodeBlock>

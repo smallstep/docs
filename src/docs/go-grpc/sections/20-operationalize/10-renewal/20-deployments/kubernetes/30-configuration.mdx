@@ -6,7 +6,7 @@ repository.
 
 Let's clone it first:
 
-```shell 
+```shell
 git clone https://github.com/smallstep/go-grpc-example.git
 ```
 
@@ -26,8 +26,11 @@ certificate and key are.
 
 Now let's test it with the client inside the helloworld pod:
 
-<CodeBlock language="shell-session" copyText='kubectl exec -it deploy/helloworld -- client --address helloworld.default.svc.cluster.local:443 --cacert /home/step/certs/root_ca.crt'>
-{`$ kubectl exec -it deploy/helloworld -- client \\
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl exec -it deploy/helloworld -- client --address helloworld.default.svc.cluster.local:443 --cacert /home/step/certs/root_ca.crt"
+>
+  {`$ kubectl exec -it deploy/helloworld -- client \\
     --address helloworld.default.svc.cluster.local:443 \\
     --cacert /home/step/certs/root_ca.crt
 What's your name? Smallstep
