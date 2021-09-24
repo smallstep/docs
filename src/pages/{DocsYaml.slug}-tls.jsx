@@ -48,8 +48,12 @@ const Page = ({ data, location }) => {
   }, [location.search, doc.template, doc.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
-    const updatedDeployment =
+    let updatedDeployment =
       value === 'jwk' && deployment === 'builtin' ? 'linux' : deployment;
+
+    if (value === 'acme' && provisioner === 'jwk') {
+      updatedDeployment = 'builtin';
+    }
 
     setProvisioner(value);
     setDeployment(updatedDeployment);
