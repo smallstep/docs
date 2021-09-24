@@ -30,7 +30,6 @@ import TableBody from '../../components/TableBody';
 import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
 
-import { CLYM_PROPERTY_ID, INTERCOM_APP_ID } from '../../config';
 import { client } from '../../graphql';
 import SiteLayout from '../../components/SiteLayout';
 import MDXBlock from '../../components/MDXBlock';
@@ -94,8 +93,8 @@ export default function TopLayout({ children, theme }) {
         <ApolloProvider client={client}>
           <ThemeTopLayout theme={theme}>
             <SiteLayout
-              clymPropertyId={CLYM_PROPERTY_ID}
-              intercomAppId={INTERCOM_APP_ID}
+              clymPropertyId="189e46e266914c3b810a6908qb1a6y95"
+              intercomAppId="dbkq4qyp"
             >
               {children}
             </SiteLayout>
