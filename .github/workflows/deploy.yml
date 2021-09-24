@@ -25,7 +25,7 @@ jobs:
       with:
         repository: smallstep/web
         ref: master
-        path: /home/runner/work/practicalzt/web
+        path: ../web
         ssh-key: ${{ secrets.WEB_SSH_KEY }}
 
     - name: Build and copy web layouts
