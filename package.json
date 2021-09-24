@@ -24,7 +24,6 @@
     "apollo-boost": "^0.4.9",
     "gatsby": "^3.12.1",
     "gatsby-plugin-compile-es6-packages": "^2.1.1",
-    "gatsby-plugin-env-variables": "^2.1.0",
     "gatsby-plugin-mdx": "^2.12.0",
     "gatsby-plugin-next-seo": "^1.8.0",
     "gatsby-plugin-remove-trailing-slashes": "^3.14.0",

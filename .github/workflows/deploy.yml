@@ -33,9 +33,6 @@ jobs:
 
     - run: yarn install
     - run: yarn build
-      env:
-        CLYM_PROPERTY_ID: ${{ secrets.CLYM_PROPERTY_ID }}
-        INTERCOM_APP_ID: ${{ secrets.INTERCOM_APP_ID }}
     - run: tree public
 
     - name: Upload build artifacts
