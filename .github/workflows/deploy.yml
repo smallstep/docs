@@ -33,6 +33,9 @@ jobs:
 
     - run: yarn install
     - run: yarn build
+      env:
+        GATSBY_CLYM_PROPERTY_ID: ${{ secrets.CLYM_PROPERTY_ID }}
+        GATSBY_INTERCOM_APP_ID: ${{ secrets.INTERCOM_APP_ID }}
     - run: tree public
 
     - name: Upload build artifacts
