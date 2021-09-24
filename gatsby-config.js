@@ -8,6 +8,12 @@ module.exports = {
   plugins: [
     `gatsby-plugin-remove-trailing-slashes`,
     {
+      resolve: `gatsby-plugin-env-variables`,
+      options: {
+        allowList: [`CLYM_PROPERTY_ID`, `INTERCOM_APP_ID`],
+      },
+    },
+    {
       resolve: `gatsby-plugin-compile-es6-packages`,
       options: {
         modules: [`gatsby-theme-material-ui`]

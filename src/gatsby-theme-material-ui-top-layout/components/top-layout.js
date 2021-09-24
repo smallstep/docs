@@ -93,8 +93,8 @@ export default function TopLayout({ children, theme }) {
         <ApolloProvider client={client}>
           <ThemeTopLayout theme={theme}>
             <SiteLayout
-              clymPropertyId={process.env.GATSBY_CLYM_PROPERTY_ID}
-              intercomAppId={process.env.GATSBY_INTERCOM_APP_ID}
+              clymPropertyId={process.env.CLYM_PROPERTY_ID}
+              intercomAppId={process.env.INTERCOM_APP_ID}
             >
               {children}
             </SiteLayout>
