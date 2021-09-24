@@ -1,7 +1,8 @@
 slug: go-grpc
 name: Go gRPC
+template: server
 written: September 14, 2021
-updated: September 21, 2021
+updated: September 24, 2021
 protocol: grpc
 server:
   name: helloworld
@@ -10,14 +11,3 @@ server:
 acme: true
 linux:
   systemdUnitName: go-grpc
-kubernetes:
-  ingressClass: null
-links:
-  - text: 'gRPC'
-    url: https://grpc.io
-  - text: 'Go gRPC Quickstart'
-    url: https://grpc.io/docs/languages/go/quickstart/
-  - text: 'Go gRPC package reference'
-    url: https://pkg.go.dev/google.golang.org/grpc
-  - text: 'Full code'
-    url: https://github.com/smallstep/go-grpc-example
