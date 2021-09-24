@@ -11,6 +11,8 @@ const SiteLayout = ({ children }) => {
 
   return (
     <StepSiteLayout
+      clymPropertyId={process.env.GATSBY_CLYM_PROPERTY_ID}
+      intercomAppId={process.env.GATSBY_INTERCOM_APP_ID}
       onSubscribe={async ({ email }) => {
         const hutkCookie = document.cookie
           .split('; ')

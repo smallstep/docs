@@ -92,12 +92,7 @@ export default function TopLayout({ children, theme }) {
       >
         <ApolloProvider client={client}>
           <ThemeTopLayout theme={theme}>
-            <SiteLayout
-              clymPropertyId="189e46e266914c3b810a6908qb1a6y95"
-              intercomAppId="dbkq4qyp"
-            >
-              {children}
-            </SiteLayout>
+            <SiteLayout>{children}</SiteLayout>
           </ThemeTopLayout>
         </ApolloProvider>
       </CodeBlock.GrammarProvider>
