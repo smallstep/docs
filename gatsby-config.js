@@ -3,6 +3,9 @@ require('dotenv').config({
 });
 
 module.exports = {
+  siteMetadata: {
+    siteUrl: process.env.SITE_URL || `https://smallstep.com`,
+  },
   pathPrefix: '/practical-zero-trust',
   assetPrefix: 'https://pzt.infra.smallstep.com',
   plugins: [

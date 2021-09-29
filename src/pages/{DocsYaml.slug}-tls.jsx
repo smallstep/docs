@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { graphql } from 'gatsby';
-import { GatsbySeo } from 'gatsby-plugin-next-seo';
+import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
 import queryString from 'query-string';
+import moment from 'moment';
 import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { Heading, Paragraph } from '@smallstep/step-ui';
@@ -17,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Page = ({ data, location }) => {
-  const { docsYaml: doc, allMdx } = data;
+  const { site, docsYaml: doc, allMdx } = data;
 
   const classes = useStyles();
 
@@ -87,12 +88,46 @@ const Page = ({ data, location }) => {
     {}
   );
 
+  const title = `${doc.name} TLS — How to get and renew ${doc.name} TLS certificates — Practical Zero Trust`;
+  const description = `Step-by-step instructions for operationalizing ${doc.name} TLS certificates on Linux, Docker, or Kubernetes.`;
+  const { siteUrl } = site.siteMetadata;
+  const url = `${siteUrl}${location.pathname}`;
+  const writtenISO = doc.written
+    ? moment(doc.written).toISOString()
+    : undefined;
+  const updatedISO = doc.updated
+    ? moment(doc.updated).toISOString()
+    : undefined;
+
   return (
     <>
       <GatsbySeo
         type="article"
-        title={`${doc.name} TLS — How to get and renew ${doc.name} TLS certificates — Practical Zero Trust`}
-        description={`Practical step-by-step instructions for implementing zero trust principles with ${doc.name}.`}
+        title={title}
+        description={description}
+        openGraph={{
+          title,
+          description,
+          url,
+          type: 'article',
+          article: {
+            publishedTime: writtenISO,
+            modifiedTime: updatedISO,
+          },
+          images: [],
+        }}
+      />
+
+      <ArticleJsonLd
+        url={url}
+        headline={title}
+        images={[]}
+        datePublished={writtenISO}
+        dateModified={updatedISO}
+        authorName="Smallstep"
+        publisherName="Smallstep"
+        publisherLogo="https://smallstep.com/uploads/smallstep_tm_full_rust.svg"
+        description={description}
       />
 
       <DocContext.Provider
@@ -160,6 +195,11 @@ const Page = ({ data, location }) => {
 
 export const query = graphql`
   query ($id: String) {
+    site {
+      siteMetadata {
+        siteUrl
+      }
+    }
     docsYaml(id: { eq: $id }) {
       slug
       name
