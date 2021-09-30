@@ -123,6 +123,9 @@ const Page = ({ data, location }) => {
           },
           images: [],
         }}
+        twitter={{
+          cardType: 'summary_large_image',
+        }}
       />
 
       <ArticleJsonLd
