@@ -1,3 +1,4 @@
+import 'moment-timezone';
 import React, { useState, useEffect } from 'react';
 import { graphql } from 'gatsby';
 import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
@@ -93,10 +94,16 @@ const Page = ({ data, location }) => {
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
   const writtenISO = doc.written
-    ? moment(doc.written).toISOString()
+    ? moment(doc.written)
+        .set('hour', 12)
+        .tz('America/Los_Angeles')
+        .toISOString()
     : undefined;
   const updatedISO = doc.updated
-    ? moment(doc.updated).toISOString()
+    ? moment(doc.updated)
+        .set('hour', 12)
+        .tz('America/Los_Angeles')
+        .toISOString()
     : undefined;
 
   return (
