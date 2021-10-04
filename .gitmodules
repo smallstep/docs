@@ -1,0 +1,3 @@
+[submodule "src/pages/docs"]
+	path = src/pages/docs
+	url = git@github.com:smallstep/docs.git

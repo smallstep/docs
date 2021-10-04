@@ -6,7 +6,8 @@ module.exports = {
   siteMetadata: {
     siteUrl: process.env.SITE_URL || `https://smallstep.com`,
   },
-  pathPrefix: '/practical-zero-trust',
+  pathPrefix: '/docs',
+  // TODO change to docs.infra.smallstep.com
   assetPrefix: 'https://pzt.infra.smallstep.com',
   plugins: [
     `gatsby-plugin-remove-trailing-slashes`,

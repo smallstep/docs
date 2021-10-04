@@ -8,9 +8,9 @@ import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
-import { DocContext } from '../context';
-import ServerTemplate from '../templates/ServerTemplate';
-import IngressTemplate from '../templates/IngressTemplate';
+import { DocContext } from '../../context';
+import ServerTemplate from '../../templates/ServerTemplate';
+import IngressTemplate from '../../templates/IngressTemplate';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
