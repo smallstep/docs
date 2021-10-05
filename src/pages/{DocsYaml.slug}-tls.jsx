@@ -93,7 +93,7 @@ const Page = ({ data, location }) => {
   const description = `Step-by-step instructions for operationalizing ${doc.name} TLS certificates on Linux, Docker, or Kubernetes.`;
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
-  const { node: unfurl } = unfurlImages.edges.find(({ node }) => (
+  const unfurl = unfurlImages.edges.find(({ node }) => (
     node.relativePath.includes(doc.slug)
   ));
   const writtenISO = doc.written
@@ -125,7 +125,7 @@ const Page = ({ data, location }) => {
             modifiedTime: updatedISO,
           },
           images: [{
-            pathname: unfurl.publicURL
+            pathname: unfurl ? unfurl.node.publicURL : undefined
           }],
         }}
         twitter={{
@@ -136,7 +136,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={[unfurl.publicURL]}
+        images={[unfurl ? unfurl.node.publicURL : undefined]}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
