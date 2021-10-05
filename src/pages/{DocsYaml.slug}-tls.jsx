@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Page = ({ data, location }) => {
-  const { site, docsYaml: doc, allMdx, allFile: unfurlImages} = data;
+  const { site, docsYaml: doc, allMdx, allFile: unfurlImages } = data;
 
   const classes = useStyles();
 
