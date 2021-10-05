@@ -12,8 +12,8 @@ Next, use `keytool` to import the root CA and the signed server certificate to a
 Note: you must use the same password to encrypt the new KeyStore as was used in the previous command, when generating the PKCS12 format file.
 
 <CodeBlock autoCopy language="shell">
-  {`keytool -import -alias rootCA -keystore ./jira.jks -trustcacerts -file ca.crt`}
-  {`keytool -importkeystore -srckeystore server.p12 -destkeystore jira.jks -srcstoretype pkcs12 -alias "${props.doc.server.dnsName}"`}
+{`keytool -import -alias rootCA -keystore ./jira.jks -trustcacerts -file ca.crt
+keytool -importkeystore -srckeystore server.p12 -destkeystore jira.jks -srcstoretype pkcs12 -alias "${props.doc.server.dnsName}"`}
 </CodeBlock>
 
 Finally, verify that the certificate exists within the KeyStore:

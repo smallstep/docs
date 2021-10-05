@@ -6,7 +6,7 @@ updated: October 04, 2021
 protocol: grpc
 server:
   name: jira
-  dnsName: jira.intermal.smallstep.com
+  dnsName: jira.internal.smallstep.com
   port: 8443
 acme: false
 linux:
