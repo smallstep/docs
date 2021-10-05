@@ -1,0 +1,13 @@
+slug: jira
+name: Jira
+template: server
+written: October 04, 2021
+updated: October 04, 2021
+protocol: grpc
+server:
+  name: jira
+  dnsName: jira.intermal.smallstep.com
+  port: 8443
+acme: false
+linux:
+  systemdUnitName: jira-server
