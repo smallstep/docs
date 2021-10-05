@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Page = ({ data, location }) => {
-  const { site, docsYaml: doc, allMdx } = data;
+  const { site, docsYaml: doc, allMdx, allFile: unfurlImages} = data;
 
   const classes = useStyles();
 
@@ -93,6 +93,9 @@ const Page = ({ data, location }) => {
   const description = `Step-by-step instructions for operationalizing ${doc.name} TLS certificates on Linux, Docker, or Kubernetes.`;
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
+  const { node: unfurl } = unfurlImages.edges.find(({ node }) => (
+    node.relativePath.includes(doc.slug)
+  ));
   const writtenISO = doc.written
     ? moment(doc.written)
         .set('hour', 12)
@@ -121,7 +124,9 @@ const Page = ({ data, location }) => {
             publishedTime: writtenISO,
             modifiedTime: updatedISO,
           },
-          images: [],
+          images: [{
+            pathname: unfurl.publicURL
+          }],
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -131,7 +136,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={[]}
+        images={[unfurl.publicURL]}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
@@ -228,6 +233,15 @@ export const query = graphql`
         ingressClass
       }
       acme
+    }
+    allFile (filter: {extension: {eq: "png"}, name: {eq: "unfurl"} }){
+      edges {
+        node {
+          name
+          relativePath
+          publicURL
+        }
+      }
     }
     allMdx {
       edges {
