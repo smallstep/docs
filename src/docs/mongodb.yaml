@@ -1,0 +1,13 @@
+slug: mongodb
+name: MongoDB
+template: server
+written: October 5, 2021
+updated: ''
+protocol: MongoDB Wire Protocol
+server:
+  name: mongodb
+  dnsName: mongodb.example.net
+  port: 27017
+acme: false
+linux:
+  systemdUnitName: mongod
