@@ -6,7 +6,7 @@ import queryString from 'query-string';
 import moment from 'moment';
 import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
-import { Heading, Paragraph } from '@smallstep/step-ui';
+import { Container, Heading, Paragraph } from '@smallstep/step-ui';
 
 import { PztContext } from '../../context';
 import ServerTemplate from '../../templates/ServerTemplate';
@@ -166,38 +166,40 @@ const Page = ({ data, location }) => {
           deployment,
         }}
       >
-        <Box mb={4}>
-          <Heading variant="h1">
-            {pzt.name} TLS &mdash; Practical Zero Trust
-          </Heading>
-          <Heading component="h2" variant="h3">
-            How to get and renew {pzt.name} TLS certificates
-          </Heading>
-          <Paragraph variant="body2" className={classes.timestamp}>
-            Written {pzt.written}
-            {pzt.updated && `, last updated ${pzt.updated}`}
-          </Paragraph>
-        </Box>
+        <Container size="md">
+          <Box mb={4}>
+            <Heading variant="h1">
+              {pzt.name} TLS &mdash; Practical Zero Trust
+            </Heading>
+            <Heading component="h2" variant="h3">
+              How to get and renew {pzt.name} TLS certificates
+            </Heading>
+            <Paragraph variant="body2" className={classes.timestamp}>
+              Written {pzt.written}
+              {pzt.updated && `, last updated ${pzt.updated}`}
+            </Paragraph>
+          </Box>
 
-        {pzt.template === 'server' && (
-          <ServerTemplate
-            pzt={pzt}
-            content={content}
-            provisioner={provisioner}
-            deployment={deployment}
-            onProvisionerChange={handleProvisionerChange}
-            onDeploymentChange={handleDeploymentChange}
-          />
-        )}
+          {pzt.template === 'server' && (
+            <ServerTemplate
+              pzt={pzt}
+              content={content}
+              provisioner={provisioner}
+              deployment={deployment}
+              onProvisionerChange={handleProvisionerChange}
+              onDeploymentChange={handleDeploymentChange}
+            />
+          )}
 
-        {pzt.template === 'ingress' && (
-          <IngressTemplate
-            pzt={pzt}
-            content={content}
-            provisioner={provisioner}
-            onProvisionerChange={handleProvisionerChange}
-          />
-        )}
+          {pzt.template === 'ingress' && (
+            <IngressTemplate
+              pzt={pzt}
+              content={content}
+              provisioner={provisioner}
+              onProvisionerChange={handleProvisionerChange}
+            />
+          )}
+        </Container>
       </PztContext.Provider>
     </>
   );

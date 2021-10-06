@@ -2,7 +2,6 @@ import React from 'react';
 import { useMutation } from '@apollo/react-hooks';
 import { Box } from '@material-ui/core';
 import { SiteLayout as StepSiteLayout } from '@smallstep/layouts';
-import { Container } from '@smallstep/step-ui';
 
 import { HUBSPOT_SUBSCRIBE } from '../queries';
 
@@ -30,7 +29,7 @@ const SiteLayout = ({ children }) => {
       }}
     >
       <Box py={4}>
-        <Container size="md">{children}</Container>
+        {children}
       </Box>
     </StepSiteLayout>
   );

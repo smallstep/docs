@@ -1,14 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
-import {
-  Heading,
-  Paragraph,
-  BlockQuote,
-  Code,
-  ToolsIcon,
-} from '@smallstep/step-ui';
-import { useTheme } from '@material-ui/core/styles';
+import { useTheme, makeStyles } from '@material-ui/core/styles';
 import {
   Box,
   ExpansionPanel,
@@ -18,6 +11,13 @@ import {
   Hidden,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+import {
+  Heading,
+  Paragraph,
+  BlockQuote,
+  Code,
+  ToolsIcon,
+} from '@smallstep/step-ui';
 
 // import contents from '../../../pages/docs/contents.yaml';
 // import DocsNav from './DocsNav';
@@ -45,6 +45,36 @@ const CTA_ICONS = {
   ToolsIcon: <ToolsIcon />,
 };
 
+const useDocsNavStyles = makeStyles((theme) => ({
+  root: {
+    borderRight: `1px solid ${theme.palette.divider}`,
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+    },
+  },
+}));
+
+const useTitleStyles = makeStyles((theme) => ({
+  root: {
+    maxWidth: theme.breakpoints.values.md,
+    padding: `0 ${theme.spacing(2)}px`,
+    [theme.breakpoints.up('md')]: {
+      padding: `${theme.spacing(4)}px ${theme.spacing(6)}px`,
+    },
+  },
+}));
+
+const useTocStyles = makeStyles((theme) => ({
+  root: {
+    borderLeft: `1px solid ${theme.palette.divider}`,
+    [theme.breakpoints.up('md')]: {
+      display: 'flex',
+      justifyContent: 'flex-start',
+    },
+  },
+}));
+
 const DocsLayout = ({ location, pageContext, toc, children }) => {
   const theme = useTheme();
   const [submenus, setSubmenus] = useState({});
@@ -62,6 +92,10 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
   const { pathname } = { location };
 
   const robotsTitle = htmlTitle || title.replace(/`/g, '');
+
+  const docsNavClasses = useDocsNavStyles();
+  const titleClasses = useTitleStyles();
+  const tocClasses = useTocStyles();
 
   useEffect(() => {
     if (!submenus) {
@@ -113,20 +147,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Grid
-          item
-          xs={12}
-          md={4}
-          xl={3}
-          /* TODO makeStyles */
-          /* css={css` */
-          /*   border-right: 1px solid ${theme.palette.divider}; */
-          /*   ${theme.breakpoints.up('md')} { */
-          /*     display: flex; */
-          /*     justify-content: flex-end; */
-          /*   } */
-          /* `} */
-        >
+        <Grid item xs={12} md={4} xl={3} classes={docsNavClasses}>
           <Hidden mdUp>
             <Box m={2}>
               <ExpansionPanel>
@@ -158,16 +179,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
             marginTop: theme.spacing(1),
           }}
         >
-          <div
-          /* TODO makeStyles */
-          /* css={css` */
-          /*   max-width: ${theme.breakpoints.values.md}px; */
-          /*   padding: 0 ${theme.spacing(2)}px; */
-          /*   ${theme.breakpoints.up('md')} { */
-          /*     padding: ${theme.spacing(4)}px ${theme.spacing(6)}px; */
-          /*   } */
-          /* `} */
-          >
+          <div className={titleClasses.root}>
             <Grid container>
               <Grid item xs={12} sm={cta ? 8 : 12}>
                 {title && (
@@ -214,18 +226,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
         {/* TODO wire this up for cli reference docs */}
         <Hidden lgDown>
           {toc && (
-            <Grid
-              item
-              xl={3}
-              /* TODO makeStyles */
-              /* css={css` */
-              /*   border-left: 1px solid ${theme.palette.divider}; */
-              /*   ${theme.breakpoints.up('md')} { */
-              /*     display: flex; */
-              /*     justify-content: flex-start; */
-              /*   } */
-              /* `} */
-            >
+            <Grid item xl={3} classes={tocClasses}>
               <Box my={4} mx={2}>
                 {toc}
               </Box>
