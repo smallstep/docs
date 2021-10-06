@@ -38,7 +38,7 @@ module.exports = {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `metadata`,
-        path: `${__dirname}/src/docs`,
+        path: `${__dirname}/src/pzt`,
       },
     },
     `gatsby-plugin-mdx`,

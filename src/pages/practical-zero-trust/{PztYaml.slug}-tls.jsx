@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/styles';
 import Box from '@material-ui/core/Box';
 import { Heading, Paragraph } from '@smallstep/step-ui';
 
-import { DocContext } from '../../context';
+import { PztContext } from '../../context';
 import ServerTemplate from '../../templates/ServerTemplate';
 import IngressTemplate from '../../templates/IngressTemplate';
 
@@ -19,13 +19,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Page = ({ data, location }) => {
-  const { site, docsYaml: doc, allMdx } = data;
+  const { site, pztYaml: pzt, allMdx } = data;
 
   const classes = useStyles();
 
   const [provisioner, setProvisioner] = useState('jwk');
   const [deployment, setDeployment] = useState(
-    doc.template === 'ingress' ? 'kubernetes' : 'linux'
+    pzt.template === 'ingress' ? 'kubernetes' : 'linux'
   );
 
   useEffect(() => {
@@ -37,9 +37,9 @@ const Page = ({ data, location }) => {
 
     if (queryDeployment) {
       initialDeployment = queryDeployment;
-    } else if (doc.template === 'ingress') {
+    } else if (pzt.template === 'ingress') {
       initialDeployment = 'kubernetes';
-    } else if (initialProvisioner === 'acme' && doc.acme) {
+    } else if (initialProvisioner === 'acme' && pzt.acme) {
       initialDeployment = 'builtin';
     } else {
       initialDeployment = 'linux';
@@ -47,7 +47,7 @@ const Page = ({ data, location }) => {
 
     setProvisioner(initialProvisioner);
     setDeployment(initialDeployment);
-  }, [location.search, doc.template, doc.acme]);
+  }, [location.search, pzt.template, pzt.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
     let updatedDeployment =
@@ -89,18 +89,18 @@ const Page = ({ data, location }) => {
     {}
   );
 
-  const title = `${doc.name} TLS — How to get and renew ${doc.name} TLS certificates — Practical Zero Trust`;
-  const description = `Step-by-step instructions for operationalizing ${doc.name} TLS certificates on Linux, Docker, or Kubernetes.`;
+  const title = `${pzt.name} TLS — How to get and renew ${pzt.name} TLS certificates — Practical Zero Trust`;
+  const description = `Step-by-step instructions for operationalizing ${pzt.name} TLS certificates on Linux, Docker, or Kubernetes.`;
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
-  const writtenISO = doc.written
-    ? moment(doc.written)
+  const writtenISO = pzt.written
+    ? moment(pzt.written)
         .set('hour', 12)
         .tz('America/Los_Angeles')
         .toISOString()
     : undefined;
-  const updatedISO = doc.updated
-    ? moment(doc.updated)
+  const updatedISO = pzt.updated
+    ? moment(pzt.updated)
         .set('hour', 12)
         .tz('America/Los_Angeles')
         .toISOString()
@@ -140,25 +140,25 @@ const Page = ({ data, location }) => {
         description={description}
       />
 
-      <DocContext.Provider
+      <PztContext.Provider
         value={{
-          doc: {
+          pzt: {
             protocol: 'https',
             acme: false,
-            ...doc,
+            ...pzt,
             server: {
               name: 'myserver',
               dnsName: 'myserver.example.net',
               port: 443,
-              ...doc.server,
+              ...pzt.server,
             },
             linux: {
-              systemdUnitName: doc.slug,
-              ...doc.linux,
+              systemdUnitName: pzt.slug,
+              ...pzt.linux,
             },
             kubernetes: {
               ingressClass: 'nginx',
-              ...doc.kubernetes,
+              ...pzt.kubernetes,
             },
           },
           content,
@@ -168,20 +168,20 @@ const Page = ({ data, location }) => {
       >
         <Box mb={4}>
           <Heading variant="h1">
-            {doc.name} TLS &mdash; Practical Zero Trust
+            {pzt.name} TLS &mdash; Practical Zero Trust
           </Heading>
           <Heading component="h2" variant="h3">
-            How to get and renew {doc.name} TLS certificates
+            How to get and renew {pzt.name} TLS certificates
           </Heading>
           <Paragraph variant="body2" className={classes.timestamp}>
-            Written {doc.written}
-            {doc.updated && `, last updated ${doc.updated}`}
+            Written {pzt.written}
+            {pzt.updated && `, last updated ${pzt.updated}`}
           </Paragraph>
         </Box>
 
-        {doc.template === 'server' && (
+        {pzt.template === 'server' && (
           <ServerTemplate
-            doc={doc}
+            pzt={pzt}
             content={content}
             provisioner={provisioner}
             deployment={deployment}
@@ -190,15 +190,15 @@ const Page = ({ data, location }) => {
           />
         )}
 
-        {doc.template === 'ingress' && (
+        {pzt.template === 'ingress' && (
           <IngressTemplate
-            doc={doc}
+            pzt={pzt}
             content={content}
             provisioner={provisioner}
             onProvisionerChange={handleProvisionerChange}
           />
         )}
-      </DocContext.Provider>
+      </PztContext.Provider>
     </>
   );
 };
@@ -210,7 +210,7 @@ export const query = graphql`
         siteUrl
       }
     }
-    docsYaml(id: { eq: $id }) {
+    pztYaml(id: { eq: $id }) {
       slug
       name
       template

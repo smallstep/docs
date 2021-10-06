@@ -6,7 +6,7 @@ const Page = ({ data }) => (
   <>
     <Heading variant="h2">Practical Zero Trust</Heading>
     <Paragraph component="ul">
-      {data.allDocsYaml.edges.map(({ node }) => (
+      {data.allPztYaml.edges.map(({ node }) => (
         <li key={node.slug}>
           <Link to={`/practical-zero-trust/${node.slug}-tls`}>{node.name}</Link>
         </li>
@@ -17,7 +17,7 @@ const Page = ({ data }) => (
 
 export const query = graphql`
   query {
-    allDocsYaml {
+    allPztYaml {
       edges {
         node {
           slug

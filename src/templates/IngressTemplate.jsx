@@ -6,7 +6,7 @@ import HBase from '../components/HBase';
 import ProvisionerSelector from '../components/ProvisionerSelector';
 
 const IngressTemplate = ({
-  doc,
+  pzt,
   content,
   provisioner,
   onProvisionerChange,
@@ -44,7 +44,7 @@ const IngressTemplate = ({
       </Box>
 
       <HBase variant="h4" mb={4}>
-        Configure Automated {doc.name} TLS Renewal
+        Configure Automated {pzt.name} TLS Renewal
       </HBase>
 
       <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
@@ -64,7 +64,7 @@ const IngressTemplate = ({
       <MDXBlock path="sections/20-operationalize/20-root" />
     </Box>
 
-    {content[`${doc.slug}/sections/40-further-reading`] && (
+    {content[`${pzt.slug}/sections/40-further-reading`] && (
       <Box mb={6}>
         <HBase variant="h3">Further reading</HBase>
         <MDXBlock path="sections/40-further-reading" />

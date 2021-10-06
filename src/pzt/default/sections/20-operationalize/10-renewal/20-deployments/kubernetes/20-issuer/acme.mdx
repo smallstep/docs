@@ -21,7 +21,7 @@ spec:
     solvers:
     - http01:
         ingress:
-          class: ${props.doc.kubernetes.ingressClass}`}
+          class: ${props.pzt.kubernetes.ingressClass}`}
 </CodeBlock>
 
 Then apply:
@@ -38,7 +38,7 @@ kubectl apply -f my-ca-issuer.yaml
   reason, your Kubernetes cluster must have some HTTP ingress configured, and
   your DNS name must resolve to that ingress. In the above example, we assume
   your ingress has a class name{' '}
-  <inlineCode>{props.doc.kubernetes.ingressClass}</inlineCode>, and cert-manager
+  <inlineCode>{props.pzt.kubernetes.ingressClass}</inlineCode>, and cert-manager
   will automatically intercept ACME requests to that ingress to solve the HTTP01
   ACME challenge sent by your CA. This effectively "authenticates" your ACME
   client with the CA, and the CA will then sign the certificate.
@@ -49,9 +49,9 @@ kubectl apply -f my-ca-issuer.yaml
   <inlineCode>Certificate</inlineCode> and your <inlineCode>Issuer</inlineCode>{' '}
   are configured, cert-manager should have issued (or begun issuing) the
   certificate and created the{' '}
-  <inlineCode>{props.doc.server.name}-tls</inlineCode> secret with your
+  <inlineCode>{props.pzt.server.name}-tls</inlineCode> secret with your
   certificate and private key. We'll reference this secret later when we
-  configure {props.doc.name} to use this certificate and private key for TLS.
+  configure {props.pzt.name} to use this certificate and private key for TLS.
 </p>
 
 <Aside>
@@ -72,7 +72,7 @@ spec:
   acme:
     server: https://my-ca-url.my-team.ca.smallstep.com/acme/acme/directory
     privateKeySecretRef:
-      name: ${props.doc.server.name}-tls
+      name: ${props.pzt.server.name}-tls
     solvers:
     - dns01:
         cloudDNS:
