@@ -125,7 +125,7 @@ const Page = ({ data, location }) => {
             modifiedTime: updatedISO,
           },
           images: unfurl ? [{
-            url: unfurl.node.publicURL
+            url: `${siteUrl}${unfurl.node.publicURL}`
           }]: [],
         }}
         twitter={{
@@ -136,7 +136,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={unfurl ? [unfurl.node.publicURL] : []}
+        images={unfurl ? [`${siteUrl}${unfurl.node.publicURL}`] : []}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
