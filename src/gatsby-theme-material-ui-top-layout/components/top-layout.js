@@ -14,6 +14,14 @@ import shellSession from 'refractor/lang/shell-session';
 import yaml from 'refractor/lang/yaml';
 import ThemeTopLayout from 'gatsby-theme-material-ui-top-layout/src/components/top-layout';
 
+import { client } from '../../graphql';
+import SiteLayout from '../../components/SiteLayout';
+import MDXBlock from '../../components/MDXBlock';
+import Alert from '../../components/Alert';
+import AlertTitle from '../../components/AlertTitle';
+import Aside from '../../components/Aside';
+import Footnote from '../../components/Footnote';
+import Reference from '../../components/Reference';
 import H1 from '../../components/H1';
 import H2 from '../../components/H2';
 import H3 from '../../components/H3';
@@ -24,20 +32,12 @@ import Strong from '../../components/Strong';
 import Image from '../../components/Image';
 import CodeBlock from '../../components/CodeBlock';
 import Link from '../../components/Link';
+import ContentLink from '../../components/ContentLink';
 import Table from '../../components/Table';
 import TableHead from '../../components/TableHead';
 import TableBody from '../../components/TableBody';
 import TableRow from '../../components/TableRow';
 import TableCell from '../../components/TableCell';
-
-import { client } from '../../graphql';
-import SiteLayout from '../../components/SiteLayout';
-import MDXBlock from '../../components/MDXBlock';
-import Alert from '../../components/Alert';
-import AlertTitle from '../../components/AlertTitle';
-import Aside from '../../components/Aside';
-import Footnote from '../../components/Footnote';
-import Reference from '../../components/Reference';
 
 const components = {
   h1: H1,
@@ -71,6 +71,7 @@ const shortcodes = {
   BlockQuote,
   Code,
   CodeBlock,
+  ContentLink,
   Em,
   Footnote,
   H1,

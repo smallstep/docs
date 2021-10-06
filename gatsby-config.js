@@ -37,11 +37,25 @@ module.exports = {
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        name: `metadata`,
+        name: `pzt`,
         path: `${__dirname}/src/pzt`,
       },
     },
-    `gatsby-plugin-mdx`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `docs`,
+        path: `${__dirname}/src/pages/docs`,
+      },
+    },
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        defaultLayouts: {
+          docs: require.resolve('./src/components/DocsLayout.jsx'),
+        },
+      },
+    },
     `gatsby-transformer-yaml`,
     {
       resolve: `gatsby-plugin-next-seo`,
