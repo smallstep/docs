@@ -44,6 +44,13 @@ module.exports = {
     {
       resolve: `gatsby-source-filesystem`,
       options: {
+        name: `reference`,
+        path: `${__dirname}/src/pages/docs/step-cli/reference`,
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
         name: `docs`,
         path: `${__dirname}/src/pages/docs`,
       },
@@ -51,7 +58,9 @@ module.exports = {
     {
       resolve: `gatsby-plugin-mdx`,
       options: {
+        extensions: ['.mdx', '.md'],
         defaultLayouts: {
+          reference: require.resolve('./src/components/AutoDocLayout.jsx'),
           docs: require.resolve('./src/components/DocsLayout.jsx'),
         },
       },
