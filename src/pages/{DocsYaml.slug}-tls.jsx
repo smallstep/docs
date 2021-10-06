@@ -124,9 +124,9 @@ const Page = ({ data, location }) => {
             publishedTime: writtenISO,
             modifiedTime: updatedISO,
           },
-          images: [{
-            pathname: unfurl ? unfurl.node.publicURL : undefined
-          }],
+          images: unfurl ? [{
+            url: unfurl.node.publicURL
+          }]: [],
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -136,7 +136,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={[unfurl ? unfurl.node.publicURL : undefined]}
+        images={unfurl ? [unfurl.node.publicURL] : []}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
@@ -225,7 +225,7 @@ export const query = graphql`
         name
         dnsName
         port
-      }
+      } 
       linux {
         systemdUnitName
       }
