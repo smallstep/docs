@@ -142,7 +142,6 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
 
       <Grid
         container
-        spacing={2}
         style={{
           borderTop: `1px solid ${theme.palette.divider}`,
         }}

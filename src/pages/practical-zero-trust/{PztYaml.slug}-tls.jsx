@@ -167,7 +167,7 @@ const Page = ({ data, location }) => {
         }}
       >
         <Container size="md">
-          <Box mb={4}>
+          <Box mt={6} mb={4}>
             <Heading variant="h1">
               {pzt.name} TLS &mdash; Practical Zero Trust
             </Heading>
