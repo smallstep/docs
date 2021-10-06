@@ -113,27 +113,27 @@ export default function TopLayout({ children, theme }) {
       >
         <ApolloProvider client={client}>
           <ThemeTopLayout theme={theme}>
-    <SiteLayout
-    clymPropertyId={process.env.GATSBY_CLYM_PROPERTY_ID}
-    intercomAppId={process.env.GATSBY_INTERCOM_APP_ID}
-    onSubscribe={async ({ email }) => {
-      const hutkCookie = document.cookie
-            .split('; ')
-            .find((cookie) => cookie.startsWith('hubspotutk='));
-      const hutk = hutkCookie ? hutkCookie.split('=')[1] : '';
+            <SiteLayout
+              clymPropertyId={process.env.GATSBY_CLYM_PROPERTY_ID}
+              intercomAppId={process.env.GATSBY_INTERCOM_APP_ID}
+              onSubscribe={async ({ email }) => {
+                const hutkCookie = document.cookie
+                  .split('; ')
+                  .find((cookie) => cookie.startsWith('hubspotutk='));
+                const hutk = hutkCookie ? hutkCookie.split('=')[1] : '';
 
-      await hubspotSubscribe({
-        variables: {
-          email,
-          pageName: document.title,
-          pageUri: window.location.href,
-          hutk,
-        },
-      });
-    }}
-    >
-            {children}
-    </SiteLayout>
+                await hubspotSubscribe({
+                  variables: {
+                    email,
+                    pageName: document.title,
+                    pageUri: window.location.href,
+                    hutk,
+                  },
+                });
+              }}
+            >
+              {children}
+            </SiteLayout>
           </ThemeTopLayout>
         </ApolloProvider>
       </CodeBlock.GrammarProvider>

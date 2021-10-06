@@ -22,7 +22,7 @@ const RE_EXTERNAL = /^(https?:|mailto:)/;
 
 const submenus = {};
 
-const getSubItems = product => {
+const getSubItems = (product) => {
   if (contents[product].length === 0) {
     return null;
   }
@@ -48,7 +48,7 @@ const DocsNav = ({ submenusRef }) => {
             icon={<StepPlatformIcon />}
             text="The Smallstep Platform"
             href="/docs/platform"
-            submenuRef={submenu => {
+            submenuRef={(submenu) => {
               submenus.platform = submenu;
             }}
           >
@@ -64,7 +64,7 @@ const DocsNav = ({ submenusRef }) => {
             icon={<StepSshIcon />}
             text="SSH"
             href="/docs/ssh"
-            submenuRef={submenu => {
+            submenuRef={(submenu) => {
               submenus.smallstep_ssh = submenu;
             }}
           >
@@ -75,7 +75,7 @@ const DocsNav = ({ submenusRef }) => {
             icon={<StepCertManagerIcon />}
             text="Certificate Manager"
             href="/docs/certificate-manager"
-            submenuRef={submenu => {
+            submenuRef={(submenu) => {
               submenus.certificate_manager = submenu;
             }}
           >
@@ -86,7 +86,7 @@ const DocsNav = ({ submenusRef }) => {
             icon={<StepRaIcon />}
             text="Registration Authorities"
             href="/docs/registration-authorities"
-            submenuRef={submenu => {
+            submenuRef={(submenu) => {
               submenus.registration_authorities = submenu;
             }}
           >
@@ -101,7 +101,7 @@ const DocsNav = ({ submenusRef }) => {
           icon={<StepCliIcon />}
           text="step CLI"
           href="/docs/step-cli"
-          submenuRef={submenu => {
+          submenuRef={(submenu) => {
             submenus.step_cli = submenu;
           }}
         >
@@ -112,7 +112,7 @@ const DocsNav = ({ submenusRef }) => {
           icon={<StepCaIcon />}
           text="step-ca"
           href="/docs/step-ca"
-          submenuRef={submenu => {
+          submenuRef={(submenu) => {
             submenus.step_ca = submenu;
           }}
         >
@@ -123,7 +123,7 @@ const DocsNav = ({ submenusRef }) => {
           icon={<StepMutualTlsIcon />}
           text="Practical Zero Trust"
           href="/docs/practical-zero-trust"
-          submenuRef={submenu => {
+          submenuRef={(submenu) => {
             submenus.practical_zero_trust = submenu;
           }}
         >
@@ -134,7 +134,7 @@ const DocsNav = ({ submenusRef }) => {
           icon={<StepMutualTlsIcon />}
           text="Mutual TLS"
           href="/docs/mtls"
-          submenuRef={submenu => {
+          submenuRef={(submenu) => {
             submenus.mutual_tls = submenu;
           }}
         >
@@ -145,7 +145,7 @@ const DocsNav = ({ submenusRef }) => {
           icon={<StepTutorialsIcon />}
           text="Tutorials"
           href="/docs/tutorials"
-          submenuRef={submenu => {
+          submenuRef={(submenu) => {
             submenus.tutorials = submenu;
           }}
         >
