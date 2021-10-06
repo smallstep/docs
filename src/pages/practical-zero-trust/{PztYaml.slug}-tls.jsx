@@ -4,7 +4,7 @@ import { graphql } from 'gatsby';
 import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
 import queryString from 'query-string';
 import moment from 'moment';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import { Container, Heading, Paragraph } from '@smallstep/step-ui';
 
