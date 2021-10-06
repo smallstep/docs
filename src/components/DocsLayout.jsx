@@ -11,31 +11,10 @@ import {
   Hidden,
 } from '@material-ui/core';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
-import {
-  Heading,
-  Paragraph,
-  BlockQuote,
-  Code,
-  ToolsIcon,
-} from '@smallstep/step-ui';
+import { Heading, Code, ToolsIcon } from '@smallstep/step-ui';
 
 // import contents from '../../../pages/docs/contents.yaml';
 // import DocsNav from './DocsNav';
-import H1 from './H1';
-import H2 from './H2';
-import H3 from './H3';
-import HN from './HN';
-import Li from './Li';
-import Em from './Em';
-import Strong from './Strong';
-import Image from './Image';
-import CodeBlock from './CodeBlock';
-import Link from './Link';
-import Table from './Table';
-import TableHead from './TableHead';
-import TableBody from './TableBody';
-import TableRow from './TableRow';
-import TableCell from './TableCell';
 import ContentLink from './ContentLink';
 
 // TODO wire up yaml contents
