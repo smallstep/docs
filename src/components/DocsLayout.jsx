@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { graphql, useStaticQuery } from 'gatsby';
 import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
 import { useTheme, makeStyles } from '@material-ui/core/styles';
 import {
@@ -67,8 +68,17 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
     cta,
   } = pageContext.frontmatter;
 
-  // TODO useStaticQuery
-  const siteUrl = '';
+  const { site } = useStaticQuery(graphql`
+    query {
+      site {
+        siteMetadata {
+          siteUrl
+        }
+      }
+    }
+  `);
+
+  const { siteUrl } = site.siteMetadata;
   const { pathname } = { location };
 
   const robotsTitle = htmlTitle || title.replace(/`/g, '');
