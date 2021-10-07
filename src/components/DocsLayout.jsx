@@ -16,6 +16,7 @@ import { Heading, Code, ToolsIcon } from '@smallstep/step-ui';
 // import contents from '../../../pages/docs/contents.yaml';
 // import DocsNav from './DocsNav';
 import ContentLink from './ContentLink';
+import unfurl from '../../static/graphics/smallstep-docs-unfurl.png';
 
 // TODO wire up yaml contents
 const contents = [];
@@ -102,7 +103,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
           description,
           url,
           type: 'article',
-          images: [],
+          images: [{ url: unfurl }],
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -112,7 +113,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
       <ArticleJsonLd
         url={url}
         headline={robotsTitle}
-        images={[]}
+        images={[unfurl]}
         authorName="Smallstep"
         publisherName="Smallstep"
         publisherLogo="https://smallstep.com/uploads/smallstep_tm_full_rust.svg"
