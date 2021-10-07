@@ -94,8 +94,12 @@ const Page = ({ data, location }) => {
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
   const unfurl = unfurlImages.edges.find(({ node }) => (
-    node.relativePath.includes(doc.slug)
+    node.relativePath.includes(`${doc.slug}/unfurl.png`)
   ));
+  const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
+    node.relativePath.includes(`default/unfurl.png`)
+  ));
+
   const writtenISO = doc.written
     ? moment(doc.written)
         .set('hour', 12)
@@ -124,9 +128,9 @@ const Page = ({ data, location }) => {
             publishedTime: writtenISO,
             modifiedTime: updatedISO,
           },
-          images: unfurl ? [{
-            url: unfurl.node.publicURL
-          }]: [],
+          images: [{
+            url: unfurl ? unfurl.node.publicURL : defaultUnfurl.node.publicURL
+          }]
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -136,7 +140,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={unfurl ? [unfurl.node.publicURL] : []}
+        images={[unfurl ? unfurl.node.publicURL : defaultUnfurl.node.publicURL]}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
