@@ -1,28 +1,24 @@
+import React from 'react';
 import PropTypes from 'prop-types';
-import { useRouter } from 'next/router';
 import { NavItem as SuiNavItem } from '@smallstep/step-ui';
 
-import Link from '../../ui/components/Link';
+import Link from './Link';
 
-const NavItem = ({ icon, href, text, submenuRef, children }) => {
-  const router = useRouter();
-  const { pathname } = router;
-
-  return (
-    <SuiNavItem
-      icon={icon}
-      active={pathname === href}
-      href={href}
-      text={text}
-      linkProps={{ component: Link }}
-      submenuRef={submenuRef}
-    >
-      {children}
-    </SuiNavItem>
-  );
-};
+const NavItem = ({ pathname, icon, href, text, submenuRef, children }) => (
+  <SuiNavItem
+    icon={icon}
+    active={pathname === href}
+    href={href}
+    text={text}
+    linkProps={{ component: Link }}
+    submenuRef={submenuRef}
+  >
+    {children}
+  </SuiNavItem>
+);
 
 NavItem.propTypes = {
+  pathname: PropTypes.string.isRequired,
   icon: PropTypes.element,
   href: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,

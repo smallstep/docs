@@ -1,5 +1,6 @@
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { graphql, useStaticQuery } from 'gatsby';
 import Box from '@material-ui/core/Box';
 import {
   NavMenu,
@@ -14,7 +15,6 @@ import {
   StepTutorialsIcon,
 } from '@smallstep/step-ui';
 
-import contents from '../../../pages/docs/contents.yaml';
 import NavItem from './NavItem';
 import NavSubItem from './NavSubItem';
 
@@ -22,22 +22,62 @@ const RE_EXTERNAL = /^(https?:|mailto:)/;
 
 const submenus = {};
 
-const getSubItems = (product) => {
-  if (contents[product].length === 0) {
-    return null;
-  }
-
-  return contents[product]
-    .filter(({ path }) => !path.match(RE_EXTERNAL))
-    .map(({ title, path }) => (
-      <NavSubItem key={path} text={title} href={`/docs/${path}`} />
-    ));
-};
-
-const DocsNav = ({ submenusRef }) => {
+const DocsNav = ({ pathname, submenusRef }) => {
   useEffect(() => {
     submenusRef(submenus);
-  }, []);
+  }, [submenusRef]);
+
+  const { docsYaml: contents } = useStaticQuery(graphql`
+    query {
+      docsYaml {
+        smallstep_ssh {
+          path
+          title
+        }
+        registration_authorities {
+          title
+          path
+        }
+        platform {
+          path
+          title
+        }
+        step_ca {
+          title
+          path
+        }
+        step_cli {
+          title
+          path
+        }
+        tutorials {
+          path
+          title
+        }
+        certificate_manager {
+          path
+          title
+        }
+      }
+    }
+  `);
+
+  const getSubItems = (product) => {
+    if (!contents[product] || contents[product].length === 0) {
+      return null;
+    }
+
+    return contents[product]
+      .filter(({ path }) => !path.match(RE_EXTERNAL))
+      .map(({ title, path }) => (
+        <NavSubItem
+          key={path}
+          pathname={pathname}
+          text={title}
+          href={`/docs/${path}`}
+        />
+      ));
+  };
 
   return (
     <>
@@ -45,6 +85,7 @@ const DocsNav = ({ submenusRef }) => {
         <Heading variant="h5">Platform</Heading>
         <NavMenu>
           <NavItem
+            pathname={pathname}
             icon={<StepPlatformIcon />}
             text="The Smallstep Platform"
             href="/docs/platform"
@@ -61,6 +102,7 @@ const DocsNav = ({ submenusRef }) => {
         <Heading variant="h5">Products</Heading>
         <NavMenu>
           <NavItem
+            pathname={pathname}
             icon={<StepSshIcon />}
             text="SSH"
             href="/docs/ssh"
@@ -72,6 +114,7 @@ const DocsNav = ({ submenusRef }) => {
           </NavItem>
 
           <NavItem
+            pathname={pathname}
             icon={<StepCertManagerIcon />}
             text="Certificate Manager"
             href="/docs/certificate-manager"
@@ -83,6 +126,7 @@ const DocsNav = ({ submenusRef }) => {
           </NavItem>
 
           <NavItem
+            pathname={pathname}
             icon={<StepRaIcon />}
             text="Registration Authorities"
             href="/docs/registration-authorities"
@@ -98,6 +142,7 @@ const DocsNav = ({ submenusRef }) => {
       <Heading variant="h5">Open Source</Heading>
       <NavMenu>
         <NavItem
+          pathname={pathname}
           icon={<StepCliIcon />}
           text="step CLI"
           href="/docs/step-cli"
@@ -109,6 +154,7 @@ const DocsNav = ({ submenusRef }) => {
         </NavItem>
 
         <NavItem
+          pathname={pathname}
           icon={<StepCaIcon />}
           text="step-ca"
           href="/docs/step-ca"
@@ -120,6 +166,7 @@ const DocsNav = ({ submenusRef }) => {
         </NavItem>
 
         <NavItem
+          pathname={pathname}
           icon={<StepMutualTlsIcon />}
           text="Practical Zero Trust"
           href="/docs/practical-zero-trust"
@@ -131,6 +178,7 @@ const DocsNav = ({ submenusRef }) => {
         </NavItem>
 
         <NavItem
+          pathname={pathname}
           icon={<StepMutualTlsIcon />}
           text="Mutual TLS"
           href="/docs/mtls"
@@ -142,6 +190,7 @@ const DocsNav = ({ submenusRef }) => {
         </NavItem>
 
         <NavItem
+          pathname={pathname}
           icon={<StepTutorialsIcon />}
           text="Tutorials"
           href="/docs/tutorials"
@@ -157,6 +206,7 @@ const DocsNav = ({ submenusRef }) => {
 };
 
 DocsNav.propTypes = {
+  pathname: PropTypes.string.isRequired,
   submenusRef: PropTypes.func,
 };
 

@@ -1,19 +1,16 @@
 import React from 'react';
 import { graphql, Link } from 'gatsby';
-import { Container, Heading, Paragraph } from '@smallstep/step-ui';
+import { Paragraph } from '@smallstep/step-ui';
 
-const Page = ({ data }) => (
-  <Container size="md">
-    <Heading variant="h2">Docs</Heading>
-    <Paragraph component="ul">
-      {data.allSitePage.edges.map(({ node }) => (
-        <li key={node.path}>
-          <Link to={node.path}>{node.context.frontmatter.title}</Link>
-        </li>
-      ))}
-    </Paragraph>
+import DocsLayout from '../components/DocsLayout';
+import H3 from '../components/H3';
 
-    <Heading variant="h2">Practical Zero Trust</Heading>
+const Page = ({ data, location, pageContext }) => (
+  <DocsLayout
+    location={location}
+    pageContext={{ frontmatter: { title: 'Full Index' } }}
+  >
+    <H3>Practical Zero Trust</H3>
     <Paragraph component="ul">
       {data.allPztYaml.edges.map(({ node }) => (
         <li key={node.slug}>
@@ -21,7 +18,16 @@ const Page = ({ data }) => (
         </li>
       ))}
     </Paragraph>
-  </Container>
+
+    <H3>Docs</H3>
+    <Paragraph component="ul">
+      {data.allSitePage.edges.map(({ node }) => (
+        <li key={node.path}>
+          <Link to={node.path}>{node.context.frontmatter.title}</Link>
+        </li>
+      ))}
+    </Paragraph>
+  </DocsLayout>
 );
 
 export const query = graphql`
