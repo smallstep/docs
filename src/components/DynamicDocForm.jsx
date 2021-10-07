@@ -36,7 +36,7 @@ const DynamicDocForm = ({ mt, mb, formFields }) => {
         {({ submitForm }) => (
           <Form>
             {formFields.map((field) => (
-              <Box mb={2}>
+              <Box key={field.name} mb={2}>
                 <ValidatedField
                   key={field.name}
                   label={field.label}
