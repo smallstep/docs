@@ -155,90 +155,66 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
         description={description}
       />
 
-      <Box p={2}>
+      <Grid
+        container
+        style={{
+          borderTop: `1px solid ${theme.palette.divider}`,
+        }}
+      >
+        <Grid item xs={12} md={4} xl={3} classes={docsNavClasses}>
+          <Hidden mdUp>
+            <Box m={2}>
+              <ExpansionPanel>
+                <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
+                  <Heading variant="h5" mb={0}>
+                    Menu
+                  </Heading>
+                </ExpansionPanelSummary>
+                <ExpansionPanelDetails>
+                  <Box width="100%">
+                    <DocsNav pathname={pathname} />
+                  </Box>
+                </ExpansionPanelDetails>
+              </ExpansionPanel>
+            </Box>
+          </Hidden>
+
+          <Hidden smDown>
+            <Box maxWidth="340px" pl={4} pr={2} py={4}>
+              <DocsNav
+                pathname={pathname}
+                submenusRef={(ref) => setSubmenus(ref)}
+              />
+            </Box>
+          </Hidden>
+        </Grid>
+
         <Grid
-          container
+          item
+          xs={12}
+          md={8}
+          xl={6}
           style={{
-            borderTop: `1px solid ${theme.palette.divider}`,
+            marginTop: theme.spacing(1),
           }}
         >
-          <Grid item xs={12} md={4} xl={3} classes={docsNavClasses}>
-            <Hidden mdUp>
-              <Box m={2}>
-                <ExpansionPanel>
-                  <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-                    <Heading variant="h5" mb={0}>
-                      Menu
-                    </Heading>
-                  </ExpansionPanelSummary>
-                  <ExpansionPanelDetails>
-                    <Box width="100%">
-                      <DocsNav pathname={pathname} />
-                    </Box>
-                  </ExpansionPanelDetails>
-                </ExpansionPanel>
-              </Box>
-            </Hidden>
-
-            <Hidden smDown>
-              <Box maxWidth="340px" pl={4} pr={2} py={4}>
-                <DocsNav
-                  pathname={pathname}
-                  submenusRef={(ref) => setSubmenus(ref)}
-                />
-              </Box>
-            </Hidden>
-          </Grid>
-
-          <Grid
-            item
-            xs={12}
-            md={8}
-            xl={6}
-            style={{
-              marginTop: theme.spacing(1),
-            }}
-          >
-            <div className={titleClasses.root}>
-              <Grid container>
-                <Grid item xs={12} sm={cta ? 8 : 12}>
-                  {title && (
-                    <Box mb={2}>
-                      <Heading variant="h2" component="h1">
-                        {title
-                          .split('`')
-                          .map((chunk, i) =>
-                            i % 2 === 0 ? (
-                              chunk
-                            ) : (
-                              <Code key={chunk}>{chunk}</Code>
-                            )
-                          )}
-                      </Heading>
-                    </Box>
-                  )}
-                </Grid>
-                {cta && (
-                  <Grid item xs={12} sm={4}>
-                    <ContentLink
-                      tile
-                      icon={CTA_ICONS[cta.icon]}
-                      href={cta.path}
-                    >
-                      {cta.text
+          <div className={titleClasses.root}>
+            <Grid container>
+              <Grid item xs={12} sm={cta ? 8 : 12}>
+                {title && (
+                  <Box mb={2}>
+                    <Heading variant="h2" component="h1">
+                      {title
                         .split('`')
                         .map((chunk, i) =>
                           i % 2 === 0 ? chunk : <Code key={chunk}>{chunk}</Code>
                         )}
-                    </ContentLink>
-                  </Grid>
+                    </Heading>
+                  </Box>
                 )}
               </Grid>
-
-              {children}
-
               {cta && (
-                <Box mt={6}>
+                <Grid item xs={12} sm={4}>
                   <ContentLink tile icon={CTA_ICONS[cta.icon]} href={cta.path}>
                     {cta.text
                       .split('`')
@@ -246,22 +222,36 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
                         i % 2 === 0 ? chunk : <Code key={chunk}>{chunk}</Code>
                       )}
                   </ContentLink>
-                </Box>
+                </Grid>
               )}
-            </div>
-          </Grid>
+            </Grid>
 
-          <Hidden lgDown>
-            {toc && (
-              <Grid item xl={3} classes={tocClasses}>
-                <Box my={4} mx={2}>
-                  {toc}
-                </Box>
-              </Grid>
+            <Box p={2}>{children}</Box>
+
+            {cta && (
+              <Box mt={6}>
+                <ContentLink tile icon={CTA_ICONS[cta.icon]} href={cta.path}>
+                  {cta.text
+                    .split('`')
+                    .map((chunk, i) =>
+                      i % 2 === 0 ? chunk : <Code key={chunk}>{chunk}</Code>
+                    )}
+                </ContentLink>
+              </Box>
             )}
-          </Hidden>
+          </div>
         </Grid>
-      </Box>
+
+        <Hidden lgDown>
+          {toc && (
+            <Grid item xl={3} classes={tocClasses}>
+              <Box my={4} mx={2}>
+                {toc}
+              </Box>
+            </Grid>
+          )}
+        </Hidden>
+      </Grid>
     </>
   );
 };
