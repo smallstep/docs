@@ -17,6 +17,8 @@ import yaml from 'refractor/lang/yaml';
 
 import { client } from '../../graphql';
 import { HUBSPOT_SUBSCRIBE } from '../../queries';
+import DynamicDocForm from '../../components/DynamicDocForm';
+import FormValues from '../../components/FormValues';
 import MDXBlock from '../../components/MDXBlock';
 import Alert from '../../components/Alert';
 import AlertTitle from '../../components/AlertTitle';
@@ -65,6 +67,8 @@ const components = {
 };
 
 const shortcodes = {
+  DynamicDocForm,
+  FormValues,
   MDXBlock,
   Alert,
   AlertTitle,
