@@ -34,6 +34,7 @@ module.exports = {
         },
       },
     },
+    `gatsby-plugin-catch-links`,
     {
       resolve: `gatsby-source-filesystem`,
       options: {
