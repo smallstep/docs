@@ -19,6 +19,7 @@ const DynamicDocForm = ({ mt, mb, formFields }) => {
         initialValues={formFields.reduce((acc, { name }) => {
           return { ...acc, [name]: query[name] };
         })}
+        enableReinitialize={true}
         onSubmit={(values) => {
           const queryString = formFields
             .filter(
@@ -32,7 +33,7 @@ const DynamicDocForm = ({ mt, mb, formFields }) => {
           navigate(`${pathname}?${queryString}`);
         }}
       >
-        {({ submitForm }) => (
+        {({ submitForm, dirty }) => (
           <Form>
             {formFields.map((field) => (
               <Box key={field.name} mb={2}>
@@ -45,8 +46,8 @@ const DynamicDocForm = ({ mt, mb, formFields }) => {
               </Box>
             ))}
             <Box mt={mt} mb={mb}>
-              <Button type="submit" onClick={submitForm}>
-                Submit
+              <Button type="submit" disabled={!dirty} onClick={submitForm}>
+                Apply
               </Button>
             </Box>
           </Form>
