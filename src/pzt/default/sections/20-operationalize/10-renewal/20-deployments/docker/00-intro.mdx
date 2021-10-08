@@ -14,12 +14,12 @@ There are several approaches one could take for full automation. Here are a few:
   CA trust is bootstrapped when the image is built, and the root CA certificate is baked into the image.
 - **Host-based**:
   With this approach, the unmodified, official Docker image for the service can be used.
-  The host is responsible for renewing certificates 
+  The host is responsible for renewing certificates
   and triggering a reload of certificate files (or restarting the containers) when they are renewed.
   Certificates can be made renewed from the host via volume mounts, or copied into the container.
   For ACME support, an ACME client binary on the host can be run inside the container's network namespace (via `nsenter`) in order to respond to ACME `HTTP-01` or `TLS-ALPN-01` challenges.
   This approach can leverage a systemd-based renewal timer (see the Linux tab for details).
-  For root distribution, a volume mount can often be used to add the root CA certificate to the container's trust store, 
+  For root distribution, a volume mount can often be used to add the root CA certificate to the container's trust store,
   but some Docker images may still need to be augmented to trust the root CA ceritficate.
 - **Sidecar**:
   Certificates are mounted via shared volume mounts,
