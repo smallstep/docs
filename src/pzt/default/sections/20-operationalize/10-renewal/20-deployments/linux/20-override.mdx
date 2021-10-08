@@ -1,0 +1,18 @@
+<p>
+  The <inlineCode>cert-renewer@.service</inlineCode> and{' '}
+  <inlineCode>cert-renewer@.timer</inlineCode> files define a{' '}
+  <i>service unit template</i>. Templates are never run directly, but we will
+  run an instance of them for {props.pzt.name} certificate renewals. That
+  service will be called{' '}
+  <inlineCode>
+    cert-renewer@{props.pzt.linux.systemdUnitName}.service
+  </inlineCode>
+  , which parallels the <inlineCode>
+    {props.pzt.linux.systemdUnitName}.service
+  </inlineCode> unit name used by {props.pzt.name} on systemd-based Linux distributions.
+  Because the two units share this value in their name, the <inlineCode>
+    cert-renewer@{props.pzt.linux.systemdUnitName}.service
+  </inlineCode> renewer will attempt to reload or restart <inlineCode>
+    {props.pzt.linux.systemdUnitName}.service
+  </inlineCode> after it renews the certificate.
+</p>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'gatsby';
 import { Box } from '@material-ui/core';
 import { Container, Logo, Link as SuiLink } from '@smallstep/step-ui';
 
@@ -11,10 +12,10 @@ const SiteLayout = ({ children }) =>
       { size: 'md' },
       React.createElement(
         Box,
-        { width: 200, mt: 6, mb: 2 },
+        { width: 200, my: 4 },
         React.createElement(
           SuiLink,
-          { href: 'https://smallstep.com', underline: 'none' },
+          { component: Link, to: '/', underline: 'none' },
           React.createElement(Logo)
         )
       )
