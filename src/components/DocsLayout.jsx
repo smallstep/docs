@@ -162,7 +162,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
         }}
       >
         <Grid item xs={12} md={4} xl={3} classes={docsNavClasses}>
-          <Hidden mdUp>
+          <Hidden mdUp implementation="css">
             <Box m={2}>
               <ExpansionPanel>
                 <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
@@ -179,7 +179,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
             </Box>
           </Hidden>
 
-          <Hidden smDown>
+          <Hidden smDown implementation="css">
             <Box maxWidth="340px" pl={4} pr={2} py={4}>
               <DocsNav
                 pathname={pathname}
