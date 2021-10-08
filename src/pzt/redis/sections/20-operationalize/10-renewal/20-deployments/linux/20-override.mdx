@@ -14,7 +14,7 @@ Environment=CERT_LOCATION=/var/lib/redis/redis.crt \\
             REDISCLI_AUTH=""
 ; Empty ExecStartPost (Don't attempt to restart redis-server.service)
 ExecStartPost=
-ExecStartPost=redis-cli --user "\\REDIS_USERNAME" --tls --cacert /var/lib/redis/ca.crt config set tls-cert-file \\CERT_LOCATION
+ExecStartPost=redis-cli --user "\$REDIS_USERNAME" --tls --cacert /var/lib/redis/ca.crt config set tls-cert-file \$CERT_LOCATION
 EOF
 ```
 
