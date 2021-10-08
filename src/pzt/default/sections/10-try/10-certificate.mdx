@@ -1,0 +1,55 @@
+<p>
+  Before you can configure {props.pzt.name} TLS, you will need a certificate
+  issued by a trusted certificate authority (CA). If you already have a
+  certificate, private key, and CA root certificate from your organization's
+  existing CA, you can skip to the {props.pzt.name} TLS configuration section
+  below. If you need to generate a certificate, you can:
+</p>
+
+<ul>
+  <li>
+    Use a{' '}
+    <a href="/signup?product=cm">
+      free hosted Smallstep Certificate Manager authority
+    </a>
+  </li>
+  <li>
+    Roll your own with{' '}
+    <a href="/docs/step-ca">
+      open source <inlineCode>step-ca</inlineCode>
+    </a>
+  </li>
+</ul>
+
+<Alert severity="warning">
+  This tutorial is designed for private networks, not publicly trusted websites
+  or endpoints. If you are looking to automate certificates for public websites,
+  servers, or endpoints, we recommend using{' '}
+  <a href="https://letsencrypt.org/">Let's Encrypt</a> and the ACME instructions
+  below.
+</Alert>
+
+<p>
+  To request a certificate from your CA using the{' '}
+  <a href="https://smallstep.com/docs/step-cli">
+    <inlineCode>step</inlineCode>
+  </a>{' '}
+  CLI, bootstrap your CA with <inlineCode>step ca bootstrap</inlineCode> and run
+  the following command (sub the server name for the actual name / DNS name of
+  your {props.pzt.name} server).
+
+</p>
+
+<MDXBlock path="snippets/certificate" />
+
+Your certificate and private key will be saved in `server.crt` and `server.key` respectively.
+
+Request a copy of your CA root certificate, which will be used to make
+sure each application can trust certificates presented by other
+applications.
+
+```shell
+step ca root ca.crt
+```
+
+Your certificate will be saved in `ca.crt`.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const ServerTemplate = ({
-  doc,
+  pzt,
   content,
   provisioner,
   deployment,
@@ -45,9 +45,9 @@ const ServerTemplate = ({
         </HBase>
         <MDXBlock path="sections/10-try/10-certificate" />
 
-        <HBase variant="h4">Configure {doc.name} to use the certificate</HBase>
+        <HBase variant="h4">Configure {pzt.name} to use the certificate</HBase>
         <MDXBlock path="sections/10-try/20-server" />
-        <HBase variant="h4">Test {doc.name} TLS configuration</HBase>
+        <HBase variant="h4">Test {pzt.name} TLS configuration</HBase>
         <MDXBlock path="sections/10-try/30-test" />
       </Box>
 
@@ -75,7 +75,7 @@ const ServerTemplate = ({
         </Box>
 
         <HBase variant="h4" mb={4}>
-          Configure Automated {doc.name} TLS Renewal
+          Configure Automated {pzt.name} TLS Renewal
         </HBase>
 
         <Tabs value={deployment} onChange={onDeploymentChange}>
@@ -84,7 +84,7 @@ const ServerTemplate = ({
             value="builtin"
             style={{
               display:
-                provisioner === 'acme' && doc.acme ? 'inline-flex' : 'none',
+                provisioner === 'acme' && pzt.acme ? 'inline-flex' : 'none',
             }}
           />
           <Tab label="Linux" value="linux" />
@@ -154,7 +154,7 @@ const ServerTemplate = ({
         <MDXBlock path="sections/20-operationalize/20-root" />
       </Box>
 
-      {content[`${doc.slug}/sections/30-research-notes/10-notes`] && (
+      {content[`${pzt.slug}/sections/30-research-notes/10-notes`] && (
         <Box mb={6}>
           <HBase variant="h3">Research notes</HBase>
           <MDXBlock path="sections/30-research-notes/00-intro" />
@@ -173,7 +173,7 @@ const ServerTemplate = ({
         </Box>
       )}
 
-      {content[`${doc.slug}/sections/40-further-reading`] && (
+      {content[`${pzt.slug}/sections/40-further-reading`] && (
         <Box mb={6}>
           <HBase variant="h3">Further reading</HBase>
           <MDXBlock path="sections/40-further-reading" />

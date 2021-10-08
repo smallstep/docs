@@ -1,0 +1,14 @@
+The right provisioner depends on your operational environment.
+
+<p>
+  The JWK provisioner is the most general-purpose provisioner. It supports
+  password and one-time token-based authentication. To add a JWK provisioner
+  called <inlineCode>{props.pzt.slug}</inlineCode> to a hosted Certificate
+  Manager authority (if you haven't already), run:
+</p>
+
+<CodeBlock autoCopy language="shell">
+  {`step beta ca provisioner add ${props.pzt.slug} --type JWK --create --x509-default-dur 720h`}
+</CodeBlock>
+
+For instructions on adding provisioners to open source `step-ca`, or to learn more about other provisioner types, see _[Configuring `step-ca` Provisioners](https://smallstep.com/docs/step-ca/provisioners)_.

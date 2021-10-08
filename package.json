@@ -22,6 +22,7 @@
     "@smallstep/layouts": "./vendor/layouts",
     "@smallstep/step-ui": "./vendor/step-ui",
     "apollo-boost": "^0.4.9",
+    "formik": "^2.2.9",
     "gatsby": "^3.12.1",
     "gatsby-plugin-compile-es6-packages": "^2.1.1",
     "gatsby-plugin-mdx": "^2.12.0",
