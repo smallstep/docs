@@ -24,6 +24,11 @@ const AutoDocLayout = ({ location, pageContext, children }) => {
 
   const components = useMDXComponents();
 
+  const parentPath = title
+        .split(' ')
+        .slice(1, -1)
+        .join('/');
+
   return (
     <DocsLayout
       location={location}
@@ -51,10 +56,7 @@ const AutoDocLayout = ({ location, pageContext, children }) => {
                   <ListItem
                     button
                     component={Link}
-                    href={`/docs/step-cli/reference/${title
-                      .split(' ')
-                      .slice(1, -1)
-                      .join('/')}`}
+                    to={`/docs/step-cli/reference${parentPath ? `/${parentPath}` : ''}`}
                     underline="none"
                   >
                     <ListItemIcon>
@@ -93,7 +95,7 @@ const AutoDocLayout = ({ location, pageContext, children }) => {
                       key={subcommand}
                       button
                       component={Link}
-                      href={`/docs/step-cli/reference/${[
+                      to={`/docs/step-cli/reference/${[
                         ...title.split(' ').slice(1),
                         subcommand,
                       ].join('/')}`}
