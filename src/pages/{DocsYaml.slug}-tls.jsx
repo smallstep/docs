@@ -94,12 +94,11 @@ const Page = ({ data, location }) => {
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
   const unfurl = unfurlImages.edges.find(({ node }) => (
-    node.relativePath.includes(`${doc.slug}/unfurl.png`)
-  ));
-  const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
-    node.relativePath.includes(`default/unfurl.png`)
-  ));
-
+    node.relativePath === `${doc.slug}/unfurl.png`
+    ));
+    const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
+      node.relativePath === 'default/unfurl.png'
+      ));
   const writtenISO = doc.written
     ? moment(doc.written)
         .set('hour', 12)
