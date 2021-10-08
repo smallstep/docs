@@ -29,7 +29,6 @@ const DynamicDocForm = ({ mt, mb, formFields }) => {
               return `${name}=${values[name]}`;
             })
             .join('&');
-          // TODO get rid of scroll to top
           navigate(`${pathname}?${queryString}`);
         }}
       >

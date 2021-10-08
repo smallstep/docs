@@ -1,6 +1,6 @@
 import 'moment-timezone';
 import React, { useState, useEffect } from 'react';
-import { graphql } from 'gatsby';
+import { graphql, navigate } from 'gatsby';
 import { GatsbySeo, ArticleJsonLd } from 'gatsby-plugin-next-seo';
 import queryString from 'query-string';
 import moment from 'moment';
@@ -58,9 +58,7 @@ const Page = ({ data, location }) => {
 
     setProvisioner(value);
     setDeployment(updatedDeployment);
-    window.history.pushState(
-      {},
-      '',
+    navigate(
       `${location.pathname}?${queryString.stringify({
         provisioner: value,
         deployment: updatedDeployment,
@@ -70,9 +68,7 @@ const Page = ({ data, location }) => {
 
   const handleDeploymentChange = (event, value) => {
     setDeployment(value);
-    window.history.pushState(
-      {},
-      '',
+    navigate(
       `${location.pathname}?${queryString.stringify({
         provisioner,
         deployment: value,
