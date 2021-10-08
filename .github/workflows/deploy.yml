@@ -68,7 +68,7 @@ jobs:
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: public
-        destination: ${{ secrets.GCP_GCS_BUCKET }}/practical-zero-trust
+        destination: ${{ secrets.GCP_GCS_BUCKET }}
         parent: false
         headers: |-
           cache-control: public, max-age=0
