@@ -50,11 +50,10 @@ const Page = ({ data, location }) => {
   }, [location.search, pzt.template, pzt.acme]);
 
   const handleProvisionerChange = ({ target: { value } }) => {
-    let updatedDeployment =
-      value === 'jwk' && deployment === 'builtin' ? 'linux' : deployment;
+    let updatedDeployment = 'linux';
 
-    if (value === 'acme' && provisioner === 'jwk') {
-      updatedDeployment = 'builtin';
+    if (value === 'acme') {
+      updatedDeployment = pzt.acme ? 'builtin' : 'linux';
     }
 
     setProvisioner(value);
