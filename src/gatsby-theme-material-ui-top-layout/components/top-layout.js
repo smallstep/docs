@@ -1,8 +1,8 @@
 import React from 'react';
 import { MDXProvider } from '@mdx-js/react';
-import { ApolloProvider, useMutation } from '@apollo/react-hooks';
+import { ApolloProvider } from '@apollo/react-hooks';
 import ThemeTopLayout from 'gatsby-theme-material-ui-top-layout/src/components/top-layout';
-import { SiteLayout } from '@smallstep/layouts';
+import { SiteLayout, useInitJS, useIntercom } from '@smallstep/internal';
 import { Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
 import apacheconf from 'refractor/lang/apacheconf';
 import diff from 'refractor/lang/diff';
@@ -16,7 +16,6 @@ import shellSession from 'refractor/lang/shell-session';
 import yaml from 'refractor/lang/yaml';
 
 import { client } from '../../graphql';
-import { HUBSPOT_SUBSCRIBE } from '../../queries';
 import DynamicDocForm from '../../components/DynamicDocForm';
 import FormValues from '../../components/FormValues';
 import MDXBlock from '../../components/MDXBlock';
@@ -97,7 +96,14 @@ const shortcodes = {
 };
 
 export default function TopLayout({ children, theme }) {
-  const [hubspotSubscribe] = useMutation(HUBSPOT_SUBSCRIBE, { client });
+  useInitJS({
+    gtmId: process.env.GATSBY_GTM_ID,
+    gtmAuth: process.env.GATSBY_GTM_AUTH,
+    gtmPreview: process.env.GATSBY_GTM_PREVIEW,
+    apolloClient: client,
+  });
+
+  useIntercom();
 
   return (
     <MDXProvider components={{ ...components, ...shortcodes }}>
@@ -117,27 +123,7 @@ export default function TopLayout({ children, theme }) {
       >
         <ApolloProvider client={client}>
           <ThemeTopLayout theme={theme}>
-            <SiteLayout
-              clymPropertyId={process.env.GATSBY_CLYM_PROPERTY_ID}
-              intercomAppId={process.env.GATSBY_INTERCOM_APP_ID}
-              onSubscribe={async ({ email }) => {
-                const hutkCookie = document.cookie
-                  .split('; ')
-                  .find((cookie) => cookie.startsWith('hubspotutk='));
-                const hutk = hutkCookie ? hutkCookie.split('=')[1] : '';
-
-                await hubspotSubscribe({
-                  variables: {
-                    email,
-                    pageName: document.title,
-                    pageUri: window.location.href,
-                    hutk,
-                  },
-                });
-              }}
-            >
-              {children}
-            </SiteLayout>
+            <SiteLayout>{children}</SiteLayout>
           </ThemeTopLayout>
         </ApolloProvider>
       </CodeBlock.GrammarProvider>

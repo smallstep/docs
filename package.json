@@ -19,7 +19,7 @@
     "@material-ui/styles": "^4.11.4",
     "@mdx-js/mdx": "^1.6.22",
     "@mdx-js/react": "^1.6.22",
-    "@smallstep/layouts": "./vendor/layouts",
+    "@smallstep/internal": "./vendor/internal",
     "@smallstep/step-ui": "./vendor/step-ui",
     "apollo-boost": "^0.4.9",
     "formik": "^2.2.9",
