@@ -38,9 +38,9 @@ jobs:
       env:
         GATSBY_CLYM_PROPERTY_ID: ${{ secrets.CLYM_PROPERTY_ID }}
         GATSBY_INTERCOM_APP_ID: ${{ secrets.INTERCOM_APP_ID }}
-        GATSBY_GTM_ID: ${{ secrets.INTERCOM_GTM_ID }}
-        GATSBY_GTM_AUTH: ${{ secrets.INTERCOM_GTM_AUTH }}
-        GATSBY_GTM_PREVIEW: ${{ secrets.INTERCOM_GTM_PREVIEW }}
+        GATSBY_GTM_ID: ${{ secrets.GTM_ID }}
+        GATSBY_GTM_AUTH: ${{ secrets.GTM_AUTH }}
+        GATSBY_GTM_PREVIEW: ${{ secrets.GTM_PREVIEW }}
     - run: tree public
 
     - name: Upload build artifacts
