@@ -1,8 +1,7 @@
 import React from 'react';
 import { MDXProvider } from '@mdx-js/react';
-import { ApolloProvider } from '@apollo/react-hooks';
+import { ApolloProvider } from '@apollo/client';
 import ThemeTopLayout from 'gatsby-theme-material-ui-top-layout/src/components/top-layout';
-import { SiteLayout, useInitJS, useIntercom } from '@smallstep/internal';
 import { Paragraph, BlockQuote, Code } from '@smallstep/step-ui';
 import apacheconf from 'refractor/lang/apacheconf';
 import diff from 'refractor/lang/diff';
@@ -16,6 +15,7 @@ import shellSession from 'refractor/lang/shell-session';
 import yaml from 'refractor/lang/yaml';
 
 import { client } from '../../graphql';
+import SiteLayout from '../../components/SiteLayout';
 import DynamicDocForm from '../../components/DynamicDocForm';
 import FormValues from '../../components/FormValues';
 import MDXBlock from '../../components/MDXBlock';
@@ -96,15 +96,6 @@ const shortcodes = {
 };
 
 export default function TopLayout({ children, theme }) {
-  useInitJS({
-    gtmId: process.env.GATSBY_GTM_ID,
-    gtmAuth: process.env.GATSBY_GTM_AUTH,
-    gtmPreview: process.env.GATSBY_GTM_PREVIEW,
-    apolloClient: client,
-  });
-
-  useIntercom();
-
   return (
     <MDXProvider components={{ ...components, ...shortcodes }}>
       <CodeBlock.GrammarProvider
