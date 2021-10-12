@@ -3,7 +3,7 @@ import { Link } from 'gatsby';
 import { Box } from '@material-ui/core';
 import { Container, Logo, Link as SuiLink } from '@smallstep/step-ui';
 
-const SiteLayout = ({ children }) =>
+export const SiteLayout = ({ children }) =>
   React.createElement(
     React.Fragment,
     null,
@@ -23,4 +23,6 @@ const SiteLayout = ({ children }) =>
     children
   );
 
-export default SiteLayout;
+export const ThirdPartyJS = () => null;
+export const useInitJS = () => null;
+export const useIntercom = () => null;
