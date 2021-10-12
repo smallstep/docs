@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const Page = ({ data, location }) => {
-  const { site, pztYaml: pzt, allMdx } = data;
+  const { site, pztYaml: pzt, allMdx, allFile: unfurlImages } = data;
 
   const classes = useStyles();
 
@@ -88,6 +88,13 @@ const Page = ({ data, location }) => {
   const description = `Step-by-step instructions for operationalizing ${pzt.name} TLS certificates on Linux, Docker, or Kubernetes.`;
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
+  const unfurl = unfurlImages.edges.find(({ node }) => (
+    node.relativePath === `${doc.slug}/unfurl.png`
+    ));
+    const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
+      node.relativePath === 'default/unfurl.png'
+      ));
+
   const writtenISO = pzt.written
     ? moment(pzt.written)
         .set('hour', 12)
@@ -116,7 +123,9 @@ const Page = ({ data, location }) => {
             publishedTime: writtenISO,
             modifiedTime: updatedISO,
           },
-          images: [],
+          images: [{
+            url: unfurl ? unfurl.node.publicURL : defaultUnfurl.node.publicURL
+          }]
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -126,7 +135,7 @@ const Page = ({ data, location }) => {
       <ArticleJsonLd
         url={url}
         headline={title}
-        images={[]}
+        images={[unfurl ? unfurl.node.publicURL : defaultUnfurl.node.publicURL]}
         datePublished={writtenISO}
         dateModified={updatedISO}
         authorName="Smallstep"
@@ -217,7 +226,7 @@ export const query = graphql`
         name
         dnsName
         port
-      }
+      } 
       linux {
         systemdUnitName
       }
@@ -225,6 +234,15 @@ export const query = graphql`
         ingressClass
       }
       acme
+    }
+    allFile (filter: {extension: {eq: "png"}, name: {eq: "unfurl"} }){
+      edges {
+        node {
+          name
+          relativePath
+          publicURL
+        }
+      }
     }
     allMdx {
       edges {
