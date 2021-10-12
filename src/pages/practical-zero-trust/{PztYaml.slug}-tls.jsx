@@ -89,7 +89,7 @@ const Page = ({ data, location }) => {
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
   const unfurl = unfurlImages.edges.find(({ node }) => (
-    node.relativePath === `${doc.slug}/unfurl.png`
+    node.relativePath === `${pzt.slug}/unfurl.png`
     ));
     const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
       node.relativePath === 'default/unfurl.png'
