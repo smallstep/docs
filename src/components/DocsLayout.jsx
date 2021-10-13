@@ -242,15 +242,15 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
           </div>
         </Grid>
 
-        <Hidden lgDown implementation="css">
-          {toc && (
-            <Grid item xl={3} classes={tocClasses}>
+        {toc && (
+          <Grid item xl={3} classes={tocClasses}>
+            <Hidden lgDown implementation="css">
               <Box my={4} mx={2}>
                 {toc}
               </Box>
-            </Grid>
-          )}
-        </Hidden>
+            </Hidden>
+          </Grid>
+        )}
       </Grid>
     </>
   );
