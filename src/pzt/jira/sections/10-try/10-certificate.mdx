@@ -9,7 +9,7 @@ Hold on to this, as you'll use the same password to encrypt the KeyStore (that w
 </CodeBlock>
 
 Next, use `keytool` to import the root CA and the signed server certificate to a KeyStore.
-Note: you must use the same password to encrypt the new KeyStore as was used in the previous command, when generating the PKCS12 format file.
+Make sure to use the same password to encrypt the new KeyStore as was used in the previous command; when generating the PKCS12 format file.
 
 <CodeBlock autoCopy language="shell">
 {`keytool -import -alias rootCA -keystore ./jira.jks -trustcacerts -file ca.crt
