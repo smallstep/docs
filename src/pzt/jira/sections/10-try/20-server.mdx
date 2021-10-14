@@ -3,8 +3,7 @@ You can test your certificate by starting up Jira with TLS enabled.
 Edit the HTTPS Connector in the `<Jira_HOME>/conf/server.xml`:
 
 <CodeBlock autoCopy language="xml">
-  {`
-...
+  {`...
 <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
               maxHttpHeaderSize="8192" SSLEnabled="true"
               maxThreads="150" minSpareThreads="25"
@@ -12,17 +11,14 @@ Edit the HTTPS Connector in the `<Jira_HOME>/conf/server.xml`:
               acceptCount="100" scheme="https" secure="true"
               sslEnabledProtocols="TLSv1.2,TLSv1.3"
               clientAuth="false" useBodyEncodingForURI="true"
-              keyAlias="${props.doc.server.dnsName}" 
+              keyAlias="${props.pzt.server.dnsName}" 
               keystoreFile="</path/to>/jira.jks" keystorePass="<changeme>" 
               keystoreType="JKS"/>
-...
-`}
+...`}
 </CodeBlock>
 
 <Alert severity="warning">
-  Use the same password for `keystorePass` in the HTTPS connector above as was used to generate
-  the PKCS12 file and to encrypt the KeyStore in the previous steps.
+  Use the same password for `keystorePass` in the HTTPS connector above as was used to generate the PKCS12 file and to encrypt the KeyStore in the previous steps.
 </Alert>
 
-Once the update to the `<Jira_HOME>/conf/server.xml` has been completed, restart
-the `Jira` server.
+Once the code has been updated, restart the `Jira` server.

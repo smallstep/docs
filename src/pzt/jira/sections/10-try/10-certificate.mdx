@@ -1,0 +1,31 @@
+<MDXBlock default path="sections/10-try/10-certificate" />
+
+Next, use `openssl` to package up the server private key and certificate into PKCS12 format. 
+You'll be prompted to create a password here. 
+Hold on to this, as you'll use the same password to encrypt the KeyStore (that we'll create in a moment) and in the Jira server configuration file.
+
+<CodeBlock autoCopy language="shell">
+  {`openssl pkcs12 -export -in server.crt -inkey server.key -name "${props.pzt.server.dnsName}" > server.p12`}
+</CodeBlock>
+
+Next, use `keytool` to import the root CA and the signed server certificate to a KeyStore.
+Note: you must use the same password to encrypt the new KeyStore as was used in the previous command, when generating the PKCS12 format file.
+
+<CodeBlock autoCopy language="shell">
+{`keytool -import -alias rootCA -keystore ./jira.jks -trustcacerts -file ca.crt
+keytool -importkeystore -srckeystore server.p12 -destkeystore jira.jks -srcstoretype pkcs12 -alias "${props.pzt.server.dnsName}"`}
+</CodeBlock>
+
+Finally, verify that the certificate exists within the KeyStore:
+
+<CodeBlock autoCopy language="shell">
+  {`$ keytool -list -alias "${props.pzt.server.dnsName}" -keystore ./jira.jks
+Enter keystore password:
+${props.pzt.server.dnsName}, Sep 30, 2021, PrivateKeyEntry,
+Certificate fingerprint (SHA1): 30:A2:7E:3E:AE:25:24:B4:98:AF:D5:FF:87:B6:22:13:6D:FC:E7:9B`}
+</CodeBlock>
+
+<Alert severity="warning">
+  Make sure the output has a <inlineCode>PrivateKeyEntry</inlineCode> field, like in the example above.
+</Alert>
+
