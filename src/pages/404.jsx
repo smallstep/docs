@@ -7,6 +7,7 @@ import Link from '../components/Link';
 const Page = () => (
   <Container size="md">
     <Box p={8}>
+      {/* TODO <title> */}
       <Heading variant="h2">
         Someone took a smallstep in the wrong direction.
       </Heading>
