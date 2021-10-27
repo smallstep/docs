@@ -6,7 +6,7 @@ module.exports = {
   siteMetadata: {
     siteUrl: process.env.SITE_URL || `https://smallstep.com`,
   },
-  assetPrefix: 'https://pzt.infra.smallstep.com',
+  assetPrefix: process.env.ASSET_PREFIX || 'https://pzt.infra.smallstep.com',
   plugins: [
     `gatsby-plugin-remove-trailing-slashes`,
     {
