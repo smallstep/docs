@@ -13,6 +13,8 @@ jobs:
     steps:
     - name: Clone practicalzt
       uses: actions/checkout@v2
+      with:
+        submodules: true
 
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
@@ -28,14 +30,17 @@ jobs:
         path: deps/web
         ssh-key: ${{ secrets.WEB_SSH_KEY }}
 
-    - name: Build and copy web layouts
-      run: ./scripts/build-layouts.sh
+    - name: Build and copy web internal package
+      run: ./scripts/build-internal.sh
 
     - run: yarn install
     - run: yarn build
       env:
         GATSBY_CLYM_PROPERTY_ID: ${{ secrets.CLYM_PROPERTY_ID }}
         GATSBY_INTERCOM_APP_ID: ${{ secrets.INTERCOM_APP_ID }}
+        GATSBY_GTM_ID: ${{ secrets.GTM_ID }}
+        GATSBY_GTM_AUTH: ${{ secrets.GTM_AUTH }}
+        GATSBY_GTM_PREVIEW: ${{ secrets.GTM_PREVIEW }}
     - run: tree public
 
     - name: Upload build artifacts
@@ -66,7 +71,7 @@ jobs:
       uses: google-github-actions/upload-cloud-storage@main
       with:
         path: public
-        destination: ${{ secrets.GCP_GCS_BUCKET }}/practical-zero-trust
+        destination: ${{ secrets.GCP_GCS_BUCKET }}
         parent: false
         headers: |-
           cache-control: public, max-age=0

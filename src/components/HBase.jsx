@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import copy from 'clipboard-copy';
 import { Subject, from } from 'rxjs';
 import { switchMap, tap, delay } from 'rxjs/operators';
-import { makeStyles, useTheme } from '@material-ui/styles';
+import { makeStyles, useTheme } from '@material-ui/core/styles';
 import useMediaQuery from '@material-ui/core/useMediaQuery';
 import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';

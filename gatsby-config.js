@@ -6,7 +6,6 @@ module.exports = {
   siteMetadata: {
     siteUrl: process.env.SITE_URL || `https://smallstep.com`,
   },
-  pathPrefix: '/practical-zero-trust',
   assetPrefix: 'https://pzt.infra.smallstep.com',
   plugins: [
     `gatsby-plugin-remove-trailing-slashes`,
@@ -38,11 +37,34 @@ module.exports = {
     {
       resolve: `gatsby-source-filesystem`,
       options: {
-        name: `metadata`,
-        path: `${__dirname}/src/docs`,
+        name: `pzt`,
+        path: `${__dirname}/src/pzt`,
       },
     },
-    `gatsby-plugin-mdx`,
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `reference`,
+        path: `${__dirname}/src/pages/docs/step-cli/reference`,
+      },
+    },
+    {
+      resolve: `gatsby-source-filesystem`,
+      options: {
+        name: `docs`,
+        path: `${__dirname}/src/pages/docs`,
+      },
+    },
+    {
+      resolve: `gatsby-plugin-mdx`,
+      options: {
+        extensions: ['.mdx', '.md'],
+        defaultLayouts: {
+          reference: require.resolve('./src/components/AutoDocLayout.jsx'),
+          docs: require.resolve('./src/components/DocsLayout.jsx'),
+        },
+      },
+    },
     `gatsby-transformer-yaml`,
     {
       resolve: `gatsby-plugin-next-seo`,

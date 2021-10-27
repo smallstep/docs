@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { makeStyles } from '@material-ui/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import Box from '@material-ui/core/Box';
 import { CodeBlock as SuiCodeBlock } from '@smallstep/step-ui';
 
@@ -35,7 +35,7 @@ const CodeBlock = ({ mt, mb, children, ...props }) => {
     return (
       <Box mt={mt} mb={mb}>
         <pre className={classes.pre}>
-          <code className={classes.code}>{children}</code>
+          <code className={classes.code}>{children.props.children}</code>
         </pre>
       </Box>
     );
