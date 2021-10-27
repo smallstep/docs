@@ -88,12 +88,12 @@ const Page = ({ data, location }) => {
   const description = `Step-by-step instructions for operationalizing ${pzt.name} TLS certificates on Linux, Docker, or Kubernetes.`;
   const { siteUrl } = site.siteMetadata;
   const url = `${siteUrl}${location.pathname}`;
-  const unfurl = unfurlImages.edges.find(({ node }) => (
-    node.relativePath === `${pzt.slug}/unfurl.png`
-    ));
-    const defaultUnfurl = unfurlImages.edges.find(({ node }) => (
-      node.relativePath === 'default/unfurl.png'
-      ));
+  const unfurl = unfurlImages.edges.find(
+    ({ node }) => node.relativePath === `${pzt.slug}/unfurl.png`
+  );
+  const defaultUnfurl = unfurlImages.edges.find(
+    ({ node }) => node.relativePath === 'default/unfurl.png'
+  );
 
   const writtenISO = pzt.written
     ? moment(pzt.written)
@@ -123,9 +123,13 @@ const Page = ({ data, location }) => {
             publishedTime: writtenISO,
             modifiedTime: updatedISO,
           },
-          images: [{
-            url: unfurl ? unfurl.node.publicURL : defaultUnfurl.node.publicURL
-          }]
+          images: [
+            {
+              url: unfurl
+                ? unfurl.node.publicURL
+                : defaultUnfurl.node.publicURL,
+            },
+          ],
         }}
         twitter={{
           cardType: 'summary_large_image',
@@ -226,7 +230,7 @@ export const query = graphql`
         name
         dnsName
         port
-      } 
+      }
       linux {
         systemdUnitName
       }
@@ -235,7 +239,7 @@ export const query = graphql`
       }
       acme
     }
-    allFile (filter: {extension: {eq: "png"}, name: {eq: "unfurl"} }){
+    allFile(filter: { extension: { eq: "png" }, name: { eq: "unfurl" } }) {
       edges {
         node {
           name
