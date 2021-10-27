@@ -8,6 +8,7 @@ const Link = forwardRef(({ href: originalHref, ...rest }, ref) => {
   // that begin with a slash (/), gatsby prefixes them with the assetPrefix,
   // which doesn't make sense. we make sure it gets stripped off.
   const href = originalHref.replace(/^.*pzt\.infra\.smallstep\.com\//g, '/');
+  const href = originalHref.replace(/^.*prof\.infra\.smallstep\.com\//g, '/');
 
   return href.match(/^(https?|mailto):/) ? (
     <SuiLink ref={ref} external href={href} {...rest} />
