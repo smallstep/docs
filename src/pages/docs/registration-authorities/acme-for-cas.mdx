@@ -1,0 +1,246 @@
+---
+title: ACME Registration Authority for Google Certificate Authority Service
+html_title: ACME Registration Authority for Google Certificate Authority Service
+description: How to configure a Smallstep ACME Registration Authority with GCP CAS. 
+---
+
+
+A Registration Authority sits in front of a Certificate Authority (CA) and provides an authentication and authorization layer.
+This guide will show you how to set up an ACME Registration Authority (RA) backed by a [Google Cloud Certificate Authority Service][cas] (CAS) instance.
+We will deploy the RA as a VM instance that issues X.509 Certificates for internal services, using the [ACME protocol][acme].
+
+[cas]: https://cloud.google.com/blog/products/identity-security/introducing-cas-a-cloud-based-managed-ca-for-the-devops-and-iot-world
+[acme]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment
+
+## Requirements
+
+- [A Google Cloud project][gcpproject] with billing enabled
+- [gcloud command line tools][gcloud]
+
+[gcpproject]: https://console.cloud.google.com/projectselector2/home/dashboard
+[gcloud]: https://cloud.google.com/sdk/gcloud
+
+## Configuration Guide
+
+#### 1. Create or select an existing GCP project and enable `CAS` APIs. 
+
+  For the purposes of this example, lets use the project ID `smallstep-cas-test`.
+  
+  In a console, run:
+
+  ```shell nocopy
+  $ export PROJECT_ID=smallstep-cas-test
+  $ gcloud config set project $PROJECT_ID
+
+  # Enable CAS
+  $ gcloud services enable privateca.googleapis.com
+  ```
+
+#### 2. Create a CA Pool
+
+  Run:
+
+   ```shell
+   gcloud privateca pools create example-ca-pool --location us-west1
+  ```
+
+#### 3. Create and Enable a Root CA
+
+To create, run:
+
+  ```shell
+   gcloud privateca roots create example-root-ca \
+       --pool example-ca-pool \
+       --location us-west1 \
+       --subject "CN=Example Root CA, O=Example LLC" \
+       --key-algorithm ec-p256-sha256 \
+       --max-chain-length 1
+   ```
+
+  <Alert severity="info">
+    <div> 
+      See <Code>gcloud privateca roots create --help</Code> for more options.
+      You can customize values for <Code>KeyUsage</Code>, <Code>MaxPathLen</Code>,
+      <Code>KeyAlgorithm</Code>, and more.
+    </div>
+  </Alert>
+
+  Be sure to change the Common Name and Organization to your liking.
+
+To enable CA, run:
+
+  ```
+    gcloud privateca roots enable example-root-ca \
+      --pool example-ca-pool \
+      --location us-west1 
+  ```
+
+#### 4. Create and Enable an Intermediate CA.
+
+  To create, run:
+
+   ```shell 
+   gcloud privateca subordinates create example-intermediate-ca \
+       --pool example-ca-pool \
+       --location us-west1 \
+       --issuer-ca example-root-ca \
+       --issuer-pool example-ca-pool \
+       --issuer-location us-west1 \
+       --subject "CN=Example Intermediate CA, O=Example LLC" \
+       --key-algorithm ec-p256-sha256 \
+       --max-chain-length 1 
+   ```
+
+  To enable, run:
+
+   ```shell
+   gcloud privateca subordinates enable example-intermediate-ca \
+       --pool example-ca-pool \
+       --location us-west1
+   ```
+
+#### 5. (Optional) Test Root and Intermediate CA
+
+To inspect the root and intermediate CA, you need to have the following dependencies installed:
+* [step](https://smallstep.com/cli/)
+* [jq](https://stedolan.github.io/jq/) 
+
+Run:
+
+```shell
+gcloud privateca roots describe example-root-ca \
+--project smallstep-cas-test --location us-west1 \
+--pool example-ca-pool --format json | jq -r '.pemCaCertificates[0]' | step certificate inspect
+```
+
+Run:
+
+```shell
+gcloud privateca subordinates describe example-intermediate-ca \
+--project smallstep-cas-test --location us-west1 \
+--pool example-ca-pool --format json | jq -r '.pemCaCertificates[0]' | step certificate inspect
+```
+
+#### 6. Configure a service account with necessary role bindings to request and manage X.509 Certificates using CAS. 
+
+  Run:
+
+  ```shell nocopy
+  # Create service account
+  gcloud iam service-accounts create step-cas-sa \
+      --description "Step-CA Service Account" \
+      --display-name "Step-CA Service Account"
+  # Add permissions to use the privateca API
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+      --member=serviceAccount:step-cas-sa@$PROJECT_ID.iam.gserviceaccount.com \
+      --role=roles/privateca.certificateManager
+  gcloud projects add-iam-policy-binding $PROJECT_ID \
+      --member=serviceAccount:step-cas-sa@$PROJECT_ID.iam.gserviceaccount.com \
+      --role=roles/privateca.certificateRequester
+  ```
+
+#### 7. Launch a "Smallstep ACME Registration Authority for CAS" deployment
+
+1. Select "Smallstep ACME Registration Authority for CAS" from GCP marketplace
+and hit the `Launch` button.
+
+  ![](/graphics/cas-launch-image.png)
+
+2. Fill in required fields in the Launcher UI.
+
+  ![](/graphics/cas-required-fields.png)
+
+    * **Service Account**: email address of the service account generated in the previous step.
+      This value should be equivalent to `step-cas-sa@<PROJECT_ID>.iam.gserviceaccount.com`.
+
+    * **CAS Certificate Authority ID**: name of the CAS intermediate Certificate
+      Authority created above.
+
+        Get this value from the command line:
+        ```shell
+        gcloud privateca subordinates describe example-intermediate-ca --pool example-ca-pool --location us-west1 --format='get(name)'
+        ```
+
+3. Optional fields in the Launcher UI.
+
+  Click the small `more` button to expand optional fields.
+
+  ![](/graphics/cas-optional-fields.png)
+
+    * **RA DNS Name**: use this field to configure a permanent DNS name for your
+      ACME RA. By default, this value will be the internal hostname of the instance.
+      Hostnames are permanent within GCP so this value will not change across
+      host restarts.
+
+    * **RA Address**: use this field to configure the address and port at 
+      which the ACME RA will listen for connections. By default this value is
+      `0.0.0.0:443`. Note that, although the RA is configured to listen on all
+      interfaces, external HTTP and HTTPS traffic is not enabled by default. 
+      See the [next steps](#next-steps) section for more info.
+
+4. Deploy!
+
+  ![](/graphics/cas-deploy.png)
+
+#### 8. Let's test out our deployment!
+
+In this example we'll use [certbot](https://certbot.eff.org/) to test our 
+new ACME RA for CAS, but any popular ACME client should work.
+
+1. Create a VM instance within the same project as your Smallstep ACME RA for CAS deployment.
+
+  For the purposes of this example set the following attributes in the instance 
+  configuration:
+
+    - **Name**: `ra-tester`
+    - **Boot disk**: `Ubuntu 20.04 LTS`
+    - **Scopes**: Allow full access to all Cloud APIs
+
+  All other configuration can remain as is.
+
+2. SSH to the `ra-tester` instance and install `certbot`.
+
+  ```shell nocopy
+  $ sudo snap install core; sudo snap refresh core
+  $ sudo snap install --classic certbot
+
+  # Execute the following instruction on the command line on the machine to
+  # ensure that the certbot command can be run.
+  $ sudo ln -s /snap/bin/certbot /usr/bin/certbot
+  ```
+
+3. Download the root certificate.
+
+  ```shell
+  gcloud privateca roots describe example-root-ca --pool example-ca-pool --location us-west1 --format='get(pemCaCertificates)' > /tmp/root_ca.crt
+  ```
+
+4. Create a new certificate using the ACME RA for CAS.
+
+  ```
+  # Save the internal hostname for which we'll issue the certificate
+  $ export HOST=$(curl http://metadata.google.internal/computeMetadata/v1/instance/hostname --silent --fail -H "Metadata-Flavor: Google")
+
+  # Save the project-id
+  $ export PROJECT_ID=$(curl http://metadata.google.internal/computeMetadata/v1/project/project-id --silent --fail -H "Metadata-Flavor: Google")
+
+  # Get a certificate!
+  $ sudo REQUESTS_CA_BUNDLE=/tmp/root_ca.crt certbot certonly -n --standalone -d $HOST --server https://acme-registration-authority-for-gcp-c-1-vm.c.$PROJECT_ID.internal/acme/acme/directory --agree-tos --email tester@smallstep.com
+  ```
+
+  Hooray!
+
+## Next Steps
+
+A few considerations for making your ACME RA for CAS production ready.
+
+### Security Hardening
+
+VM instance configuration:
+
+- Block project-wide SSH keys
+- We recommend leaving HTTP and HTTPS traffic from the internet diabled (this is the default). 
+However, if your CA _must_ be publicly available you should be aware that any user with
+a publicly addressable domain will be able to request a certificate from your CA. If
+you'd like to learn about options for locking down permissable ACME domains please
+contact Smallstep support.

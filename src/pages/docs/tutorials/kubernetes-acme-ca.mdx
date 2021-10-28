@@ -1,0 +1,248 @@
+---
+title: Integrate Kubernetes cert-manager with an internal ACME CA
+html_title: Integrate Kubernetes cert-manager with an internal ACME CA
+description: Use step-ca, ACME, and cert-manager to deploy automated, short-lived certificates for your Kubernetes cluster.
+---
+
+
+## About this tutorial
+
+In this example, we'll configure Kubernetes [cert-manager](https://cert-manager.io/) to get a certificate from an internal ACME server,
+using cert-manager's [ACME issuer](https://cert-manager.io/docs/configuration/acme/).
+
+- Estimated effort: Reading time ~4 mins, Lab time ~20 to 60 mins. 
+
+<Alert severity="info">
+  <div>
+    If you run into any issues please let us know <Link href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</Link>.
+  </div>
+</Alert>
+
+## Requirements
+
+- **Open source -** You have initialized and started up a `step-ca` ACME instance using the steps in [our ACME server tutorial](/docs/tutorials/acme-challenge).
+- **[Smallstep Certificate Manager](/docs/certificate-manager/acme) -** this tutorial assumes you have [created a hosted or linked authority](/docs/certificate-manager/getting-started) and are running a local [ACME Registration Authority](/docs/registration-authorities/acme-for-certificate-manager). 
+- You'll need the root certificate PEM file for your CA.
+
+### 0. Before you begin
+
+This example uses the ACME `dns-01` challenge type, with [Google Cloud DNS](https://console.cloud.google.com/net-services/dns/).
+We'll create a service account on Google Cloud that cert-manager will use to solve DNS challenges.
+For other DNS providers, or other ACME challenge types, you'll need to change the challenge solver settings below.
+
+### 1. Create a Kubernetes cluster
+
+For this tutorial, I created a Google Compute Engine VM running a [kind](https://kind.sigs.k8s.io/) cluster.
+I'm using kind for testing, but pretty much any Kubernetes cluster will do.
+
+```bash
+$ kind cluster create
+```
+
+### 2. Set up cert-manager to trust your internal CA
+
+Let's install [Kubernetes cert-manager](https://cert-manager.io/) and patch it so that it will trust your internal ACME CA.
+
+First, install cert-manager:
+
+```bash
+$ kubectl apply --validate=false -f https://github.com/jetstack/cert-manager/releases/download/v1.0.4/cert-manager.yaml
+```
+
+Next, create a `ConfigMap` that contains your ACME server's CA certificate.
+To find your certificate's PEM file, select your CA in the [Google Cloud CAS Console](https://console.cloud.google.com/security/cas/manage), and view your CA certificate under the Actions menu.
+
+Create a file called `internal-ca.yaml`, replacing the certificate shown here with your own:
+
+```yaml
+apiVersion: v1
+data:
+  internal-ca.pem: |
+    -----BEGIN CERTIFICATE-----
+    [REPLACE with your CA certificate]
+    -----END CERTIFICATE-----
+kind: ConfigMap
+metadata:
+  name: ca-pemstore
+  namespace: cert-manager
+  resourceVersion: "9978"
+  selfLink: /api/v1/namespaces/cert-manager/configmaps/ca-pemstore
+---
+```
+
+Apply it:
+
+```bash
+$ kubectl apply -f internal-ca.yaml
+```
+
+To inject this `ConfigMap` into cert-manager, we need to patch the `cert-manager` Deployment to add the CA certificate as a container volume mount.
+
+Create a file called `cm-ca-patch.yaml`:
+
+```yaml
+spec:
+  template:
+    spec:
+      containers:
+      - args:
+        - --v=2
+        - --cluster-resource-namespace=$(POD_NAMESPACE)
+        - --leader-election-namespace=kube-system
+        name: cert-manager
+        volumeMounts:
+        - name: ca-pemstore
+          mountPath: /etc/ssl/certs/internal-ca.pem
+          subPath: internal-ca.pem
+          readOnly: false
+        resources: {}
+      volumes:
+        - name: ca-pemstore
+          configMap:
+            # Provide the name of the ConfigMap containing the files you want
+            # to add to the container
+            name: ca-pemstore
+```
+
+Apply the patch:
+
+```bash
+$ kubectl patch deployment cert-manager -n cert-manager --patch "$(cat cm-ca-patch.yaml)"
+```
+
+Cert-manager is now configured to trust your ACME CA.
+
+### 3. Create a GCP service account and import its credentials
+
+> **Not using Google Cloud Platform?** You can skip this step and configure the cert-manager `Issuer` in step 4 to use a different challenge solver.
+  See cert-manager's documentation for [`http-01`](https://cert-manager.io/docs/configuration/acme/http01/) and [`dns-01`](https://cert-manager.io/docs/configuration/acme/dns01/) solvers.
+
+We're going to have cert-manager solve `dns-01` ACME challenges.
+So, it will need to be able to manage DNS entries.
+
+Let's create a Google Cloud Platform service account with the `roles/dns.admin` role. Replace the `PROJECT_ID` here with your own:
+
+```bash
+$ export PROJECT_ID=step-cas-test
+$ gcloud iam service-accounts create dns01-solver \
+   --project $PROJECT_ID --display-name "dns01-solver"
+$ gcloud projects add-iam-policy-binding $PROJECT_ID \
+   --member serviceAccount:dns01-solver@$PROJECT_ID.iam.gserviceaccount.com \
+   --role roles/dns.admin
+```
+
+Now import the service account's credentials as a Kubernetes secret:
+
+```bash
+$ gcloud iam service-accounts keys create key.json \
+   --iam-account dns01-solver@$PROJECT_ID.iam.gserviceaccount.com
+$ kubectl create secret generic clouddns-dns01-solver-svc-acct \
+   --from-file=key.json
+```
+
+### 4. Create the cert-manager Issuer
+
+Finally, let's create an cert-manager Issuer to perform `dns-01` ACME challenges. Make a new file called `acme-issuer.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: acme-issuer
+spec:
+  acme:
+    email: carl@smallstep.com
+    server: https://ca.smallstep.internal/acme/acme/directory
+    privateKeySecretRef:
+      name: acme-issuer-account-key
+    solvers:
+    - dns01:
+        cloudDNS:
+          # Your Google Cloud Platform project ID:
+          project: step-cas-test
+          # Your Google CloudDNS zone name we will use for DNS01 challenges:
+          hostedZoneName: step-cas-internal
+          serviceAccountSecretRef:
+            name: clouddns-dns01-solver-svc-acct
+            key: key.json
+```
+
+Replace the values for `email`, `server` URL, `project` and `hostedZoneName` with your own. Your Smallstep ACME endpoint will always take the form of `https://[your CA hostname]/acme/acme/directory`.
+
+Apply it:
+
+```bash
+$ kubectl apply -f acme-issuer.yaml
+```
+
+You now have an automated ACME certificate manager running inside your Kubernetes cluster.
+
+### 5. Issue a test certificate
+
+Let's get a test certificate from our ACME CA, using a Certificate object. Create a file called `tls-certificate.yaml`:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: k8s-internal
+  namespace: default
+spec:
+  secretName: k8s-internal-tls
+  issuerRef:
+    name: acme-issuer
+  dnsNames:
+  - k8s.smallstep.internal
+```
+
+Replace the `dnsNames` value with a DNS name that's inside your zone.
+
+Apply it:
+
+```bash
+$ kubectl apply -f tls-certificate.yaml
+```
+
+You can check the status with `kubectl get certificaterequest` or `kubectl describe certificate`:
+
+```bash
+$ kubectl get certificaterequest
+NAME                    READY   AGE
+k8s-internal-nzbnm      True    7s
+$ kubectl describe certificate k8s-internal
+Name:         k8s-internal
+Namespace:    default
+...
+Kind:         Certificate
+Metadata:
+  Creation Timestamp:  2020-11-03T23:06:46Z
+...
+Spec:
+  Dns Names:
+    k8s.smallstep.internal
+  Issuer Ref:
+    Name:       acme-issuer
+  Secret Name:  k8s-internal-tls
+Status:
+  Conditions:
+    Last Transition Time:  2020-11-03T23:11:01Z
+    Message:               Certificate is up to date and has not expired
+    Reason:                Ready
+    Status:                True
+    Type:                  Ready
+  Not After:               2020-11-04T23:11:01Z
+  Not Before:              2020-11-03T23:11:01Z
+  Renewal Time:            2020-11-04T15:11:01Z
+  Revision:                1
+Events:
+  Type    Reason     Age    From          Message
+  ----    ------     ----   ----          -------
+  Normal  Issuing    10m    cert-manager  Issuing certificate as Secret does not exist
+  Normal  Generated  10m    cert-manager  Stored new private key in temporary Secret resource "k8s-internal-g79jq"
+  Normal  Requested  10m    cert-manager  Created new CertificateRequest resource "k8s-internal-nzbnm"
+  Normal  Issuing    9m33s  cert-manager  The certificate has been successfully issued
+```
+
+As you can see, cert-manager will automatically renew the certificate when approximately 2/3 of its lifetime has elapsed.
+
+That's it! You now have automated, short-lived certificates for your Kubernetes cluster. There are [many use cases](https://cert-manager.io/docs/usage/) for X.509 certificates issued through cert-manager.

@@ -1,0 +1,139 @@
+---
+title: Installation
+html_title: Installing open source step
+description: Learn how to install step
+---
+
+
+It's trivial to install the `step` binary on your local machine.
+
+<Alert severity="info">
+    <AlertTitle>
+        Building from source?
+    </AlertTitle>
+    <div>
+        Check out our guide to <Link
+        href="https://github.com/smallstep/cli/blob/master/docs/local-development.md">getting
+        started with development</Link>.
+  </div>
+</Alert>
+
+### macOS
+
+Install `step` via [Homebrew](https://brew.sh/):
+
+```shell
+brew install step
+```
+
+To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configuration directory.
+
+### Linux
+
+#### Debian Linux
+
+Download and install the Debian package from our [latest release](https://github.com/smallstep/cli/releases/latest):
+
+```shell
+wget https://dl.step.sm/gh-release/cli/docs-cli-install/v0.17.5/step-cli_0.17.5_amd64.deb
+sudo dpkg -i step-cli_0.17.5_amd64.deb
+```
+
+To uninstall, run `sudo dpkg -r step-cli` and remove the `$HOME/.step` configuration directory.
+
+#### Arch Linux
+
+There is a community-maintained [`step-cli` package](https://archlinux.org/packages/community/x86_64/step-cli/) that uses the [Arch User Repository](https://aur.archlinux.org/).
+
+Use [pacman](https://www.archlinux.org/pacman/) to install `step`:
+
+```shell
+pacman -S step-cli
+```
+
+To uninstall, run `pacman -R step-cli` and remove the `$HOME/.step` configuration directory.
+
+Big shout out to the maintainers of these packages! We appreciate you.
+
+#### Alpine Linux
+
+<Alert severity="info">
+    <AlertTitle>
+        This package is in a community repository.
+    </AlertTitle>
+    <div>
+      To install it, you'll need to append <code>http://dl-cdn.alpinelinux.org/alpine/edge/community</code> to <code>/etc/apk/repositories</code>.
+      Alternatively, see <a href="#linux-other">Linux (other)</a>.
+    </div>
+</Alert>
+
+There is a community-maintained [`step-cli` package](https://pkgs.alpinelinux.org/package/edge/community/x86/step-cli) Alpine Linux Package.
+
+Use [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management) to install `step`:
+
+```
+apk add step-cli
+```
+
+To uninstall, run `apk del step-cli` and remove the `$HOME/.step` configuration directory.
+
+Big shout out to the maintainers of these packages! We appreciate you.
+
+#### NixOS
+
+Install the [`step-cli`](https://search.nixos.org/packages?channel=20.09&show=step-cli&from=0&size=50&sort=relevance&query=step-cli) package on NixOS.
+
+#### FreeBSD
+
+Install the [`step-cli`](https://www.freshports.org/security/step-cli/) package on FreeBSD.
+
+#### Linux (other)
+
+We have 386, amd64, arm64, armv7, mips, and mips64 releases available to download from our [latest
+release](https://github.com/smallstep/cli/releases/latest).
+
+Place the binary in `/usr/bin` for compatibility with the rest of our documentation.
+
+### Windows
+
+#### Install via Scoop
+
+Install `step` via [scoop](https://scoop.sh/):
+
+```shell
+scoop bucket add smallstep https://github.com/smallstep/scoop-bucket.git
+scoop install smallstep/step
+```
+
+To uninstall, run `scoop remove step` and remove the `$HOME/.step` configuration directory.
+
+#### Install manually
+
+Download the Windows binary from our [latest releases](https://github.com/smallstep/cli/releases/latest) page and install it using PowerShell.
+
+Open PowerShell and run the following:
+
+```shell
+curl.exe -LO https://dl.step.sm/gh-release/cli/docs-cli-install/v0.17.5/step_windows_0.17.5_amd64.zip
+Expand-Archive -LiteralPath .\step_windows_0.17.5_amd64.zip -DestinationPath .
+step_0.17.5\bin\step.exe version
+```
+
+Finally, move the `step.exe` binary wherever you'd like it to into a location in your user's `PATH`.
+
+### Testing your installation
+
+```shell-session nocopy
+$ step certificate inspect https://smallstep.com
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 326381749415081530968054238478851085504954 (0x3bf265673332db2d0c70e48a163fb7d11ba)
+    Signature Algorithm: SHA256-RSA
+        Issuer: C=US,O=Let's Encrypt,CN=Let's Encrypt Authority X3
+        Validity
+            Not Before: Feb 8 13:07:44 2019 UTC
+            Not After : May 9 13:07:44 2019 UTC
+        Subject: CN=smallstep.com
+[...]
+```

@@ -1,0 +1,63 @@
+---
+title: Access Control Guide
+description: SSH Access Control | Smallstep Documentation
+---
+
+### Prerequisites
+
+You will need:
+
+* An account on the smallstep platform. Need one → [Register here](https://smallstep.com/signup?product=ssh)
+* SSO and User Sync configured and functioning
+* Hosts Registered with Tags
+
+### Features
+
+The following features are supported:
+
+* Access control by Host Tags configuration using Groups synchronized from your IDP
+
+## Step By Step Instructions
+
+### Step 0: Understanding Host Tags
+
+**Host Tags** (key-value pairs) are the pillar our access control model. Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups. First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`. Then, you'll grant user groups access to all hosts with a specific tag combination. Finally, you'll choose which user group tag combinations will allow `sudo` privileges on any matching hosts.
+
+Let's look at an example:
+
+![](/graphics/quickstart/host-tags-example.png)
+
+* The `developers` group will have access to  `myserver #1` only.
+* The `data` group will have access to  `myserver #2` and  `myserver #3`.
+* The `ops` group will have `sudo` access to `myserver #2` and `myserver #3`.
+
+Of course, hosts and groups can have as many tag combinations as you like.  Take a minute to think about how you'd like to use Host Tags in your environment.
+
+### Step 1: Determine Host Tag Combination
+
+Sign in at `https://smallstep.com/app/[Team ID]`
+
+* Choose "Hosts"
+* Find and select a Host that includes the Host Tags you wish to use for access grants.
+  * In the example below that combination is `database` : `production`.
+* Make a note of the tag combination, you will need this in Step 2
+
+![](/graphics/quickstart/acl-host-detail.png)
+
+### Step 2: Grant User Group Access to Host(s)
+
+You should see two Directories. The "Smallstep" directory contains Administrators who can manage the application. The other directory contains users and groups synchronized from your identity provider.
+
+* Select your identity provider directory
+* Choose the "GROUPS" tab.
+
+![](/graphics/quickstart/acl-select-idp-group.png)
+
+* Select the User Group that you want to configure for access control. You will see the user group detail page with a list of existing Host Grants and a form to add additional grants.
+  * Enter the tag values from Step 1
+  * If Sudo access is permitted for this user group, select the "Allow Sudo" checkbox
+  * Click the checkbox to enable access control
+
+![](/graphics/quickstart/acl-grant-access.png)
+
+* All users in the group now have access to all hosts with the specified tag combination.

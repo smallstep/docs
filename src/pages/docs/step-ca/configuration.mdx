@@ -1,0 +1,1027 @@
+---
+title: Configuring `step-ca`
+html_title: Configuring open source step-ca
+description: Learn how to configure step-ca
+---
+
+
+When the `step ca init` command sets up your PKI, it creates an initial
+configuration file for your CA and stores it in `$STEPPATH/config/ca.json`.
+
+In this document we'll describe how to configure every aspect of `step-ca`. You'll
+learn how to configure your CA to:
+
+- bind to a non default address
+- generate ACME certificates
+- adjust the default lifetime of certificates
+- store certificates in memory, on the file system, or in a database
+- set the root and intermediate PKI chain that will be used to sign new certificates
+- and much more
+
+## Overview
+
+- [Specifying a Configuration File](#specifying-a-configuration-file)
+- [Environment Variables](#environment-variables)
+- [Basic Configuration Options](#basic-configuration-options)
+- [Provisioners](#provisioners)
+- [Certificate Templates](#certificate-templates)
+- [Databases](#databases)
+  - [Badger](#badger)
+  - [BoltDB](#boltdb)
+  - [MySQL](#mysql)
+  - [Schema](#schema)
+- [Cryptographic Protection](#cryptographic-protection)
+  - [Google Cloud KMS](#google-cloud-kms)
+  - [AWS KMS](#aws-kms)
+  - [Azure Key Vault](#azure-key-vault)
+  - [YubiKey PIV](#yubikey-piv)
+  - [PKCS #11](#pkcs-11)
+- [Registration Authority (RA) mode](#registration-authority-ra-mode)
+  - [StepCAS RA Mode](#stepcas-ra-mode)
+  - [Google Cloud CAS RA Mode](#google-cloud-cas-ra-mode)
+
+## Specifying a Configuration File
+
+When you run `step-ca`, you must provide a path to a configuration file
+(`ca.json`). It is the only required argument. Typically you'd use `step path`
+to discover the path to `ca.json`:
+
+```shell-session
+$ step-ca $(step path)/config/ca.json
+```
+
+For non-interactive use (eg. as a `systemd` service), you can also add a
+`--password-file` flag with the name of a file containing the password for the
+CA's keys.
+
+## Environment Variables
+
+* `STEPDEBUG` When set to `1`, `step-ca` will provide extra diagnostic information for debugging. This variable can also be used with `step`.
+
+## Basic Configuration Options
+
+### Example Configuration
+
+```json
+{
+  "root": "examples/pki/secrets/root_ca.crt",
+  "federatedRoots": "examples/pki/secrets/federated_root_ca.crt",
+  "crt": "examples/pki/secrets/intermediate_ca.crt",
+  "key": "examples/pki/secrets/intermediate_ca_key",
+  "address": ":9000",
+  "dnsNames": [
+  	"localhost"
+  ],
+  "logger": {
+  	"format": "text"
+  },
+  "ssh": {
+      "hostKey": "/examples/pki/secrets/secrets.host.key",
+      "userKey": "/examples/pki/secrets/secrets.user.key"
+  },
+  "db": {
+    "type": "badger",
+    "dataSource": "./.step/db",
+  },
+  "authority": {
+    "claims": {
+      "minTLSCertDuration": "5m",
+      "maxTLSCertDuration": "24h",
+      "defaultTLSCertDuration": "24h",
+      "disableRenewal": false,
+      "minHostSSHCertDuration": "5m",
+      "maxHostSSHCertDuration": "1680h",
+      "defaultHostSSHCertDuration": "720h",
+      "minUserSSHCertDuration": "5m",
+      "maxUserSSHCertDuration": "24h",
+      "defaultUserSSHCertDuration": "16h",
+    },
+  	"provisioners": [
+  		{
+  			"type": "jwk",
+  			"name": "mike@smallstep.com",
+  			"key": {
+  				"use": "sig",
+  				"kty": "EC",
+  				"kid": "YYNxZ0rq0WsT2MlqLCWvgme3jszkmt99KjoGEJJwAKs",
+  				"crv": "P-256",
+  				"alg": "ES256",
+  				"x": "LsI8nHBflc-mrCbRqhl8d3hSl5sYuSM1AbXBmRfznyg",
+  				"y": "F99LoOvi7z-ZkumsgoHIhodP8q9brXe4bhF3szK-c_w"
+  			},
+  			"encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiVERQS2dzcEItTUR4ZDJxTGo0VlpwdyJ9.2_j0cZgTm2eFkZ-hrtr1hBIvLxN0w3TZhbX0Jrrq7vBMaywhgFcGTA.mCasZCbZJ-JT7vjA.bW052WDKSf_ueEXq1dyxLq0n3qXWRO-LXr7OzBLdUKWKSBGQrzqS5KJWqdUCPoMIHTqpwYvm-iD6uFlcxKBYxnsAG_hoq_V3icvvwNQQSd_q7Thxr2_KtPIDJWNuX1t5qXp11hkgb-8d5HO93CmN7xNDG89pzSUepT6RYXOZ483mP5fre9qzkfnrjx3oPROCnf3SnIVUvqk7fwfXuniNsg3NrNqncHYUQNReiq3e9I1R60w0ZQTvIReY7-zfiq7iPgVqmu5I7XGgFK4iBv0L7UOEora65b4hRWeLxg5t7OCfUqrS9yxAk8FdjFb9sEfjopWViPRepB0dYPH8dVI.fb6-7XWqp0j6CR9Li0NI-Q",
+  			"claims": {
+  				"minTLSCertDuration": "1m0s",
+  				"defaultTLSCertDuration": "2m0s"
+  			},
+        "options": {
+          "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+          },
+          "ssh": {
+            "templateFile": "templates/certs/ssh/default.tpl"
+          }
+        }
+  		},
+      {
+        "type": "OIDC",
+        "name": "Google",
+        "clientID": "1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com",
+        "clientSecret": "udTrOT3gzrO7W9fDPgZQLfYJ",
+        "configurationEndpoint": "https://accounts.google.com/.well-known/openid-configuration",
+        "admins": ["you@smallstep.com"],
+        "domains": ["smallstep.com"],
+        "listenAddress": ":10000",
+        "claims": {
+          "maxTLSCertDuration": "8h",
+          "defaultTLSCertDuration": "2h",
+          "enableSSHCA": true,
+          "disableRenewal": true
+        },
+        "options": {
+          "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+          },
+          "ssh": {
+            "templateFile": "templates/certs/ssh/default.tpl"
+          }
+        }
+      },
+      {
+  			"type": "SSHPOP",
+  			"name": "sshpop-smallstep",
+  			"claims": {
+  				"enableSSHCA": true
+  			}
+  		},
+      {
+  			"type": "ACME",
+  			"name": "my-acme-provisioner"
+  		}
+  	]
+  },
+  "tls": {
+  	"cipherSuites": [
+  		"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+  		"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+  	],
+  	"minVersion": 1.2,
+  	"maxVersion": 1.2,
+  	"renegotiation": false
+  },
+  "password": "p@55w0rd"
+}
+```
+
+### Configuration Options
+
+- **root**: location of the root certificate on the filesystem. The root certificate is used to mutually authenticate all API clients of the CA.
+
+- **federatedRoots**: location of the federated root certificates on the filesystem. The federated roots are used to authenticate client and servers using TLS certificates from multiple CAs.
+
+- **crt**: location of the intermediate certificate on the filesystem. The intermediate certificate is returned alongside each new certificate, allowing the client to complete the certificate chain.
+
+- **key**: location of the intermediate private key on the filesystem. The intermediate key signs all new certificates generated by the CA.
+
+- **kms**: enables and configures [cryptographic protection](#cryptographic-protection) using cloud key management services or hardware security modules.
+
+  - **type**: required. one of `awskms`, `cloudkms`, `pkcs11`, or `yubikey`
+
+  - **uri**: this field can be used to specify other fields in this section, and its value will take precedence over those values. See [cryptographic protection](#cryptographic-protection) for examples.
+
+  - **region**: for `awskms`, the AWS region
+
+  - **profile**: for `awskms`, the AWS profile
+
+  - **credentialsFile**: for `cloudkms`, the path to a Google Cloud Platform credentials JSON file for a role that can access cloudkms
+
+  - **pin**: for `yubikey`, the PIN of the YubiKey PIV application
+
+- **password**: optionally store the password for decrypting the intermediate private key (this should be the same password you chose during PKI initialization). If the value is not stored in configuration then you will be prompted for it when starting the CA.
+
+- **address**: ex. 127.0.0.1:8080 - address and port on which the CA will bind and respond to requests.
+
+- **dnsNames**: comma separated list of DNS name(s) for the CA.
+
+- **logger**: the default logging format for the CA is _text_. The other option is _json_.
+
+- **ssh**: enables the provisioning of SSH certificates by the CA. Add this section to an existing `ca.json` to enable SSH for an existing CA. SSH keys can be created by running
+  `step crypto keypair host.pub host.key` and `step crypto keypair user.pub user.key`.
+
+  - **userKey**: the signing key for user SSH certificates.
+
+  - **hostKey**: the signing key for host SSH certificates.
+
+- **db**: data persistence layer. See [database documentation](#databases) for more info.
+
+  - **type**: badger, bbolt, mysql, etc.
+
+  - **dataSource**: string that can be interpreted differently depending on the type of the database. Usually a path to where the data is stored. See the database configuration docs for more info.
+
+  - **database**: name of the database. Used for back-ends that may have multiple databases. ex. MySQL
+
+  - **valueDir**: directory to store the value log in (Badger specific).
+
+- **tls**: settings for negotiating communication with the CA; includes acceptable ciphersuites, min/max TLS version, etc.
+
+- **authority**: controls the request authorization and signature processes.
+
+  - **type**: the type of backing CA service that issues certificates for this step-ca instance. The default is an internal certificate authority service.
+  Other options can turn `step-ca` into a Registration Authority: `stepcas` uses a remote `step-ca` instance as the backend, and `cloudcas` uses a Google CloudCAS.
+
+  - **template**: default ASN1DN values for new certificates.
+
+  - **claims**: default validation for requested attributes in the certificate request. Can be overridden by similar claims objects defined by individual provisioners.
+
+    - **minTLSCertDuration**: do not allow certificates with a duration less than this value.
+
+    - **maxTLSCertDuration**: do not allow certificates with a duration greater than this value.
+
+    - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
+
+    - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
+
+    - **maxUserSSHCertDuration**: do not allow certificates with a duration greater than this value.
+
+    - **defaultUserSSHCertDuration**: if no certificate validity period is specified, use this value.
+
+    - **minHostSSHCertDuration**: do not allow certificates with a duration less than this value.
+
+    - **maxHostSSHCertDuration**: do not allow certificates with a duration greater than this value.
+
+    - **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
+
+    - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
+
+  - **disableIssuedAtCheck**: disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
+ against token reuse. The default value is false. Do not change this unless you know what you are doing.
+
+  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. See [provisioner documentation](/docs/step-ca/provisioners) for more info.
+
+  - **password**: plain text password for starting the CA. Used to decrypt the intermediate private key. 
+
+    <Alert severity="warning">
+      <div> 
+        We do not recommend storing the password plain text in your <Code>ca.json</Code>. 
+        The recommended option is to use the <Code>--password-file</Code> flag when
+        running <Code>step-ca</Code>. This attribute is a convenience that should be 
+        avoided in production.
+      </div>
+    </Alert>
+
+## Provisioners
+
+Provisioners are people or entities that are registered with the certificate authority and 
+authorized to issue certificates. Visit the [`step-ca` provisioners](/docs/step-ca/provisioners) page to learn about the 
+different provisioners, their target use cases, and how to add, remove, and configure them.
+
+## Templates
+
+People use private CAs for all sorts of things, in many different contexts:
+web apps, mobile apps, code signing, cloud VM instances, SSH, IoT devices, etc.
+So `step-ca` must be flexible enough to handle a wide variety of flows.
+
+X.509 and SSH certificate templates open up these possibilities.
+With certificate templates, you can do things like:
+
+- Add custom SANs or extensions to X.509 certificates
+- Make longer certificate chains, with multiple intermediate CAs
+- Use SSH `force-command` or `source-address` extensions
+- Add conditionals around a certificate's parameters, and fail if they are not met
+
+Visit the [`step-ca` templates](/docs/step-ca/templates) page to learn how to use templates.
+
+## Databases
+
+`step-ca` uses a simple key-value interface over popular database
+implementations to store persistent certificate management meta-data. Our
+recommended default database implementation is nosql-Badger, a NoSQL interface
+over the popular [Badger](https://github.com/dgraph-io/badger) database. As a
+first pass, the database layer will store every certificate (along with
+        metadata surrounding the provisioning of the certificate) and
+revocation data that will be used to enforce passive revocation.
+
+Configuring `step-ca` to use a database is as simple as adding a top-level `db`
+stanza to your `ca.json` file. Below users can find documentation and examples
+for supported databases:
+
+- [Badger](#badger)
+- [BoltDB](#boltdb)
+- [MySQL](#mysql)
+
+### Badger
+
+```json
+{
+  ...
+  "db": {
+    "type": "badger",
+    "dataSource": "./.step/db",
+    "valueDir": "./.step/valuedb"
+    "badgerFileLoadingMode": "MemoryMap"
+  },
+  ...
+},
+```
+
+**Options**
+
+- `type`
+
+  - **badger**: currently refers to Badger V1. However, as Badger V1 is deprecated, this will refer to Badger V2 starting with a the next major version release.
+  - **badgerV1**: explicitly select Badger V1.
+  - **badgerV2**: explicitly select Badger V2. Anyone looking to use Badger V2 will need to set it explicitly until it becomes the default.
+
+- `dataSource`: path, database directory.
+- `valueDir` [optional]: path, value directory, only if different from dataSource.
+- `badgerFileLoadingMode` [optional]: can be set to FileIO (instead of the default MemoryMap) to avoid memory-mapping log files. This can be useful in environments with low RAM. Make sure to use badgerV2 as the database type if using this option.
+  - **MemoryMap**: default.
+  - **FileIO**: This can be useful in environments with low RAM.
+
+### BoltDB
+
+```json
+{
+  ...
+  "db": {
+    "type": "bbolt",
+    "dataSource": "./stepdb"
+  },
+  ...
+}
+```
+
+**Options**
+
+- `type`: **bbolt**
+- `dataSource`: path, database directory.
+
+### MySQL
+
+```json
+{
+  ...
+  "db": {
+    "type": "mysql",
+    "dataSource": "user:password@tcp(127.0.0.1:3306)/",
+    "database": "myDBName"
+  },
+  ...
+},
+```
+
+**Options**
+
+- `type`: **mysql**
+- `dataSource`: path, database directory.
+
+<Alert severity="info">
+  <div>
+    Extra parameters can be passed in the mysql dataSource name as follows: <Code>"dataSource": "user:password@tcp(127.0.0.1:3306)/myDBName?tls=true&"</Code>. The <Code>&</Code> in the end is important.
+  </div>
+</Alert>
+
+### Schema
+
+As the interface is a key-value store, the schema is very simple. We support tables, keys, and values. An entry in the database is a `[]byte value` that is indexed by `[]byte table` and `[]byte key`.
+
+### Exporting Data
+
+At this time `step-ca` does not have any API or interface for easily exporting data. Because the data is stored in a `noSQL` like manner, it is difficult to explore the data even when using a SQL backend like MySQL. We do have [a scripted example for accessing the DB][scripted-export-db] to give users a jumping off point for writing their own reporting and logging tools.
+
+<Alert severity="info">
+  <div>
+    Note that some DBs, like Badger and BoltDB, cannot have multiple processes accessing them simultaneously. You'll need to 
+    stop the <Code>step-ca</Code> process in order to run a export script against those DBs.
+  </div>
+</Alert>
+
+[scripted-export-db]: https://gist.github.com/dopey/89ec20f22c66c1333bf38c9b19b89758
+
+## Cryptographic Protection
+
+By default, `step-ca` stores its signing keys encrypted on disk, on the CA.
+Some use cases may require more advanced cryptographic protection.
+For protection of you signing keys,
+`step-ca` integrates with [Google Cloud KMS](#google-cloud-kms),
+[AWS KMS](#aws-kms),
+[Azure Key Vault](#azure-key-vault), 
+[YubiKey PIV](#yubikey-piv),
+and [PKCS #11 hardware security modules (HSMs)](#pkcs-11).
+
+For a complete, end-to-end tutorial using YubiKeys,
+see our blog post [Build a Tiny Certificate Authority For Your Homelab](https://smallstep.com/blog/build-a-tiny-ca-with-raspberry-pi-yubikey/).
+
+### Google Cloud KMS
+
+[Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two different protection levels: `SOFTWARE` and `HSM`.
+
+To configure Cloud KMS in your certificate authority, add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS key name of your intermediate key:
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
+    "kms": {
+        "type": "cloudkms",
+        "uri": "cloudkms:credentials-file=/path/to/kms-credentials.json"
+    }
+}
+```
+
+In a similar way for SSH certificates, the SSH keys must be Cloud KMS names:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
+        "userKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>"
+    }
+}
+```
+
+Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using Cloud KMS. Still, an experimental tool named `step-cloudkms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
+
+To use `step-cloudkms-init`, install it from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), enable Cloud KMS in your project, and run:
+
+```shell nocopy
+$ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
+$ step-cloudkms-init --project your-project-id --ssh
+Creating PKI ...
+✔ Root Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/root/cryptoKeyVersions/1
+✔ Root Certificate: root_ca.crt
+✔ Intermediate Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/intermediate/cryptoKeyVersions/1
+✔ Intermediate Certificate: intermediate_ca.crt
+
+Creating SSH Keys ...
+✔ SSH User Public Key: ssh_user_ca_key.pub
+✔ SSH User Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-user-key/cryptoKeyVersions/1
+✔ SSH Host Public Key: ssh_host_ca_key.pub
+✔ SSH Host Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-host-key/cryptoKeyVersions/1
+```
+
+By default, the keys are generated using the `SOFTWARE` protection level. Add the flag `---protection-level HSM` to use a Hardware Security Module (HSM).
+
+Run the `step-cloudkms-init --help` command for more options.
+
+### Azure Key Vault
+
+[Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/#product-overview) is Microsoft's managed key management service.
+
+#### Authentication
+
+When using Azure Key Vault with `step-ca`, authentication to Azure is handled via environment variables; we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable, or setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`. See [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization) for an overview of authentication methods and environment variables.
+
+For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
+
+#### Initialize a PKI
+
+To initialize a PKI backed by Azure Key Vault, start by authenticating to Azure using one of the above approaches. Set the environment variables necessary for authentication to your tenant.
+
+Then, run:
+
+```bash
+$ step ca init --kms azurekms
+```
+
+You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them. If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
+
+#### Manual Configuration
+
+To configure an existing CA for Azure Key Vault, or to import an existing Azure Key Vault signing key, add the `kms` object to your `ca.json`, and replace the `key` properties with the key name, vault name, and version of your intermediate (signing) key in Azure Key Vault:
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "azurekms:name=intermediate-ca-key;vault=example-vault-0?version=15faf8b8b80d4f1ead067c6383a38b8f&hsm=true",
+    "kms": {
+        "type": "azurekms"
+    }
+}
+```
+
+* In the `key` URI, the `name` and `vault` should point to the vault name and key name of your intermediate key in Azure Key Vault.
+* In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version will be used.
+* In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
+* In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
+
+### AWS KMS
+
+[AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
+
+To configure AWS KMS in your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the AWS KMS key name of your intermediate key:
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe",
+    "kms": {
+        "type": "awskms",
+        "uri": "awskms:region=us-west-2;profile=foo;credentials-file=/path/to/credentials"
+    }
+}
+```
+
+By default, `step-ca` uses the credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
+
+In similar manner, to configure SSH certificate signing, replace the SSH keys with the keys from AWS KMS:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "awskms:key-id=d48e502a-09bc-4bf7-9af8-ae1bccedc931",
+        "userKey": "awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12"
+    }
+}
+```
+
+`step-ca` can also accept just the Amazon Key ID or the ARN as key options, but using the format based on the [RFC7512](https://tools.ietf.org/html/rfc7512) will allow more flexibility for future `step` releases.
+
+Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using AWS KMS, but an experimental tool named `step-awskms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
+
+To use `step-awskms-init`, make sure to [configure your environment using `aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html), install `step-awskms-init` from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), and run:
+
+<CodeBlock language="shell-session" copyText="step-awskms-init --ssh --region us-east-1">{`$ step-awskms-init --ssh --region us-east-1
+ 
+Creating PKI ...
+✔ Root Key: awskms:key-id=f53fb767-4029-40ff-b650-0dd35fb661df
+✔ Root Certificate: root_ca.crt
+✔ Intermediate Key: awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe
+✔ Intermediate Certificate: intermediate_ca.crt
+ 
+Creating SSH Keys ...
+✔ SSH User Public Key: ssh_user_ca_key.pub
+✔ SSH User Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12
+✔ SSH Host Public Key: ssh_host_ca_key.pub
+✔ SSH Host Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12`}</CodeBlock>
+
+The `--region` parameter is only required if your AWS configuration does not define a region.
+
+Run the `step-awskms-init --help` command for more options.
+
+### YubiKey PIV
+
+<Alert severity="info">
+  <div>
+    <strong>This feature is not enabled by default</strong><br />
+    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.<br />
+    See <a href="https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
+  </div>
+</Alert>
+
+You can leverage a hardware [YubiKey](https://www.yubico.com/)—and the [YubiKey PIV application](https://www.yubico.com/authentication-standards/smart-card/)—to store your CA keys and sign TLS certificates.
+
+#### Prerequisites and Caveats
+* To enable YubiKey support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo)
+* You will need a YubiKey that supports the PIV application: YubiKey 5 NFC, YubiKey 5 Nano, YubiKey 5C, or YubiKey 5C Nano
+* [Certificate slots](https://developers.yubico.com/PIV/Introduction/Certificate_slots.html) 9a, 9c, 9d, 9e, and 82-95 are supported
+* You can use the YubiKey for X.509 and SSH CAs; however, the `step-yubikey-init` utility only supports X.509 at this time. For SSH support, you must manually generate and configure SSH CA keys on the YubiKey.
+
+The initialization of the public key infrastructure (PKI) for YubiKeys is not currently integrated into `step`, but an experimental tool named `step-yubikey-init` addresses this use case. In a future release, this tool will be integrated into `step`.
+
+To configure your YubiKey, install `step-yubikey-init` from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases) and run:
+
+<CodeBlock
+    language="shell-session"
+    copyText="step-yubikey-init"
+  >{`$ step-yubikey-init
+ 
+What is the YubiKey PIN?:
+Creating PKI ...
+✔ Root Key: yubikey:slot-id=9a
+✔ Root Certificate: root_ca.crt
+✔ Intermediate Key: yubikey:slot-id=9c
+✔ Intermediate Certificate: intermediate_ca.crt`}</CodeBlock>
+
+Run the `step-yubikey-init --help` command for more options.
+
+Finally, to enable it in `ca.json`, point the `root` and `crt` options to the generated certificates, replace the `key` option with the YubiKey URI generated in the previous part, and configure the `kms` option with the appropriate `type` and `pin`.
+
+```json nocopy
+{
+    "root": "/path/to/root_ca.crt",
+    "crt": "/path/to/intermediate_ca.crt",
+    "key": "yubikey:slot-id=9c",
+    "kms": {
+        "type": "yubikey",
+        "uri": "yubikey:management-key=01020304...?pin-value=123456"
+    }
+}
+```
+
+### PKCS #11
+
+<Alert severity="info">
+  <div>
+    <strong>This feature is not enabled by default.</strong><br />
+    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.<br />
+    See <a href="https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
+  </div>
+</Alert>
+
+A Hardware Security Module (HSM) is a specialized piece of hardware that is designed to generate and store private keys, and sign messages using those keys.
+The private keys on an HSM cannot be exported from the device.
+One can only run signing operations using the key.
+This is an excellent way to protect private keys for a Certificate Authority,
+which in normal operation simply needs to be able to sign Certificate Signing Requests.
+ 
+[Public-Key Cryptography Standards #11 (PKCS #11)](https://en.wikipedia.org/wiki/PKCS_11) is the most common platform-independent API used by HSM hardware.
+It's supported by most HSM hardware, like Yubico's [YubiHSM2](https://www.yubico.com/product/yubihsm-2/), and the [Nitrokey HSM 2](https://shop.nitrokey.com/shop/product/nk-hsm-2-nitrokey-hsm-2-7).
+There's also a software-based "HSM," [SoftHSMv2](https://github.com/opendnssec/SoftHSMv2), which offers a PKCS #11 interface without the hardware.
+
+#### 1. Initialize your PKI using the `step-pkcs11-init` tool.
+
+The `step-pkcs11-init` tool will create or import CA keys and/or certificates onto your HSM, for use with `step-ca`.
+It is configured to work with the YubiHSM2 by default, but you can provide a different PKCS #11 URI by using the `--kms` flag.
+
+Here are some examples of PKCS #11 URIs for various HSMs:
+
+HSM              | URI format
+---------------- | -------------------------------------------------------------------------------------
+YubiHSM2 (Linux) | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
+AWS CloudHSM     | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
+SoftHSM          | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
+nCipher nShield  | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
+
+You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
+
+In this URI,
+* `module-path` points to your PKCS #11 `.dll`, `.so`, or `.dylib` library file,
+* `token` is the label (`CKA_LABEL`) of the HSM you're using,
+* `pin-value` contains hardcoded HSM credentials. It may be a PIN, username and password, password, or a filename depending on the HSM,
+* Or, `pin-source` is a filename containing HSM credentials.
+
+Once the utility creates your PKI, it will output a few paths for your keys and certificates before exiting.
+You'll need these for step 2.
+
+#### 2. Configure the CA to use PKCS #11
+
+One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
+
+Start with a standard CA configuration, created using `step ca init` or `step ca init --ssh`.
+
+Now open up `.step/config/ca.json` in an editor.
+You'll want the top of the file to reference the HSM key paths provided by the `step-pkcs11-init` utility.
+
+For this, you'll need to change the `key` and `ssh` values to match the `pkcs11:` URIs above. These are the values you need to change:
+
+```json
+{
+        ...
+        "key": "pkcs11:id=7331;object=intermediate-key",
+        "ssh": {
+                "hostKey": "pkcs11:id=7332;object=ssh-host-key",
+                "userKey": "pkcs11:id=7333;object=ssh-user-key"
+        },
+        ...
+}
+```
+
+You'll also need to add a `kms` top-level object that contains your `pkcs11` module URI:
+
+```json
+{
+  ...
+  "kms": {
+    "type": "pkcs11",
+    "uri": "pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=step_ca:RiFJrg93Tn_EXAMPLE"
+  },
+  ...
+}
+```
+
+## Registration Authority (RA) Mode
+
+Sometimes you may wish to run a Registration Authority (RA).
+An RA acts as a front-end to a CA, authenticating certificate requests from its clients
+before passing them along to an upstream Certificate Authority that trusts the RA and will issue the certificates.
+RAs are often used to distribute certificates across several cloud providers or on-prem environments.
+
+The RA operational mode for `step-ca` centralizes and simplifies key management,
+because a single backing CA can serve several RAs.
+
+<Alert severity="info" id="star11">
+  <div>
+    <strong>Certificate Authority Service (CAS) vs. Key Management Service (KMS)</strong><br />
+    In an RA setup, the upstream CA is also known as a Certificate Authority Service (CAS).
+    A CAS is a service that implements an API to sign certificate requests from a trusted source.<br />
+    If you've used a KMS before, you may wonder: How is a CAS different from a KMS?
+    A KMS can sign any data, while a CAS is intended to sign <i>only</i> X.509 certificates.
+  </div>
+</Alert>
+
+
+In RA mode, `step-ca` currently supports two backing CA types:
+Another `step-ca` instance ("StepCAS"),
+or a Google Cloud CAS private CA.
+
+![Example PKI topology with StepCAS RA Mode](/graphics/stepcas-ra-mode.png)
+
+### StepCAS RA mode
+
+StepCAS allows configuring a `step-ca` server as an RA, with a second, upstream `step-ca` server acting as the main CA.
+
+StepCAS supports the JWK and X5C provisioners for requests between RAs and the CA.
+The JWK provisioner balances security and simplicity, and it covers the most common use cases.
+The X5C provisioner allows for more complex trust relationships and expiring certificates,
+but it requires setting up ongoing certificate lifecycle management on the RAs.
+
+#### Example: A Simple RA ↔ CA Configuration
+
+Let's set up a simple RA ↔ CA pair, with one RA and one upstream CA.
+
+The CA will be configured with a JWK provisioner,
+and the RA will use that provisioner to make authenticated certificate requests to the CA.
+
+The RA, in turn, can offer its clients certificates using any `step-ca` provisioners.
+In this example, we'll configure an ACME provisioner in the RA.
+Configure additional RA provisioners just as you would configure provisioners for a CA.
+
+#### Setting up the CA
+
+You can set up the CA using the [Getting Started](/docs/step-ca/getting-started) guide.
+You will need the name and password of the first provisioner you created during the `step ca init` process.
+
+#### Setting up the RA
+
+Here's an example configuration file for an RA that uses the JWK provisioner to connect to the CA,
+and that offers an ACME provisioner to its clients:
+
+```json
+{
+  "address": ":9100",
+  "dnsNames": ["ra.smallstep.com"],
+  "db": {
+    "type": "badgerV2",
+    "dataSource": "/etc/step-ca/db"
+  },
+  "logger": {"format": "text"},
+  "authority": {
+    "type": "stepcas",
+    "certificateAuthority": "https://ca.smallstep.com:9000",
+    "certificateAuthorityFingerprint": "b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe134a2c257726f92c403f5",
+    "certificateIssuer": {
+      "type" : "jwk",
+      "provisioner": "ra@smallstep.com"
+    },
+    "provisioners": [{
+      "type": "ACME",
+      "name": "acme"
+    }]
+  },
+  "tls": {
+    "cipherSuites": [
+      "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+       "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+    ],
+    "minVersion": 1.2,
+    "maxVersion": 1.3,
+    "renegotiation": false
+  }
+}
+```
+
+The crucial bit of configuration here is the `"certificateIssuer"` section.
+This section connects this RA to the CA using the JWK provisioner named `ra@smallstep.com` on the CA.
+
+When `step-ca` starts up with this RA configuration, it will download the encrypted JWK key from the CA automatically.
+The RA will still need the JWK provisioner password, to decrypt the key.
+The JWK password can be supplied in a `"password"` field in the `"certificateIssuer"` block,
+or it can be passed in via a file when starting the RA:
+
+```bash
+$ step-ca --issuer-password-file=$(step path)/secrets/issuer_jwk_password.txt $(step path)/config/ca.json
+```
+
+Your RA is ready to process certificate requests.
+
+#### Securing the issuer credentials with a different password
+
+If you don't want your RA to hold the CA's provisioner password,
+you can create a new key for your RA by decrypting the CA's JWK provisioner key and re-encrypting it with a new password for the RA.
+
+1. On the CA, create a new private key that the RA will use:
+
+  ```bash
+  $ jq -r '.authority.provisioners[] | select(.type == "JWK") | .encryptedKey' < $(step path)/config/ca.json | step crypto key format --pkcs8 > ra.key.pem
+  ```
+
+  You will be asked for the JWK password to decrypt the provisioner key,
+  and a new password to encrypt a new PEM file for your RA.
+
+2. Transfer `ra.key.pem` to your RA
+
+  On the RA, save the PEM file into `$STEPPATH/secrets` and configure the `"certificateIssuer"` as follows:
+
+  ```json
+  {
+    "type": "jwk", 
+    "provisioner": "jane@smallstep.com",
+    "key": "/home/jane/.step/secrets/ra.key.pem"
+  }
+  ```
+
+Finally, use `--issuer-password-file` to provide a password file when starting up the CA.
+
+#### Using the X5C provisioner
+
+Instead of a JWK, the RA can alternatively use certificate authentication with the CA, via the [X5C Provisioner](#x5c-x509-certificate).
+While this approach is more complex,
+it offers more security because it uses expiring certificates instead of non-expiring JWKs.
+
+In this scenario, the RA `"certificateIssuer"` block will need to be configured with a certificate and key signed by a CA that the CA's X5C provisioner is configured to trust.
+
+To configure an RA ↔ CA connection using an X5C provisioner,
+first add an X5C provisioner to the CA.
+(See the [X5C Provisioner](#x5c-x509-certificate) configuration section.)
+
+Next, change the `"certificateIssuer"` object in the RA configuration as follows:
+
+```json
+{
+  "type": "x5c", 
+  "provisioner": "X5C",
+  "crt": "/home/jane/.step/certs/x5c.crt",
+  "key": "/home/jane/.step/secrets/x5c.key"
+}
+```
+
+These files will are read by `step-ca` upon every certificate request made to the RA.
+
+Finally, use `--issuer-password-file` to provide a private key password file when starting up the CA.
+
+#### StepCAS Limitations
+
+An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
+
+* `step ca renew` (mTLS renewals) and `step ca rekey` are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
+  
+  ```bash
+  # 1. Create a CSR
+  # (Add --insecure --no-password if you don't use a password on the private key.)
+  $ step certificate create --csr db.example.com db.csr db.key 
+
+  # 2. Sign the CSR using the ACME provisioner
+  $ step ca sign db.csr db.crt
+  ```
+  
+* SSH is not supported.
+* ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` database for your RAs.
+* StepCAS RA keys cannot be stored in KMS or HSMs; only files are supported. This is because all the keys are kept in memory.
+
+### Google Cloud CAS RA mode
+
+<Alert severity="warning">
+  <div>
+    <strong>Google Cloud CAS is in a pre-release state</strong><br />
+    As of March 30, 2021, Google Certificate Authority Service is still a Preview product.
+    The setup and configuration of the RA will change when Google CAS v1 is released.
+    Google doesn't plan to support any kind of migration.
+  </div>
+</Alert>
+
+This RA mode allows you to use Google Cloud [Certificate Authority Service (CAS)](https://cloud.google.com/certificate-authority-service/) as your CA.
+
+The top of an example `ca.json` for cloudCAS looks like:
+
+```json
+{
+  "address": ":9000",
+   "dnsNames": ["ra.smallstep.com"],
+   "authority": {
+      "type": "cloudCAS",
+      "credentialsFile": "/path/to/credentials.json",
+      "certificateAuthority": "projects/<name>/locations/<loc>/certificateAuthorities/<intermediate-name>"
+  },
+  "..."
+}
+```
+
+When CloudCAS is enabled, it will retrieve the root certificate from the configured certificate authority,
+so there is no need to configure the `"root"` or `"crt"` in `ca.json`.
+
+#### Creating a CloudCAS RA
+
+Before enabling CloudCAS in `step-ca`,
+you'll need to set up your Google Cloud project using the `gcloud` CLI:
+
+1. Create or define a Google Cloud Platform project to use. In this example, we'll call it `smallstep-cas-test`.
+
+2. Enable the CA service API. Run:
+
+   ```shell-session
+   $ gcloud services enable privateca.googleapis.com
+   ```
+
+3. Configure API access.
+
+   Start by creating a service account for accessing CAS:
+
+   ```shell-session
+   $ gcloud iam service-accounts create step-ca-sa \
+       --project smallstep-cas-test \
+       --description "Step-CA Service Account" \
+       --display-name "Step-CA Service Account"
+   ```
+
+  Now add permissions to use the CAS API:
+
+  ```shell-session
+   $ gcloud projects add-iam-policy-binding smallstep-cas-test \
+       --member=serviceAccount:step-ca-sa@smallstep-cas-test.iam.gserviceaccount.com \
+       --role=roles/privateca.caManager
+   $ gcloud projects add-iam-policy-binding smallstep-cas-test \
+       --member=serviceAccount:step-ca-sa@smallstep-cas-test.iam.gserviceaccount.com \
+       --role=roles/privateca.certificateRequester
+  ```
+
+  Finally, download the service account credentials, which you will use to configure the RA:
+
+  ```shell-session
+   $ gcloud iam service-accounts keys create credentials.json \
+      --iam-account step-ca-sa@smallstep-cas-test.iam.gserviceaccount.com
+  ```
+
+  The RA will use the service account you just created, via the keys you exported into `credentials.json`.
+
+4. Initialize your PKI.
+
+  Run `step ca init --ra cloudcas` to create a new PKI in CAS.
+  This will generate a root and intermediate certificate in Google CAS.
+  You will be prompted for your GCP project id, a resource id, region, and other information.
+
+  Here's an example of what a `ca.json` for a CloudCAS RA might look like:
+
+  ```json
+  {
+    "address": ":443",
+    "dnsNames": ["ra.example.com"],
+    "logger": {"format": "text"},
+    "db": {
+        "type": "badger",
+        "dataSource": "/home/jane/.step/db",
+    },
+    "authority": {
+        "type": "cloudCAS",
+        "credentialsFile": "/home/jane/.step/credentials.json",
+        "certificateAuthority": "projects/smallstep-cas-test/locations/us-west1/certificateAuthorities/prod-intermediate-ca",
+        "provisioners": [
+          {
+              "type": "JWK",
+              "name": "jane@example.com",
+              "key": {
+                "use": "sig",
+                "kty": "EC",
+                "kid": "ehFT9BkVOY5k_eIiMax0ZxVZCe2hlDVkMwZ2Y78av4s",
+                "crv": "P-256",
+                "alg": "ES256",
+                "x": "GtEftN0_ED1lNc2SEUJDXV9EMi7JY-kqINPIEQJIkjM",
+                "y": "8HYFdNe1MbWcbclF-hU1L80SCmMcZQI6vZfTOXfPOjg"
+              },
+              "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiSjBSWnY5UFZrM3JKRUJkem5RbExzZyJ9.Fiwvo-RIKU5G6v5udeCT1nlX87ElxrocP2FcgNs3AqEz5OH9H4suew.NmzUJR_9xv8ynQC8.dqOveA_G5kn5lxjxnEZoJCystnJMVYLkZ_8CVzfJQhYchbZfNk_-FKdIuQxeWWBzvmomsILFNtLOIUoqSt30qk83lFyGQWN8Ke2bK5DhuwojF7RI_UqkMyiKP0F28Z4ZFhfQP5D2ZT_stoFaMlU8eak0-T8MOiBIfdAJTWM9x2DN-68mtUBuL5z5eU8bqsxELnjGauD_GHTdnduOosmYsw8vp_PmffTTwqUzDFH1RhkeSmRFRZntAizZMGYkxLamquHI3Jvuqiv4eeJ3yLqh3Ppyo_mVQKnxM7P9TyTxcvLkb2dB3K-cItl1fpsz92cy8euKsKG8n5-hKFRyPfY.j7jBN7nUwatoSsIZuNIwHA"
+          }
+        ]
+    },
+    "tls": {
+        "cipherSuites": [
+          "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+          "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+        ],
+        "minVersion": 1.2,
+        "maxVersion": 1.3,
+        "renegotiation": false
+    }
+  }
+  ```
+
+  The `"credentialsFile"` field isn't the only option for providing Google Cloud `credentials.json` filename to the RA.
+  You can alternatively set the `GOOGLE_APPLICATION_CREDENTIALS` environment variable.
+
+5. Start `step-ca`
+
+  `step-ca` will automatically download the root certificate from Google CAS.
+  In `ca.json`, you don't need to configure `"root"`,
+  and because the intermediate is in Google Cloud, `"crt"` and `"key"` are also not needed.
+
+  The RA will print your CA's root fingerprint upon startup:
+
+  ```shell-session
+  $ step-ca /home/jane/.step/config/ca.json
+  2020/09/22 13:17:15 Using root fingerprint '3ef16343cf0952eedbe2b843066bb798fa7a7bceb16aa285e8b0399f661b28b7'
+  2020/09/22 13:17:15 Serving HTTPS on :9000 ...
+  ```
+
+  Save the fingerprint! You will need it to bootstrap new clients into your PKI:
+
+  ```shell-session
+  $ step ca bootstrap --ca-url https://ra.example.com --fingerprint 3ef16343cf0952eedbe2b843066bb798fa7a7bceb16aa285e8b0399f661b28b7
+  ```
+
+  Finally, we can sign sign a certificate as always:
+
+  ```shell-session
+  $ step ca certificate test.example.com test.crt test.key
+  ```

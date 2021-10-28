@@ -1,0 +1,29 @@
+---
+title: Provisioners
+html_title: Smallstep Platform | Provisioners for Automation
+description: Smallstep Platform Provisioners automatically verify the legitimacy of certificate signing requests.
+---
+
+Provisioners verify the legitimacy of certificate signing requests and attest to the identity of the requesting service or human.
+Used to help bootstrap new entities into the PKI, 
+each Provisioner addresses a particular environment, enabling different use cases. 
+A few examples include:
+
+- **OIDC Provisioner** - Useful for getting certificates to people, 
+the OAuth/OpenID Connect (OIDC) Provisioner uses identity tokens for authentication. 
+With this provisioner, you can use single sign-on with G Suite, Okta, Azure Active Directory, or any other OAuth OIDC provider 
+to verify the user's identity before issuing a certificate.
+- **ACME Provisioner** - Useful for automating TLS certificates, 
+the ACME provisioner provides CSR generation, domain ownership verification, certificate download, and installation. 
+With support for all of the ACME challenge types supported by Let’s Encrypt (HTTP, DNS, ALPN), 
+the ACME provisioner unlocks the entire ACME ecosystem of tools and clients.
+- **Cloud API Provisioners** - Useful for issuing certificates to public cloud virtual machines, 
+Cloud API Provisioners use the native cloud provider API and instance identity documents to automate certificates. 
+With support for AWS, GCP, and Azure metadata APIs, the Cloud API provisioner accelerates secure cloud operations.
+- **JWK Provisioner** - Useful for a broad range of workflows, the JWK provisioner provides a flexible JSON Web Token-based authentication flow. 
+Often paired with infrastructure automation solutions, the JWK Provisioner can deliver one-time tokens to a new workload to later be exchanged for an x.509 certificate.
+
+## Learn More
+
+Provisioners are an open-source feature. 
+Visit [the `step-ca` documentation](https://smallstep.com/docs/step-ca/certificate-authority-core-concepts#provisioners) for a complete list of Provisioners and instructions on usage and capabilities of each.

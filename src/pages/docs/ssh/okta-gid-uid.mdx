@@ -1,0 +1,75 @@
+---
+title: Okta UID GID Sync Guide
+description: SSH Okta UID GID Sync
+---
+
+### How to sync UIDs and GIDs from Okta
+
+Smallstep can automatically sync POSIX user and group IDs for your users from your identity provider.
+
+To set up UID and GID syncing, we're going to need our SCIM app to map those attributes from your Okta user profiles.
+
+This feature does not sync POSIX group membership mappings. Only UID and GID values are synced.
+
+### Step 1. Add UID and GID fields to your Okta user profile
+
+Already have UID and GID fields for your users? Skip to Step 2.
+
+* Start at your Okta admin panel
+* Go to **Directory → Profile Editor**
+* The first listed profile should be the **Okta User** profile. Choose **🖋  Profile** here.
+* Choose **+ Add Attribute** and add a uid attribute with data type **"number"**.
+
+  You may want to provide an Attribute Range minimum here, especially if you want to protect a range of IDs for service accounts on your hosts.
+
+  ![](/graphics/quickstart/okta-gid-uidadd.png)
+
+* **Save and Add Another**, then create a GID attribute with data type **"number"**.
+
+  You may want to provide an Attribute Range minimum here, especially if you want to protect a range of IDs for service accounts on your hosts.
+
+  ![](/graphics/quickstart/okta-gid-gidadd.png)
+
+* **Save**
+
+### Step 2. Add UID and GID fields to your Smallstep SCIM profile
+
+* Go to **Directory → Profile Editor**
+* Find your **smallstep-scim** profile. Choose **🖋  Profile** here.
+* Choose **+Add Attribute** and add a uid attribute.
+  Data type **number**
+  External namespace  `urn:scim:smallstep:ssh:schema`
+  Scope ☑ **User personal**
+  The attribute should be marked **required**, because any Okta user with an empty uid or gid value won't sync to Smallstep.
+
+  ![](/graphics/quickstart/okta-gid-uidsync.png)
+
+* **Save and Add Another,** and add a gid attribute.
+
+  ![](/graphics/quickstart/okta-gid-uidsync.png)
+
+* **Save**
+
+### Step 3. Add mappings from Okta to your Smallstep SCIM app
+
+* Go to **Applications → Applications**
+* Choose your **smallstep-scim** application
+* Go to the **Provisioning** tab
+* Under **smallstep-scim Attribute Mappings**, you should see that uid and gid are not mapped.
+* Edit the mapping for `uid`:
+
+  Map from **Okta Profile  `uid`  field**.
+
+  Apply on **Create and update**
+
+  ![](/graphics/quickstart/okta-gid-createupdate.png)
+
+* **Save**, and 
+* **Repeat** for `gid`.
+* When you're finished, the mappings should look like this:
+
+  ![](/graphics/quickstart/okta-gid-finalmap.png)
+
+### Step 4. Verify syncing with smallstep before going into production
+
+Send an email to [support@smallstep.com.](mailto:support@smallstep.com)

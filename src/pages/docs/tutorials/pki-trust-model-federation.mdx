@@ -1,0 +1,174 @@
+---
+title: Federate PKI trust models between multiple autonomous certificate authorities
+html_title: PKI trust model federation with step-ca
+description: Learn how to secure comms across autonomous internal PKI, perform easy PKI migrations, and automate online root rotations using PKI trust models and step-ca
+---
+
+
+Suppose `foo.internal` is running in AWS, and `bar.internal` is running in GCP.
+To communicate, requests must be sent across the public internet. Traditionally
+this sort of cross-connectivity is secured using a network-level tunnel, like
+an SSH tunnel or a VPN. These tunnels are often configured and managed ad-hoc.
+
+They can also be challenging to scale and operate and introduce a single point
+of failure into an otherwise resilient system. With a PKI trust model and
+automated certificate management, you can leverage mTLS for secure
+cross-connectivity without a VPN to avoid these issues.
+
+In this scenario, you may want to run two CAs: one in AWS and one in GCP. That
+way, you don’t need to expose open source `step-ca` to the public internet. To make this
+work, these CAs must federate a PKI trust model, which means `foo.internal` and
+`bar.internal` must trust both CAs to issue certificates.
+
+The `step ca federation` subcommand can be used to distribute the bundle of
+federated roots to workloads in both clouds. 
+
+## About this tutorial
+
+- Learn how to secure comms across clouds using autonomous internal PKI.
+- Examples include copy/paste code blocks and clonable code repos.
+- When complete, you will have secure cross-connectivity without a VPN. 
+- Estimated effort: Reading time ~3 mins, Lab time ~10 to 60 mins. 
+
+<Alert severity="info">
+  <div>
+    If you run into any issues please let us know <Link href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</Link>.
+  </div>
+</Alert>
+
+## Requirements
+- **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](/docs/step-ca/getting-started).
+- **[Smallstep Certificate Manager](/certificate-manager) -** Please get in touch with [Smallstep](mailto:cs@smallstep.com) if you want to federate an existing Root with a Certificate Manager Authority.
+
+## Overview
+
+The basic federation tutorial below showcases how to securely facilitate communication between relying parties of multiple autonomous certificate authorities.
+
+This tutorial uses a pre-generated PKI. Do not use these pre-generated PKIs for **any** purposes outside of this tutorial.
+
+You can find all of the code in this tutorial here:<br/>
+[https://github.com/smallstep/certificates/tree/master/examples/basic-federation](https://github.com/smallstep/certificates/tree/master/examples/basic-federation)
+
+This is what we will cover in this tutorial:
+
+- [Launching the federated online CAs](#launching-the-federated-online-cas)
+- [Bringing up a demo server](#bringing-up-the-demo-server)
+- [Running the demo client](#running-the-demo-client)
+- [Curl as a client](#curl-as-a-client)
+
+
+
+## Launching the federated online CAs
+
+If you want to follow along with the example code, clone the repository and go to the `basic-federation` folder.
+
+<CodeBlock
+    language="shell-session"
+    copyText="git clone https://github.com/smallstep/certificates.git && cd ./certificates/examples/basic-federation">
+{`$ git clone https://github.com/smallstep/certificates.git
+Cloning into 'certificates'...
+remote: Enumerating objects: 16, done.
+remote: Counting objects: 100% (16/16), done.
+remote: Compressing objects: 100% (15/15), done.
+remote: Total 8355 (delta 3), reused 5 (delta 0), pack-reused 8339
+Receiving objects: 100% (8355/8355), 34.92 MiB | 11.05 MiB/s, done.
+Resolving deltas: 100% (5727/5727), done.
+$ cd ./certificates/examples/basic-federation`}</CodeBlock>
+
+Open two terminals to use as online CAs and call them `Cloud CA` and `Kubernetes CA`. The password for both of these online CAs is `password`.
+
+<CodeBlock
+    language="shell-session"
+    copyText="step-ca ./pki/cloud/config/ca.federated.json">
+{`$ step-ca ./pki/cloud/config/ca.federated.json
+Please enter the password to decrypt intermediate_ca_key: password
+2019/01/22 13:38:52 Serving HTTPS on :1443 ...`}</CodeBlock>
+
+<CodeBlock
+    language="shell-session"
+    copyText="step-ca ./pki/kubernetes/config/ca.federated.json">
+{`$ step-ca ./pki/kubernetes/config/ca.federated.json
+Please enter the password to decrypt intermediate_ca_key: password
+2019/01/22 13:39:44 Serving HTTPS on :2443 ...`}</CodeBlock>
+
+Notice the difference between the two configuration options below. `Cloud CA` will list `Kubernetes CA` in the `federatedRoots` section and vice versa.
+
+<CodeBlock
+    language="shell-session"
+    copyText="diff pki/cloud/config/ca.json pki/cloud/config/ca.federated.json">
+{`$ diff pki/cloud/config/ca.json pki/cloud/config/ca.federated.json
+3c3
+<    "federatedRoots": [],
+---
+>    "federatedRoots": ["pki/cloud/certs/kubernetes_root_ca.crt"],
+`}</CodeBlock>
+
+## Bringing up the demo server
+
+Once both online CAs are up and running, let's bring up the demo server, using
+a certificate from the `Cloud CA`. This demo server leverages [step's
+SDK](https://pkg.go.dev/github.com/smallstep/certificates/ca) to obtain X.509
+certificates, automatically renew them, and fetch a trusted roots bundle. When
+it starts, it will report what root certificates it will use to authenticate
+client certificates.
+
+<CodeBlock
+    language="shell-session"
+    copyText="go run server/main.go $(step ca token --ca-url https://localhost:1443 --root ./pki/cloud/certs/root_ca.crt 127.0.0.1)">
+{`$ go run server/main.go $(step ca token --ca-url https://localhost:1443 --root ./pki/cloud/certs/root_ca.crt 127.0.0.1)
+✔ Key ID: EE1ZiqkMaxsUdpz8SCSkRBzwK9TWUoidQnMnJ8Eryn8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key: password
+Server is using federated root certificates
+Accepting certs anchored in CN=Smallstep Public Cloud Root CA
+Accepting certs anchored in CN=Smallstep Kubernetes Root CA
+Listening on :8443 ...`}</CodeBlock>
+
+## Running the demo client
+
+Similarly, step's SDK provides a client option to mutually authenticate connections to servers. It automatically handles certificate bootstrapping, renewal, and fetches a bundle of trusted roots. The demo client will send HTTP requests to the demo server periodically or about every 5s. This client is going to use a certificate from the `Kubernetes CA`.
+
+<CodeBlock
+    language="shell-session"
+    copyText="go run client/main.go $(step ca token sdk_client --ca-url https://localhost:2443 --root ./pki/kubernetes/certs/root_ca.crt)">
+{`$ go run client/main.go $(step ca token sdk_client --ca-url https://localhost:2443 --root ./pki/kubernetes/certs/root_ca.crt)
+✔ Key ID: S5gYgpeqcIAgc1Zr4myZXpgJ_Ao4ryS6F6wqg9o8RYo (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key: password
+Server responded: Hello sdk_client (cert issued by 'Smallstep Kubernetes Root CA') at 2019-01-23 00:51:38.576648 +0000 UTC`}</CodeBlock>
+
+## Curl as a client
+
+While the demo client provides a convenient way to periodically send requests to the demo server, curl in combination with a client certificate from `Kubernetes CA` can hit the server instead:
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca certificate kube_client kube_client.crt kube_client.key --ca-url https://localhost:2443 --root pki/kubernetes/certs/root_ca.crt">
+{`$ step ca certificate kube_client kube_client.crt kube_client.key --ca-url https://localhost:2443 --root pki/kubernetes/certs/root_ca.crt
+✔ Key ID: S5gYgpeqcIAgc1Zr4myZXpgJ_Ao4ryS6F6wqg9o8RYo (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://localhost:2443/1.0/sign
+✔ Certificate: kube_client.crt
+✔ Private Key: kube_client.key`}</CodeBlock>
+
+Federation relies on a bundle of multiple trusted roots which need to be fetched before being passed into curl.
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca federation --ca-url https://localhost:1443 --root pki/cloud/certs/root_ca.crt federated.pem">
+{`$ step ca federation --ca-url https://localhost:1443 --root pki/cloud/certs/root_ca.crt federated.pem
+The federation certificate bundle has been saved in federated.pem.`}</CodeBlock>
+
+Then you have to pass the certificate issued by Kubernetes CA into curl using the appropriate command line flags:
+
+<CodeBlock
+    language="shell-session"
+    copyText="curl -i --cacert federated.pem --cert kube_client.crt --key kube_client.key https://127.0.0.1:8443">
+{`$ curl -i --cacert federated.pem --cert kube_client.crt --key kube_client.key https://127.0.0.1:8443
+HTTP/1.1 200 OK
+Date: Mon, 28 Jan 2019 15:24:54 GMT
+Content-Type: text/plain; charset=utf-8
+Content-Length: 105\n
+Hello kube_client (cert issued by 'Smallstep Kubernetes Root CA') at 2019-01-28 15:24:54.864373 +0000 UTC`}</CodeBlock>
+
+Since the demo server is enrolled with the federated `Cloud CA` that trusts
+X.509 certificates issued by the `Kubernetes CA` through federation, the connection
+is successfully established.

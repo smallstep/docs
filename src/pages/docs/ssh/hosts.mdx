@@ -1,0 +1,220 @@
+---
+title: Smallstep SSH Host Quickstart
+description: Smallstep SSH Host Quickstart | Smallstep Documentation
+---
+
+
+### Before you begin
+
+* You'll need a account on the smallstep platform. Need one? [**Register here**](https://smallstep.com/signup?product=ssh)
+* You'll need the **enrollment token** you received upon signup.
+* We support the following host platforms:
+  * RHEL 8
+  * CentOS 8
+  * CentOS 7
+  * Amazon Linux 2
+  * Ubuntu 20.04 LTS (Focal)
+  * Ubuntu 18.04 LTS (Bionic)
+  * Ubuntu 16.04 LTS (Xenial)
+  * Debian 10 (Buster)
+  * Debian 9 (Stretch)
+  * Debian 8 (Jessie)
+* Running this quickstart will modify config files related to `systemd`, PAM, NSS, and SSHD:
+  * We add `step-ssh-renew` and `step-ssh-metadata` services to `systemd`:
+    * `step-ssh-renew` rotates the SSH host certificate every eight hours.
+    * `step-ssh-metadata` syncs user ACLs with your CA every 3 seconds.
+  * And we modify the following files:
+    * `/etc/pam.d/sshd`
+    * `/etc/pam.d/sudo`
+    * `/etc/pam.d/su`
+    * `/etc/ssh/sshd_config`
+    * `/etc/nsswitch.conf`
+  * We suggest backing these up before you begin setup on a particular base machine type, so that you can quickly revert changes if needed.
+
+## Understanding Host Tags
+
+**This section only applies to multi-user environments.**
+
+**Host Tags** (key-value pairs) are the pillar of our access control model. 
+Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups. o
+First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`. 
+Then, you'll grant user groups access to all hosts with a specific tag combination. 
+Finally, you'll choose which user group tag combinations will allow `sudo` privileges on any matching hosts.
+
+Let's look at an example:
+
+![](/graphics/quickstart/host-tags-example.png)
+
+* The `developers` group will have access to  `myserver #1` only.
+* The `data` group will have access to  `myserver #2` and  `myserver #3`.
+* The `ops` group will have `sudo` access to `myserver #2` and `myserver #3`.
+
+Of course, hosts and groups can have as many tag combinations as you like.
+Take a minute to think about how you'd like to use Host Tags in your environment.
+
+## Quick Installation Instructions
+
+Our installation script will guide you through host setup. It will:
+* Install the `step` CLI and `step-ssh` utilities
+* Comment out the broken `pam_systemd.so` in `common-session`,
+which causes a delay at login
+(this is a known Ubuntu/Debian bug)
+* Bootstrap your host to your CA
+* Enroll your host with an SSH host certificate
+* Configure SSHD to use certificate authentication
+* Activate `step-ssh` PAM/NSS modules
+* Add the host to the CA's inventory
+
+### Step 1. Install Smallstep SSH
+
+#### If your host is a bastion host
+
+As `root`, run:
+
+```shell-session nocopy
+$ curl -sSLO https://files.smallstep.com/ssh-host.sh
+$ bash ssh-host.sh --is-bastion
+```
+
+#### If your host is _behind_ a bastion host
+
+As `root`, run:
+
+```shell-session nocopy
+$ curl -sSLO https://files.smallstep.com/ssh-host.sh
+$ bash ssh-host.sh --bastion=<bastion hostname>
+```
+
+#### For any other host
+
+As `root`, run:
+
+```shell
+curl -sSf https://files.smallstep.com/ssh-host.sh | bash
+```
+
+You'll be prompted for
+your team ID,
+enrollment token,
+hostname,
+and a list of space-separated host tags
+(eg. "`db=dev region=us-west-1`").
+
+#### Passing flags to `ssh-host.sh`
+
+The `ssh-host.sh` utility can also be run non-interactively,
+as long as you provide the following _required flags_:
+* `--team "[your team ID]"`
+* `--token "[your enrollment token]"`
+* `--hostname "[the hostname]"`
+* One or more `--tag "key=value"` to assign [host tags](#understanding-host-tags)
+
+The following additional flags are available:
+* Any number of `--principal "[additional hostname]"`,
+to add additional hostnames to the host certificate
+* `--is-bastion` to indicate a bastion host
+* `--bastion "[bastion hostname]"` to specify the bastion that sits in front of this host
+
+### Step 2. Test your installation
+
+Before you sign out of your `sudo` session, test your installation by logging in and running `sudo` in a separate session.
+
+**This step is especially important if you have made any non-standard changes to your PAM or NSS stacks.**
+
+Now sign in at `https://smallstep.com/app/[Team ID]`
+
+You should see your host listed under the "**Hosts**" tab.
+
+## Manual Instructions
+
+If you wish to enroll your host without using our script,
+you can follow our [step-by-step installation instructions](/docs/ssh/hosts-step-by-step) instead.
+
+## Need to remove a host?
+
+As `root` on the host, run:
+
+```shell-session
+curl -sSf https://files.smallstep.com/ssh-host-uninstall.sh | bash
+```
+
+This script will:
+* Unregister the host from the host inventory on the CA
+* Deactivate Smallstep SSH
+* Revert SSHD configuration changes
+* Remove your `$HOME/.step` configuration directory
+* Remove the `step-ssh` package
+
+## Optional Hardening
+
+* Now that you're using certificates, you may wish to explicitly disallow the use of `authorized_keys` files on the host.
+
+  You can do this by setting `AuthorizedKeysFile none` in `sshd_config`. You may want to allow `authorized_keys` for an emergency access account, however. A configuration for this might look like:
+
+```
+Match User *,!ubuntu
+    AuthorizedKeysFile none
+```
+
+## Troubleshooting Tips
+
+* Having trouble? You should be able to revert any changes by running `step-ssh deactivate`.
+* Suspect host or user certificates are not working? In other words, your ssh client fails to log in or shows "trust on first use" warning? Try this:
+  * Be sure you can connect to our test server, with `ssh-test.app.smallstep.com`.
+  * On your client run `step ssh list` and find your user certificate marked `(ECDSA-CERT)`, e.g. `256 SHA256:Bb2TcimUYj8Nc5w4FhpZ/gmeNIIvLIzphTx35NzaRoA alice@smallstep.com (ECDSA-CERT)`, which you can inspect with `step ssh list --raw alice@smallstep.com | step ssh inspect`. Be sure the current time is neither before or after the period specified in `Valid:` .
+  * On the destination host run `step ssh inspect /etc/ssh/ssh_host_ecdsa_key-cert.pub`. Make sure the current time is within the period of `Valid:`.
+  * The destination host's `sshd_config` should show included the following lines for `sshd` (make sure the service has reloaded its config) to leverage certificate-based authentication:
+
+  ```shell-session nocopy
+  $ tail -n 7 /etc/ssh/sshd_config
+  #       ForceCommand cvs server
+
+  # autogenerated by step @ 2020-04-02T21:16:05Z
+  TrustedUserCAKeys /etc/ssh/ca.pub
+  HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
+  HostKey /etc/ssh/ssh_host_ecdsa_key
+  # end
+  ```
+
+  * You can run `sshd -t` (as root) to test you SSHD configuration. No output means the file is OK; you'll get an error if any of the referenced files (eg. host keys) are not accessible to `sshd`.
+* Suspect your ssh client might have a problem? Use verbose logging `ssh -v <hostname>`. Look out for following key lines/events below in your log. If you don't see errors the absence of these events might indicate your config is invalid / not being applied.
+  * Your team's config is applied for this specific host:
+
+    ```
+    debug1: Executing command: 'step ssh check-host ec2-52-200-74-193.compute-1.amazonaws.com'
+    debug1: Reading configuration data /etc/ssh/ssh_config
+    debug1: /etc/ssh/ssh_config line 48: Applying options for *
+    debug1: /etc/ssh/ssh_config line 52: Applying options for *
+    debug1: Executing proxy command: exec step ssh proxycommand --provisioner "okta" alice ec2-52-200-74-193.compute-1.amazonaws.com 22
+    ```
+  * The host certificate passed authentication on the client:
+
+    ```
+    debug1: Server host certificate: ecdsa-sha2-nistp256-cert-v01@openssh.com SHA256:ON/csaCQ4yDKfxblQnOLTiZIOoOtsHPAjQn6DrW+k9I, serial 2468062085372141930 ID "ec2-52-200-74-193.compute-1.ama
+    debug1: Server host certificate: ecdsa-sha2-nistp256-cert-v01@openssh.com SHA256:46gC0CEzXWN4acTHGQldL6H+QlbhB4+KPZjkoRToI/w, serial 8551898981883739717 ID "ec2-52-200-74-193.compute-1.amazonaws.com" CA ecdsa-sha2-nistp256 SHA256:sqfZG6AOPUvcheFUIZDX+DEesnyfNZQ5JwqpcxUzY+0 valid from 2020-04-14T04:45:10 to 2020-05-14T04:46:10
+    debug1: Host 'ec2-52-200-74-193.compute-1.amazonaws.com' is known and matches the ECDSA-CERT host certificate.
+    debug1: Found CA key in /Users/alice/.step/ssh/known_hosts:1
+    ```
+  * The username being used for authentication:
+
+    ```
+    debug1: Authenticating to ec2-52-200-74-193.compute-1.amazonaws.com:22 as 'alice'
+    ```
+
+  * The ssh client offers the user's certificate to the destination host:
+
+    ```
+    debug1: Offering public key: sebastian@smallstep.com ECDSA-CERT SHA256:VIa1uWhBTjjtpW3IBkUG/aFGfqlUhjkXNQVk6Hc1lXc agent
+    debug1: Server accepts key: alice@smallstep.com ECDSA-CERT SHA256:VIa1uWhBTjjtpW3IBkUG/aFGfqlUhjkXNQVk6Hc1lXc agent
+    debug1: sign_and_send_pubkey: no separate private key for certificate "alice@smallstep.com"
+    ```
+
+* The following endpoints are being used to deliver the SSH service
+
+  
+  * `ssh-test.app.smallstep.com` — For SSH test sessions
+  * `https://ssh.<team-name>.ca.smallstep.com` — The CA internal PKI APIs (protected by mTLS)
+  * `https://smallstep.com/app/teams/sso/success` — Single sign-on success page
+  * `https://smallstep.com/app/<team-name>` — Admin Dashboard
+  * `https://api.smallstep.com` — APIs to fetch team information
+  * `https://auth.smallstep.com` — OpenID Connect flow, if you have no identity provider configured

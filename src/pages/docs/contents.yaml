@@ -1,0 +1,121 @@
+platform:
+  - title: Authorities
+    path: platform/authorities
+  - title: Provisioners
+    path: platform/provisioners
+  - title: Inventories
+    path: platform/inventories
+  - title: Templates
+    path: platform/templates
+  - title: Events
+    path: platform/events
+
+smallstep_ssh:
+  - title: How It Works
+    path: ssh/how-it-works
+  - title: Client Quickstart Guide
+    path: ssh/client
+  - title: Host Quickstart Guide
+    path: ssh/hosts
+  - title: Azure AD Quickstart Guide
+    path: ssh/azure-ad
+  - title: G Suite Quickstart Guide
+    path: ssh/g-suite
+  - title: Okta Quickstart Guide
+    path: ssh/okta
+  - title: Access Control Guide
+    path: ssh/acls
+  - title: Okta UID GID Sync Guide
+    path: ssh/okta-gid-uid
+
+certificate_manager:
+  - title: Getting Started
+    path: certificate-manager/getting-started
+  - title: How It Works
+    path: certificate-manager/how-it-works
+  - title: ACME Server
+    path: certificate-manager/acme
+  - title: Certs For Humans
+    path: certificate-manager/oidc
+    
+registration_authorities:
+  - title: ACME for Smallstep Certificate Manager
+    path: registration-authorities/acme-for-certificate-manager
+  - title: ACME for Google Certificate Authority Service
+    path: registration-authorities/acme-for-cas
+
+step_cli:
+  - title: Installation
+    path: step-cli/installation
+  - title: The `step` Command
+    path: step-cli/the-step-command
+  - title: Basic Crypto Operations
+    path: step-cli/basic-crypto-operations
+  - title: Command Reference
+    path: step-cli/reference
+  - title: Discussions
+    path: https://github.com/smallstep/certificates/discussions
+  - title: GitHub
+    path: https://github.com/smallstep
+  - title: Twitter
+    path: https://twitter.com/smallsteplabs
+  - title: Email
+    path: mailto:info@smallstep.com?Subject=step%20CLI%20troubleshooting
+
+step_ca:
+  - title: Installation
+    path: step-ca/installation
+  - title: Core Concepts
+    path: step-ca/certificate-authority-core-concepts
+  - title: Getting Started
+    path: step-ca/getting-started
+  - title: Basic CA Operations
+    path: step-ca/basic-certificate-authority-operations
+  - title: Configuration
+    path: step-ca/configuration
+  - title: Provisioners
+    path: step-ca/provisioners
+  - title: Templates
+    path: step-ca/templates
+  - title: Production Considerations
+    path: step-ca/certificate-authority-server-production
+  - title: Integrations
+    path: step-ca/integrations
+  - title: Discussions
+    path: https://github.com/smallstep/certificates/discussions
+  - title: GitHub
+    path: https://github.com/smallstep
+  - title: Twitter
+    path: https://twitter.com/smallsteplabs
+  - title: Email
+    path: mailto:info@smallstep.com?Subject=step-ca%20troubleshooting
+
+practical_zero_trust: []
+
+mutual_tls: []
+
+tutorials:
+  - title: Run a private internal ACME CA
+    path: tutorials/acme-challenge
+  - title: Configure popular ACME clients to use a private CA
+    path: tutorials/acme-protocol-acme-clients
+  - title: Use Kubernetes cert-manager with `step-ca`
+    path: tutorials/kubernetes-acme-ca
+  - title: Issue X.509 host certificates to cloud VMs
+    path: tutorials/cloud-vm-certificate
+  - title: Issue X.509 user certificates via your identity provider
+    path: tutorials/user-authentication
+  - title: Create a CA that uses RSA keys
+    path: tutorials/rsa-chain
+  - title: Import an existing root or intermediate CA into `step-ca`
+    path: tutorials/intermediate-ca-new-ca
+  - title: Use Keycloak to issue SSH certificates with step-ca
+    path: tutorials/keycloak-oidc-provisioner
+  - title: Run an SSH CA and connect to VMs using SSH certificates
+    path: tutorials/ssh-certificate-login
+  - title: Use AWS to deploy a certificate authority and secure microservices
+    path: tutorials/mutual-tls-aws
+  - title: Run `step-ca` in a Docker container
+    path: tutorials/docker-tls-certificate-authority
+  - title: Federate multiple autonomous certificate authorities
+    path: tutorials/pki-trust-model-federation

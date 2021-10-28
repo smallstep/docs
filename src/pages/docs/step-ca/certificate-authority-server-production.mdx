@@ -1,0 +1,1144 @@
+---
+title: Production considerations when running a certificate authority server
+html_title: Certificate authority server production considerations
+description: Learn about the important production considerations and sane cryptographic defaults that operators should know about when running a certificate authority server
+---
+
+
+`step-ca` is built for robust certificate management in distributed systems. As
+with any entity in your infrastructure, running `step-ca` effectively in
+production requires some knowledge of its strengths and limitations. This
+document addresses the important production considerations that operators
+should know about when running `step-ca` as a certificate authority server.
+
+## Overview
+
+- [Good Security Practices](#securing-your-pki)
+  - [Safeguard Your Root Key](#safeguard-your-root-key)
+  - [Use Strong Passwords and Store Them Well](#use-strong-passwords-and-store-them-well)
+  - [Avoid Storing Passwords In Environment Variables](#avoid-storing-passwords-in-environment-variables)
+  - [Delete Your Default Provisioner](#delete-your-default-provisioner)
+  - [Use Short-Lived Certificates](#use-short-lived-certificates)
+  - [Create a Service User to Run `step-ca`](#create-a-service-user-to-run-step-ca)
+- [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
+- [High Availability](#high-availability)
+- [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
+- [Automate X.509 Certificate Lifecycle Management](#automate-x509-certificate-lifecycle-management)
+- [X.509 Certificate Revocation](#x509-certificate-revocation)
+- [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
+  - [Tokens](#tokens)
+  - [Key Types and Ciphers](#key-types-and-ciphers)
+  - [X.509 Certificates](#x509-certificates)
+  - [TLS Defaults](#tls-defaults)
+
+## Good Security Practices
+
+In this section we recommend a few best practices when it comes to
+running, deploying, and managing your own online certificate authority server and PKI. Security is a moving
+target and we expect our recommendations to change and evolve as well.
+
+### Safeguard Your Root Key
+
+When you initialize a simple CA, two private keys are generated: one intermediate
+private key, and one root private key. It is very important that these private keys
+are kept secret.
+
+The intermediate key is used by the CA to sign certificates. The root key is not needed for day-to-day CA operation and should be stored offline.
+Typically the root key is generated on an air-gapped device, and it never leaves the device on which it was created.
+
+Here's an example key protection strategy for a high-security production PKI.
+
+In this example, `step-ca` acts as a subordinate CA to an offline root CA.
+
+1. Generate a root CA (private key and certificate) on a [Hardware Security Module (HSM)](https://en.wikipedia.org/wiki/Hardware_security_module) that is kept in "cold storage", off the internet.
+HSMs are ideal for storing private keys and performing signing operations securely.
+2. Generate intermediate key(s) on a separate, online cloud HSM or in a key management service (KMS) that will be used by the CA in production
+3. Generate Certificate Signing Requests (CSRs) for your intermediate CA(s)
+4. Sign the generated CSR using the root HSM
+5. Configure `step-ca` to use the signed root and intermediate certificates
+6. Configure `step-ca` to access the cloud HSM or KMS intermediate key for online signing operations
+
+See the [Cryptographic Protection](/docs/step-ca/configuration#cryptographic-protection) section of our [Configuration Guide](/docs/step-ca/configuration) to learn more about your options for using HSMs or cloud KMS with `step-ca`.
+
+### Use Strong Passwords and Store Them Well
+
+When you initialize your PKI (`step ca init`) 
+the root and intermediate private keys will be encrypted with the same password.
+
+Use a password manager to generate random passwords, 
+or let `step ca init` generate a strong password for you.
+
+After initializing your CA, 
+we recommend that you immediately change the password for the intermediate CA private key:
+
+```shell
+step crypto change-pass $STEPPATH/secrets/intermediate_ca_key
+```
+
+You'll use this new intermediate key password to start `step-ca`.
+
+<Alert severity="info">
+  <AlertTitle>Never use your password in a command line argument.</AlertTitle>
+  <div>
+    To keep sensitive values from leaking into `.bash_history` and system state, put
+    your intermediate key password into a file by itself. Then use the
+    `--password-file` flag when calling `step-ca`.
+  </div>
+</Alert>
+
+Once you've changed the intermediate private key password, 
+you should never have to use the root private key password again. 
+So, then what should you do with it?
+
+Bury it in a cave high in the mountains.
+
+Or, store it in a [password manager](https://en.wikipedia.org/wiki/List_of_password_managers) or secrets manager. 
+There are many to choose from and the choice will depend on the risk & security profile of your organization.
+
+In addition to using a password manager to store all passwords 
+(private key, provisioner password, etc.) we recommend using a threshold cryptography algorithm like
+[Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir's_Secret_Sharing)
+to divide the root private key password across a handful of trusted parties.
+
+
+### Avoid Storing Passwords in Environment Variables
+
+`systemd` discourages using the environment for secrets 
+because it doesn't consider it secure and exposes a unit's environment over dbus. From 
+[systemd.exec(5)](https://www.man7.org/linux/man-pages/man5/systemd.exec.5.html#ENVIRONMENT):
+
+> Note that environment variables are not suitable for passing secrets (such as passwords, key material, …) to service processes. 
+> Environment variables set for a unit are exposed to unprivileged clients via D-Bus IPC, and generally not understood as being data that requires protection. 
+> Moreover, environment variables are propagated down the process tree, 
+> including across security boundaries (such as setuid/setgid executables), 
+> and hence might leak to processes that should not have access to the secret data.
+
+For some isolated environments, we could see an argument for the convenience of an environment variable.
+Even then, there can be subtle issues.
+For example, anyone with access to the Docker daemon can view all of the environment variables of running Docker containers, using `docker inspect`.
+
+For posterity, however, if you've secured your environment and rely on it for secrets, there is a way to pass a password into `step-ca` from an environment variable in Bash:
+
+```shell
+step-ca --password-file <(echo -n "$STEP_CA_PASSWORD") $(step path)/config/ca.json
+```
+
+This method is known as [Bash Process Subsitution](https://www.gnu.org/software/bash/manual/html_node/Process-Substitution.html),
+and on most systems the password will not appear in `ps` output.
+However, **this approach is not recommended** simply because it's so difficult to ensure security with environment variables.
+
+### Delete Your Default Provisioner
+
+When you initialize your PKI (`step ca init`), a default `JWK` provisioner will be created
+and it's private key will be encrypted using the same password used to encrypt
+the root CA private key. Before deploying `step-ca` you should remove this
+provisioner and add new provisioners that are encrypted with secure, random passwords.
+See the section on [managing provisioners](/docs/step-ca/provisioners#managing-provisioners).
+
+### Use Short-Lived Certificates
+
+We recommend certificates have the lifespan of a mayfly: about a day or less[^1]. Certificates from
+`step-ca` expire in 24 hours by default. We made it easy for you to
+[automate the renewal of your certificates](#automate-x509-certificate-lifecycle-management)
+using the `step` command. Carpe diem!
+
+You can
+[configure certificate lifetimes](/docs/step-ca/configuration#basic-configuration-options) in the `ca.json` file. 
+
+<Alert severity="info">
+  <div>
+    Short-lived certificates are not a replacement for active revocation using certificate
+revocation lists (CRL) or Online Certificate Status Protocol (OCSP). Active revocation is 
+not yet available in `step-ca`.
+  </div>
+</Alert>
+
+
+<Footnote id="fn-1" marker="1">
+Insects of the mayfly species <i>dolania americana</i> live for five minutes or less. So do some
+certificates. But it can be difficult to operationalize such short-lived certificates.
+</Footnote>
+
+
+### Create a Service User to Run `step-ca`
+
+Make sure that the configuration folders, private keys, and password file used by the CA are _only_
+accessible by this user. If you're running `step-ca` on port 443, you'll need the `step-ca` binary
+to be able to bind to that port. See [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon) for details.
+
+## Running `step-ca` as a Daemon
+
+Note: _This section requires a Linux OS running `systemd` version 229 or greater._
+
+1. Add a service user for the CA.
+
+  The service user will only be used by `systemd` to manage the CA. Run:
+
+  <CodeBlock language="shell-session" copytext="sudo useradd --system --home /etc/step-ca --shell /bin/false step">
+  {`$ sudo useradd --system --home /etc/step-ca --shell /bin/false step`}
+  </CodeBlock>
+
+  If your CA will bind to port 443, the `step-ca` binary will need to be
+  given low port-binding capabilities:
+
+  <CodeBlock language="shell-session" copyText="sudo setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)">
+  {`$ sudo setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)`}
+  </CodeBlock>
+
+2. Move your CA configuration into a system-wide location. Run:
+
+  <CodeBlock language="shell-session" copyText="sudo mv $(step path) /etc/step-ca">
+  {`$ sudo mv $(step path) /etc/step-ca`}
+  </CodeBlock>
+
+  Make sure your CA password is located in `/etc/step-ca/password.txt`,
+  so that it can be read upon server startup.
+
+  You'll also need to edit the file `/etc/step-ca/config/defaults.json` to reflect the new path.
+
+  If you've initialized the CA but have never run it,
+  you may also need to create an empty `/etc/step-ca/db` directory:
+
+  <CodeBlock language="shell-session" copytext="sudo mkdir -p /etc/step-ca/db">
+  {`$ sudo mkdir -p /etc/step-ca/db`}
+  </CodeBlock>
+
+  Set the `step` user as the owner of your CA configuration directory:
+
+  <CodeBlock language="shell-session" copytext="sudo chown -R step:step /etc/step-ca">
+  {`$ sudo chown -R step:step /etc/step-ca`}
+  </CodeBlock>
+
+3. Create a `systemd` unit file.
+
+  ```shell-session
+  $ sudo touch /etc/systemd/system/step-ca.service
+  ```
+
+  Add the following contents:
+
+  ```ini
+  [Unit]
+  Description=step-ca service
+  Documentation=https://smallstep.com/docs/step-ca
+  Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+  After=network-online.target
+  Wants=network-online.target
+  StartLimitIntervalSec=30
+  StartLimitBurst=3
+  ConditionFileNotEmpty=/etc/step-ca/config/ca.json
+  ConditionFileNotEmpty=/etc/step-ca/password.txt
+  
+  [Service]
+  Type=simple
+  User=step
+  Group=step
+  Environment=STEPPATH=/etc/step-ca
+  WorkingDirectory=/etc/step-ca
+  ExecStart=/usr/bin/step-ca config/ca.json --password-file password.txt
+  ExecReload=/bin/kill --signal HUP $MAINPID
+  Restart=on-failure
+  RestartSec=5
+  TimeoutStopSec=30
+  StartLimitInterval=30
+  StartLimitBurst=3
+  
+  ; Process capabilities & privileges
+  AmbientCapabilities=CAP_NET_BIND_SERVICE
+  CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+  SecureBits=keep-caps
+  NoNewPrivileges=yes
+  
+  ; Sandboxing
+  ProtectSystem=full
+  ProtectHome=true
+  RestrictNamespaces=true
+  RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+  PrivateTmp=true
+  PrivateDevices=true
+  ProtectClock=true
+  ProtectControlGroups=true
+  ProtectKernelTunables=true
+  ProtectKernelLogs=true
+  ProtectKernelModules=true
+  LockPersonality=true
+  RestrictSUIDSGID=true
+  RemoveIPC=true
+  RestrictRealtime=true
+  SystemCallFilter=@system-service
+  SystemCallArchitectures=native
+  MemoryDenyWriteExecute=true
+  ReadWriteDirectories=/etc/step-ca/db
+  
+  [Install]
+  WantedBy=multi-user.target
+  ```
+
+  (This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/step-ca.service))
+
+   Here are some notes on the security properties in this file:
+   * `User` and `Group` cause `step-ca` to run as a non-privileged user.
+   * `AmbientCapabilities` allows the process to receive ambient capabilities.
+    `CAP_NET_BIND_SERVICE` allows the process to bind to ports < 1024. See [capabiliites(7)](https://man7.org/linux/man-pages/man7/capabilities.7.html).
+   * `CapabilityBoundingSet` limits the set of capabilities the process can have.
+   * `SecureBits` allows the service to keep its capabilities even after switching to the `step` user.
+   * `NoNewPrivileges` ensures no future privilege escalation by the process.
+   * `ProtectSystem` and `ProtectHome` configure sandboxing via a read-only file system namespace dedicated to the process.
+   * `ProtectNamespaces` prevents the process from creating kernel namespaces.
+   * `RestrictAddressFamilies` prevents the service from allocating esoteric sockets such as `AF_PACKET`.
+   * `PrivateTmp` gives the service its own private `/tmp`.
+   * `PrivateDevices` presents a very limited `/dev` to the service.
+   * `Protect*` limits access to system resources.
+   * `LockPersonality` locks the process's execution domain.
+   * `RestrictSUIDSGID` restricts setuid/setgid file creation.
+   * `RemoveIPC` removes any IPC objects created by the service when it is stopped.
+   * `RestrictRealtime` restricts real-time scheduling access.
+   * `SystemCallFilter` defines an allow list of system calls the service can use.
+   * `SystemCallArchitectures` restricts the service to only be able to call native system calls.
+   * `MemoryDenyWriteExecute` prevents the service from creating writable-executable memory mappings.
+   * `ReadWriteDirectories` ensures that the process can write its state directories.
+
+   See [systemd.exec(5)](https://freedesktop.org/software/systemd/man/systemd.exec.html), [systemd.unit(5)](https://freedesktop.org/software/systemd/man/systemd.unit.html#),
+   and [systemd.service(5)](https://freedesktop.org/software/systemd/man/systemd.service.html#) for more details.
+
+4. Enable and start the service.
+
+  The following are a few useful commands for
+  checking the status of your CA,
+  enabling it on system startup,
+  and starting your CA.
+
+  ```shell-session nocopy
+  # Rescan the systemd unit files
+  $ sudo systemctl daemon-reload
+
+  # Check the current status of the step-ca service
+  $ sudo systemctl status step-ca
+
+  # Enable and start the `step-ca` process
+  $ systemctl enable --now step-ca
+
+  # Follow the log messages for step-ca
+  $ journalctl --follow --unit=step-ca
+  ```
+
+## High Availability
+
+<Alert severity="warning">
+  <div> 
+    <Code>step-ca</Code> is built to scale horizontally. However, the creators
+    and maintainers do not regularly test in an HA environment using multiple
+    instances. You may run into issues we did not plan for. If this happens, please
+    <Link href="https://github.com/smallstep/certificates/issues"> open an issue</Link>.
+  </div>
+</Alert>
+
+A few things to consider / implement when running multiple instances of `step-ca`:
+
+- **Use a MySQL database.** The default Badger database has no concurrency support.
+  The only integrated DB that can support multiple instances is MySQL.
+  See the [database documentation][db-ref] to learn how to configure `step-ca` for MySQL.
+- **Respect concurrency limits.** The ACME server has known concurrency limitations when using the same account to
+  manage multiple orders. The recommended temporary workaround is to generate
+  an ephemeral account keypair for each new ACME order, or to ensure that ACME
+  orders owned by the same account are managed serially. The issue tracking
+  this limitation can be found [here](https://github.com/smallstep/certificates/issues/341).
+- **Synchronize `ca.json` across instances.** `step-ca` reads all of it's
+  configuration (and all of the provisioner configuration) from the `ca.json` file
+  specified on the command line. If the `ca.json` of one instance is modified
+  (either manually or using a command like `step ca provisioner (add | remove)`)
+  the other instances will not pick up on this change until the `ca.json` is
+  copied over to the correct location for each instance and the instance is 
+  sent `SIGHUP` or restarted. It's recommended to use a configuration management
+  tool (ansible, chef, salt, puppet, etc.) to synchronize `ca.json` across instances.
+
+[db-ref]: /docs/step-ca/configuration#databases
+
+## Load balancing or proxying `step-ca` traffic
+
+If you need to place a load balancer or reverse proxy downstream from the CA, we recommend using layer 4 (TCP)
+load balancing or proxying (aka "TLS passthrough").
+
+Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
+- `step` expects to be able to establish a TLS connection directly with `step-ca` using the CA's root certificate.
+- Certificate renewal requires authenticated encryption (mutual TLS).
+  `step-ca` authenticates the client using the expiring certificate, in order to issue a new one.
+  This requires a direct, end-to-end TLS connection between `step` and `step-ca`.
+- By design, `step-ca` does not have an option to run in HTTP only.
+  Philosophically, we value perimeterless security and we believe people should use authenticated encryption (e.g. mutual TLS) everywhere.
+  Making mTLS easy, and helping people get away from the "perimeter security" anti-pattern, are motivating goals behind the project.
+
+  That said, lots of folks have legacy issues to contend with, some of these decisions are out of their control, and every threat model is different.
+  See [certificates#246](https://github.com/smallstep/certificates/issues/246) for more details.
+
+### Further Reading
+
+- Nginx has a [stream module](https://nginx.org/en/docs/stream/ngx_stream_core_module.html) that allows it to pass TLS traffic directly to `step-ca`.
+  But it comes with a price: Unlike typical reverse proxy configurations, source IPs are not visible to `step-ca` (there is no `X-Forwarded-For` header), and traffic is also not logged to the nginx access log.
+  See [this blog post](https://gerco.dev/NGINX-Reverse-Proxy-with-TLS-Passthrough/) for an example of TLS passthrough.
+- Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
+
+## Automate X.509 Certificate Lifecycle Management
+
+By default, `step-ca` issues short-lived certificates that expire after 24
+hours. Short-lived certificates are excellent security hygiene because they
+offer regular key rotation and [passive
+revocation](#x509-certificate-revocation)
+
+Short-lived certificates create a problem though: For any long-lived workloads,
+you will need to renew your certificates each day before they expire. This
+section will show three approaches to renew certs with `step`.
+
+<Alert severity="info">
+  <div>
+    This section assumes you have initialized and started up a
+    <Code>step-ca</Code> instance using the steps in <Link
+    href="/docs/step-ca/getting-started">Getting Started</Link>.  As an
+    alternative, you can use our hosted CA, <Link
+    href="/certificate-manager">Smallstep Certificate Manager</Link>.
+  </div>
+</Alert>
+
+### Creating short-lived certificates
+
+First, let's initialize a new PKI and start `step-ca`. We'll write a password
+out to password.txt so we don't have to enter it repeatedly.
+
+```shell nocopy
+$ echo "p4ssword" > password.txt
+$ step ca init --name "Speedy" --provisioner admin \
+               --dns localhost --address ":443" \
+               --password-file password.txt \
+               --provisioner-password-file password.txt
+$ step-ca $(step path)/config/ca.json --password-file password.txt
+```
+
+Now let's generate a [single-use bootstrap token](https://smallstep.com/docs/cli/ca/token/) and use it to obtain a certificate:
+
+<CodeBlock language="shell-session" copyText="TOKEN=$(step ca token --password-file password.txt foo.local)">
+{`$ TOKEN=$(step ca token --password-file password.txt foo.local)
+✔ Key ID: w1OUFng_fCqWygHHpc9Ak8m_HGmE0TEasYIfahLoZUg (admin)`}
+</CodeBlock>
+
+In a production environment, you might use something like Kubernetes or Chef to generate this token and give it to a host or client that needs a certificate.
+
+Now we can generate a keypair locally, and use our bootstrap token to obtain a certificate for _foo.local_ from `step-ca`:
+
+```shell nocopy
+$ step ca certificate foo.local foo.crt foo.key --token $TOKEN
+✔ CA: https://localhost
+✔ Certificate: foo.crt
+✔ Private Key: foo.key
+
+$ step certificate inspect --short foo.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2599...1204]
+  Subject:     foo.local
+  Issuer:      Speedy Intermediate CA
+  Provisioner: admin [ID: w1OU...oZUg]
+  Valid from:  2019-05-01T21:06:25Z
+          to:  2019-05-02T21:06:25Z
+```
+
+By default, `step-ca` issues certificates valid for 24 hours. This is suitably
+short for many scenarios. If it's not right for you, you can adjust the
+[`defaultTLSCertDuration`](/docs/step-ca/provisioners#claims) per provisioner
+or pass the `--not-after` flag to the `step ca certificate` to adjust the
+lifetime of an individual certificate. Very short lifetimes (eg. five minutes)
+are better from a security perspective, but this can be difficult in
+practice.
+
+With short-lived certificates, your services and hosts will need to renew their certificates regularly, by extending their lifetimes _before they expire_.
+
+You can do this manually with the following command:
+
+<CodeBlock language="shell" copyText="step ca renew --force foo.crt foo.key">
+{`$ step ca renew --force foo.crt foo.key
+Your certificate has been saved in foo.crt \n
+$ step certificate inspect --short foo.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1664...3445]
+  Subject:     foo.local
+  Issuer:      Speedy Intermediate CA
+  Provisioner: admin [ID: w1OU...oZUg]
+  Valid from:  2019-05-01T21:15:16Z
+          to:  2019-05-02T21:15:16Z
+`}
+</CodeBlock>
+
+_Note the change in the validity period relative to the original certificate above._
+
+### Automated renewal
+
+What good are short-lived certificates if we can't renew them automatically?
+
+Here are three options for setting up automated renewal of certificates using `step ca renew`:
+* [Renewal using `systemd` timers](#renewal-using-systemd-timers). This is the preferred approach.
+
+* [The standalone `step` renewal daemon](#the-standalone-step-renewal-daemon).
+
+* [`cron`-based renewal](#-cron-based-renewal).
+
+#### Renewal using `systemd` timers
+
+This approach runs a periodic [systemd timer](https://wiki.archlinux.org/index.php/Systemd/Timers) for each certificate you want to keep current.
+The timer will run a one-shot systemd service every few minutes.
+The one-shot service checks the certificate and renews it if more than &frac23; of its lifetime has elapsed.
+Upon renewal, the service can try to reload or restart a service using the certificate files, if it exists.
+Custom post-renewal commands can be configured as well.
+
+We will leverage systemd [service templates](https://www.freedesktop.org/software/systemd/man/systemd.service.html#Service%20Templates) to simplify configuration of certificate renewal for many target services.
+
+In `/etc/systemd/system`, we'll start by creating template files `cert-renewer@.service`, and `cert-renewer@.timer`.
+
+Service templates accept a single argument after the `@`, called the _service unit argument_.
+For example, for `cert-renewer@postgresql.service`, the service unit argument is `postgresql`.
+In the template, `%i` represents the service unit argument.
+
+Let's review the service template first, then we'll look at the timer template.
+
+Create a service unit template file:
+
+```shell-session
+$ sudo touch /etc/systemd/system/cert-renewer@.service
+```
+
+Add the following configuration:
+
+```ini
+[Unit]
+Description=Certificate renewer for %I
+After=network-online.target
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+StartLimitIntervalSec=0
+
+[Service]
+Type=oneshot
+User=root
+
+Environment=STEPPATH=/etc/step-ca \
+            CERT_LOCATION=/etc/step/certs/%i.crt \
+            KEY_LOCATION=/etc/step/certs/%i.key
+
+; ExecCondition checks if the certificate is ready for renewal,
+; based on the exit status of the command.
+; (In systemd 242 or below, you can use ExecStartPre= here.)
+ExecCondition=/usr/bin/step certificate needs-renewal ${CERT_LOCATION}
+
+; ExecStart renews the certificate, if ExecStartPre was successful.
+ExecStart=/usr/bin/step ca renew --force ${CERT_LOCATION} ${KEY_LOCATION}
+
+; Try to reload or restart the systemd service that relies on this cert-renewer
+; If the relying service doesn't exist, forge ahead.
+ExecStartPost=/usr/bin/env bash -c "if ! systemctl --quiet is-enabled %i.service ; then exit 0; fi; systemctl try-reload-or-restart %i"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+(This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/cert-renewer@.service))
+
+With this template file in place, we can now ask systemd to start any `cert-renewer@*.service`.
+
+For example, if you have a systemd service called `postgresql.service`,
+with certificate and key files located in `/etc/step/certs/postgresql.crt` and `/etc/step/certs/postgresql.key`,
+you can manually run `systemctl start cert-renewer@postgresql.service`
+and systemd will immediately check that certificate's readiness for renewal, and potentially renew it.
+If the certificate is successfully renewed, the `postgresql` service will be reloaded or restarted.
+
+#### Customizing a service unit
+
+You'll often need to customize your service unit for a given service.
+
+For example, you may need to:
+* Deploy the certificate and key to a service
+
+* Reload or restart additional dependent services
+
+* Combine the certificate and key files into a bundled `.pem` or a PKCS#12 `.p12` file, as needed by some services
+
+* Ping a health check service or perform another action after a specific certificate is renewed
+
+Instead of modifying the service template, we'll use _service template overrides_ here.
+The overrides live in the drop-in configuration directory for the service being custommized.
+
+Here's an example override for a [Lighttpd](https://www.lighttpd.net/) service that uses Docker Compose and is not managed by systemd:
+
+`/etc/systemd/system/cert-renewer@lighttpd-docker.service.d/override.conf`:
+
+```ini
+[Service]
+; `Environment=` overrides are applied per environment variable. This line does not
+; affect any other variables set in the service template.
+Environment=CERT_LOCATION=/etc/docker/compose/lighttpd/certs/example.com.crt \
+            KEY_LOCATION=/etc/docker/compose/lighttpd/certs/example.com.key
+WorkingDirectory=/etc/docker/compose/lighttpd
+
+; Restart lighttpd docker containers after the certificate is successfully renewed.
+ExecStartPost=/usr/local/bin/docker-compose restart
+```
+
+<Alert severity="info">
+  <div>
+    <strong>A subtlety of service template overrides:</strong> Any <code>ExecStartPost</code> lines in your <code>override.conf</code> will run <i>in addition to</i> those in the service template. Furthermore, adding an <i>empty</i> <code>ExecStartPost=</code> override will disable the template's <code>ExecStartPost</code> line(s).
+  </div>
+</Alert>
+
+Here's a more complex example that calls the [Grafana Data source HTTP API](https://grafana.com/docs/grafana/latest/http_api/data_source/) to refresh a client certificate stored in Grafana's configuration database.
+
+`/etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/override.conf`:
+
+```ini
+[Service]
+ExecStartPost=/usr/bin/env bash -c 'jq -n \
+             --rawfile ca_cert $STEPPATH/certs/root_ca.crt \
+             --rawfile client_cert $CERT_LOCATION \
+             --rawfile client_key $KEY_LOCATION \
+             -f /etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/datasource.jq \
+      | curl -s -X PUT \
+      -H @/etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/api_headers \
+      -d @- \
+      --cacert $STEPPATH/certs/root_ca.crt  \
+      https://grafana:3000/api/datasources/1 > /dev/null'
+
+ExecStartPost=curl -s -m 10 --retry 5 https://hc-ping.com/a66...fbba2
+```
+
+When the certificate is successfully renewed:
+
+1. The `ExecStartPost` in the service template will attempt to reload or restart `grafana-loki-datasource.service`—which will do nothing, because no service with that name exists.
+2. The `ExecStartPost` in the override configuration will construct JSON and pass it to curl, updating the certificate and key in Grafana.
+3. If all goes well, the final `ExecStartPost` in the override configuration will ping a health check service at [Healthchecks](https://healthchecks.io/) that expects to hear from this unit daily.
+
+#### Enabling `systemd` renewal timers
+
+The final piece of the puzzle is the renewal timer. Timers and services go hand in hand in systemd:
+A `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
+
+Therefore, instead of enabling the `cert-renewer@*.service` service units directly, we'll enable timer units that will periodically trigger each service unit.
+
+Create a timer unit template file:
+
+```shell-session
+$ sudo touch /etc/systemd/system/cert-renewer@.timer
+```
+
+Add the following configuration to the file:
+
+```ini
+[Unit]
+Description=Certificate renewal timer for %I
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+
+[Timer]
+Persistent=true
+
+; Run the timer unit every 5 minutes.
+OnCalendar=*:1/5
+
+; Always run the timer on time.
+AccuracySec=1us
+
+; Add jitter to prevent a "thundering hurd" of simultaneous certificate renewals.
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target
+```
+
+(This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/cert-renewer@.timer))
+
+Timers using this template will run every 5-10 minutes,
+with a randomized delay on each timer.
+The randomized delay helps with [thundering herd problems](https://en.wikipedia.org/wiki/Thundering_herd_problem)
+that can occur when many virtual machines that were provisioned together try to renew their certificates at the same time.
+
+With this template in place,
+let's start timers for our `postgresql` and `grafana-server` renewer services:
+
+```shell-session nocopy
+$ systemctl enable --now cert-renewer@postgresql.timer
+Created symlink /etc/systemd/system/multi-user.target.wants/cert-renewer@postgresql.service → /etc/systemd/system/cert-renewer@.service.
+$ systemctl enable --now cert-renewer@grafana-server.timer
+Created symlink /etc/systemd/system/multi-user.target.wants/cert-renewer@grafana-server.service → /etc/systemd/system/cert-renewer@.service.
+$ systemctl list-timers
+NEXT                        LEFT          LAST                        PASSED       UNIT                                    ACTIVATES
+Wed 2020-12-16 17:06:23 PST 8min left     n/a                         n/a          cert-renewer@postgresql.timer           cert-renewer@postgresql.service
+Wed 2020-12-16 17:04:12 PST 6min left     n/a                         n/a          cert-renewer@grafana-server.timer       cert-renewer@grafana-server.service
+...
+```
+
+Your periodic timers are now running and will run on system startup. 
+You can override your timer units too, but you probably won't need to.
+
+#### The standalone `step` renewal daemon
+
+Another way to automate renewal is with the `step` renewal daemon.
+With this method, `step ca renew` operates as a daemon that will keep your certificates up-to-date:
+
+```shell-session nocopy
+$ step ca renew --daemon foo.crt foo.key
+INFO: 2019/06/20 12:36:54 first renewal in 14h46m57s
+INFO: 2019/06/21 03:14:23 certificate renewed, next in 15h17m31s
+INFO: 2019/06/21 18:31:00 certificate renewed, next in 14h33m17s
+ERROR: 2019/06/22 11:04:39 error renewing certificate: client
+POST https://localhost/renew failed: Post https://localhost/renew: dial tcp [::1]:443: connect: connection refused
+INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
+```
+
+When daemonized, `step ca renew` will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
+So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
+
+There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
+(eg. by a multitude of virtual machines that were provisioned at the same time and have identical certificate expiration dates).
+
+If the CA is unreachable, renewals are retried every minute.
+
+You can trigger renewal anytime by sending a `SIGHUP` signal to the `step ca renew` process ID.
+
+You can add `step ca renew --daemon` as a `systemd` service that runs on startup and restarts as needed.
+
+Here's an example of setting up everything via `systemd`:
+
+```shell-session nocopy
+$ cat <<EOF | sudo tee /etc/systemd/system/step.service > /dev/null
+[Unit]
+Description=Step TLS Renewer for Foo service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=step
+ExecStart=/usr/bin/step ca renew --daemon /home/step/foo.crt /home/step/foo.key
+
+[Install]
+WantedBy=multi-user.target
+EOF
+$ systemctl daemon-reload
+```
+
+Be sure the `User` has write access to the certificate and key you're renewing.
+
+Rescan the `systemd` unit files:
+
+```shell
+$ sudo systemctl daemon-reload
+```
+
+Enable and start the service:
+
+```shell
+sudo systemctl enable --now step
+```
+
+#### Notifying Certificate-Dependent Services
+
+Many services that depend on certificates will only read the certificate files on startup.
+So when you renew a certificate, a server process that depends on it may not detect that it has changed.
+
+It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
+To address this, `step ca renew` can send a `SIGHUP` to your service after each renewal.
+Here's an example for `nginx`:
+
+```shell-session nocopy
+$ step ca renew --daemon --exec "kill -HUP $NGINX_PID" foo.crt foo.key
+INFO: 2019/05/01 14:22:18 first renewal in 15h50m43s
+```
+
+
+#### `cron`-based renewal
+
+With `cron`-based renewal, you can have `step ca renew` run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
+
+You can request that certificate renewal only occur if the certificate is approaching its expiry using the `--expires-in <duration>` flag.
+The `<duration>` is a time interval like `4h` or `30m`.
+Renewal will only occur if the expiry is within `<duration>` of the current time.
+For example:
+
+```shell-session nocopy
+$ step ca renew --force --expires-in 4h foo.crt foo.key
+certificate not renewed: expires in 23h58m44s
+$ step ca renew --force --expires-in 24h foo.crt foo.key
+Your certificate has been saved in foo.crt.
+```
+
+With `--expires-in`, we add a random _jitter_ to `<duration>` (between 0 and `<duration>/20`). This helps with [thundering herd problems](https://en.wikipedia.org/wiki/Thundering_herd_problem) if many virtual machines that were provisioned together try to renew their certificates at the same time.
+
+Here's an example of setting up renewal via `cron` on a Debian-based system:
+
+```shell-session nocopy
+$ cat <<EOF | sudo tee /etc/cron.d/step-ca-renew
+# Check for possible certificate renewal every five minutes
+*/5 * * * *   step   step ca renew --force --expires-in 4h /home/step/foo.crt /home/step/foo.key
+EOF
+```
+Be sure the user (in this example, `step`) has write access to the certificate and key you're renewing.
+
+### Caveats of Automated Renewal
+
+#### Revoking a Certificate
+
+`step ca renew` allows a certificate owner to extend the lifetime of a certificate before it expires.
+Unfortunately, it also lets an attacker with the private key do the same thing.
+To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
+See the [certificate revocation section](#certificate-revocation) for details.
+
+## X.509 Certificate Revocation
+
+The hardware, software and policies for managing and distributing public keys and certificates is called Public Key Infrastructure (PKI). 
+
+The beauty of certificate-based PKI is that once certificates are issued, the infrastructure itself can be completely decentralized.
+You can independently validate any certificate you receive without communicating with any central authority.
+
+Certificate-based is PKI inherently fault-tolerant, and trivial to scale.
+
+With simplicity comes an inherent trade-off:
+Once a certificate is issued, the certificate authority (CA) can't un-issue it.
+It's valid until it expires.
+Certificates do eventually expire,
+but until they do, a bad actor can use a compromised private key to impersonate the certificate owner.
+
+This is one reason `step-ca` is designed to issue short-lived certificates.
+When you revoke a certificate in `step-ca`, the CA will block the certificate's future renewal.
+This is called _passive revocation_.
+Passive revocation is a good option for internal PKI,
+because it avoids the complexity of relying on centralized third parties to check the real-time revocation status of a certificate.
+
+A certificate that has been passively revoked will still be valid for the remainder of it's validity period.
+
+Contrast this with _active revocation_ techniques used on the public internet.
+Web TLS certificates are valid for up to a year.
+Web browsers have to check CRLs (Certificate Revocation Lists) or use OCSP (Online Certificate Status Protocol) to verify that every certificate they receive has not been revoked.
+Active revocation requires clients to take an active role in certificate validation for the benefit of real-time certificate status.
+
+<Alert severity="info">
+  <div>
+    <Code>step-ca</Code> does not currently support active revocation mechanisms like a Certificate Revocation List (CRL) or Online Certificate Status Protocol (OCSP).
+  </div>
+</Alert>
+
+This section will walk through a few examples for revoking X.509 certificates using `step-ca`.
+
+<Alert severity="info">
+  <div>
+    This section assumes you have initialized and started up a
+    <Code>step-ca</Code> instance using the steps in <Link
+    href="/docs/step-ca/getting-started">Getting Started</Link>.  As an
+    alternative, you can use our hosted CA, <Link
+    href="/certificate-manager">Smallstep Certificate Manager</Link>.
+  </div>
+</Alert>
+
+### 1. Create a certificate for localhost
+
+Let's create a certificate that we'll revoke in a minute.
+
+```shell-session nocopy
+$ step ca certificate localhost localhost.crt localhost.key
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://ca.smallstep.com
+✔ Certificate: localhost.crt
+✔ Private Key: localhost.key
+
+$ step certificate inspect --short localhost.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2400...2409]
+Subject:     localhost
+Issuer:      Smallstep Intermediate CA
+Provisioner: sebastian@smallstep.com [ID: n2kq...Viy8]
+Valid from:  2019-04-23T22:55:54Z
+        to:  2019-04-24T22:55:54Z
+```
+
+### 2. Renew the certificate
+
+Before revoking the certificate, note that it can be renewed with `step ca renew`.
+
+```shell-session nocopy
+$ step ca renew localhost.crt localhost.key
+✔ Would you like to overwrite localhost.crt [y/n]: y
+Your certificate has been saved in localhost.crt.
+# Make sure the from timestamp is "newer"
+
+$ step certificate inspect --short localhost.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 5963...8406]
+Subject:     localhost
+Issuer:      Smallstep Intermediate CA
+Provisioner: sebastian@smallstep.com [ID: n2kq...Viy8]
+Valid from:  2019-04-23T22:57:50Z
+        to:  2019-04-24T22:57:50Z
+```
+
+### 3. Revoke the certificate
+
+There's two methods for revoking a certificate:
+- Pass the certificate's unique serial number to the CA
+- Pass the certificate and private key to the CA
+
+<Alert severity="info">
+  You can only revoke a certificate once. Any repeated attempts to revoke the same serial number will fail.
+</Alert>
+
+#### Revoke the certificate using its serial number
+
+Using the serial number method, you have to authenticate your request (in this case, with the CA's provisioner password):
+
+```shell-session nocopy
+$ step certificate inspect --format=json localhost.crt | jq .serial_number
+"59636004850364466675608080466579278406"
+
+$ step ca revoke 59636004850364466675608080466579278406
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://ca.smallstep.com
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+#### Revoke the certificate using the certificate and private key
+
+In this case, the certificate and key authenticate the request, so you don't need a password:
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca revoke --cert localhost.crt --key localhost.key"
+  >{`$ step ca revoke --cert localhost.crt --key localhost.key
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.`}</CodeBlock>
+
+### 4. Check that the certificate has been revoked
+
+You'll get an HTTP 401 error when you try to renew it.
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca renew localhost.crt localhost.key"
+  >{`$ step ca renew localhost.crt localhost.key
+error renewing certificate: The request lacked necessary authorization to be completed. Please
+see the certificate authority logs for more info.
+ 
+# log trace from CA:
+[...]
+WARN[0569] duration="615.812µs" duration-ns=615812 error="cahandler.Renew: authority.Rekey:
+authority.authorizeRenew: certificate has been revoked" fields.time="2020-09-15T12:15:51-07:00"
+method=POST name=ca path=/renew protocol=HTTP/1.1 referer= remote-address="::1"
+request-id=btgh5prpc98hnsk1lc80 size=144 status=401 user-agent=Go-http-client/1.1 user-id=
+[...]`}</CodeBlock>
+
+### Using a revocation token
+
+You can also revoke a certificate in two steps by first creating a revocation token and then exchanging that token in a revocation request.
+
+```shell-session nocopy
+$ TOKEN=$(step ca token --revoke 59636004850364466675608080466579278406)
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+
+$ echo $TOKEN | step crypto jwt inspect --insecure
+{
+"header": {
+    "alg": "ES256",
+    "kid": "uxEunU9UhUo96lRvKgpEtRevkzbN5Yq88AFFtb1nSGg",
+    "typ": "JWT"
+},
+"payload": {
+    "aud": "https://localhost:443/1.0/revoke",
+    "exp": 1556395590,
+    "iat": 1556395290,
+    "iss": "sebastian@smallstep.com",
+    "jti": "1f222fc1a22530b7bcd2a40d7308c566c8e49f90413bc350e07bfabc8002b79b",
+    "nbf": 1556395290,
+    "sha": "fef4c75a050e1f3a31175ca4f4fdb711cbef1efcd374fcae4700596604eb8e5a",
+    "sub": "59636004850364466675608080466579278406"
+},
+"signature": "M1wX0ea3VXwS5rIim0TgtcCXHDtvP1GWD15cJSvVkrHNO6XMYl6m3ZmnWdwMi976msv-n2GTG3h6dJ3j2ImdfQ"
+}
+
+$ step ca revoke --token $TOKEN 59636004850364466675608080466579278406
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+You can also revoke certificates in _offline_ mode:
+
+```shell-session nocopy
+$ step ca revoke --offline 59636004850364466675608080466579278406
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+
+$ step ca revoke --offline --cert localhost.crt --key localhost.key
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+### Further Reading
+
+- [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
+
+## Sane Cryptographic Defaults
+
+The `step` ecosystem uses sane defaults so that you don't have to be a security
+engineer to use our `step-ca` safely. Our defaults align with best current
+practices in the industry for using cryptographic primitives and higher order
+abstractions, like JWTs.
+
+This section describes our defaults and explains the rationale behind them. Our
+selections and guidance will change and evolve over time as security and
+cryptography are constantly changing in response to real world pressures.
+
+### Tokens
+
+We use JWTs ([JSON Web Tokens](https://jwt.io/)) to prove authenticity and identity within the `step` ecosystem. When configured well, JWTs are a great way to sign and encode data. It's easy to use JWTs insecurely, though, so you must be deliberate about how you validate and verify them (see [RFC7519](https://tools.ietf.org/html/rfc7519#section-7)).
+
+`step-ca` produces JWTs that:
+* are short-lived (5 minute lifespan)
+* are one-time-use tokens (during the lifetime of the `step-ca`) 
+* have a 1 minute clock drift leeway
+
+If you're using `step-ca` JWTs in your code, be sure to [verify and validate](https://tools.ietf.org/html/rfc7519#section-7) every standard attribute of the JWT. [`step crypto jwt verify`](https://smallstep.com/docs/cli/crypto/jwt/verify/) can validate any JWT for you, and it follows the spec to the letter.
+
+### Key Types and Ciphers
+
+**Supported Key Types**: ECDSA, EdDSA, and RSA  
+**Default Key Type**: ECDSA  
+**Default Curve Bits**: P-256
+
+We chose ECDSA keys because they offer better security and performance than RSA keys. At 256 bits, ECDSA keys provide 128 bits of security, and they are supported by most modern clients. 
+
+More notes on the choice of key type:
+* RSA keys are often chosen for compliance reasons.
+* EdDSA keys are even smaller and faster than ECDSA keys. Were it supported by more clients, it would be the default.
+* The NIST standard curves for ECDSA are hard to implement correctly, so there's concern that the implementations of them may have problems.
+* If the NSA is in your threat model, you may not want to use ECDSA keys. The NSA has never published how they chose the magic numbers that drive ECDSA implementations.
+
+**Default PEM Cipher**: AES128  
+**Supported PEM Key Sizes**: 128, 192, and 256 bits
+
+We've chosen the AES encryption algorithm for writing private keys to disk because it was the official choice of the Advanced Encryption Standard contest.
+
+All supported key sizes are considered to be unbreakable for the foreseeable future. We chose 128 bits as our default because the performance is better as compared to the greater key sizes, and because 128 bits are sufficient for most security needs.
+
+### X.509 Certificates
+
+#### Root CA Certificate
+
+The Root CA certificate is generated once, when you run `step ca init`.
+
+**Validity (10 year window)**
+
+- Not Before: Now
+- Not After: Now + 10 years
+
+A 10 year window is advisable until software and tools can be written for rotating the root certificate.
+
+**Basic Constraints**
+
+- CA: TRUE
+
+  The root certificate is a certificate authority and will be used to sign other Certificates.
+
+- Path Length: 1
+
+  The Path Length constraint expresses the number of possible intermediate CA certificates in a path built from an end-entity certificate up to the CA certificate.
+
+  The default `step` PKI has only one intermediate CA certificate between end-entity certificates and the root CA certificate.
+
+**Key Usage**
+
+Key Usage describes how the certificate can be used.
+
+- Certificate Sign: indicates that our root public key will be used to verify a signature on certificates.
+- CRL Sign: indicates that our root public key will be used to verify a signature on revocation information, such as CRL.
+
+#### Intermediate CA Certificate
+
+The Intermediate CA certificate is generated once, when you run `step ca init`. It is signed by the Root CA certificate.
+
+The Path Length of the intermediate certificate is `0`. Otherwise it uses the same defaults as the root certificate.
+
+A Path Length of zero indicates that there can be no additional intermediary certificates in the path between the intermediate CA certificate and end-entity certificates.
+
+#### Leaf (End Entity) Certificate
+
+These are the certificates issued by the `step-ca` server.
+
+**Validity (24 hour window)**
+
+- Not Before: Now
+- Not After: Now + 24 hours
+
+The default is a 24hr window. This value is somewhat arbitrary. However, our goal is to have seamless end-entity certificate rotation. Rotating certificates frequently is a good security measure because it gives attackers very little time to form an attack and limits the usefulness of any single private key in the system.
+
+We will continue to work towards decreasing this window because we believe it significantly reduces the probability and effectiveness of any attack.
+
+**Key Usage**
+
+Key Usage describes how the certificate can be used.
+
+- Key Encipherment: indicates that a certificate will be used with a protocol that encrypts keys.
+- Digital Signature: indicates that this public key may be used as a digital signature to support security services that enable entity authentication and data origin authentication with integrity.
+
+**Extended Key Usage**
+
+- TLS Web Server Authentication: certificate can be used as the server side certificate in the TLS protocol.
+
+- TLS Web Client Authentication: certificate can be used as the client side certificate in the TLS protocol.
+
+### TLS Defaults
+
+These are the defaults used for communication between `step` and `step-ca`.
+
+**Min TLS Version**: TLS 1.2  
+**Max TLS Version**: TLS 1.2
+
+The PCI Security Standards Council required all payment processors and merchants to move to TLS 1.2 and above by June 30, 2018. By setting TLS 1.2 as the default for all TLS protocol negotiation, we encourage our users to adopt the same security conventions.
+
+**Renegotiation**: Never
+
+TLS renegotiation significantly complicates the state machine and has been the source of numerous, subtle security issues. Therefore, by default we disable it.
+
+#### Default TLS Cipher Suites
+
+
+```go nocopy
+[
+  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+]
+```
+
+The default 'ciphersuites' are a list of two cipher combinations. For communication between services running `step` there is no need for cipher suite negotiation. The server can specify a single cipher suite which the client is already known to support.
+
+Reasons for selecting `TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305`:
+
+- ECDHE key exchange algorithm has perfect forward secrecy
+- ECDSA has smaller keys and better performance than RSA
+- CHACHA20 with POLY1305 is the cipher mode used by Google.
+- CHACHA20's performance is better than GCM and CBC.
+
+The http2 spec requires the `TLS_ECDHE_(RSA|ECDSA)_WITH_AES_128_GCM_SHA256` ciphersuite be accepted by the server, therefore it makes our list of default ciphersuites.
+
+#### Approved TLS Cipher Suites
+
+```go nocopy
+[
+  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA",
+  "TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256",
+  "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA",
+  "TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+  "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA",
+  "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256",
+  "TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA",
+  "TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384",
+  "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305",
+]
+```
+
+Above is a list of `step`-approved cipher suites. Not all communication can be
+resolved with `step` TLS functionality. For those connections, the list of
+server supported cipher suites must have more options in case older clients do
+not support our favored cipher suite.
+
+Reasons for selecting these cipher suites can be found in the following
+[ssllabs article][].
+
+[ssllabs article]: https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices#23-use-secure-cipher-suites

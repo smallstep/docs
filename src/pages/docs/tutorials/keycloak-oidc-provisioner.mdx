@@ -1,0 +1,193 @@
+---
+title: Use Keycloak to issue user certificates with step-ca
+html_title: Use Keycloak to issue user certificates with step-ca
+description: Let's set up Keycloak as an OpenID Connect (OIDC) provider for step-ca's OIDC provisioner
+---
+
+
+[Keycloak](https://www.keycloak.org/), the open-source identity provider,
+provides an OAuth flow that can be used with open source `step-ca` to authenticate requests for certificates.
+
+In this tutorial, we'll configure Keycloak and `step-ca` to take advantage of this flow,
+which is especially useful for issuing X.509 client authentication certificates or
+[SSH user certificates](/docs/step-ca/basic-certificate-authority-operations#working-with-ssh-certificates).
+
+## About this tutorial
+
+- Estimated effort: Reading time ~5 mins, Lab time ~10 to 60 mins.
+
+<Alert severity="info">
+  <div>
+    Having trouble? Please let us know <Link href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</Link>.
+  </div>
+</Alert>
+
+## Requirements
+
+- **Open source -** This tutorial assumes you have initialized a `step-ca` instance using the steps in [Getting Started](/docs/step-ca/getting-started). 
+- **[Smallstep Certificate Manager](/certificate-manager) -** Please visit the [OIDC documentation](/docs/certificate-manager/oidc) instead of using this tutorial to connect keycloak to Certificate Manager.
+- You'll need a Docker environment, and Docker Compose version 3+.
+- You'll need a hostname and TLS certificate files for your Keycloak instance.
+
+## Install and run Keycloak + MySQL using Docker Compose
+
+First let's get Keycloak running.
+The OIDC provisioner in `step-ca` requires that our Keycloak instance run with TLS,
+so that the OIDC well-known configuration endpoint is secured.
+
+Start by creating this `docker-compose.yml` file inside a new directory:
+
+```yml
+version: '3'
+
+volumes:
+  mysql_data:
+      driver: local
+
+services:
+  mysql:
+      image: mysql:5.7
+      volumes:
+        - mysql_data:/var/lib/mysql
+      environment:
+        MYSQL_ROOT_PASSWORD: root
+        MYSQL_DATABASE: keycloak
+        MYSQL_USER: keycloak
+        MYSQL_PASSWORD: password
+  keycloak:
+      image: quay.io/keycloak/keycloak:latest
+      environment:
+        DB_VENDOR: MYSQL
+        DB_ADDR: mysql
+        DB_DATABASE: keycloak
+        DB_USER: keycloak
+        DB_PASSWORD: password
+        KEYCLOAK_USER: admin
+        KEYCLOAK_PASSWORD: admin
+        KEYCLOAK_HTTPS_PORT: 8443
+        KEYCLOAK_HOSTNAME: keycloak.internal
+      volumes:
+        - ./certs:/etc/x509/https
+      ports:
+        - 8080:8080
+        - 8443:8443
+      depends_on:
+        - mysql
+```
+
+* Change the administrative and database credentials in the `environment` section.
+* Set the `KEYCLOAK_HOSTNAME` hostname `keycloak.internal` to the hostname you'll use for Keycloak.
+
+Now you'll need to make a `certs` directory
+and place the TLS certificate and unencrypted private key PEM files for your Keycloak instance into this directory.
+
+Following [the Keycloak documentation](https://github.com/keycloak/keycloak-containers/blob/master/server/README.md#setting-up-tlsssl),
+these your certifcate PEM file should be `certs/tls.crt` and your private key file should be `certs/tls.key`.
+
+Now start up your Docker containers:
+
+```shell-session
+$ docker-compose up
+```
+
+Go to `https://keycloak.internal:8443` and open up the admin panel.
+
+Once you've signed in, setup is easy:
+1. Create a new Realm and give it a name.
+2. In your new Realm, create a Client.
+3. To configure the client, you can [import this JSON file](https://gist.github.com/tashian/2299ea8b0ee0236267659f3a92ef7cea)
+4. In your new client, go to the Credentials tab and copy the Secret, which will have been auto-generated.
+
+Now configure `step-ca` to accept your client:
+
+```shell-session
+$ step ca provisioner add keycloak --type OIDC \
+                       --client-id step-ca --client-secret 91e078a4-2c29-4dc8-81e9-c03cd36db632 \
+                       --configuration-endpoint https://keycloak.internal:8443/auth/realms/myRealm/.well-known/openid-configuration \
+                       --listen-address :10000
+Success! Your `step-ca` config has been updated. To pick up the new configuration SIGHUP (kill -1 <pid>) or restart the step-ca process.
+```
+
+Replace `keycloak.internal` with your `KEYCLOAK_HOSTNAME` in the `configuration-endpoint`,
+replace `client-secret` with the secret you just copied from Keycloak.
+
+Finally, it's time to sign in via Keycloak.
+
+Create a User in Keycloak that you'll use to test your integration.
+Your user will need to have a username, email, and password.
+(You can set the user's password under the Credentials tab after you create it.)
+
+Now start (or restart) your `step-ca` instance and run the following:
+
+```shell-session
+$ step ssh login user@example.com
+```
+
+Use the same email address as you used for your Keycloak user.
+
+If all goes well, you will be sent to the browser to sign in,
+and an SSH certificate will be issued and added to your SSH agent,
+with your username and email address as principals.
+
+## Further Reading
+
+Our tutorial [DIY Single Sign-On for SSH](https://smallstep.com/blog/diy-single-sign-on-for-ssh/) puts this tutorial into a larger context,
+detailing how to set up an SSH CA for your users and hosts.
+
+## Troubleshooting
+
+### OIDC token issues
+
+If `step-ca` raises an OIDC token validation error, you can examine the token you receive from Keycloak using the `step oauth` command. For example:
+
+```shell-session
+$ step oauth --oidc --bare --provider https://keycloak.internal:8443/auth/realms/myRealm/.well-known/openid-configuration \
+  --client-id step-ca --client-secret 91e078a4-2c29-4dc8-81e9-c03cd36db632 \
+  --listen :10000 | step crypto jwt inspect --insecure
+```
+
+This will take you through the OAuth login flow, and output the OIDC token at the end:
+
+```json
+{
+  "header": {
+    "alg": "RS256",
+    "kid": "kT-3LAwid2pN0OYusTJF7WMPBGCZkFtVFtmBxV4_F7Q",
+    "typ": "JWT"
+  },
+  "payload": {
+    "exp": 1611699908,
+    "iat": 1611699608,
+    "auth_time": 1611698343,
+    "jti": "4fc72ea3-7a1d-46aa-ac1e-6a138a08f18d",
+    "iss": "https://keycloak.internal:8443/auth/realms/myRealm",
+    "aud": "step-ca",
+    "sub": "81cb924e-4cf9-4a55-97f8-32aa7eeb49af",
+    "typ": "ID",
+    "azp": "step-ca",
+    "nonce": "b2057570bbfe577128a68bdc74a1906cffdfa48b6c7f2093e0238c322f9bcdcb",
+    "session_state": "7d974efe-3169-4fc1-a47c-d7ec7a0baf2e",
+    "at_hash": "KbEqSdwBhsG2F10sk60mFw",
+    "acr": "0",
+    "email_verified": true,
+    "name": "Carl Tashian",
+    "preferred_username": "carl",
+    "given_name": "Carl",
+    "family_name": "Tashian",
+    "email": "carl@smallstep.com"
+  },
+  "signature": "Dy3htn_..."
+}
+```
+
+Common issues are:
+* The `email` field in the token is empty; `step-ca` requires `email` to be populated.
+* The email address used with `step ssh login` doesn't match the email address of the Keycloak user.
+* There is a `domains` list in the OIDC provisioner configuration, and the email domain in the token isn't listed in `domains`.
+
+### Keycloak TLS certificate issues
+
+There is a [known issue](https://issues.redhat.com/browse/KEYCLOAK-16927) in Keycloak
+where the TLS certificate and key files are never reloaded by the Docker container after they are renewed,
+even if you restart the container.
+For now, you'll have to delete the Keycloak container and recreate it once you've renewed your certificate.

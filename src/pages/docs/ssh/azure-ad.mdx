@@ -1,0 +1,129 @@
+---
+title: Azure AD Quickstart
+html_title: Azure AD Quickstart | SSH
+description: SSH Azure Quickstart | Smallstep Documentation
+---
+
+### Prerequisites
+
+You will need:
+
+* An account on the smallstep platform. Need one? [Register here](https://smallstep.com/signup?product=ssh)
+* An Azure Premium edition account (P1 or higher)
+* Global administrator access to the account
+
+### Features
+
+The following provisioning features are supported:
+
+* Push Groups and New Users
+* Push Profile or Group Updates
+* Push User Deactivation
+* Reactivate Users
+
+## Overview
+1. Create Groups in Azure Active Directory
+2. Tell us your directory's Tenant ID
+3. Add the Smallstep SSH Azure Enterprise Application to your tenant
+4. Enable user provisioning (SCIM) in Azure
+5. Check logs to confirm users and groups are syncing to Smallstep SSH
+
+## Step By Step Instructions
+
+### Step 1. Create Groups
+
+You'll grant access to your hosts via Active Directory Groups. If you don't already have groups set up, you'll want to create a group for each kind of user access to your servers. For example, you might have a group for `ssh` users, and one for `sudo` users.
+
+In the Azure portal, start at the [Groups](https://portal.azure.com/#blade/Microsoft_AAD_IAM/GroupsManagementMenuBlade/AllGroups) blade.
+
+![](/graphics/quickstart/aad-create-user-group.png)
+
+When creating your groups, give them names and accept the defaults on all other settings.
+
+### Step 2. Tell us your directory's Tenant ID
+
+1. In the Smallstep SSH dashboard, under the Users tab, choose Azure.
+2. Paste your Tenant ID from the [Active Directory Overview](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview) blade into the "Add Your Team" dialog:
+
+   ![](/graphics/quickstart/azure-onboarding.png)
+
+3. Choose **Save**.
+
+### Step 3. Add the Smallstep SSH Azure Enterprise Application
+
+#### Sign in to Smallstep SSH
+
+1.  Sign in to Smallstep at `https://smallstep.com/app/[Team ID]`
+2.  Follow the Getting Started workflow.
+3.  Choose the **Users** tab, and choose **Azure AD** as your identity provider.
+4.  Enter your **Tenant ID** and **Whitelisted Domains**, and **Save**.
+5.  Now run `step ssh login your@email`.
+    Your browser will open to an Azure AD single sign-on flow,
+    and you'll be prompted to add the Smallstep SSH enterprise application to your tenant.
+
+    ![Azure consent screenshot](/graphics/quickstart/azure-consent.png)
+6.  Choose **Consent on behalf of your organization.**
+7.  Accept the application for your tenant, and finish the sign-on flow.
+
+> 🤦‍♂️ If you encounter "The username may be incorrect", you'll need to use a different account to accept the application into your tenant.
+> Specifically, you cannot use a Microsoft Account or a Guest account; the account must be an Azure AD account.
+
+#### Assign groups to your application
+
+In the Azure Portal [Enterprise Applications](https://portal.azure.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/AllApps/menuId/) blade, you should now see Smallstep SSH. Open it.
+
+Choose **Users and Groups** on the left:
+
+1.  Go to **+ Add User** to create a new assignment.
+2.  Select the groups you created in Step 1.
+3.  Choose **Select** on the bottom right.
+4.  Choose **Assign** on the bottom left.
+
+Your Users and Groups list should now look something like this:
+
+![](/graphics/quickstart/aad-group-example.png)
+
+### Step 4. Enable user provisioning (SCIM) in Azure
+
+1.  Choose **Provisioning** on the left and choose **Get Started**.
+2.  Set the provisioning mode to **Automatic**.
+4.  Expand **Admin Credentials:**
+    * Supply the SCIM **Tenant URL** and **Secret Token** from the Smallstep dashboard.
+    * Choose **Test Connection** and make sure that it works.
+	* Save.
+
+> **Do you have dots in your Azure UPNs?**
+>
+> Linux usernames with `.` in them are not POSIX-compliant,
+> though in practice dotted usernames work fine on many systems.
+> If your UPNs contain dots,
+> you can configure the `userName` attribute mapping to remove them.
+> Just use the following expression for your `userName` attribute:
+> `ToLower(Replace(Replace([userPrincipalName], , "(?<Suffix>@(.)*)", "Suffix", "", , ), ".", , ,"", , ))`
+
+##### Turn on Provisioning
+
+1.  Save your settings and return to the **Provisioning** panel.
+2.  Choose **Start Provisioning**.
+
+> 🤦‍♂️ There's a quirk in Microsoft's UI here, and you may see an error when saving after turning provisioning on. If so, wait 60 seconds and try Save again.
+
+### Step 5. Confirm the directory connection
+
+Return to the Smallstep dashboard.
+
+* Navigate to the LOGS menu. You should see a list of success messages assocated with `SCIM-SYNC` catagory items.
+
+   ![](/graphics/quickstart/scim-logs.png "SCIM Logs")
+
+* Navigate to the USERS menu. If the onboarding dialog is open, press `Esc` to close.
+* You should see your Users and Groups synced over from Azure AD.
+
+> **Don't see your users and groups?** Microsoft's SCIM service may add a 40-minute delay after you set it up. You can force an update by clicking **Restart provisioning** in the Provisioning panel. Even then, it may take a minute to sync with Smallstep.
+
+### Azure AD Configuration Complete
+
+## Troubleshooting Tips
+
+* Initial activation of Azure AD OIDC provisioning in Smallstep SSH requires entering your **Application (client) ID**, **Client secret**, and **Configuration Endpoint** into the Smallstep UI. Contact smallstep support with any questions | [support@smallstep.com](mailto:support@smallstep.com)
+* Note: When users are deactivated in Azure AD, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on smallstep managed hosts. To permanently delete user data on smallstep managed hosts, contact Smallstep Support | [support@smallstep.com](mailto:support@smallstep.com)

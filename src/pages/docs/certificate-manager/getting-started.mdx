@@ -1,0 +1,118 @@
+---
+title: Smallstep Certificate Manager Getting Started
+html_title: Smallstep Certificate Manager Getting Started
+description: Understand how to get a certificate using Smallstep Certificate Manager. 
+---
+
+Smallstep Certificate Manager is a commercial product that delivers a managed certificate authority (CA) capable of issuing private x.509 TLS or SSH certificates. 
+Certificate Manager builds on two open source projects, maintained by smallstep:
+* `step-ca`: a private online certificate authority for secure automated certificate management.
+* `step`: a general-purpose cryptography toolkit and the client-side counterpart to step-ca.
+With Certificate Manager, you can create your own private CA to manage certificates on internal services, websites, infrastructure, people, or devices. 
+
+<Alert severity="info">
+  <div>
+    See Smallstep certificate Manager in action. Watch the <a href="https://u.step.sm/how-to-CM-first-certificate">how to issue your first certificate video</a>.
+  </div>
+</Alert>
+
+Before you begin.
+1. [register for a smallstep account](https://smallstep.com/signup?product=cm) if you haven't already.
+2. [Install `step`](https://smallstep.com/docs/step-cli/installation), which will be used to manage access to, and get certificates from, an authority.  
+
+### step 1 - create an Authority
+Certificate Manager authorities are trusted services that manage certificate issuance and revocation.
+In this tutorial, we will create a hosted authority, an online CA that authenticates and authorizes certificate requests and issues certificates.
+ 
+* Log into the smallstep dashboard, select the Certificate Manager tab, and click the "Add Authority" button.
+* Choose "Create a new hosted authority"
+* Give your Authority a name and subdomain value (the URL path you wish to use for your online CA).
+* Choose "Create"
+
+Behind the scenes, Certificate Manager creates a new root and an online intermediate CA,
+storing the private keys into Google's [Cloud KMS](https://cloud.google.com/security-key-management).
+On the Authority detail page, you will see the CA URL and Fingerprint;
+you'll use these values to interact with your CA.
+
+Certificate Manager also creates a default provisioner called 'authority-admin',
+and a "super admin" account on that provisioner,
+with your email address as the account name. 
+The super admin can manage admins and provisioners on your Authority.
+
+### step 2 - configure your client
+
+Certificate Manager authorities are administered using the `step` command-line client. 
+To connect your local client with the hosted authority, you need to bootstrap into the PKI. 
+Run the following command, substituting the values from your Authority's properties:
+
+<CodeBlock language="shell-session" copyText="step ca bootstrap --ca-url [YOUR CA URL] --fingerprint [YOUR AUTHORITY FINGERPRINT]">
+{`$ step ca bootstrap --ca-url [YOUR CA URL] --fingerprint [YOUR AUTHORITY FINGERPRINT]
+`}
+</CodeBlock>
+
+(You can always find this command on the Quick Actions section on your authority page.)
+This command will download the CA Root certificate and configure your local client to interact with the Authority.
+
+### step 3 - Create a test certificate
+
+With an authority created and your local client configured,
+you can create a test certificate by running the `step ca certificate` command.
+Here is an example:
+
+<CodeBlock language="shell-session" copyText="step ca certificate myservice myservice.crt myservice.key --san myservice.internal.mycompany.net --not-after 24h">
+  {`$ step ca certificate myservice myservice.crt myservice.key --san myservice.internal.mycompany.net --not-after 24h`}
+</CodeBlock>
+
+In this command, we are asking the CA to create a certificate with the following properties
+* `myservice` - The name on the certificate
+* `myservice.crt` - Store the certificate in a file with this name
+* `myservice.key` - Store the key in a file with this name
+* `--san myservice.internal.mycompany.net` - Add an additional SAN to the certificate with the specified value
+* `--not-after 24h` - Set the certificate to expire after 24 hours.
+
+When you run this command, it will envoke the 'authority-admin' provisioner and start a single sign-on flow via the smallstep dashboard.
+After a successful sign-in, the authority will issue the certificate. 
+You can inspect your certificate by running:
+
+<CodeBlock language="shell-session" copyText="step certificate inspect --short myservice.crt">
+  {`$ step certificate inspect --short myservice.crt`}
+</CodeBlock>
+
+It should look similar to this.
+
+```shell
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
+  Subject:     98496ed4-7f27-4367-b7a2-ef828e0a4eda
+               admin@yourco.com
+               https://auth.smallstep.com#98496ed4-7f27-4367-b7a2-ef828e0a4eda
+  Issuer:      provisioner test Intermediate CA
+  Provisioner: authority-admin [ID: 909d...8521]
+  Valid from:  2021-10-04T21:30:12Z
+          to:  2021-10-05T21:31:12Z
+```
+
+### step 4 - renew a certificate
+Certificates expire. 
+Certificate Manager makes renewing a certificate ahead of expiration easy. 
+Renewals are authenticated using your existing certificate, and produce an identical certificate with a new serial number and extended lifetime.
+The private key is unchanged.
+
+In its most primitive form, renewal is a simple single-command operation:
+
+<CodeBlock language="shell-session" copyText="step ca renew svc.crt svc.key">
+  {`$ step ca renew svc.crt svc.key`}
+</CodeBlock>
+
+More than a dozen command-line flags make [`step ca renew`](https://smallstep.com/docs/step-cli/reference/ca/renew) flexible and easy to integrate into almost any operational environment.
+
+That's it. 
+You've now created an authority, issued a certificate, and renewed a certificate. These three actions are the foundation of your certificate management experience. 
+
+## Next Steps
+
+Some common next steps include:
+*  Remove the human interactions and [automate certificate renewal](/docs/step-ca/certificate-authority-server-production#automated-renewal).
+*  Start using a password, one-time token, cloud VM API, or other mechanism to [operationalize getting certificates](/docs/certificate-manager/how-it-works#provisioners).
+*  Modify and automate custom certificate attributues using [certificate templates](/docs/step-ca/templates).
+*  Create your own [private ACME server](/docs/certificate-manager/acme).
+*  Talk with the [smallstep technical team](https://smallstep.com/request-demo). 
