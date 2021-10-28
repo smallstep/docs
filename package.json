@@ -1,8 +1,8 @@
 {
-  "name": "practicalzt",
+  "name": "docs",
   "version": "1.0.0",
-  "description": "Practical Zero Trust",
-  "repository": "git@github.com:smallstep/practicalzt.git",
+  "description": "Smallstep Documentation",
+  "repository": "git@github.com:smallstep/docs.git",
   "author": "Smallstep",
   "license": "Apache-2.0",
   "scripts": {
