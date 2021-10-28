@@ -34,10 +34,10 @@ jobs:
     steps:
       - name: Start deploy in private build
         run: |-
-          curl -s -X POST \
+          curl -f -s -X POST \
             -H "Content-Type: application/json" \
             -H "Accept: application/json" \
             -H "Travis-API-Version: 3" \
             -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
-            -d "{\"branch\": \"master\"" \
+            -d "{\"branch\": \"master\"}" \
             https://api.travis-ci.com/repo/smallstep%2Fprof/requests
