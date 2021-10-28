@@ -27,6 +27,7 @@ jobs:
 
   deploy:
     name: Deploy
+    needs: lint
 
     runs-on: ubuntu-latest
 
