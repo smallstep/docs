@@ -39,5 +39,5 @@ jobs:
             -H "Accept: application/json" \
             -H "Travis-API-Version: 3" \
             -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
-            -d "{\"branch\": \"master\"}" \
+            -d "{\"branch\": \"master\", \"message\": \"Deploy from docs repo\"}" \
             https://api.travis-ci.com/repo/smallstep%2Fprof/requests
