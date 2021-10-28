@@ -31,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        name: Dispatch deploy in private repo
+      - name: Dispatch deploy in private repo
         uses: peter-evans/repository-dispatch@v1
         with:
           repository: smallstep/prof
