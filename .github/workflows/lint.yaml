@@ -5,8 +5,8 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    name: Build
+  lint:
+    name: Lint
 
     runs-on: ubuntu-latest
 
