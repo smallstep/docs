@@ -1,0 +1,18 @@
+To renew and hot-reload the MongoDB server certificate,
+we will need a MongoDB-specific systemd override file that can tell MongoDB to refresh its certificates.
+To install the override, run:
+
+```bash
+sudo mkdir /etc/systemd/system/cert-renewer@mongod.service.d
+cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@mongod.service.d/override.conf
+[Service]
+; Empty ExecStartPost (Don't attempt to restart mongod.service)
+ExecStartPost=
+ExecStartPost=bash -c 'cat \$CERT_LOCATION \$KEY_LOCATION > /etc/step/certs/mongo.pem'
+ExecStartPost=bash -c 'mongosh --tlsAllowInvalidCertificates "mongodb://localhost:27017?tls=true&tlsCAFile=/etc/step-ca/certs/root_ca.crt" -f <(echo "db.adminCommand( { rotateCertificates: 1 } )")'
+EOF
+```
+
+- Note that `--tlsAllowInvalidCertificates` is used here because we want to be able to rotate a potentially expired certificate. Using `localhost` here minimizes the security risk.
+- If the host system already trusts your CA, you can omit the `tlsCAFile` parameter.
+

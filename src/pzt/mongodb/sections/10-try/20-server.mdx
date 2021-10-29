@@ -1,0 +1,19 @@
+You can test your certificate by starting up MongoDB with TLS enabled.
+
+<Alert severity="warning">
+   MongoDB changed its TLS setting names in version 4.2, released in 2019.
+   The flags and configuration parameters related to TLS are now labelled <code>tls</code> instead of <code>ssl</code>.
+</Alert>
+
+Start up a MongoDB server using server authenticaiton:
+
+```shell
+cat server.crt server.key > merged.pem
+mongod --tlsMode requireTLS \
+		--tlsCAFile ca.crt \
+		--tlsCertificateKeyFile merged.pem
+```
+
+- Notice the `merged.pem` file. MongoDB requires the server certificate and key to be concatenated into one file.
+- `--tlsMode requireTLS` ensures encrypted connections with all clients.
+- When `mongod` starts up, you should see `"ssl":"on"` in its log output.
