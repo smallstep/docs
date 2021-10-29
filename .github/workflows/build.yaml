@@ -26,7 +26,7 @@ jobs:
   deploy:
     name: Trigger private build
     needs: lint
-    if: github.ref == 'refs/head/main'
+    if: github.ref == 'refs/heads/main'
 
     runs-on: ubuntu-latest
 
