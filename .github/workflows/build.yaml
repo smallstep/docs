@@ -24,14 +24,14 @@ jobs:
       - run: yarn lint
 
   deploy:
-    name: Trigger build
+    name: Trigger private build
     needs: lint
     if: github.ref == 'refs/head/main'
 
     runs-on: ubuntu-latest
 
     steps:
-      - name: Trigger private build
+      - name: Trigger private smallstep.com build
         run: |-
           curl -f -s -X POST \
             -H "Content-Type: application/json" \
