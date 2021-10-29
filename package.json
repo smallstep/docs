@@ -8,6 +8,7 @@
   "scripts": {
     "start": "gatsby develop",
     "build": "gatsby build --prefix-paths",
+    "serve": "gatsby serve",
     "clean": "gatsby clean",
     "lint": "prettier --check ./src",
     "format": "prettier --write ./src"
