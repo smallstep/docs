@@ -53,7 +53,6 @@ const ServerTemplate = ({
 
       <Box mb={6}>
         <HBase variant="h3">Operationalize It</HBase>
-        <MDXBlock path="sections/20-operationalize/00-intro" />
         <HBase variant="h4">Select a provisioner</HBase>
         <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
 
