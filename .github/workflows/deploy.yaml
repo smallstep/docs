@@ -1,33 +1,15 @@
-name: Build
+name: Deploy
 
 on:
-  push:
-    branches: [ main ]
+  workflow_run:
+    workflows: Lint
+    branches: main
+    types: completed
 
 jobs:
-  lint:
-    name: Lint
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Clone docs
-        uses: actions/checkout@v2
-        with:
-          submodules: true
-
-      - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
-        with:
-          node-version: '14'
-          cache: 'yarn'
-
-      - run: yarn install
-      - run: yarn lint
-
   deploy:
     name: Deploy
-    needs: lint
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     runs-on: ubuntu-latest
 
