@@ -1,0 +1,42 @@
+name: Build
+
+on: [push]
+
+jobs:
+  lint:
+    name: Lint
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone docs
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+          cache: 'yarn'
+
+      - run: yarn install
+      - run: yarn lint
+
+  deploy:
+    name: Trigger build
+    needs: lint
+    if: github.ref == 'refs/head/main'
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Trigger private build
+        run: |-
+          curl -f -s -X POST \
+            -H "Content-Type: application/json" \
+            -H "Accept: application/json" \
+            -H "Travis-API-Version: 3" \
+            -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
+            -d "{\"branch\": \"master\", \"message\": \"${{ github.event.head_commit.message }} (docs@${GITHUB_SHA})\"}" \
+            https://api.travis-ci.com/repo/smallstep%2Fprof/requests
