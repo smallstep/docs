@@ -22,7 +22,8 @@ The 24-hour default validity window for certificates is arbitrary. Depending on 
 
 A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
 
-You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate:
+You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate.
+Let's look at a couple of examples. 
 
 This certificate will be valid for six minutes.
 
