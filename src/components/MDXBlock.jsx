@@ -19,7 +19,7 @@ const MDXBlock = (props) => {
   return (
     <div style={{ display: show ? 'block' : 'none' }}>
       <MDXRenderer pzt={pzt} page={{ provisioner, deployment }}>
-        {blockContent.body}
+        {blockContent ? blockContent.body : ''}
       </MDXRenderer>
     </div>
   );
