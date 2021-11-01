@@ -34,7 +34,7 @@ This certificate will be valid for six minutes.
 This certificate will be valid starting 5 minutes from now, until 10 days from now.
 
 <CodeBlock language="shell-session" copyText="step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h">
-  {`$ $ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h`}
+  {`$ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h`}
 </CodeBlock>
 
 
@@ -45,14 +45,12 @@ By setting *claims* on a provisioner, you can control minimum, maximum, and defa
 Let's take a look at the provisioner claims on the `authority-admin` provisioner.
 
 <CodeBlock language="shell-session" copyText="step beta ca provisioner get authority-admin">
-  {`$ step beta ca provisioner get authority-admin
-
+{`$ step beta ca provisioner get authority-admin\n
 No admin credentials found. You must login to execute admin commands.
 ✔ Please enter admin name/subject (e.g., name@example.com): TeamAdmin@yourco.com
 ✔ Provisioner: authority-admin (OIDC) [client: 380d0a5a-7263-4e43-bb73-980afd0dc5c0]
 Your default web browser has been opened to visit:
-https://auth.smallstep.com/oidc/
-
+https://auth.smallstep.com/oidc/\n
 {
   "id": "2e8b84fa-5af6-4635-a3c2-f852f8011834",
   "authorityId": "f09f83fd-7e58-418d-9a30-ef4885336873",
