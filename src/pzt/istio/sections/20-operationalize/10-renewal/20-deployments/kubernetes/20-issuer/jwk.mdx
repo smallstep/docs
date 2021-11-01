@@ -1,0 +1,60 @@
+You'll also notice the above `Certificate` resource has an `issuerRef`
+specifying a cert-manager `StepIssuer` resource named `my-ca`.
+Before cert-manager knows how to use your CA
+to issue and renew your certificate, we'll need to create
+that `StepIssuer` resource and configure it to point to your private CA.
+
+First, let's grab the `name` and key `kid` from the JWK provisioner we created earlier.
+
+```shell
+step ca provisioner list
+```
+
+Next, get a base64-encoded version of your CA root certificate:
+
+```shell
+step ca root -f >(step base64) 2> /dev/null
+```
+
+Create `my-ca-issuer.yaml` and fill in the CA URL and provisioner details
+with your own. `caBundle` refers to the base64-encoded version
+of your root certificate.
+
+<CodeBlock autoCopy language="yaml">
+  {`apiVersion: certmanager.step.sm/v1beta1
+kind: StepIssuer
+metadata:
+  name: my-ca
+  namespace: default
+spec:
+  url: https://my-ca-url.my-team.ca.smallstep.com
+  caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUJpekNDQVRHZ0F3SUJBZ0lRTytFQWg4eS8wVjlQMFhwSHJWajVOVEFLQmdncWhrak9QUVFEQWpBa01TSXcKSUFZRFZRUURFeGxUZEdWd0lFTmxjblJwWm1sallYUmxjeUJTYjI5MElFTkJNQjRYRFRFNU1EZ3hNekU1TVRVdwpNbG9YRFRJNU1EZ3hNREU1TVRVd01sb3dKREVpTUNBR0ExVUVBeE1aVTNSbGNDQkRaWEowYVdacFkyRjBaWE1nClVtOXZkQ0JEUVRCWk1CTUdCeXFHU000OUFnRUdDQ3FHU000OUF3RUhBMElBQkFNVkw3VzBQbTNvSlVmSTR3WGQKa2xERW5uNVhTbWo4NlgwYW1DQTBnY08xdElUUG1DVzNCcGU0cE9vV1V2WlZlUWRvU2NxN3pua1V0Mi9HMnQxTgo3MWlqUlRCRE1BNEdBMVVkRHdFQi93UUVBd0lCQmpBU0JnTlZIUk1CQWY4RUNEQUdBUUgvQWdFQk1CMEdBMVVkCkRnUVdCQlJ1Y1ByVm5QdlpOMHI0QVU5TGcyL2VCcng3a2pBS0JnZ3Foa2pPUFFRREFnTklBREJGQWlCUlJBdGsKNXpMY0doQ2FobVBuVzIwZExpdEMzRVdNaVE0bERwN2FFeitFUEFJaEFJOWZWczVxb0l0bVQ4anA2WktVNVEydQphRFBrOGsyQ25OMjdyRnNZV3VwTAotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  provisioner:
+    name: ${props.pzt.slug}
+    kid: N6I99Yuk7iGDMk_eW3QaN2admCsrC9UuDN27dlFXUOs
+    passwordRef:
+      name: my-ca-provisioner-password
+      key: password`}
+</CodeBlock>
+
+You'll notice the `passwordRef` configuration above, which declares a secret
+where step-issuer can expect to find your JWK provisioner password.
+You can name this whatever you'd like.
+Create the secret in your cluster, then apply your `StepIssuer` resource.
+
+<CodeBlock
+  language="shell"
+  copyText="kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11 && kubectl apply -f my-ca-issuer.yaml"
+>
+  {`kubectl create secret generic my-ca-provisioner-password --from-literal=password=Y4nys7f11
+kubectl apply -f my-ca-issuer.yaml`}
+</CodeBlock>
+
+<p>
+  If all went as expected now that both your{' '}
+  <inlineCode>Certificate</inlineCode> and your{' '}
+  <inlineCode>StepIssuer</inlineCode> are configured, cert-manager should have
+  reached out to your Smallstep CA, issued (or begun issuing) the certificate,
+  and created the <inlineCode>{props.pzt.server.name}-tls</inlineCode> secret
+  with your certificate and private key.
+</p>
