@@ -1,6 +1,6 @@
 ---
-title: Smallstep Certificate Manager Customize Certificates
-html_title: Smallstep Certificate Manager Customize Certificates
+title: "Smallstep Certificate Manager: Customize Certificates"
+html_title: "Smallstep Certificate Manager: Customize Certificates"
 description: Changing certificate lifetimes and using templates for customized certificates
 ---
 
@@ -28,13 +28,13 @@ Let's look at a couple of examples.
 This certificate will be valid for six minutes.
 
 <CodeBlock language="shell-session" copyText="step ca certificate localhost localhost.crt localhost.key --not-after=6m">
-  {`$ step ca certificate localhost localhost.crt localhost.key --not-after=6m`}
+{`$ step ca certificate localhost localhost.crt localhost.key --not-after=6m`}
 </CodeBlock>
 
 This certificate will be valid starting 5 minutes from now, until 10 days from now.
 
 <CodeBlock language="shell-session" copyText="step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h">
-  {`$ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h`}
+{`$ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h`}
 </CodeBlock>
 
 
@@ -42,7 +42,7 @@ This certificate will be valid starting 5 minutes from now, until 10 days from n
 Provisioners authenticate certificate requests. 
 Certificate lifetimes, access control policies, renewal, templates, and many other options are configurable per-provisioner. 
 By setting *claims* on a provisioner, you can control minimum, maximum, and default certificate lifetimes. 
-Let's take a look at the provisioner claims on the `authority-admin` provisioner.
+Let's take a look at the provisioner claims on the `authority-admin` provisioner that's automatically created with your Authority.
 
 <CodeBlock language="shell-session" copyText="step beta ca provisioner get authority-admin">
 {`$ step beta ca provisioner get authority-admin\n
@@ -78,7 +78,7 @@ https://auth.smallstep.com/oidc/\n
 </CodeBlock>
 
 Claims are enabled with a maximum duration of 8784 hours or 366 days. 
-The `x509-default-dur` is not set so it uses the Authority default value of 24 hours. 
+A default duration is not set,  so it uses the Authority default value of 24 hours. 
 
 Let's update the claims on the provisioner to produce a 7 day (168h) default certificate.
 We will also set the minimum lifetime to 5 minutes and the maximum lifetime to 500 days (12000h). 
@@ -119,26 +119,31 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2046...1094]
 </CodeBlock>
 
 Provisioner claims define certificate minimum and maximum lifetime and the default certificate expiry. 
-A single Authority can support many provisioners unlocking many automated workflows.
+A single Authority can support many provisioners to unlock various automated workflows.
 You can learn more about provisioners [here](/docs/certificate-manager/how-it-works#provisioners). 
 
 ### Automating custom certificates with templates
 Certificate templates are JSON documents that describe the most important fields in the final certificate or certificate request.
-Templates give you granular control over certificate details. By default, Certificate Manager is configured to issue short-lived certificates for use with TLS. Templates let you customize every detail of a certificate, down to the [OID](https://en.wikipedia.org/wiki/Object_identifier), to support any use case.
+Templates give you granular control over certificate details.
+By default, Certificate Manager is configured to issue short-lived certificates for use with TLS.
+Templates let you customize every detail of a certificate, down to the [OID](https://en.wikipedia.org/wiki/Object_identifier),
+to support your use case.
 
-Concretely, a template is a JSON representation of a certificate that's materialized using Go's [`text/template`](https://golang.org/pkg/text/template/) module and [sprig functions](http://masterminds.github.io/sprig/). They look like this:
-
+Concretely, a template is a JSON representation of a certificate that's materialized using Go's [`text/template`](https://golang.org/pkg/text/template/) module and [sprig functions](http://masterminds.github.io/sprig/).
+They look like this:
 
 ![Certificate Templates](/graphics/templates-screenshot.svg "Certificate Templates")
 
-Context from certificate requests and authentication credentials are made available as template variables, so you can adjust certificate details based on who's requesting the certificate. 
+Context from certificate requests and authentication credentials are made available as template variables,
+so you can adjust certificate details based on who's requesting the certificate. 
 
-To update the default template to create custom certificates, you need to update the provisioner using a template flag
+To update the default template to create custom certificates,
+you need to update the provisioner using a template flag:
 - `--x509-template=<file>` - The x509 certificate template file, a JSON representation of the certificate to create.
 - `--x509-template-data=<file>` - The x509 certificate template data file, a JSON map of data that can be used by the certificate template. 
 
-Templates unlock any x.509 certificate format and longer certificate chains. 
-You can even add conditionals and fail if a certificate's parameters are not met. 
+Templates unlock any x.509 certificate format, or longer certificate chains. 
+You can even add conditionals and fail if a certificate request is not valid.
 Check out our [open-source documentation](https://smallstep.com/docs/step-ca/templates) to learn what's possible and how to build your custom template.
 
 <Alert severity="info">
