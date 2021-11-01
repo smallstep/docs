@@ -1,0 +1,127 @@
+---
+title: Smallstep Certificate Manager Basic Certificate Operations
+html_title: Smallstep Certificate Manager Basic Certificate Operations
+description: Basic Certificate Operations with Certificate Manager 
+---
+
+In this documentation, we will explore basic certificate operations using the [`step`](https://smallstep.com/docs/step-cli) command-line tool. 
+`step` acts as a front-end interface to certificate manager and is used for many common crypto and X.509 operations.
+This tutorial covers:
+
+1. Creating a certificate
+2. Inspecting a certificate
+3. Renewing a certificate
+4. Revoking a certificate
+
+<Alert severity="info">
+  <div>
+    See Smallstep certificate Manager in action. Watch the <a href="https://u.step.sm/how-to-CM-first-certificate">how-to issue your first certificate video</a>.
+  </div>
+</Alert>
+
+### Before you begin
+This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](/docs/certificate-manager/getting-started).
+
+### step 1 - Create a test certificate
+
+With an Authority created and your local client configured,
+you can create a test certificate by running the `step ca certificate` command.
+Here is an example:
+
+<CodeBlock language="shell-session" copyText="step ca certificate myservice myservice.crt myservice.key --san myservice.internal.mycompany.net --not-after 24h">
+  {`$ step ca certificate myservice myservice.crt myservice.key --san myservice.internal.mycompany.net --not-after 24h`}
+</CodeBlock>
+
+In this command, we are asking the CA to create a certificate with the following properties
+* `myservice` - The certificate's subject
+* `myservice.crt` - Save the certificate in a file with this name
+* `myservice.key` - Save the key in a file with this name
+* `--san myservice.internal.mycompany.net` - Add an additional SAN to the certificate, with the specified value
+* `--not-after 24h` - Set the certificate to expire after 24 hours
+
+When you run this command, it will envoke the `authority-admin` provisioner and start a single sign-on flow via the smallstep dashboard.
+After a successful sign-in, the authority will issue the certificate. 
+
+### Step 2 - Inspect a test certificate
+You can inspect your certificate by running:
+
+<CodeBlock language="shell-session" copyText="step certificate inspect --short myservice.crt">
+{`$ step certificate inspect --short myservice.crt`}
+</CodeBlock>
+
+It should look similar to this.
+
+```bash
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
+  Subject:     myservice
+               admin@yourco.com
+               https://auth.smallstep.com#98496ed4-7f27-4367-b7a2-ef828e0a4eda
+  Issuer:      Dev Intermediate CA
+  Provisioner: authority-admin [ID: 909d...8521]
+  Valid from:  2021-10-04T21:30:12Z
+          to:  2021-10-05T21:31:12Z
+```
+
+### step 3 - renew a certificate
+Certificates expire. 
+Certificate Manager makes renewing a certificate ahead of expiration easy. 
+Renewals are authenticated using your existing certificate and produce an identical certificate with a new serial number and extended lifetime.
+The private key is unchanged.
+
+In its most primitive form, renewal is a simple single-command operation:
+
+<CodeBlock language="shell-session" copyText="step ca renew myservice.crt myservice.key">
+  {`$ step ca renew myservice.crt myservice.key`}
+</CodeBlock>
+
+More than a dozen [command-line flags](/docs/step-cli/reference/ca/renew) make `step ca renew` flexible and easy to integrate into almost any operational environment.
+
+Inspect your certificate again, and you will see it has an extended lifetime. 
+
+<CodeBlock language="shell-session" copyText="step certificate inspect --short myservice.crt">
+{`$ step certificate inspect --short myservice.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
+  Subject:     myservice
+               admin@yourco.com
+               https://auth.smallstep.com#98496ed4-7f27-4367-b7a2-ef828e0a4eda
+  Issuer:      Dev Intermediate CA
+  Provisioner: authority-admin [ID: 909d...8521]
+  Valid from:  2021-10-04T21:32:34Z
+          to:  2021-10-05T21:33:34Z`}
+</CodeBlock>
+
+
+### step 4 - revoke a certificate
+Certificate Manager uses passive revocation by default. 
+To passively revoke a certificate means to block its renewal at the CA. 
+This eliminates the additional network request that occurs when using active revocation because the certificate expires by itself. 
+With passive revocation, certificates cannot be immediately revoked. 
+Therefore, certificates should have a shorter life to reduce the value of a key that has been exfiltrated.
+To revoke a certificate, run the following operation.
+
+<CodeBlock language="shell-session" copyText="step ca revoke --cert=myservice.crt --key=myservice.key">
+{`$ step ca revoke --cert=myservice.crt --key=myservice.key
+  ✔ CA: https://your.authority.ca.smallstep.com
+Certificate with Serial Number 215963883671773554731824269659406308792 has been revoked.`}
+</CodeBlock>
+
+Upon expiry, this certificate will no longer be valid.
+If you try to renew the certificate, it will fail.
+
+<CodeBlock language="shell-session" copyText="step ca renew myservice.crt myservice.key">
+{`$ step ca renew myservice.crt myservice.key
+  error renewing certificate: The request lacked necessary authorization to be completed. Please see the certificate authority logs for more info.`}
+</CodeBlock>
+
+Passive revocation doesn't use Certificate Revocation List (CRL) and Online Certificate Signing Protocol (OCSP) like Web PKI.
+Certificate Manager support for CRL and OCSP is coming soon.
+
+<Alert severity="info">
+  <div>
+    Need help with Certificate Operations? <a href="mailto:cs@smallstep.com">Contact</a> our Customer Success team. 
+  </div>
+</Alert>
+
+## Next Steps
+- You've now mastered the art of basic certificate operations. It's time to explore [customizing certificates](/docs/certificate-manager/custom-certs).
+- Ready to dive into a specific technology? Check out our [practical zero trust project](https://smallstep.com/practical-zero-trust). It provides step-by-step instructions for configuring TLS for popular technologies in Linux, Docker, and Kubernetes. 

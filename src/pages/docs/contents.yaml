@@ -31,13 +31,17 @@ smallstep_ssh:
 certificate_manager:
   - title: Getting Started
     path: certificate-manager/getting-started
+  - title: Basic Cert Operations
+    path: certificate-manager/basic-ops
+  - title: Customizing Certificates
+    path: certificate-manager/custom-certs
   - title: How It Works
     path: certificate-manager/how-it-works
   - title: ACME Server
     path: certificate-manager/acme
   - title: Certs For Humans
     path: certificate-manager/oidc
-    
+
 registration_authorities:
   - title: ACME for Smallstep Certificate Manager
     path: registration-authorities/acme-for-certificate-manager
