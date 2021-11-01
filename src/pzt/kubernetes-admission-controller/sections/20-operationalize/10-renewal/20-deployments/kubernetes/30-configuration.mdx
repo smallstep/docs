@@ -1,6 +1,6 @@
 Telling your `MutatingWebhookConfiguration` or `ValidatingWebhookConfiguration` to make use of the certificate and private key
 in the `myserver-tls` secret is as easy as adding a CA Injector annotation
-to your exsting webhook resources. Notice that we can obmit the `caBundle` in the `clientConfig` because of the new `inject-ca-from` annotation. 
+to your exsting webhook resources. Notice that we can obmit the `caBundle` in the `clientConfig` because of the new `inject-ca-from` annotation.
 
 ```yaml
 apiVersion: admissionregistration.k8s.io/v1
