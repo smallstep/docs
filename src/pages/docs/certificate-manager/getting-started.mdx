@@ -4,10 +4,11 @@ html_title: Smallstep Certificate Manager Getting Started
 description: Getting started with Certificate Manager 
 ---
 
-Smallstep Certificate Manager is a commercial product that delivers a managed certificate authority (CA) capable of issuing private x.509 TLS certificates. 
+Smallstep [Certificate Manager](https://smallstep.com/certificate-manager) is a commercial product that delivers a managed certificate authority (CA) capable of issuing private x.509 TLS certificates. 
+
 Certificate Manager builds on two open-source projects, maintained by smallstep:
 * `step-ca`: a private online certificate authority for secure automated certificate management.
-* `step`: a general-purpose cryptography toolkit and the client-side counterpart to step-ca.
+* `step`: a general-purpose cryptography toolkit and the client-side counterpart to `step-ca`.
 With Certificate Manager, you can create your own private CA to manage certificates on internal services, websites, infrastructure, people, or devices. 
 
 ### Getting started with Certificate Manager
@@ -17,8 +18,9 @@ With Certificate Manager, you can create your own private CA to manage certifica
 4. Configure your client for your Authority
 
 ### Before you begin
-This tutorial assumes you are setting up [Certificate Manager](https://smallstep.com/certificate-manager).
-If you are looking to set up [Smallstep SSH Professional](https://smallstep.com/sso-ssh), you can find the documentation [here](/docs/ssh).
+This tutorial assumes you are setting up Certificate Manager.
+
+If you need SSH certificates instead, see our [documentation for Smallstep SSH](/docs/ssh).
 
 Have questions? [Contact](mailto:cs@smallstep.com) Customer Success. 
 
@@ -34,10 +36,10 @@ You will be asked to provide:
 
 Smallstep team admins can subscribe to and manage Smallstep products.
 
-### step 2 - create an Authority
-Certificate Manager Authorities are trusted services that manage certificate issuance, renewal, and revocation.
-It's an online CA that authenticates and authorizes certificate requests and issues certificates.
-To create a hosted authority you:
+### step 2 - Create an Authority
+A Certificate Manager Authority is an online CA that authenticates and authorizes certificate requests.
+It can issue, renew, and revoke your x.509 TLS certificates.
+To create an Authority:
 * Log into the smallstep dashboard, select the Certificate Manager tab, and click the "Add Authority" button.
 * Choose "Create a new hosted Authority".
 * Give your Authority a name and subdomain value (the URL path you wish to use for your online CA).
@@ -53,21 +55,22 @@ storing the private keys into [Google's Cloud KMS](https://cloud.google.com/secu
 
 On the Authority detail page, you will see the CA URL and Fingerprint used to interact with your CA.
 
-Certificate Manager also creates a default provisioner called `authority-admin` connected to your smallstep login.
+Certificate Manager also creates a default provisioner called `authority-admin`,
+connected to your smallstep login.
 You can use this provisioner to administer the Authority and to get certificates. 
 See [basic certificate operations](/docs/certificate-manager/basic-ops) for examples. 
 
-An *authority super admin* account was also created using your e-mail address as the admin name/subject. 
-The Authority super admin can CRUD other admins.
+An *authority super admin* account is also created, using your e-mail address as the admin name/subject. 
+The super admin can manage other authority admins.
 
 ### Step 3 - Install `step`
-To interact with Certificate Manager, you will need `step`, an open-source general-purpose cryptography toolkit.
-`step` acts as a front-end interface to certificate manager and is used for many common crypto and X.509 operations.
+To interact with Certificate Manager, you will need our `step` CLI command on your local machine.
+`step` acts as a front-end interface to Certificate Manager and is used for many common crypto and X.509 operations.
 It's trivial to install the step binary on your local machine.
 The instructions are [here](https://smallstep.com/docs/step-cli/installation).
 
 ### Step 4 - Configure your client
-Certificate Manager authorities are administered using the `step` command-line client. 
+Certificate Manager authorities are administered using the `step` CLI command.
 To connect your local client with the hosted Authority, you need to bootstrap into the PKI. 
 Run the following command, substituting the values from your Authority's properties:
 
