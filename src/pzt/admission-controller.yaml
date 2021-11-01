@@ -1,0 +1,7 @@
+slug: istio
+name: Istio
+template: ingress
+written: October 25, 2021
+updated: ''
+protocol: https
+acme: false
