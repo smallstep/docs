@@ -15,6 +15,7 @@ This document lists, briefly describes, and links to documentation for all
 
 - Protocols and Platforms
   - [ACME](#acme)
+  - [SCEP](#scep)
   - [OIDC](#oidc)
   - [Cloud Instance Identity](#cloud-instance-identity)
   - [Kubernetes](#kubernetes)
@@ -42,6 +43,13 @@ popular ACME clients to use that server][configure-acme].
 [private-acme-server]: /docs/tutorials/acme-challenge
 [configure-acme]: /docs/tutorials/acme-protocol-acme-clients
 
+### SCEP
+
+The `step-ca` server includes support for certificate enrollment using the [SCEP protocol][scep-rfc]. See our [SCEP provisioner documentation][scep-docs] for details.
+
+[scep-rfc]: https://datatracker.ietf.org/doc/rfc8894/
+[scep-docs]: /docs/step-ca/provisioners#scep
+
 ### OIDC
 
 Both `step` and `step-ca` natively support working with and issuing 
@@ -66,10 +74,11 @@ Learn more about how to [configure a cloud identity document provisioner][config
 
 ### Kubernetes
 
-`autocert` is our kubernetes add-on that automatically injects TLS/HTTPS certificates into your containers.
-Learn more about how to [install and configure `autocert`][autocert].
-
-Alternatively, if you already use `cert-manager`, you can [configure it to trust `step-ca` for use with ACME](/docs/tutorials/kubernetes-acme-ca).
+We offer a few options for Kubernetes integrations:
+- [`autocert`][autocert] is our kubernetes add-on that automatically injects TLS/HTTPS certificates into your containers. Learn more about how to [install and configure `autocert`][autocert].
+- If you already use [`cert-manager`](https://cert-manager.io) for certificate automation, you can:
+  - [Configure the ACME `Issuer` to use `step-ca`](/docs/tutorials/kubernetes-acme-ca)
+  - Or [use our open source `step-issuer`](https://github.com/smallstep/step-issuer)
 
 ### Envoy Secret Discovery Service (SDS)
 
