@@ -1,0 +1,25 @@
+<p>
+  Once {props.pzt.name} TLS is configured with cert-manager, all workloads and
+  services deployed within the mesh will automitacally have certificates signed
+  and renewed by the <inlineCode>step</inlineCode> CA. You will not have to
+  distribute the certificate manually.
+</p>
+
+Istio mutual TLS has a permissive mode, which allows a service to accept both plaintext traffic and mutual TLS traffic at the same time.
+This feature greatly improves the mutual TLS onboarding experience.
+But once onboarding is complete, we recommend switching the mode to strict.
+The following peer authentication policy requires all workloads in namespace `smallstep` to use mutual TLS:
+
+<CodeBlock autoCopy language="yaml">
+  {`apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: "example-policy"
+  namespace: "smallstep"
+spec:
+  mtls:
+    mode: STRICT`}
+</CodeBlock>
+
+On our blog, we've written an [in-depth post on Istio and Smallstep](https://smallstep.com/blog/istio-with-private-ca/#bookinfo-application).
+Follow the Bookinfo demo application steps to test everything we've accomplished above.

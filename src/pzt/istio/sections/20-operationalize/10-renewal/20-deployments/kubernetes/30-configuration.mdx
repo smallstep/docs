@@ -1,26 +1,75 @@
-Telling your `MutatingWebhookConfiguration` or `ValidatingWebhookConfiguration` to make use of the certificate and private key
-in the `myserver-tls` secret is as easy as adding a CA Injector annotation
-to your exsting webhook resources. Notice that we can obmit the `caBundle` in the `clientConfig` because of the new `inject-ca-from` annotation.
+The last step is to install Istio with the proper configuration. Deploy the Istio operator. You will need to have istioctl installed to do so:
 
-```yaml
-apiVersion: admissionregistration.k8s.io/v1
-kind: MutatingWebhookConfiguration
-metadata:
-  name: smallstep-mutating-webhooks
-  annotations:
-    cert-manager.io/inject-ca-from: myserver-tls
-...
-webhooks:
-- name: my-webhook.example.com
-  clientConfig:
-    service:
-      namespace: my-service-namespace
-      name: my-service-name
-      path: /my-path
-      port: 1234
-  ...
+```shell
+istioctl operator init
 ```
 
-Voila! Your webhooks will pick up this `tls` configuration
-and automatically serve the renewed certificate each time
-the `myserver-tls` secret is updated.
+<p>
+  Add the proper Istio configuration changes to{' '}
+  <inlineCode>{props.pzt.server.name}-istio-operator.yaml</inlineCode>. The key
+  changes are to the <inlineCode>caAddress</inlineCode> and the{' '}
+  <inlineCode>ENABLE_CA_SERVER</inlineCode> env. First, we point the{' '}
+  <inlineCode>caAddress</inlineCode> to the istio-csr we just deployed. The
+  istio-csr agent will then help Istio workload and control plane components to
+  be secured using cert-manager. We also update the{' '}
+  <inlineCode>ENABLE_CA_SERVER</inlineCode> env to disable istiod CA Sever
+  functionality.
+</p>
+
+<CodeBlock autoCopy language="yaml">
+  {`apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+metadata:
+ name: istio
+ namespace: istio-system
+spec:
+ profile: "demo"
+ hub: gcr.io/istio-release
+ values:
+   global:
+     caAddress: cert-manager-istio-csr.cert-manager.svc:443
+ components:
+   pilot:
+     k8s:
+       env:
+       - name: ENABLE_CA_SERVER
+         value: "false"
+       overlays:
+       - apiVersion: apps/v1
+         kind: Deployment
+         name: istiod
+         patches:
+         - path: spec.template.spec.containers.[name:discovery].args[7]
+           value: "--tlsCertFile=/etc/cert-manager/tls/tls.crt"
+         - path: spec.template.spec.containers.[name:discovery].args[8]
+           value: "--tlsKeyFile=/etc/cert-manager/tls/tls.key"
+         - path: spec.template.spec.containers.[name:discovery].args[9]
+           value: "--caCertFile=/etc/cert-manager/ca/root-cert.pem"
+         - path: spec.template.spec.containers.[name:discovery].volumeMounts[6]
+           value:
+             name: cert-manager
+             mountPath: "/etc/cert-manager/tls"
+             readOnly: true
+         - path: spec.template.spec.containers.[name:discovery].volumeMounts[7]
+           value:
+             name: ca-root-cert
+             mountPath: "/etc/cert-manager/ca"
+             readOnly: true
+         - path: spec.template.spec.volumes[6]
+           value:
+             name: cert-manager
+             secret:
+               secretName: istiod-tls
+         - path: spec.template.spec.volumes[7]
+           value:
+             name: ca-root-cert
+             configMap:
+               defaultMode: 420
+               name: istio-ca-root-cert`}
+</CodeBlock>
+
+Apply the operator configurations. The controller deployed by the init command above will detect the IstioOperator resource and then install the Istio components we want.
+
+```shell
+$ kubectl apply -f istio-operator-config.yaml
+```
