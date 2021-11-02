@@ -76,8 +76,7 @@ The easist way to connect is by using the <a href="https://github.com/cert-manag
 </p>
 
 <CodeBlock autoCopy language="yaml">
-  {`
-certificate:
+  {`certificate:
  namespace: default
  group: ${
    props.page.provisioner === 'jwk' ? 'certmanager.step.sm' : 'cert-manager.io'
