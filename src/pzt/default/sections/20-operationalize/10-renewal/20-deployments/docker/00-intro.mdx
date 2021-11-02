@@ -3,31 +3,24 @@ When working with certificate in containers, you'll need to decide how and where
 - **Root distribution**: Getting the container to trust the CA
 - **Enrollment**: Issuing the service a new TLS certificate from the CA
 - **Renewal**: Renewing the certificate when it nears expiry
-- **Deployment**: Moving the certificate into place and signaling a certificate reload (or restarting the service)
+- **Deployment**: Moving the certificate into place and signaling a certificate reload
 
-There are several approaches one could take for full automation. Here are a few:
+There are several approaches one could take for full certificate automation. Here are a few:
 
 - **Self-contained**:
   With this approach, the official Docker image for the service is augmented to add certificate management functions, usually by overriding the `ENTRYPOINT`.
-  While some might argue that this violates the single responsibility principle,
-  we believe certificate management is well within the responsibility of a service that supports TLS.
   CA trust is bootstrapped when the image is built, and the root CA certificate is baked into the image.
 - **Host-based**:
-  With this approach, the unmodified, official Docker image for the service can be used.
-  The host is responsible for renewing certificates
-  and triggering a reload of certificate files (or restarting the containers) when they are renewed.
-  Certificates can be made renewed from the host via volume mounts, or copied into the container.
-  For ACME support, an ACME client binary on the host can be run inside the container's network namespace (via `nsenter`) in order to respond to ACME `HTTP-01` or `TLS-ALPN-01` challenges.
-  This approach can leverage a systemd-based renewal timer (see the Linux tab for details).
-  For root distribution, a volume mount can often be used to add the root CA certificate to the container's trust store,
-  but some Docker images may still need to be augmented to trust the root CA ceritficate.
-- **Sidecar**:
+  The host is responsible for renewing certificates for containerized services,
+  and for triggering a reload of certificate files (or restarting the containers) when certificates are renewed.
+  Certificates can be shared from the host via volume mounts, or copied into the container.
+  This approach can leverage a systemd-based certificate renewal timer (see the Linux tab for details).
+- **Multi-container**:
   Certificates are mounted via shared volume mounts,
-  and a separate sidecar container is responsible for certificate enrollment, renewal, and deployment.
-  Deployment can happen via an API call directly to the service
-  (if it supports online certificate reloading via API),
-  or by updating or restarting the service container via a [Docker socket proxy](https://github.com/tecnativa/docker-socket-proxy) call.
-  The unmodified, official Docker image for the service can be used, however the image may still need to be augmented to trust the root CA ceritficate.
+  and a separate container is responsible for certificate enrollment, renewal, and deployment.
+  Deployment can happen via an API call directly to the service, if it supports online certificate reloading via API.
+
+For an in-depth exploration of these approaches, with examples and tradeoffs, see our blog post [Automating TLS Certificate Management in Docker](https://smallstep.com/blog/automate-docker-ssl-tls-certificates/).
 
 To support the broadest range of environments where containers are run,
 **we prefer the self-contained approach**.
