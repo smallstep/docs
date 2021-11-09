@@ -562,7 +562,8 @@ see the [claims](#claims) section for all the options.
 ### ACME
 
 An ACME provisioner allows a client to request a certificate from the server using the [ACME Protocol](https://tools.ietf.org/html/rfc8555).
-The ACME provisioner can only request X.509 certificates.
+This provisioner supports issuing X.509 certificates with IP or hostname identifiers.
+It supports the `http-01`, `dns-01`, and `tls-alpn-01` ACME challenge types,
 All authentication of the CSR is managed by the ACME protocol.
 
 #### Example
