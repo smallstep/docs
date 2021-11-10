@@ -238,6 +238,7 @@ export const query = graphql`
         ingressClass
       }
       acme
+      rootDistribution
     }
     allFile(filter: { extension: { eq: "png" }, name: { eq: "unfurl" } }) {
       edges {

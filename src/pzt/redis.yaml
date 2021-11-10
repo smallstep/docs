@@ -9,5 +9,6 @@ server:
   dnsName: redis.example.net
   port: 6379
 acme: false
+rootDistribution: false
 linux:
   systemdUnitName: redis-server

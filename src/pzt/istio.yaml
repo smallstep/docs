@@ -4,3 +4,4 @@ template: ingress
 written: October 25, 2021
 updated: ''
 protocol: https
+rootDistribution: false

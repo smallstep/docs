@@ -1,3 +1,31 @@
+After creating the issuer resource for cert-manager, we need to connect cert-manager to Istio.
+The easist way to connect is by using the <a href="https://github.com/cert-manager/istio-csr">istio-csr</a> agent.
+
+<p>
+  Change some of the Helm values before we deploy by creating{' '}
+  <inlineCode>{props.pzt.server.name}-istio-csr.yaml</inlineCode>. Make sure you
+  specify the same issuer name, kind, and group that was used in the{' '}
+  <inlineCode>Certificate</inlineCode> resource created above.
+</p>
+
+<CodeBlock autoCopy language="yaml">
+  {`certificate:
+ namespace: default
+ group: ${
+   props.page.provisioner === 'jwk' ? 'certmanager.step.sm' : 'cert-manager.io'
+ }
+ kind: ${props.page.provisioner === 'jwk' ? 'StepIssuer' : 'Issuer'}
+ name: my-ca
+ maxDuration: 24h
+ preserveCertificateRequests: false`}
+</CodeBlock>
+
+Next, install `istio-csr` in your cluster using Helm and the configuration file right above.
+
+<CodeBlock autoCopy language="shell">
+  {`helm install cert-manager-istio-csr jetstack/cert-manager-istio-csr -f ${props.pzt.server.name}-istio-csr.yaml --namespace cert-manager`}
+</CodeBlock>
+
 The last step is to install Istio with the proper configuration. Deploy the Istio operator. You will need to have istioctl installed to do so:
 
 ```shell
@@ -73,3 +101,29 @@ Apply the operator configurations. The controller deployed by the init command a
 ```shell
 $ kubectl apply -f istio-operator-config.yaml
 ```
+
+<p>
+  Once {props.pzt.name} TLS is configured with cert-manager, all workloads and
+  services deployed within the mesh will automitacally have certificates signed
+  and renewed by the <inlineCode>step</inlineCode> CA. You will not have to
+  distribute the certificate manually.
+</p>
+
+Istio mutual TLS has a permissive mode, which allows a service to accept both plaintext traffic and mutual TLS traffic at the same time.
+This feature greatly improves the mutual TLS onboarding experience.
+But once onboarding is complete, we recommend switching the mode to strict.
+The following peer authentication policy requires all workloads in namespace `smallstep` to use mutual TLS:
+
+<CodeBlock autoCopy language="yaml">
+  {`apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: "example-policy"
+  namespace: "smallstep"
+spec:
+  mtls:
+    mode: STRICT`}
+</CodeBlock>
+
+On our blog, we've written an [in-depth post on Istio and Smallstep](https://smallstep.com/blog/istio-with-private-ca/#bookinfo-application).
+Follow the Bookinfo demo application steps to test everything we've accomplished above.

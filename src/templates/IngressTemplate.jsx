@@ -58,10 +58,14 @@ const IngressTemplate = ({
       />
       <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/30-configuration" />
 
-      <HBase variant="h4">
-        Distribute your root certificate to end users and systems
-      </HBase>
-      <MDXBlock path="sections/20-operationalize/20-root" />
+      {pzt.rootDistribution !== false && (
+        <>
+          <HBase variant="h4">
+            Distribute your root certificate to end users and systems
+          </HBase>
+          <MDXBlock path="sections/20-operationalize/20-root" />
+        </>
+      )}
     </Box>
 
     {content[`${pzt.slug}/sections/40-further-reading`] && (
