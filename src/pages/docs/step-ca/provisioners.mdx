@@ -444,15 +444,17 @@ see the [claims](#claims) section for all the options.
 
 When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
 Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+And it is the same approach that Google's `gcloud` CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
+So, what makes it secure?
 The Authorization Code flow for native OAuth apps requires the redirect URI hostname be hardcoded as `127.0.0.1` (or `localhost`) in the client configuration.
-This constraint obviates the need for a client secret, because a `localhost` flow is inherently resistant to network attacks that the client secret is designed to mitigate in other, non-native flows.
+This constraint obviates the need for a client secret, because the loopback address is inherently resistant to network attacks that the client secret is designed to mitigate in other, non-native app flows.
 
 An attacker in posession of the client secret would need local access to your device in order to compromise the flow.
 OAuth in general is not very resistant to local attacks, so the threat model for the native app flow with an exposed client secret is the same as with any other OAuth flow:
 It assumes that if you have a local attacker on your device, it's unlikely that this kind of attack is going to be your biggest threat.
 
-So, the client secret is superfluous in the Authorization Code flow for native apps.
+The client secret is superfluous in the Authorization Code flow for native apps.
 In fact, BCP212 has recommended that OAuth identity providers offer a special OAuth client type that has no client secret.
 In practice, very few OAuth providers have implemented this "secretless" approach, so we don't yet support it.
 Functionally, however, it is equivalent to having a public secret.
