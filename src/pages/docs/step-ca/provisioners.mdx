@@ -444,7 +444,7 @@ see the [claims](#claims) section for all the options.
 
 When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
 Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
-And it is the same approach that Google's `gcloud` CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
+And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
 So, what makes it secure?
 The Authorization Code flow for native OAuth apps requires the redirect URI hostname be hardcoded as `127.0.0.1` (or `localhost`) in the client configuration.
