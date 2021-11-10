@@ -1,6 +1,6 @@
 slug: istio
 name: Istio
-template: ingress
+template: kubernetes
 written: October 25, 2021
 updated: ''
 protocol: https

@@ -1,6 +1,6 @@
 slug: kubernetes-admission-controller
 name: Kubernetes Admission Controller
-template: ingress
+template: kubernetes
 written: October 25, 2021
 updated: ''
 protocol: https

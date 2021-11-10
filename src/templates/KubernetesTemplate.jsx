@@ -5,7 +5,7 @@ import MDXBlock from '../components/MDXBlock';
 import HBase from '../components/HBase';
 import ProvisionerSelector from '../components/ProvisionerSelector';
 
-const IngressTemplate = ({
+const KubernetesTemplate = ({
   pzt,
   content,
   provisioner,
@@ -80,4 +80,4 @@ const IngressTemplate = ({
   </>
 );
 
-export default IngressTemplate;
+export default KubernetesTemplate;

@@ -10,7 +10,7 @@ import { Container, Heading, Paragraph } from '@smallstep/step-ui';
 
 import { PztContext } from '../../context';
 import ServerTemplate from '../../templates/ServerTemplate';
-import IngressTemplate from '../../templates/IngressTemplate';
+import KubernetesTemplate from '../../templates/KubernetesTemplate';
 
 const useStyles = makeStyles((theme) => ({
   timestamp: {
@@ -199,8 +199,8 @@ const Page = ({ data, location }) => {
             />
           )}
 
-          {pzt.template === 'ingress' && (
-            <IngressTemplate
+          {pzt.template === 'kubernetes' && (
+            <KubernetesTemplate
               pzt={pzt}
               content={content}
               provisioner={provisioner}

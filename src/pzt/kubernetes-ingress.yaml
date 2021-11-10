@@ -1,6 +1,6 @@
 slug: kubernetes-ingress
 name: Kubernetes Ingress
-template: ingress
+template: kubernetes
 written: September 21, 2021
 updated: ''
 protocol: https
