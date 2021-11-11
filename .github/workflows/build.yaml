@@ -1,42 +1,46 @@
 name: Build
 
-on: [push]
+on:
+  push:
+  pull_request:
 
 jobs:
   lint:
-    name: Lint
-
+    name: Install & Lint
     runs-on: ubuntu-latest
-
     steps:
-      - name: Clone docs
+      -
         uses: actions/checkout@v2
         with:
           submodules: true
-
-      - name: Use Node.js ${{ matrix.node-version }}
+      -
+        name: Setup NodeJS
         uses: actions/setup-node@v2
         with:
           node-version: '14'
           cache: 'yarn'
-
-      - run: yarn install
-      - run: yarn lint
+      -
+        id: install
+        run: yarn install
+      -
+        id: lint
+        run: yarn lint
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     name: Trigger private build
     needs: lint
-    if: github.ref == 'refs/heads/main'
-
     runs-on: ubuntu-latest
-
     steps:
-      - name: Trigger private smallstep.com build
-        run: |-
-          curl -f -s -X POST \
-            -H "Content-Type: application/json" \
-            -H "Accept: application/json" \
-            -H "Travis-API-Version: 3" \
-            -H "Authorization: token ${{ secrets.TRAVIS_TOKEN }}" \
-            -d "{\"branch\": \"master\", \"message\": \"${{ github.event.head_commit.message }} (docs@${GITHUB_SHA})\"}" \
-            https://api.travis-ci.com/repo/smallstep%2Fprof/requests
+      -
+        # This step is for master builds only
+        name: Trigger Docs Deploy to Staging
+        id: trigger_staging_deploy
+        uses: convictional/trigger-workflow-and-wait@v1.3.0
+        with:
+          owner: smallstep
+          repo:  prof
+          github_token: ${{ secrets.PAT }}
+          workflow_file_name: deploy.yml
+          ref: master
+
