@@ -43,4 +43,5 @@ jobs:
           github_token: ${{ secrets.PAT }}
           workflow_file_name: deploy.yml
           ref: master
+          waiting_interval: 30
 
