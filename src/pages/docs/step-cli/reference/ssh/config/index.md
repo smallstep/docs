@@ -13,10 +13,11 @@ menu:
 
 ```raw
 step ssh config
-[--team=<name>] [--host] [--set=<key=value>] [--set-file=<file>]
-[--dry-run] [--roots] [--federation]
-[--force] [--ca-url=<uri>] [--root=<file>]
-[--offline] [--ca-config=<file>] [--team-url=<url>]
+[--team=<name>] [--team-authority=<sub-domain>] [--host]
+[--set=<key=value>] [--set-file=<file>] [--dry-run] [--roots]
+[--federation] [--force] [--offline] [--ca-config=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--authority=<name>] [--profile=<name>]
 ```
 
 ## Description
@@ -36,9 +37,14 @@ Configures a SSH server instead of a client.
 **--team**=`ID`
 The team `ID` used to bootstrap the environment.
 
+**--team-authority**=`sub-domain`
+The `sub-domain` of the certificate authority to bootstrap. E.g., for an authority with
+domain name 'certs.example-team.ca.smallstep.com' the value would be 'certs'.
+
 **--team-url**=`url`
 The `url` step queries to retrieve initial team configuration. Only used with
 the **--team** option. If the url contains `<>` placeholders, they are replaced with the team ID.
+Replacing the authority-id section of the url is not supported with placeholders.
 
 **--roots**
 Prints the public keys used to verify user or host certificates.
@@ -57,6 +63,13 @@ The JSON `file` with the template data to send to the CA.
 **--dry-run**
 Executes the command without changing any file.
 
+**-f**, **--force**
+Force the overwrite of files without asking.
+
+**--ca-config**=`file`
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
+
 **--ca-url**=`URI`
 `URI` of the targeted Step Certificate Authority.
 
@@ -68,12 +81,14 @@ Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
 but can accept a different configuration file using **--ca-config** flag.
 
-**--ca-config**=`file`
-The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+**--context**=`name`
+The `name` of the context for the new authority.
 
-**-f**, **--force**
-Force the overwrite of files without asking.
+**--profile**=`name`
+The `name` that will serve as the profile name for the context.
+
+**--authority**=`name`
+The `name` that will serve as the authority name for the context.
 
 ## Examples
 

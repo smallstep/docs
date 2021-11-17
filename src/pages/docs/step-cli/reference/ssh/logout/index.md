@@ -12,9 +12,9 @@ menu:
 ## Usage
 
 ```raw
-step ssh logout <identity>
-    [--all] [--ca-url=<uri>] [--root=<file>]
-    [--offline] [--ca-config=<file>]
+step ssh logout <identity> [--all]
+[--identity=<identity>] [--offline] [--ca-config=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -39,12 +39,6 @@ Removes all the keys stored in the SSH agent.
 The certificate identity. It is usually passed as a positional argument, but a
 flag exists so it can be configured in $STEPPATH/config/defaults.json.
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
-
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
@@ -52,7 +46,16 @@ but can accept a different configuration file using **--ca-config** flag.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

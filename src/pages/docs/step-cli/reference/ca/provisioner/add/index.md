@@ -58,7 +58,7 @@ List of private (or public) keys in JWK or PEM format.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
 
 **--type**=`type`
 The `type` of provisioner to create.
@@ -144,7 +144,7 @@ The `file` containing the certificates used to validate the
 instance identity documents in AWS.
 
 **--disable-custom-sans**
-On cloud provisioners, if anabled only the internal DNS and IP will be added as a SAN.
+On cloud provisioners, if enabled only the internal DNS and IP will be added as a SAN.
 By default it will accept any SAN in the CSR.
 
 **--disable-trust-on-first-use**, **--disable-tofu**

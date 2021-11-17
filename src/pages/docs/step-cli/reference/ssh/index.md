@@ -6,19 +6,19 @@ menu:
     parent: step
     children:
       - certificate
+      - check-host
       - config
-      - login
-      - logout
+      - fingerprint
+      - hosts
       - inspect
       - list
-      - fingerprint
+      - login
+      - logout
+      - needs-renewal
       - proxycommand
-      - check-host
-      - hosts
+      - rekey
       - renew
       - revoke
-      - rekey
-      - needs-renewal
 ---
 
 ## Name
@@ -92,17 +92,17 @@ $ ssh internal.example.com
 | Name | Usage |
 |---|---|
 | **[certificate](certificate/)** | sign a SSH certificate using the the SSH CA |
+| **[check-host](check-host/)** | checks if a certificate has been issued for a host |
 | **[config](config/)** | configures ssh to be used with certificates |
-| **[login](login/)** | adds a SSH certificate into the authentication agent |
-| **[logout](logout/)** | removes a private key from the ssh-agent |
+| **[fingerprint](fingerprint/)** | print the fingerprint of an SSH public key or certificate |
+| **[hosts](hosts/)** | returns a list of all valid hosts |
 | **[inspect](inspect/)** | print the contents of an ssh certificate |
 | **[list](list/)** | list public keys known to the ssh agent |
-| **[fingerprint](fingerprint/)** | print the fingerprint of an SSH public key or certificate |
+| **[login](login/)** | adds a SSH certificate into the authentication agent |
+| **[logout](logout/)** | removes a private key from the ssh-agent |
+| **[needs-renewal](needs-renewal/)** | Check if an SSH certificate needs to be renewed |
 | **[proxycommand](proxycommand/)** | proxy ssh connections according to the host registry |
-| **[check-host](check-host/)** | checks if a certificate has been issued for a host |
-| **[hosts](hosts/)** | returns a list of all valid hosts |
+| **[rekey](rekey/)** | rekey a SSH certificate using the SSH CA |
 | **[renew](renew/)** | renew a SSH certificate using the SSH CA |
 | **[revoke](revoke/)** | revoke a SSH certificate using the SSH CA |
-| **[rekey](rekey/)** | rekey a SSH certificate using the SSH CA |
-| **[needs-renewal](needs-renewal/)** | Check if an SSH certificate needs to be renewed |
 

@@ -17,11 +17,11 @@ step certificate key <crt-file> [--out=<file>]
 
 ## Description
 
-**step certificate key** prints the public key embedded in a certificate or 
+**step certificate key** prints the public key embedded in a certificate or
 a certificate signing request. If `crt-file` is a certificate bundle, only the
 first block will be taken into account.
 
-The command will print a public or a decrypted private key if `crt-file` 
+The command will print a public or a decrypted private key if `crt-file`
 contains only a key.
 
 ## Positional arguments

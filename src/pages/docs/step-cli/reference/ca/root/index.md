@@ -13,7 +13,7 @@ menu:
 
 ```raw
 step ca root [<root-file>]
-[--ca-url=<uri>] [--fingerprint=<fingerprint>]
+[--ca-url=<uri>] [--fingerprint=<fingerprint>] [--context=<name>]
 ```
 
 ## Description
@@ -29,14 +29,17 @@ File to write root certificate (PEM format)
 ## Options
 
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
 **-f**, **--force**
 Force the overwrite of files without asking.
 
 **--fingerprint**=`fingerprint`
 The `fingerprint` of the targeted root certificate.
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

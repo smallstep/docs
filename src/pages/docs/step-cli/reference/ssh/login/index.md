@@ -15,9 +15,9 @@ menu:
 step ssh login <identity>
 [--token=<token>] [--provisioner=<name>] [--provisioner-password-file=<file>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
-[--set=<key=value>] [--set-file=<file>]
-[--force] [--ca-url=<uri>] [--root=<file>]
+[--set=<key=value>] [--set-file=<file>] [--force]
 [--offline] [--ca-config=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -77,11 +77,8 @@ The `key=value` pair with template data variables to send to the CA. Use the **-
 **--set-file**=`file`
 The JSON `file` with the template data to send to the CA.
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
+**-f**, **--force**
+Force the overwrite of files without asking.
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
@@ -90,10 +87,16 @@ but can accept a different configuration file using **--ca-config** flag.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
 
-**-f**, **--force**
-Force the overwrite of files without asking.
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 
