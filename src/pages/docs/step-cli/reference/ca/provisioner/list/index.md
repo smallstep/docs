@@ -12,8 +12,8 @@ menu:
 ## Usage
 
 ```raw
-step ca provisioner list 
-[--ca-url=<uri>] [--root=<file>]
+step ca provisioner list
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -29,6 +29,9 @@ in the CA.
 
 **--root**=`file`
 The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

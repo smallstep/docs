@@ -12,10 +12,10 @@ menu:
 ## Usage
 
 ```raw
-step ssh rekey <ssh-cert> <ssh-key>
-[--out=<file>] [--issuer=<name>] [--password-file=<file>]
-[--force] [--ca-url=<uri>] [--root=<file>]
-[--offline] [--ca-config=<file>]
+step ssh rekey <ssh-cert> <ssh-key> [--out=<file>]
+[--issuer=<name>] [--password-file=<file>] [--force]
+[--offline] [--ca-config=<file>] [--ca-url=<uri>] [--root=<file>]
+[--context=<name>]
 ```
 
 ## Description
@@ -56,11 +56,12 @@ be written to disk unencrypted. This is not recommended. Requires **--insecure**
 **-f**, **--force**
 Force the overwrite of files without asking.
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
+**--sshpop-cert**=`chain`
+Certificate (`chain`) in PEM format to store in the 'sshpop' header of a JWT.
 
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
+**--sshpop-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the certificate that will
+be stored in the 'sshpop' header.
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
@@ -69,14 +70,16 @@ but can accept a different configuration file using **--ca-config** flag.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
 
-**--sshpop-cert**=`chain`
-Certificate (`chain`) in PEM format to store in the 'sshpop' header of a JWT.
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
 
-**--sshpop-key**=`file`
-Private key `file`, used to sign a JWT, corresponding to the certificate that will
-be stored in the 'sshpop' header.
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

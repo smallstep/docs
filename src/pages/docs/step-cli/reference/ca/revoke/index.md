@@ -14,8 +14,8 @@ menu:
 ```raw
 step ca revoke <serial-number>
 [--cert=<file>] [--key=<file>] [--token=<ott>]
-[--ca-url=<uri>] [--root=<file>] [--reason=<string>]
-[--reasonCode=<code>] [--offline]
+[--reason=<string>] [--reasonCode=<code>] [-offline]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -103,24 +103,27 @@ Note: This is specific to the CertificateHold reason and is only used in DeltaCR
 attribute certificate have been compromised (reasonCode=10).
 
 
+**--token**=`token`
+The one-time `token` used to authenticate with the CA in order to create the
+certificate.
+
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
-
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
+$(step path)/config/ca.json
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
 but can accept a different configuration file using **--ca-config** flag.
 
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
 **--root**=`file`
 The path to the PEM `file` used as the root certificate authority.
 
-**--token**=`token`
-The one-time `token` used to authenticate with the CA in order to create the
-certificate.
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

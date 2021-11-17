@@ -14,7 +14,9 @@ menu:
 ```raw
 step ca bootstrap
 [--ca-url=<uri>] [--fingerprint=<fingerprint>] [--install]
-[--team=name] [--team-url=url] [--redirect-url=<url>]
+[--team=<name>] [--authority=<name>] [--team-url=<uri>] [--redirect-url=<uri>]
+[--context=<name>] [--profile=<name>]
+[--authority=<name>] [--team-authority=<sub-domain>]
 ```
 
 ## Description
@@ -44,15 +46,29 @@ Install the root certificate into the system truststore.
 **--team**=`ID`
 The team `ID` used to bootstrap the environment.
 
+**--team-authority**=`sub-domain`
+The `sub-domain` of the certificate authority to bootstrap. E.g., for an authority with
+domain name 'certs.example-team.ca.smallstep.com' the value would be 'certs'.
+
 **--team-url**=`url`
 The `url` step queries to retrieve initial team configuration. Only used with
 the **--team** option. If the url contains `<>` placeholders, they are replaced with the team ID.
+Replacing the authority-id section of the url is not supported with placeholders.
 
 **--redirect-url**=`url`
 The `url` to open in the system browser when the OAuth flow is successful.
 
 **-f**, **--force**
 Force the overwrite of files without asking.
+
+**--context**=`name`
+The context `name` to apply for the given command.
+
+**--profile**=`name`
+The `name` that will serve as the profile name for the context.
+
+**--authority**=`name`
+The `name` that will serve as the authority name for the context.
 
 ## Examples
 

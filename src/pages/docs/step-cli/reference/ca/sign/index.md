@@ -15,12 +15,12 @@ menu:
 step ca sign <csr-file> <crt-file>
 [--token=<token>] [--issuer=<name>] [--provisioner-password-file=<file>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
-[--ca-url=<uri>] [--root=<file>]
 [--set=<key=value>] [--set-file=<file>]
 [--acme=<uri>] [--standalone] [--webroot=<file>]
 [--contact=<email>] [--http-listen=<address>] [--console]
 [--x5c-cert=<file>] [--x5c-key=<file>]
 [--k8ssa-token-path=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -37,16 +37,6 @@ File to write the certificate (PEM format)
 
 ## Options
 
-
-**--ca-config**=`file`
-The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
-
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
 
 **--token**=`token`
 The one-time `token` used to authenticate with the CA in order to create the
@@ -127,6 +117,19 @@ flag.
 
 **--k8ssa-token-path**=`file`
 Configure the `file` from which to read the kubernetes service account token.
+
+**--ca-config**=`file`
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

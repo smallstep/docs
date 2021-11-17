@@ -13,15 +13,15 @@ menu:
 
 ```raw
 step ca token <subject>
-[--kid=<kid>] [--issuer=<name>] [--ca-url=<uri>] [--root=<file>]
+[--kid=<kid>] [--issuer=<name>]
 [--cert-not-before=<time|duration>] [--cert-not-after=<time|duration>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--password-file=<file>] [--provisioner-password-file=<file>]
 [--output-file=<file>] [--key=<file>] [--san=<SAN>] [--offline]
 [--revoke] [--x5c-cert=<file>] [--x5c-key=<file>]
 [--sshpop-cert=<file>] [--sshpop-key=<file>]
-[--ssh] [--host] [--principal=<string>]
-[--k8ssa-token-path=<file>
+[--ssh] [--host] [--principal=<name>] [--k8ssa-token-path=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -72,12 +72,9 @@ multiple principals.
 **--host**
 Create a host certificate instead of a user certificate.
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
 
 **-f**, **--force**
 Force the overwrite of files without asking.
@@ -95,14 +92,6 @@ used it is expected to be in RFC 3339 format. If a `duration` is used, it is a
 sequence of decimal numbers, each with optional fraction and a unit suffix, such
 as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
 "s", "m", "h".
-
-**--offline**
-Creates a certificate without contacting the certificate authority. Offline mode
-uses the configuration, certificates, and keys created with **step ca init**,
-but can accept a different configuration file using **--ca-config** flag.
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
 
 **--provisioner**=`name`, **--issuer**=`name`
 The provisioner `name` to use.
@@ -152,6 +141,20 @@ Create a token for authorizing an SSH certificate signing request.
 
 **--k8ssa-token-path**=`file`
 Configure the `file` from which to read the kubernetes service account token.
+
+**--offline**
+Creates a certificate without contacting the certificate authority. Offline mode
+uses the configuration, certificates, and keys created with **step ca init**,
+but can accept a different configuration file using **--ca-config** flag.
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

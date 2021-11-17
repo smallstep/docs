@@ -17,7 +17,8 @@ step ca init
 [--helm] [--deployment-type=<name>] [--name=<name>]
 [--dns=<dns>] [--address=<address>] [--provisioner=<name>]
 [--provisioner-password-file=<file>] [--password-file=<file>]
-[--with-ca-url=<url>] [--ra=<type>] [--kms=<type>] [--no-db]
+[--ra=<type>] [--kms=<type>] [--with-ca-url=<url>] [--no-db]
+[--context=<name>] [--profile=<name>] [--authority=<name>]
 ```
 
 ## Description
@@ -124,4 +125,13 @@ Cloud.
 
 **--no-db**
 Generate a CA configuration without the DB stanza. No persistence layer.
+
+**--context**=`name`
+The `name` of the context for the new authority.
+
+**--profile**=`name`
+The `name` that will serve as the profile name for the context.
+
+**--authority**=`name`
+The `name` that will serve as the authority name for the context.
 

@@ -13,11 +13,10 @@ menu:
 
 ```raw
 step ca renew <crt-file> <key-file>
-[--ca-url=<uri>] [--root=<file>] [--password-file=<file>]
-[--out=<file>] [--expires-in=<duration>] [--force]
-[--expires-in=<duration>] [--pid=<int>] [--pid-file=<file>]
-[--signal=<int>] [--exec=<string>] [--daemon]
-[--renew-period=<duration>]
+[--password-file=<file>] [--out=<file>] [--expires-in=<duration>]
+[--force] [--expires-in=<duration>] [--pid=<int>]
+[--pid-file=<file>] [--signal=<int>] [--exec=<string>] [--daemon]
+[--renew-period=<duration>] [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -50,10 +49,7 @@ They key file of the certificate.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
-
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
+$(step path)/config/ca.json
 
 **-f**, **--force**
 Force the overwrite of files without asking.
@@ -65,9 +61,6 @@ but can accept a different configuration file using **--ca-config** flag.
 
 **--password-file**=`file`
 The path to the `file` containing the password to encrypt or decrypt the private key.
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
 
 **--out**=`file`, **--output-file**=`file`
 The new certificate `file` path. Defaults to overwriting the `crt-file` positional argument
@@ -109,6 +102,15 @@ The period with which to schedule renewals of the certificate in daemon mode.
 Requires the **--daemon** flag. The `duration` is a sequence of decimal numbers,
 each with optional fraction and a unit suffix, such as "300ms", "1.5h", or "2h45m".
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

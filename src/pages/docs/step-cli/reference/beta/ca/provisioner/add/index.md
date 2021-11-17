@@ -13,47 +13,48 @@ menu:
 
 ```raw
 step beta ca provisioner add <name> --type=JWK [--public-key=<file>]
-[--private-key=<file>] [--create]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
-[--ca-url=<uri>] [--root=<file>]
+[--private-key=<file>] [--create] [--password-file=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 
 step beta ca provisioner add <name> --type=OIDC
 [--client-id=<id>] [--client-secret=<secret>]
-[--configuration-endpoint=<url>] [--domain=<domain>] [--admin=<email>]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--configuration-endpoint=<url>] [--domain=<domain>]
+[--admin=<email>]...
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
+
 
 step beta ca provisioner add <name> --type=X5C --x5c-root=<file>
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 
 step beta ca provisioner add <name> --type=SSHPOP
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 
 step beta ca provisioner add <name> --type=K8SSA [--public-key=<file>]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 
 step beta ca provisioner add <name> --type=[AWS|Azure|GCP]
 [--aws-account=<id>] [--gcp-service-account=<name>] [--gcp-project=<name>]
 [--azure-tenant=<id>] [--azure-resource-group=<name>]
 [--instance-age=<duration>] [--iid-roots=<file>]
 [--disable-custom-sans] [--disable-trust-on-first-use]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 
 step beta ca provisioner add <name> --type=ACME [--force-cn]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -210,7 +211,7 @@ The `file` containing the certificates used to validate the
 instance identity documents in AWS.
 
 **--disable-custom-sans**
-On cloud provisioners, if anabled only the internal DNS and IP will be added as a SAN.
+On cloud provisioners, if enabled only the internal DNS and IP will be added as a SAN.
 By default it will accept any SAN in the CSR.
 
 **--disable-trust-on-first-use**, **--disable-tofu**
@@ -239,6 +240,9 @@ The path to the `file` containing the password to encrypt or decrypt the private
 
 **--root**=`file`
 The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

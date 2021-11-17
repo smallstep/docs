@@ -12,9 +12,9 @@ menu:
 ## Usage
 
 ```raw
-step ssh check-host <hostname>
-[--ca-url=<uri>] [--root=<file>]
-[--offline] [--ca-config=<file>] [--verbose,-v]
+step ssh check-host <hostname> [--verbose,-v]
+[--offline] [--ca-config=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -32,23 +32,26 @@ The hostname of the server to check.
 ## Options
 
 
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
+**--verbose**, **-v**
+Return "true" or "false" in the terminal.
 
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
+**--ca-config**=`file`
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
 but can accept a different configuration file using **--ca-config** flag.
 
-**--ca-config**=`file`
-The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
 
-**--verbose**, **-v**
-Return "true" or "false" in the terminal.
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

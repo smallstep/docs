@@ -12,10 +12,10 @@ menu:
 ## Usage
 
 ```raw
-step beta ca admin list [--super] [--provisioner=<string>]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
+step beta ca admin list [--super] [--provisioner=<name>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -28,8 +28,8 @@ step beta ca admin list [--super] [--provisioner=<string>]
 **--super**
 Only return super-admins.
 
-**--provisioner**=`value`
-Only return admins linked to this provisioner.
+**--provisioner**=`name`
+The provisioner `name` by which to filter admins.
 
 **--admin-cert**=`chain`
 Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
@@ -52,6 +52,9 @@ The path to the `file` containing the password to encrypt or decrypt the private
 
 **--root**=`file`
 The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

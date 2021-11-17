@@ -10,6 +10,7 @@ menu:
       - ca
       - beta
       - certificate
+      - context
       - crypto
       - fileserver
       - oauth
@@ -49,6 +50,7 @@ print the version
 | **[ca](ca/)** | initialize and manage a certificate authority |
 | **[beta](beta/)** | commands that are being tested; these APIs are likely to change |
 | **[certificate](certificate/)** | create, revoke, validate, bundle, and otherwise manage certificates |
+| **[context](context/)** | manage certificate authority contexts |
 | **[crypto](crypto/)** | useful cryptographic plumbing |
 | **[oauth](oauth/)** | authorization and single sign-on using OAuth & OIDC |
 | **[path](path/)** | print the configured step path and exit |
@@ -57,7 +59,7 @@ print the version
 
 ## Version
 
-Smallstep CLI/0.17.7 (linux/amd64)
+Smallstep CLI/0.18.0 (linux/amd64)
 
 ## Copyright
 

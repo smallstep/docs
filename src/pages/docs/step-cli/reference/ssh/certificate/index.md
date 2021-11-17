@@ -13,12 +13,13 @@ menu:
 
 ```raw
 step ssh certificate <key-id> <key-file>
-[--host] [--host-id] [--sign] [--principal=<string>] [--password-file=<file>]
-[--provisioner-password-file=<file>] [--add-user]
-[--not-before=<time|duration>] [--not-after=<time|duration>]
-[--token=<token>] [--issuer=<name>] [--ca-url=<uri>]
-[--root=<file>] [--no-password] [--insecure] [--force]
-[--x5c-cert=<file>] [--x5c-key=<file>] [--k8ssa-token-path=<file>]
+[--host] [--host-id] [--sign] [--principal=<string>]
+[--password-file=<file>] [--provisioner-password-file=<file>]
+[--add-user] [--not-before=<time|duration>]
+[--not-after=<time|duration>] [--token=<token>] [--issuer=<name>]
+[--no-password] [--insecure] [--force] [--x5c-cert=<file>]
+[--x5c-key=<file>] [--k8ssa-token-path=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -71,21 +72,11 @@ key path when we are just signing it.
 ## Options
 
 
-**--ca-config**=`file`
-The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
-
-**--ca-url**=`URI`
-`URI` of the targeted Step Certificate Authority.
-
 **-f**, **--force**
 Force the overwrite of files without asking.
 
 **--insecure**
 
-
-**--root**=`file`
-The path to the PEM `file` used as the root certificate authority.
 
 **--no-password**
 Do not ask for a password to encrypt a private key. Sensitive key material will
@@ -163,6 +154,19 @@ be stored in the 'x5c' header.
 
 **--k8ssa-token-path**=`file`
 Configure the `file` from which to read the kubernetes service account token.
+
+**--ca-config**=`file`
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

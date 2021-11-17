@@ -13,7 +13,7 @@ menu:
 
 ```raw
 step ca federation [<federation-file>]
-[--ca-url=<uri>] [--root=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -37,6 +37,9 @@ Force the overwrite of files without asking.
 
 **--root**=`file`
 The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
 
 ## Examples
 

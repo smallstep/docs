@@ -151,7 +151,7 @@ The path to the PEM `file` used as the root certificate authority.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
-$STEPPATH/config/ca.json
+$(step path)/config/ca.json
 
 ## Examples
 
