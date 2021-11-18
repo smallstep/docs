@@ -161,7 +161,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
           borderTop: `1px solid ${theme.palette.divider}`,
         }}
       >
-        <Grid item xs={12} md={4} xl={3} classes={docsNavClasses}>
+        <Grid item xs={12} md={5} xl={4} classes={docsNavClasses}>
           <Hidden mdUp implementation="css">
             <Box m={2}>
               <ExpansionPanel>
@@ -180,7 +180,7 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
           </Hidden>
 
           <Hidden smDown implementation="css">
-            <Box maxWidth="340px" pl={4} pr={2} py={4}>
+            <Box width="420px" pl={4} pr={2} py={4}>
               <DocsNav
                 pathname={pathname}
                 submenusRef={(ref) => setSubmenus(ref)}
@@ -192,8 +192,8 @@ const DocsLayout = ({ location, pageContext, toc, children }) => {
         <Grid
           item
           xs={12}
-          md={8}
-          xl={6}
+          md={7}
+          xl={5}
           style={{
             marginTop: theme.spacing(1),
           }}
