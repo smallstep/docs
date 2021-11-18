@@ -14,7 +14,7 @@ You will need:
 * Two (or more) Okta groups:
   * A group whose members should be allowed to SSH (we'll refer to this as the `ssh` group, but you can call it whatever you want)
   * A group whose members should be allowed to `sudo` (we'll refer to this as the `sudo` group, but you can call it whatever you want)
-  * You can use existing groups, or create new ones (Directory → Groups → Add Group)
+  * You can use existing groups or create new ones (Directory → Groups → Add Group)
   * Make sure you add users that should be allowed to ssh/sudo to the respective groups (Directory → Groups → select group → Manage People)
   * For more granular access, you can create multiple groups and grant access to a subset of smallstep managed hosts.
 
@@ -46,31 +46,32 @@ In this quickstart, we will:
 ### **Step 1. Create Okta OIDC Application**
 
 1. Start at your Okta admin dashboard (access via "Admin" button next to "+ Add Apps" after successful log in)
-2. Go to Applications → Add Application → Create New App → Platform: “Native app” → Create
+2. Go to Applications → Create App Integration
+3. In the pop up select "OIDC - OpenID Connect" as the sign-in method and specify "Native Application" for the Application type.
 
-   ![](/graphics/quickstart/okta-oidc-newapp.png "Okta OIDC")
+   ![](/graphics/quickstart/ssh-okta-new-oidc-app "Okta OIDC")
 
-3. You'll see the Create OpenID Connect Integrations page.
-   * General Settings
-     * Application name: `smallstep-oidc`
-   * Configure OpenID Connect
-     * Login redirect URIs: `http://127.0.0.1:10000`
-   * Save
+4. New Native App Integration Page
+   * App integration name: `smallstep-oidc`
+   * Sign-in redirect URIs: `http://127.0.0.1:10000`
+   * Select "Skip group assignment for now"
+   * All other value leave as default
+   * click save
 
-   ![](/graphics/quickstart/okta-create-openid.png "Create OpenID")
+   ![](/graphics/quickstart/ssh-okta-uri-oidc-app.png "Create OpenID")
 
-4. Go to the **General** tab → Scroll down to "Client Credentials" and choose "Edit"
+5. Go to the **General** tab → Scroll down to "Client Credentials" and choose "Edit"
    * Select "Use Client Authentication" radio button
    * Save
 
-   ![](/graphics/quickstart/okta-client-auth.png)
+   ![](/graphics/quickstart/ssh-okta-client-auth-oidc-app.png)
 
-5. Go to the **Assignments** tab.
+6. Go to the **Assignments** tab.
    * Assign any groups that will need either `sudo` and/or `ssh` access to hosts to the `smallstep-oidc` app:
      * Assignments → Assign → Assign to Group → Click "Assign" for `ssh`
      * Assignments → Assign → Assign to Group → Click "Assign" for `sudo`
      * Repeat this process for any other groups you created for controlling SSH/sudo access
-6. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
+7. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
 
 ### Step 2. Enter your OIDC Details into the Smallstep dashboard
 
@@ -89,13 +90,18 @@ In this quickstart, we will:
 
    This is your **Configuration Endpoint**. For example, if you normally sign into Okta at `https://example.okta.com/`, then your configuration endpoint is `https://example.okta.com/.well-known/openid-configuration`
 
+   You can copy your Okta domain from the OIDC application General tab under General Settings
+
+    ![](/graphics/quickstart/ssh-okta-domain-oidc-app.png "onboarding")
+
+
 5. Click **"SAVE"**
 6. You've completed this portion of the setup.
 
-### Step 3. Configure User Sync in Okta
+### Step 3. Add the Smallstep App Integration and Configure User Sync in Okta
 
 * In the OKTA admin console, add the Smallstep application
-  * Applications → Add Application → Search
+  * Applications → Browse App Catalog
     * Search for `Smallstep`
     * Select the Smallstep app:
 
