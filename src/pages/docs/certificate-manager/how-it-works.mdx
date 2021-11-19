@@ -22,34 +22,35 @@ A **certificate** is a sort of credential. Concretely, a certificate is a data s
 
 ## Endpoints
 
-Certificate Manager endpoints receive and renew certificates from Authorities.
-Endpoints are automatically identified by certificate characteristics across issuances.
-* Common SANs
-* The ACME account for ACME workflows
-* The email or SAN for OIDC workflows
+An **Endpoint** is an entity (person, device, workload) that is issued a certificate. Certificate Manager attempts to group certificate renewals for an Endpoint for alerting, audit, and billing purposes.
 
-The Certificate Manager dashboard provides an endpoint detail view (coming soon). 
-This makes it easy for an administrator to view the historical certificate linage for a single endpoint.
-This aggregation also simplifies auditing, reporting, and compliance inquiries. 
+Certificate Manager can be configured to alert you when an Endpoint’s last certificate is approaching expiry and has not been renewed.
 
-Smallstep also bills by the number of endpoints based on the metered time that begins at
-* The endpoint first certificate's `not before` date, until
-* The endpoint most recent certificate's `not after` date.
+The Certificate Manager dashboard provides an Endpoint detail view (coming soon) that makes it easy for administrators to view the historical certificate lineage for an Endpoint. This aggregated view simplifies operations, auditing, reporting, and compliance inquiries.
 
-Let's look at two endpoint examples:
-1. Long-lived or one-time certs
-   
-   If you issue a certificate and never renew or replace it, you will be metered hourly and billed monthly for the life of the certificate.
+Certificate Manager billing is also metered on Endpoint-months.
 
-   In this example, a single device with **one 365-day certificate** would be billed as an endpoint for 12-months. 
+- Billing starts when a certificate is issued for a new Endpoint
+- Billing ends when an Endpoint’s last certificate expires or is revoked
 
-2. Automated short-lived certificates
-   
-   If you issue a certificate, then (a) renew it, (b) reissue with same ACME account or (c) reissue with same email/SAN using OIDC, you will be metered hourly and billed monthly from the earliest `not before` to the latest `not after` date.
-   
-   In this example, a single device with **365 one-day certificates renewed every 12-hours** would be billed as an endpoint for 12-months. 
+Billing per-certificate would penalize deployments that use short-lived certificates and automated renewal. Endpoint billing is designed to encourage this best practice.
 
-Endpoints not only simplify reporting and management but also promote industry best practices around short-lived certificates. 
+Two Endpoint examples:
+1. A single device with **one 30-day certificate** would be billed at the same rate as,
+2. A single device with **60 one-day certificates** renewed every 12-hours. 
+
+**Endpoint** grouping is automatic and intuitive for most use cases:
+
+- For provisioners with renewal enabled:
+    - Certificates issued using  `step ca certificate` (or any other method that uses the `/sign` API) create a new Endpoint
+    - Certificates issued using `step ca renew` (or any other method that uses the `/renew` API) are associated with the existing Endpoint of the certificate that’s being renewed
+- For provisioners with renewal disabled, common with ACME and OIDC, certificates with identical subjects (common name and SANs), ignoring order and capitalization, belong to the same Endpoint
+
+For billing purposes, there is a limit of three active certificates per Endpoint. Each active certificate above three is billed as an additional Endpoint. To avoid being charged for multiple Endpoints you can revoke unused certificates after they’ve been renewed.
+
+If automatic Endpoint grouping does not work for your use case, you can also specify an **Endpoint ID** when you request a certificate (coming soon).
+
+If you’d like to opt-in to certificate-based billing, inquire about high-volume fixed pricing, or have any other questions about Endpoint-based billing for your use case please [contact us](mailto:cs@smallstep.com).
 
 ## Authorities
 
