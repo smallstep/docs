@@ -38,6 +38,12 @@ First, create an OIDC application in your IdP. Be sure to set the following valu
   </div>
 </Alert>
 
+<Alert severity="info">
+  <div>
+    For Azure AD you may need to create or update the native application from the command line to specify the redirect URI. The web interface may reject a http://127.0.0.1 value. Contact <a href="mailto:cs@smallstep.com">Customer Success</a> if you have any questions.</code>
+  </div>
+</Alert>
+
 ### Step 2 - Add an OIDC provisioner to your Authority. 
 The OIDC provisioner in Certificate Manager can be configured to trust and accept an OAuth provider's ID tokens for authentication. 
 The issued certificate will use the subject (sub) claim from the identity token as its subject by default. 
@@ -68,6 +74,7 @@ Use the following command as a template for adding an OIDC provisioner.
     For Okta and other IdPs that require you to specify a port for the listener, add the following flag to the provisioner add command: <code>--listen-address 127.0.0.1:10000</code>
   </div>
 </Alert>
+
 
 This command requires Administrator privileges on the Authority. The terminal will prompt you to enter your email and perform a single sign-on flow via the smallstep dashboard. 
 
