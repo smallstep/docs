@@ -6,7 +6,7 @@ description: Learn how to configure step-ca
 
 
 When the `step ca init` command sets up your PKI, it creates an initial
-configuration file for your CA and stores it in `$STEPPATH/config/ca.json`.
+configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
 In this document we'll describe how to configure every aspect of `step-ca`. You'll
 learn how to configure your CA to:
@@ -814,7 +814,7 @@ you can create a new key for your RA by decrypting the CA's JWK provisioner key 
 
 2. Transfer `ra.key.pem` to your RA
 
-  On the RA, save the PEM file into `$STEPPATH/secrets` and configure the `"certificateIssuer"` as follows:
+  On the RA, save the PEM file into `$(step path)/secrets` and configure the `"certificateIssuer"` as follows:
 
   ```json
   {

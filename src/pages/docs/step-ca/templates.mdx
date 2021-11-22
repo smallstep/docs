@@ -258,9 +258,9 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
     - **templateFile**: path to a template stored on disk. You have a few options for how to define your path:
 
         - **_absolute path_**:  e.g. `/home/mariano/path/to/file.ptl`
-        - **_relative to `$STEPPATH`_**: e.g. `templates/certs/x509/leaf.tpl` the actual
-          location of which would be `$STEPPATH/templates/certs/x509/leaf.tpl`.
-        - **_relative to execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
+        - **_relative to `$(step path)`_**: e.g. `templates/certs/x509/leaf.tpl` the actual
+          location of which would be `$(step path)/templates/certs/x509/leaf.tpl`.
+        - **_relative to the execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
 
     - **templateData**: defines variables that can be used in the template.
       In the example above, you will be able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,

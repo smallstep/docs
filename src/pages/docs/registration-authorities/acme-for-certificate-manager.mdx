@@ -230,7 +230,7 @@ Setting up an RA manually involves the following steps:
     - `certificateIssuer.provisioner`: Your JWK provisioner name
 
 
-3. Next, put the issuing JWK provisioner password into a file (eg. `$STEPPATH/password.txt`). When starting up `step-ca` in RA mode, you must pass the issuing JWK provisioner password filename:
+3. Next, put the issuing JWK provisioner password into a file (eg. `$(step path)/password.txt`). When starting up `step-ca` in RA mode, you must pass the issuing JWK provisioner password filename:
 
     <CodeBlock language="shell-session" copyText="step-ca /.step/config/ca.json --issuer-password-file password.txt">
       {`$ step-ca /.step/config/ca.json --issuer-password-file password.txt`}
