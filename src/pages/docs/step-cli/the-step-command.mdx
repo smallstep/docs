@@ -57,7 +57,10 @@ To enable contexts,
 pass the `--context` flag to any of the `step` setup commands, along with a label for your new context:
 
 ```bash
-$ step ca bootstrap --ca-url https://ca.internal:4443 --fingerprint c8d3...7aa --context vpn
+$ step ca bootstrap \
+       --ca-url https://ca.internal:4443 \
+	   --fingerprint c8d3...7aa \
+	   --context vpn
 The root certificate has been saved in /home/carl/.step/authorities/ca.internal/certs/root_ca.crt.
 The authority configuration has been saved in /home/carl/.step/authorities/ca.internal/config/defaults.json.
 The profile configuration has been saved in /home/carl/.step/profiles/ca.internal/config/defaults.json.
