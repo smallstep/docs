@@ -72,7 +72,7 @@ After initializing your CA,
 we recommend that you immediately change the password for the intermediate CA private key:
 
 ```shell
-step crypto change-pass $STEPPATH/secrets/intermediate_ca_key
+step crypto change-pass $(step path)/secrets/intermediate_ca_key
 ```
 
 You'll use this new intermediate key password to start `step-ca`.
