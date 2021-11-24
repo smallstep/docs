@@ -535,7 +535,7 @@ ExecStartPost=/usr/bin/env sh -c "! systemctl --quiet is-enabled %i.service || s
 WantedBy=multi-user.target
 ```
 
-(This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/cert-renewer@.service))
+(This file is maintained [on GitHub](https://github.com/smallstep/cli/blob/master/systemd/cert-renewer@.service))
 
 With this template file in place, we can now ask systemd to start any `cert-renewer@*.service`.
 
@@ -645,7 +645,7 @@ RandomizedDelaySec=5m
 WantedBy=timers.target
 ```
 
-(This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/cert-renewer@.timer))
+(This file is maintained [on GitHub](https://github.com/smallstep/cli/blob/master/systemd/cert-renewer@.timer))
 
 Timers using this template will run every 5-10 minutes,
 with a randomized delay on each timer.
