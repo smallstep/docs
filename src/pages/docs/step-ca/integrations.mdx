@@ -74,11 +74,13 @@ Learn more about how to [configure a cloud identity document provisioner][config
 
 ### Kubernetes
 
-We offer a few options for Kubernetes integrations:
-- [`autocert`][autocert] is our kubernetes add-on that automatically injects TLS/HTTPS certificates into your containers. Learn more about how to [install and configure `autocert`][autocert].
-- If you already use [`cert-manager`](https://cert-manager.io) for certificate automation, you can:
-  - [Configure the ACME `Issuer` to use `step-ca`](/docs/tutorials/kubernetes-acme-ca)
-  - Or [use our open source `step-issuer`](https://github.com/smallstep/step-issuer)
+The popular [`cert-manager`](https://cert-manager.io) Kubernetes add-on brings X.509 certificate automation to k8s, for both Ingress TLS certificates and service-to-service or intra-service TLS certificates.
+
+We have two integration options with `cert-manager`:
+- [Our open source `step-issuer`](https://github.com/smallstep/step-issuer) is a `cert-manager` Issuer that integrates with `step-ca`.
+- Or, if you want a pure ACME solution, you can [configure `cert-manager`'s ACME Issuer to use `step-ca`](/docs/tutorials/kubernetes-acme-ca).
+
+[`autocert`][autocert] is our k8s add-on that automatically injects TLS/HTTPS certificates into your containers. It is a simple admission controller that modifies a Deployment to inject a new Pod that generates and renews the Pod's certificate. It's not designed to support k8s Ingresses. Learn more about how to [install and configure `autocert`][autocert].
 
 ### Envoy Secret Discovery Service (SDS)
 
