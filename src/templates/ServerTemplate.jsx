@@ -55,7 +55,7 @@ const ServerTemplate = ({
         <HBase variant="h3">Operationalize It</HBase>
         <MDXBlock path="sections/20-operationalize/00-intro" />
         <HBase variant="h4">Select a provisioner</HBase>
-        <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
+        <MDXBlock path="sections/20-operationalize/10-provisioner/00-intro" />
 
         <Box my={4}>
           <ProvisionerSelector
@@ -67,16 +67,16 @@ const ServerTemplate = ({
         <Box mb={6}>
           <MDXBlock
             show={provisioner === 'jwk'}
-            path="sections/20-operationalize/10-renewal/10-provisioner/jwk"
+            path="sections/20-operationalize/10-provisioner/jwk"
           />
           <MDXBlock
             show={provisioner === 'acme'}
-            path="sections/20-operationalize/10-renewal/10-provisioner/acme"
+            path="sections/20-operationalize/10-provisioner/acme"
           />
         </Box>
 
         <HBase variant="h4" mb={4}>
-          Configure Automated {pzt.name} TLS Renewal
+          Configure {pzt.name} TLS Certificate Automation
         </HBase>
 
         <Tabs value={deployment} onChange={onDeploymentChange}>
@@ -97,7 +97,7 @@ const ServerTemplate = ({
           className={classes.tabPanel}
           style={{ display: deployment === 'builtin' ? 'block' : 'none' }}
         >
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/builtin-acme" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/builtin-acme" />
         </div>
 
         <div
@@ -106,28 +106,28 @@ const ServerTemplate = ({
         >
           <MDXBlock
             show={provisioner === 'jwk'}
-            path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/jwk"
+            path="sections/20-operationalize/20-deployments/linux/10-template/jwk"
           />
           <MDXBlock
             show={provisioner === 'acme'}
-            path="sections/20-operationalize/10-renewal/20-deployments/linux/10-template/acme"
+            path="sections/20-operationalize/20-deployments/linux/10-template/acme"
           />
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/20-override" />
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/linux/30-enable" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/linux/20-override" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/linux/30-enable" />
         </div>
 
         <div
           className={classes.tabPanel}
           style={{ display: deployment === 'docker' ? 'block' : 'none' }}
         >
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/docker/00-intro" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/docker/00-intro" />
           <MDXBlock
             show={provisioner === 'jwk'}
-            path="sections/20-operationalize/10-renewal/20-deployments/docker/jwk"
+            path="sections/20-operationalize/20-deployments/docker/jwk"
           />
           <MDXBlock
             show={provisioner === 'acme'}
-            path="sections/20-operationalize/10-renewal/20-deployments/docker/acme"
+            path="sections/20-operationalize/20-deployments/docker/acme"
           />
         </div>
 
@@ -137,22 +137,22 @@ const ServerTemplate = ({
             display: deployment === 'kubernetes' ? 'block' : 'none',
           }}
         >
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/kubernetes/10-certificate" />
           <MDXBlock
             show={provisioner === 'jwk'}
-            path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/jwk"
+            path="sections/20-operationalize/20-deployments/kubernetes/20-issuer/jwk"
           />
           <MDXBlock
             show={provisioner === 'acme'}
-            path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/acme"
+            path="sections/20-operationalize/20-deployments/kubernetes/20-issuer/acme"
           />
-          <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/30-configuration" />
+          <MDXBlock path="sections/20-operationalize/20-deployments/kubernetes/30-configuration" />
         </div>
 
         <HBase variant="h4">
           Distribute your root certificate to end users and systems
         </HBase>
-        <MDXBlock path="sections/20-operationalize/20-root" />
+        <MDXBlock path="sections/20-operationalize/30-root" />
       </Box>
 
       {content[`${pzt.slug}/sections/30-research-notes/10-notes`] && (

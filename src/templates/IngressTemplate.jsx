@@ -35,11 +35,11 @@ const IngressTemplate = ({
       <Box mb={6}>
         <MDXBlock
           show={provisioner === 'jwk'}
-          path="sections/20-operationalize/10-renewal/10-provisioner/jwk"
+          path="sections/20-operationalize/10-provisioner/jwk"
         />
         <MDXBlock
           show={provisioner === 'acme'}
-          path="sections/20-operationalize/10-renewal/10-provisioner/acme"
+          path="sections/20-operationalize/10-provisioner/acme"
         />
       </Box>
 
@@ -47,21 +47,21 @@ const IngressTemplate = ({
         Configure Automated {pzt.name} TLS Renewal
       </HBase>
 
-      <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/10-certificate" />
+      <MDXBlock path="sections/20-operationalize/20-deployments/kubernetes/10-certificate" />
       <MDXBlock
         show={provisioner === 'jwk'}
-        path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/jwk"
+        path="sections/20-operationalize/20-deployments/kubernetes/20-issuer/jwk"
       />
       <MDXBlock
         show={provisioner === 'acme'}
-        path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/20-issuer/acme"
+        path="sections/20-operationalize/20-deployments/kubernetes/20-issuer/acme"
       />
-      <MDXBlock path="sections/20-operationalize/10-renewal/20-deployments/kubernetes/30-configuration" />
+      <MDXBlock path="sections/20-operationalize/20-deployments/kubernetes/30-configuration" />
 
       <HBase variant="h4">
         Distribute your root certificate to end users and systems
       </HBase>
-      <MDXBlock path="sections/20-operationalize/20-root" />
+      <MDXBlock path="sections/20-operationalize/30-root" />
     </Box>
 
     {content[`${pzt.slug}/sections/40-further-reading`] && (
