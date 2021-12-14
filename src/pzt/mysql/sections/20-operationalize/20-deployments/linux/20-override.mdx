@@ -8,16 +8,34 @@ cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@mysql.service.d/override.c
 [Service]
 ; "Environment=" overrides are applied per environment variable. This line does not
 ; affect any other variables set in the service template.
-Environment=CERT_LOCATION=/var/lib/redis/redis.crt \\
-            KEY_LOCATION=/var/lib/redis/redis.key \\
-            REDIS_USERNAME=default \\
-            REDISCLI_AUTH=""
+Environment=CERT_LOCATION=/var/lib/mysql/server-cert.pem \\
+            KEY_LOCATION=/var/lib/mysql/server-key.pem
+
+LoadCredential=reloader@localhost.cnf:/var/lib/mysql/reloader@localhost.cnf
+
 ; Empty ExecStartPost (Don't attempt to restart mysql.service)
 ExecStartPost=
-ExecStartPost=mysql -A -uroot -p"$MYSQL_ROOT_PASSWORD" -e "ALTER INSTANCE RELOAD TLS"
+ExecStartPost=mysql --defaults-extra-file="\$CREDENTIALS_DIRECTORY/reloader@localhost.cnf" \\
+                  -A -e "ALTER INSTANCE RELOAD TLS" \\
+				  --ssl-ca /var/lib/mysql/ca.pem
 EOF
 ```
 
-If you use password authentication in Redis,
-you'll need to update the `REDIS_USERNAME` and/or `REDISCLI_AUTH`.
-Otherwise, leave them alone.
+You'll also need a database user (eg. `reloader@localhost`) that has the [`CONNECTION_ADMIN`]() privilege, for reloading the certificate:
+
+```
+mysql> CREATE USER 'reloader'@'localhost' IDENTIFIED BY 'password';
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> GRANT CONNECTION_ADMIN on *.* to 'reloader'@'localhost';
+Query OK, 0 rows affected (0.07 sec)
+
+```
+
+Finally, create the `reloader@localhost.cnf` credential file for the mysql client, which will look like this:
+
+```ini
+[client]
+password="password"
+```
+
