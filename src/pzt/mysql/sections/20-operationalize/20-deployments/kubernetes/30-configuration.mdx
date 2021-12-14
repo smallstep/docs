@@ -1,0 +1,26 @@
+Now that your certificate is issued (and kept updated)
+in the `redis-tls` secret, you'll need to configure Redis
+to actually use that certificate.
+
+For this example, we will show how to configure Redis
+using the
+[`bitnami/redis`](https://github.com/bitnami/charts/tree/master/bitnami/redis)
+Helm chart. There are numerous ways to deploy Redis in Kuberenetes,
+and you're welcome to repurpose these instructions for other approaches,
+but the `bitnami/redis` chart has built-in support
+for reloading certificates when their corresponding secret changes.
+
+Assuming you already have `bitnami/redis` deployed to your cluster,
+TLS configuration can be handled entirely through Helm values:
+
+```yaml
+# ...
+tls:
+  enabled: true
+  existingSecret: redis-tls
+# ...
+```
+
+Use `helm upgrade` to re-deploy (or install) your chart,
+and Redis TLS will then always use your latest certificate
+from the `redis-tls` secret.

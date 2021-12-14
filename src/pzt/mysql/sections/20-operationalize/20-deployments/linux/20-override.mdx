@@ -1,0 +1,23 @@
+To renew and hot-reload the MySQL server certificate,
+we will need a MySQL-specific systemd override file that can tell MySQL to refresh its certificates.
+To install the override, run:
+
+```bash
+sudo mkdir /etc/systemd/system/cert-renewer@mysql.service.d
+cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@mysql.service.d/override.conf
+[Service]
+; "Environment=" overrides are applied per environment variable. This line does not
+; affect any other variables set in the service template.
+Environment=CERT_LOCATION=/var/lib/redis/redis.crt \\
+            KEY_LOCATION=/var/lib/redis/redis.key \\
+            REDIS_USERNAME=default \\
+            REDISCLI_AUTH=""
+; Empty ExecStartPost (Don't attempt to restart mysql.service)
+ExecStartPost=
+ExecStartPost=mysql -A -uroot -p"$MYSQL_ROOT_PASSWORD" -e "ALTER INSTANCE RELOAD TLS"
+EOF
+```
+
+If you use password authentication in Redis,
+you'll need to update the `REDIS_USERNAME` and/or `REDISCLI_AUTH`.
+Otherwise, leave them alone.
