@@ -47,9 +47,11 @@ Your certificate and private key will be saved in `server-cert.pem` and `server-
 
 MySQL is one of a few services that require the intermediate CA certificate to be bundled with the root CA certificate, in order to validate certificate chains. Let's create a bundle of your CA intermediate and root certificates:
 
-```shell
-cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem
-step ca root >> ca.pem
-```
+<CodeBlock
+  copyText="cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem && step ca root >> ca.pem"
+  language="bash">
+{`cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem
+step ca root >> ca.pem`}
+</CodeBlock>
 
 The certificate bundle will be saved in `ca.pem`.
