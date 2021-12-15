@@ -23,7 +23,7 @@ const IngressTemplate = ({
 
     <Box mb={6}>
       <HBase variant="h4">Select a provisioner</HBase>
-      <MDXBlock path="sections/20-operationalize/10-renewal/00-intro" />
+      <MDXBlock path="sections/20-operationalize/10-provisioner/00-intro" />
 
       <Box my={4}>
         <ProvisionerSelector
