@@ -1,0 +1,46 @@
+To renew and hot-reload the MySQL server certificate,
+we will need a MySQL-specific systemd override file that can tell MySQL to refresh its certificates.
+To install the override, run:
+
+```bash
+sudo mkdir /etc/systemd/system/cert-renewer@mysql.service.d
+cat <<EOF | sudo tee /etc/systemd/system/cert-renewer@mysql.service.d/override.conf
+[Service]
+; "Environment=" overrides are applied per environment variable. This line does not
+; affect any other variables set in the service template.
+Environment=CERT_LOCATION=/var/lib/mysql/server-cert.pem \\
+            KEY_LOCATION=/var/lib/mysql/server-key.pem
+
+LoadCredential=reloader@localhost.cnf:/var/lib/mysql/reloader@localhost.cnf
+
+; Empty ExecStartPost (Don't attempt to restart mysql.service)
+ExecStartPost=
+ExecStartPost=mysql --defaults-extra-file="\$CREDENTIALS_DIRECTORY/reloader@localhost.cnf" \\
+                  -e "ALTER INSTANCE RELOAD TLS"
+EOF
+```
+
+You'll need a database user (eg. `reloader@localhost`) that has the [`CONNECTION_ADMIN`](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_connection-admin) privilege, for reloading the certificate:
+
+```
+mysql> CREATE USER 'reloader'@'localhost' IDENTIFIED BY 'password';
+Query OK, 0 rows affected (0.07 sec)
+
+mysql> GRANT CONNECTION_ADMIN on *.* to 'reloader'@'localhost';
+Query OK, 0 rows affected (0.07 sec)
+
+```
+
+Replace `password` with a secure password.
+Finally, create the `reloader@localhost.cnf` credential file for the mysql client,
+which will look like:
+
+```ini
+[client]
+password="password"
+```
+
+When the certificate is renewed,
+the renewal service will use the Unix socket file to connect as `reloader@localhost`,
+and TLS will not be enabled for that connection.
+That's good because we want our certificate renewer to reach the server even if the certificate is expired.

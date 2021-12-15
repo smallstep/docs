@@ -1,0 +1,23 @@
+You can test your certificate by starting up MySQL with TLS enabled.
+
+The simplest way to try MySQL with TLS is to use a Docker container for testing.
+
+<CodeBlock autoCopy language="shell-session">
+{`mkdir tls
+mv server-cert.pem server-key.pem ca.pem tls
+docker run -it --rm  \\
+	-e MYSQL_ROOT_PASSWORD=pzttest \\
+	-p 3306:3306 \\
+	--mount type=bind,source="$(pwd)"/tls,target=/run/tls \\
+	--user "$( id -u ):$( id -g )" \\
+	mysql:latest \\
+	--require-secure-transport=ON  \\
+	--ssl-cert=/run/tls/server-cert.pem \\
+	--ssl-key=/run/tls/server-key.pem \\
+	--ssl-ca=/run/tls/ca.pem \\
+	--tls-version=TLSv1.2,TLSv1.3`}
+</CodeBlock>
+
+- Setting `require-secure-transport=ON` requires TLS for all incoming connections.
+- The setting for `tls-version` restricts TLS connections and disables TLSv1.1. If you're using older MySQL client versions, check those to be sure they are compatible with TLSv1.2+.
+- The server log should show that TLS has been enabled.

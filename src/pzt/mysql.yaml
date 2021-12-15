@@ -1,0 +1,13 @@
+slug: mysql
+name: MySQL
+template: server
+written: December 15, 2021
+updated: ''
+protocol: mysql
+server:
+  name: db
+  dnsName: db.example.net
+  port: 3006
+acme: false
+linux:
+  systemdUnitName: mysql
