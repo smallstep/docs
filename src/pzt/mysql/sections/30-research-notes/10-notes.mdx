@@ -6,4 +6,3 @@
 - The CA certificate bundle used by mysql and mysqld needs to be a concatenation of the intermediate and root CA certificates. The root CA alone is not sufficient.
 - There are two TLS connection interfaces in MySQL: A main interface, and an administrative interface. MySQL can be configured with separate certificates and CAs for each interface, if you want. The administrative interface can be used to connect and reload the server's certificate files, using the `[ALTER INSTANCE RELOAD TLS](https://dev.mysql.com/doc/refman/8.0/en/alter-instance.html)` command.
 - You may want to make a special service account on your MySQL server that is dedicated to reloading certificate files. That user will need the `CONNECTION_ADMIN` privilege. Then you can create a `.cnf` containing credentials for the `reloader@db.example.com` account, and use it after you renew the certificate.
-
