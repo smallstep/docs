@@ -16,12 +16,11 @@ LoadCredential=reloader@localhost.cnf:/var/lib/mysql/reloader@localhost.cnf
 ; Empty ExecStartPost (Don't attempt to restart mysql.service)
 ExecStartPost=
 ExecStartPost=mysql --defaults-extra-file="\$CREDENTIALS_DIRECTORY/reloader@localhost.cnf" \\
-                  -A -e "ALTER INSTANCE RELOAD TLS" \\
-				  --ssl-ca /var/lib/mysql/ca.pem
+                  -e "ALTER INSTANCE RELOAD TLS"
 EOF
 ```
 
-You'll also need a database user (eg. `reloader@localhost`) that has the [`CONNECTION_ADMIN`]() privilege, for reloading the certificate:
+You'll need a database user (eg. `reloader@localhost`) that has the [`CONNECTION_ADMIN`](https://dev.mysql.com/doc/refman/8.0/en/privileges-provided.html#priv_connection-admin) privilege, for reloading the certificate:
 
 ```
 mysql> CREATE USER 'reloader'@'localhost' IDENTIFIED BY 'password';
@@ -32,10 +31,17 @@ Query OK, 0 rows affected (0.07 sec)
 
 ```
 
-Finally, create the `reloader@localhost.cnf` credential file for the mysql client, which will look like this:
+Replace `password` with a secure password.
+Finally, create the `reloader@localhost.cnf` credential file for the mysql client,
+which will look like:
 
 ```ini
 [client]
 password="password"
 ```
+
+When the certificate is renewed,
+the renewal service will use the Unix socket file to connect as `reloader@localhost`,
+and TLS will not be enabled for that connection.
+That's good because we want our certificate renewer to reach the server even if the certificate is expired.
 

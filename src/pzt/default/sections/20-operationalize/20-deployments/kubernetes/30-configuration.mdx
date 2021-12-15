@@ -3,9 +3,9 @@
   <inlineCode>{props.pzt.server.name}-tls</inlineCode> secret, you'll need to
   configure your {props.pzt.name} deployment to mount that secret to disk, then
   to reload the certificate (or restart its process) each time the certificate
-  is updated on disk. We haven't yet investigated the specifics for{' '}
-  {props.pzt.name}. Refer to the {props.pzt.name} documentation for more
-  details, and feel free to{' '}
-  <a href="https://github.com/smallstep/docs">contribute this content</a>{' '}
-  directly on GitHub.
+  is updated on disk.
+  A general approach to certificate reloading and secret rotation in Kubernetes is to
+  use{' '}<a href="https://github.com/stakater/Reloader">Reloader</a>{' '}
+  or a similar tool to watch the{' '}<inlineCode>{props.pzt.server.name}-tls</inlineCode> secret,
+  and run a rolling upgrade of your deployment when it changes.
 </p>
