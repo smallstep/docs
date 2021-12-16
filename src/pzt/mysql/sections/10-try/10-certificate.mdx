@@ -49,8 +49,9 @@ MySQL is one of a few services that require the intermediate CA certificate to b
 
 <CodeBlock
   copyText="cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem && step ca root >> ca.pem"
-  language="bash">
-{`cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem
+  language="bash"
+>
+  {`cat server-cert.pem | awk '/BEGIN/,/END    /{ if(/BEGIN/){a++}; if (a==2) {print} }' > ca.pem
 step ca root >> ca.pem`}
 </CodeBlock>
 

@@ -3,7 +3,7 @@ You can test your certificate by starting up MySQL with TLS enabled.
 The simplest way to try MySQL with TLS is to use a Docker container for testing.
 
 <CodeBlock autoCopy language="shell-session">
-{`mkdir tls
+  {`mkdir tls
 mv server-cert.pem server-key.pem ca.pem tls
 docker run -it --rm  \\
 	-e MYSQL_ROOT_PASSWORD=pzttest \\
