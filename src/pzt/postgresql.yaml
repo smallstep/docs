@@ -1,0 +1,13 @@
+slug: postgresql
+name: PostgreSQL
+template: server
+written: December 27, 2021
+updated: ''
+protocol: postgres
+server:
+  name: db
+  dnsName: db.example.net
+  port: 5432
+acme: false
+linux:
+  systemdUnitName: postgresql
