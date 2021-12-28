@@ -18,6 +18,6 @@ docker run -it --rm  \\
 	--tls-version=TLSv1.2,TLSv1.3`}
 </CodeBlock>
 
-- Setting `require-secure-transport=ON` requires TLS for all incoming connections.
+- Setting `require-secure-transport=ON` requires TLS for all incoming TCP connections. Unix socket connections on Linux, and shared memory connections on Windows, are also considered secure; by default they will not use TLS.
 - The setting for `tls-version` restricts TLS connections and disables TLSv1.1. If you're using older MySQL client versions, check those to be sure they are compatible with TLSv1.2+.
 - The server log should show that TLS has been enabled.
