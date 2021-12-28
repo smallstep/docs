@@ -1,9 +1,17 @@
-Now run the `psql` client and check that SSL is in use:
+Now run the `psql` client with strict certificate verification, and check that SSL is in use:
+
+<CodeBlock autoCopy language="shell-session">
+  {`mkdir ~/.postgresql
+step ca root > ~/.postgresql/root.crt
+psql "postgresql://postgres@db.example.net:5432/postgres?sslmode=verify-full"`}
+</CodeBlock>
+
+You should see that TLS is used to establish the connection:
 
 <CodeBlock language="shell-session">
-  {`$ psql "postgresql://postgres@localhost:5432/postgres?sslmode=require"
-SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
+  {`SSL connection (protocol: TLSv1.3, cipher: TLS_AES_256_GCM_SHA384, bits: 256, compression: off)
 Type "help" for help.
   
 postgres=#`}
 </CodeBlock>
+
