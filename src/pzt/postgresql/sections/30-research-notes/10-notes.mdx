@@ -3,16 +3,15 @@
   Use `sslmode=verify-full` to check both the server certificate CA chain, and that the certificate common name matches the server hostname.
 
 - Here's an example of a `pg_hba.conf` that will configure PostgreSQL to require TLS for all non-local connections:
-  
+
   ```
   # TYPE     DATABASE        USER            ADDRESS              METHOD
   local      all             all                                  trust
   hostssl    all             all             localhost            scram-sha-256
   hostssl    all             all             0.0.0.0/0            scram-sha-256
-  
+
   # Or, use client certificates with a CN set to the username
   #
   # TYPE     DATABASE        USER            ADDRESS              METHOD
   hostssl    all             all             0.0.0.0/0            cert
   ```
-
