@@ -471,13 +471,19 @@ Run the `step-cloudkms-init --help` command for more options.
 
 #### Authentication
 
-When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure. Authentication to Azure is handled via environment variables; we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable, or by using a service principal and setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`. See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
+When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure.
+Authentication to Azure is handled via environment variables;
+we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable,
+or [creating a service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli)
+and setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`.
+See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
 
 For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
 
 #### Initialize a PKI
 
-To initialize a PKI backed by Azure Key Vault, start by authenticating to Azure using one of the above approaches. Set the environment variables necessary for authentication to your tenant.
+To initialize a PKI backed by Azure Key Vault, start by authenticating to Azure using one of the above approaches.
+Set the environment variables necessary for authentication to your tenant.
 
 Then, run:
 
@@ -485,7 +491,8 @@ Then, run:
 $ step ca init --kms azurekms
 ```
 
-You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them. If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
+You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them.
+If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
 
 #### Manual Configuration
 
