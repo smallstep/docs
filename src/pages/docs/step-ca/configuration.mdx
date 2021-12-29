@@ -471,7 +471,7 @@ Run the `step-cloudkms-init --help` command for more options.
 
 #### Authentication
 
-When using Azure Key Vault with `step-ca`, authentication to Azure is handled via environment variables; we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable, or setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`. See [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization) for an overview of authentication methods and environment variables.
+When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure. Authentication to Azure is handled via environment variables; we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable, or by using a service principal and setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`. See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
 
 For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
 
@@ -502,7 +502,7 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 }
 ```
 
-* In the `key` URI, the `name` and `vault` should point to the vault name and key name of your intermediate key in Azure Key Vault.
+* In the `key` URI, the `name` and `vault` refer to the key name and vault name of your intermediate key in Azure Key Vault.
 * In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version will be used.
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
