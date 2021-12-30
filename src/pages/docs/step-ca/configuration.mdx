@@ -24,7 +24,7 @@ learn how to configure your CA to:
 - [Environment Variables](#environment-variables)
 - [Basic Configuration Options](#basic-configuration-options)
 - [Provisioners](#provisioners)
-- [Certificate Templates](#certificate-templates)
+- [Certificate Templates](#templates)
 - [Databases](#databases)
   - [Badger](#badger)
   - [BoltDB](#boltdb)
@@ -731,7 +731,7 @@ or a Google Cloud CAS private CA.
 
 StepCAS allows configuring a `step-ca` server as an RA, with a second, upstream `step-ca` server acting as the main CA.
 
-StepCAS supports the JWK and X5C provisioners for requests between RAs and the CA.
+StepCAS supports the [JWK](/docs/step-ca/provisioners#jwk) and [X5C](/docs/step-ca/provisioners#x5c) provisioners for requests between RAs and the CA.
 The JWK provisioner balances security and simplicity, and it covers the most common use cases.
 The X5C provisioner allows for more complex trust relationships and expiring certificates,
 but it requires setting up ongoing certificate lifecycle management on the RAs.

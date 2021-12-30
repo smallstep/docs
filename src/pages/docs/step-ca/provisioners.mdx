@@ -471,27 +471,27 @@ Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted
 ### X5C - X.509 Certificate
 
 An X5C provisioner allows a client to get an x509 or SSH certificate using
-an existing x509 certificate that is trusted by `step-ca`.
+an existing X509 certificate that is trusted by the provisioner.
 
 An X5C provisioner is configured with a root certificate, supplied by the user,
 at the time the provisioner is created. The X5C provisioner can authenticate
 X5C tokens.
 
-An X5C token is a JWT, signed by the certificate private key, with an `x5c`
+What's an X5C token? It's a JWT, signed by the certificate private key, with an `x5c`
 header that contains the chain.
 
 #### Example
 
-If you would like any certificate signed by `step-ca` to become a _provisioner_
+If you would like any certificate signed by `step-ca` to become a provisioner
 (have the ability to request new certificates with any name),
-you can configure the X5C provisioner using the root certificate used by
+you can create an X5C provisioner using the root certificate used by
 `step-ca`, like so:
 
 ```shell
 step ca provisioner add x5c-smallstep --type X5C --x5c-root $(step path)/certs/root_ca.crt
 ```
 
-Or you can configure the X5C provisioner with an outside root, giving provisioner
+Or, you can configure the X5C provisioner with an outside root, granting provisioner
 capabilities to a completely separate PKI.
 
 Below is an example of an X5C provisioner in the `ca.json`:
