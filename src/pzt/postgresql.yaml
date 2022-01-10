@@ -1,7 +1,7 @@
 slug: postgresql
 name: PostgreSQL
 template: server
-written: December 27, 2021
+written: Janaury 10, 2022
 updated: ''
 protocol: postgres
 server:
