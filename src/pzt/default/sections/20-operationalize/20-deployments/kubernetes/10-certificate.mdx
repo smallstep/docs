@@ -33,7 +33,7 @@ metadata:
   name: ${props.pzt.server.name}
 spec:
   secretName: ${props.pzt.server.name}-tls
-  duration: 24h
+  duration: 720h
   dnsNames:
     - ${props.pzt.server.dnsName}
   issuerRef:
@@ -58,6 +58,6 @@ Customize the `Certificate` name, `secretName`, and issuer name to suit your own
   <inlineCode>{props.pzt.server.dnsName}</inlineCode> and store the certificate
   and private key in a Kubernetes secret named{' '}
   <inlineCode>{props.pzt.server.name}-tls</inlineCode>. The certificate is valid
-  for 24 hours, and cert-manager will automatically renew it before expiration
+  for 720 hours, and cert-manager will automatically renew it before expiration
   and update the <inlineCode>{props.pzt.server.name}-tls</inlineCode> secret.
 </p>

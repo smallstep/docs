@@ -24,7 +24,7 @@ learn how to configure your CA to:
 - [Environment Variables](#environment-variables)
 - [Basic Configuration Options](#basic-configuration-options)
 - [Provisioners](#provisioners)
-- [Certificate Templates](#certificate-templates)
+- [Certificate Templates](#templates)
 - [Databases](#databases)
   - [Badger](#badger)
   - [BoltDB](#boltdb)
@@ -471,13 +471,19 @@ Run the `step-cloudkms-init --help` command for more options.
 
 #### Authentication
 
-When using Azure Key Vault with `step-ca`, authentication to Azure is handled via environment variables; we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable, or setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`. See [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization) for an overview of authentication methods and environment variables.
+When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure.
+Authentication to Azure is handled via environment variables;
+we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable,
+or [creating a service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli)
+and setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables when starting `step-ca`.
+See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
 
 For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
 
 #### Initialize a PKI
 
-To initialize a PKI backed by Azure Key Vault, start by authenticating to Azure using one of the above approaches. Set the environment variables necessary for authentication to your tenant.
+To initialize a PKI backed by Azure Key Vault, start by authenticating to Azure using one of the above approaches.
+Set the environment variables necessary for authentication to your tenant.
 
 Then, run:
 
@@ -485,7 +491,8 @@ Then, run:
 $ step ca init --kms azurekms
 ```
 
-You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them. If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
+You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them.
+If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
 
 #### Manual Configuration
 
@@ -502,7 +509,7 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 }
 ```
 
-* In the `key` URI, the `name` and `vault` should point to the vault name and key name of your intermediate key in Azure Key Vault.
+* In the `key` URI, the `name` and `vault` refer to the key name and vault name of your intermediate key in Azure Key Vault.
 * In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version will be used.
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
@@ -724,7 +731,7 @@ or a Google Cloud CAS private CA.
 
 StepCAS allows configuring a `step-ca` server as an RA, with a second, upstream `step-ca` server acting as the main CA.
 
-StepCAS supports the JWK and X5C provisioners for requests between RAs and the CA.
+StepCAS supports the [JWK](/docs/step-ca/provisioners#jwk) and [X5C](/docs/step-ca/provisioners#x5c) provisioners for requests between RAs and the CA.
 The JWK provisioner balances security and simplicity, and it covers the most common use cases.
 The X5C provisioner allows for more complex trust relationships and expiring certificates,
 but it requires setting up ongoing certificate lifecycle management on the RAs.
