@@ -1,0 +1,9 @@
+Once PostgreSQL server TLS is enforced,
+you'll need to make sure that remote clients will verify and trust certificates signed by your CA.
+Sadly, PostgreSQL's `psql` client **does not verify server certificates by default**.
+To guarantee authenticated communication with the server, it needs to be [explicitly configured](https://www.postgresql.org/docs/current/libpq-ssl.html#LIBQ-SSL-CERTIFICATES) to trust your CA,
+and to verify the server's certificate (using `sslmode=verify-full`).
+
+The `psql` CLI client will not read CA certificates from the system trust store
+such as the macOS Keychain.
+The `psql` client looks for CA certificates in the `~/.postgresql/root.crt` file in the user's home directory.

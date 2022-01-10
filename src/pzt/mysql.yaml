@@ -2,7 +2,7 @@ slug: mysql
 name: MySQL
 template: server
 written: December 15, 2021
-updated: ''
+updated: December 28, 2021
 protocol: mysql
 server:
   name: db
