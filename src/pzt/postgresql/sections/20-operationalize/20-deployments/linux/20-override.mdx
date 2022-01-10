@@ -13,7 +13,9 @@ Environment=CERT_LOCATION=/var/run/postgresql/tls/server.crt \\
 EOF
 ```
 
-After the renewer renews the certificate, it will run `systemctl try-reload-or-restart` on the `postgresql` service unit. For online certificate rotation to work properly, confirm that the `postgresql.service` on your system (typically in `/usr/lib/systemd/system`) has an `ExecReload` defined that will run `pg_ctl reload` to hot-reload the PostgreSQL server certificate. You should see something like:
+After the renewer renews the certificate, the `cert-renewer@postgresql.service` unit will run `systemctl try-reload-or-restart` on `postgresql.service`.
+For online certificate rotation to work properly, confirm that the `postgresql.service` on your system (typically in `/usr/lib/systemd/system`) has an `ExecReload` defined that will run `pg_ctl reload` to hot-reload the PostgreSQL server certificate.
+You should see something like:
 
 ```ini
 ExecReload=/usr/local/pgsql/bin/pg_ctl reload -D ${PGDATA} -s

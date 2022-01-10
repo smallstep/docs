@@ -18,3 +18,4 @@ docker run -it --rm -e POSTGRES_HOST_AUTH_METHOD=trust \\
 - Note that `ssl=on` enables TLS support, but does not require TLS.
 - To require TLS on the server side, you must configure the `pg_hba.conf` file to use the `hostssl` rule type. See [the `pg_hba.conf` file](https://www.postgresql.org/docs/current/auth-pg-hba-conf.html) documentation for details.
 - TLS can be enforced on the client side with `sslmode=require`, `sslmode=verify-ca`, or `sslmode=verify-full` options. See [PostgreSQL libpq SSL support](https://www.postgresql.org/docs/current/libpq-ssl.html) for a full description of these client options.
+- Do not use `POSTGRES_HOST_AUTH_METHOD=trust` in production. It's provided as an easy way to pre-configure the `pg_hba.conf` file for testing environments.
