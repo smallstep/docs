@@ -19,13 +19,14 @@ It's trivial to install the `step-ca` binary on your local machine.
 #### Select your operating system or infrastructure:
 
 - [macOS](#macos)
-- [Linux](#linux)
+- [Linux Packages](#linux-packages-amd64)
   - [Debian](#debian)   
   - [Arch Linux](#arch-linux)
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
   - [Linux (other)](#linux-other)
+- [Linux binaries](#linux-binaries)
 - [Kubernetes](#kubernetes)
 - [Docker](#docker)
 
@@ -37,7 +38,7 @@ Install `step` and `step-ca` together, via [Homebrew](https://brew.sh/):
 brew install step
 ```
 
-### Linux
+### Linux Packages (amd64)
 
 <Alert severity="info">
   <AlertTitle>Install both <Code>step-ca</Code> and the <Code>step</Code> CLI tool.</AlertTitle>
@@ -134,7 +135,12 @@ Here's an [installation transcript](https://github.com/smallstep/certificates/di
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
-#### Linux (other)
+### Linux binaries
+
+We distribute pre-compiled binaries for amd64, arm64, armv6, armv7, mips, mips64, ppc64le, and 386.
+See the [latest release](https://github.com/smallstep/cli/releases/latest) page.
+
+Here's how to download and install the `step` and `step-ca` binaries on an amd64 machine:
 
 1. Install `step`
 
