@@ -1,0 +1,172 @@
+# Smallstep Platform Installation - GCP
+
+## **Setting up GCP Infrastructure**
+
+### Dependencies
+
+- [gcloud](https://cloud.google.com/sdk/docs/downloads-interactive)
+- [terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli)
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [KOTS](https://kots.io/kots-cli/getting-started/#how-to-install)
+- [linkerd](https://linkerd.io/2.10/getting-started/#step-1-install-the-cli)
+- [step](https://smallstep.com/docs/step-cli/installation)
+
+### Terraform
+
+Create a GCP project and create infrastructure using instructions in the shared terraform repo.
+
+If you already have a Terraform environment set up for your account, add the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/gcp) module to your configuration and follow the steps listed in its README, skipping the steps involving state creation. If you are new to Terraform, follow the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/gcp) module’s README in its entirety: it will instruct you how to set up a Terraform [state](https://www.terraform.io/language/state) in your GCP account, instantiate the [module](https://www.terraform.io/language/modules/syntax), and run the subsequent Terraform [apply](https://www.terraform.io/cli/commands/apply).
+
+Alternatively, you may use the Terraform module as documentation and deploy the same set of resources following the policies required by your organization. While the Terraform module does offer most configurations to be specified by the user, it is by no means “one size fits all” - there are still some finite configuration details some organizations may need to tweak beyond the capability we allow.
+
+### DNS
+
+Refer to the GCP Console, Network Services ⇒ Cloud DNS ⇒ `default` zone to retrieve the list of nameservers for your GCP DNS configuration.
+
+In the your base domain DNS provider's records, add an `NS` record to delegate resolution of the subdomain to the Cloud DNS nameservers.
+
+For example, an `NS` record for `[smallstep.basedomain.company.com](http://smallstep.basedomain.company.com)` may contain the following:
+
+```
+ns-cloud-c1.googledomains.com.
+ns-cloud-c2.googledomains.com.
+ns-cloud-c3.googledomains.com.
+ns-cloud-c4.googledomains.com.
+```
+
+## Databases
+
+```jsx
+CREATE DATABASE landlord;
+CREATE DATABASE certificates;
+CREATE DATABASE web;
+CREATE DATABASE depot;
+CREATE DATABASE folk;
+CREATE DATABASE memoir;
+CREATE DATABASE majordomo;
+CREATE DATABASE moody;
+CREATE DATABASE courier;
+```
+
+## Platform
+
+### GCP `kubectl` context
+
+To interact with the cluster, you'll need to configure a local `kubectl` context. `gcloud` CLI can do this for you. In the GCP console, visit Kuberenetes Engine ⇒ Clusters, then click Connect in the menu for your primary cluster.
+
+![Smallstep%20Platform%20Installation%20-%20GCP%2095b2fda6dffb48bba342ac4abee08020/2021-03-16_10-09.png](Smallstep%20Platform%20Installation%20-%20GCP%2095b2fda6dffb48bba342ac4abee08020/2021-03-16_10-09.png)
+
+### **Linkerd**
+
+Smallstep services currently use Linkerd for some internal load balancing needs. Install it manually with a long lived certificate. Linkerd comes with a default certificate with a lifetime of 1 year; we don’t want our CA to become useless in 1 year, so this step is necessary. However, we may eventually remove the dependency on Linkerd.
+
+First, create a root CA cert and key:
+
+```bash
+step certificate create root.linkerd.cluster.local ca.crt ca.key \
+  --profile root-ca --no-password --insecure --not-after=87600h
+
+```
+
+Use the CA to issue an identity certificate for linkerd:
+
+```bash
+step certificate create identity.linkerd.cluster.local issuer.crt issuer.key \
+  --profile intermediate-ca --not-after 87600h --no-password --insecure \
+  --ca ca.crt --ca-key ca.key
+
+```
+
+Install linkerd, providing the files from the previous commands:
+
+```bash
+kubectl config use-context <your context>
+
+linkerd install \
+  --identity-trust-anchors-file ca.crt \
+  --identity-issuer-certificate-file issuer.crt \
+  --identity-issuer-key-file issuer.key \
+  | kubectl apply -f -
+```
+
+Shred the key material:
+
+```jsx
+shred -uv ca.key issuer.key
+```
+
+## Secrets
+
+```jsx
+ kubectl create secret -n smallstep generic postgresql --from-literal=password=<pg-pass>
+
+ kubectl create secret -n smallstep generic smtp --from-literal=password=<smtp-pass>
+
+# generate random
+cat /dev/urandom | head -c 32 | step base64 -u -r | xargs -r echo -n 2> /dev/null
+ kubectl create secret -n smallstep generic auth --from-literal=secret=<random-string>
+
+# generate random
+cat /dev/urandom | head -c 32 | step base64 -u -r | xargs -r echo -n 2> /dev/null
+ kubectl create secret -n smallstep generic majordomo-provisioner-password --from-literal=password=<random-string>
+
+# generate JWK keys
+echo -n "{\"keys\": [$(step crypto jwk create /dev/null /dev/stdout --kty RSA --force --no-password --insecure 2> /dev/null &)]}"
+ kubectl create secret -n smallstep generic oidc --from-literal=jwks=<json-output>
+
+ kubectl create secret -n smallstep generic scim-server-credentials --from-literal=credentials.json=""
+```
+
+### Smallstep
+
+Begin the Smallstep platform installation process (powered by KOTS). Install into the `smallstep` namespace.
+
+```bash
+kubectl config use-context <your context>
+kubectl kots install smallstep/onboarding
+```
+
+### Team and Authority Configuration
+
+Exec into the a `admin-tools` pod to run configuration tooling:
+
+```bash
+kubectl exec -it -n smallstep deploy/admin-tools -c admin-tools -- bash
+```
+
+**Create a new team**
+
+Make sure the team slug matches the slug used in your smallstep installation.
+
+```bash
+create-team
+```
+
+**Create a new authority**
+
+Use the convention `ssh.<team-slug>.ca.<base-domain>` for the domain:
+
+```bash
+create-authority --ssh
+
+manage-provisioners --ssh --type SSHPOP --name "SSH POP" --authority <authority-id> add
+
+refresh-authority <authority-id>
+```
+
+# 🎉🥂
+
+**Add OIDC provisioner**
+
+```jsx
+manage-provisioners --ssh --type OIDC --name "azuread" --listen-address 127.0.0.1:10000 --client-id <client-id> --client-secret <client-secret> --configuration-endpoint <configuraiton-endpoint> --domain <domain>  --authority <authority-id> --tenant-id <azure-tenant-id> add
+```
+
+**Note:** After syncing over SCIM, don't forget to update the team SSH directory to point to the new IdP directory.
+
+```jsx
+kubectl exec -it -n smallstep deploy/admin-tools -c admin-tools -- bash
+
+$ psql folk
+> update teams set ssh_directory_id = '<directory-id>' where slug = '<team-slug>';
+```

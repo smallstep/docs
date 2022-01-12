@@ -1,0 +1,291 @@
+# TLS-over-TLS Tunnel Configuration
+
+### Dependencies
+
+- Smallstep Platform
+- [kubectl](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [KOTS](https://kots.io/kots-cli/getting-started/#how-to-install)
+
+### Smallstep Platform Update
+
+To complete the install, we'll need to be on the latest Beta channel release of the Smallstep Platform.
+
+Visit the KOTS admin. 
+
+```bash
+kubectl config use-context <your-context>
+kubectl kots admin-console --namespace smallstep
+```
+
+In the *Version history* tab, check for the latest update and deploy it.
+
+### Machine (Tunnel) CA and Provisioner
+
+We'll create a new Certificate Manager authority to issue certificates for the TLS-over-TLS tunnel server and clients.
+
+Enter `admin-tools`:
+
+```bash
+kubectl config use-context <your-context>
+kubectl exec -it -n smallstep deploy/admin-tools -- bash
+```
+
+In `admin-tools`, create the new authority with domain `machine.poc.ca.smallstep.hudson-trading.com` (required so services internal to your installation may request certificates from this authority):
+
+```bash
+create-authority
+```
+
+Now is the time to use `create-custom-pki` if you would like your authority to be signed by an external HSM.
+
+Create a keypair that will be used in the JWK provisioner (escrowed by the CA). Save the provisioner password in a safe place for use by clients.
+
+```bash
+step crypto jwk create jwk.pub jwk.priv
+```
+
+Cat out the public key so you can save its `kid` (referenced later):
+
+```bash
+cat jwk.pub
+```
+
+Create a new JWK provisioner:
+
+```bash
+manage-provisioners --type JWK --name "tunnel@hudson-trading.com" \
+  --authority "machine.poc.ca.smallstep.hudson-trading.com" \
+  --public-key "jwk.pub" --private-key "jwk.priv" \
+  add
+```
+
+Now you can safely delete the created keys:
+
+```bash
+shred -uz jwk.pub jwk.priv
+```
+
+- **Note:** You may find a need to retrieve the root certificate from inside `admin-tools` instead of routing through public DNS (eg. if the tunnel is enabled). Reference the script below.
+    
+    ```bash
+    #!/bin/sh
+    
+    if [ $# -ne 1 ]; then
+        echo "Usage: $0 <domain>"
+        exit 1
+    fi
+    
+    ID=$(grpcurl -cacert certs/root_ca.crt -d '{"name":"'$1'"}' landlord-grpc:9443 ca.LandlordService/GetAuthorityByDomain | jq .x509CaId.id)
+    grpcurl -cacert certs/root_ca.crt -d '{"id":'$ID'}' landlord-grpc:9443 ca.LandlordService/GetX509CA \
+    | jq -r .roots[0].key.public | base64 -d
+    ```
+    
+
+### Configuration
+
+In your KOTS admin, visit the *Config* tab. Enable the tunnel under *TCP Tunnel Settings* and upload the root certificate.
+
+### Tunnel Authority RA
+
+The tunnel authority RA will be in charge of generating certificates to use the TLS-over-TLS tunnel, the ones from `machine.poc.ca.smallstep.hudson-trading.com`.
+
+We need to bootstrap `machine.poc.ca.smallstep.hudson-trading.com` in a temporary location to get an initial certificate for this RA:
+
+```bash
+mkdir tunnel-authority
+cd tunnel-authority
+export STEPPATH=$(pwd)
+step ca bootstrap --ca-url https://machine.poc.ca.smallstep.hudson-trading.com --fingerprint <fp>
+```
+
+With the environment bootstrapped, we just need to create an initial certificate for it using the JWK provisioner created before:
+
+```bash
+step ca certificate tunnel@hudson-trading.com tunnel.crt tunnel_key
+
+# Or using a CSR:
+
+step certificate create tunnel@hudson-trading.com tunnel.crt tunnel_key \
+  --csr --no-password --insecure
+step ca sign tunnel.csr tunnel.crt
+```
+
+These credentials will be used to bootstrap the tunnel authority RA.
+
+This RA will be configured in the same way as a regular RA, but we will configure a JWK provisioner to grant the tunnel certificates to other clients. Different provisioners can also be used, eg. ACME for servers and OIDC for people.
+
+To create the JWK provisioner we need a new key, the public key in JSON format and the private key using the compact serialization:
+
+```bash
+step crypto jwk create key.pub key.priv
+cat key.priv | step crypto jose format
+```
+
+We will use the `key.pub` and the compact private key in the `ca.json`, like this:
+
+```json
+{
+	"address": ":443",
+	"dnsNames": ["machines.hudson-trading.com", "localhost"],
+	"db": {
+		"type": "badger",
+		"dataSource": "/etc/step-ca/db"
+	},
+	"logger": {"format": "json"},
+	"authority": {
+		"type": "stepcas",
+		"certificateAuthority": "https://machine.poc.ca.smallstep.hudson-trading.com",
+		"certificateAuthorityFingerprint": "<tunnel-authority-fingerprint>",
+		"certificateIssuer": {
+			"type": "jwk", 
+			"provisioner": "tunnel@hudson-trading.com"
+		},
+		"provisioners": [{
+			"type": "JWK",
+			"name": "tunnel@hudson-trading.com",
+			"key": {
+				"use": "sig",
+				"kty": "EC",
+				"kid": "nvgnR8wSzpUlrt_tC3mvrhwhBx9Y7T1WL_JjcFVWYBQ",
+				"crv": "P-256",
+				"alg": "ES256",
+				"x": "9KnGK45FNDa-SnaX22I4VGNNouOBMQ5aJg3V-qeKokY",
+				"y": "rB05Ucpxu_ur-OrUjJmoTcIqFc1Jrfar30j_hUvNgKY"
+			},
+			"encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoicjBmdVNncUE2czVYMlhUb0hLUGY4ZyJ9.QjE-yw3G-IWpZ4bU7YPwgn9XvOfx_sxIPnSuQ8TIGbLv5CBoKlrAEw.5FAGJUAANMfB0GxU.MhorckqhACheeEZfuNXqfzk2qKGjkwzJZR4PXuBwcmXoIkJb4wKWTgJXP0XYBW1DtsOsH3zAQWTQ17gPSLFEzZFCAIVKoMq3QdH8Yt8lItzCGrUKaKzNwggXZCijupiqjoWhMANn9Gbak8Ty3vlit-9c6fsyXRf17fvhle2DSYs62a7N97JmRLFxKFOp6K4g3HiUgNvOBMnWb5EByWRA8C52ZQ14a70QYZ-n9QvMmkUtqzrYJ2je0aFX5DXBKhoRnEEo5pneAW21bee6TPqau9aeSToOGe9tN9FN78huIc8TtOSGrpWWlmjeU9uYw34xFbwww6f2l7QQoN8R5iw.z6Jswhd4X1CnNjLHJXVTuQ"
+			"claims": {
+				"defaultTLSCertDuration": "240h",
+				"maxTLSCertDuration": "720h"
+			}
+		}]
+	},
+	"tls": {
+		"cipherSuites": [
+			"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
+ 			"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+		],
+		"minVersion": 1.2,
+		"maxVersion": 1.3,
+		"renegotiation": false
+	}
+}
+```
+
+To configure the tunnel, we need a new file pointing to the tunnel certificates created before. For this example, we'll write this file in `/etc/step-ca/config/tunnel.json`:
+
+```json
+{
+   "type": "tTLS",
+   "host": "tunnel.smallstep.hudson-trading.com:443",
+   "crt": "/etc/step-ca/tunnel/tunnel.crt",
+   "key": "/etc/step-ca/tunnel/tunnel_key",
+   "root": "/etc/step-ca/tunnel/root_ca.crt"
+}
+```
+
+Then the step-ca server in RA mode must be started with the following environment variable 
+
+```json
+STEP_TLS_TUNNEL=/etc/step-ca/config/tunnel.json
+```
+
+At this point, the `step-ca` in RA mode will be able to create new certificates that can be used to connect with TLS-over-TLS. All ACME RAs that require the use of this tunnel will need certificates from this RA.
+
+⚠️ A cron or systemd timer to renew the tunnel credentials is required to keep the credentials up-to-date. The RA does not currently support the `step ca renew` command, so we will need to use `step ca certificate` or `step ca sign` if we have a CSR.
+
+```bash
+step ca certificate tunnel@hudson-trading.com \
+  /etc/step-ca/tunnel/tunnel.crt /etc/step-ca/tunnel/tunnel_key \
+  --force \
+  --provisioner tunnel@hudson-trading.com \
+  --provisioner-password-file /etc/step-ca/secrets/password.txt 
+
+# Or if we have a CSR:
+
+step ca sign /etc/step-ca/tunnel/tunnel.csr /etc/step-ca/tunnel/tunnel.crt \
+  --force \
+  --provisioner tunnel@hudson-trading.com \
+  --provisioner-password-file /etc/step-ca/secrets/password.txt
+```
+
+### ACME RA Configuration
+
+The `ca.json` of the ACME RAs will not change, but to use the tunnel we will need certificates from the previously created Tunnel Authority RA and to start the RA with the `STEP_TLS_TUNNEL` environment variable.
+
+We need to bootstrap an environment to trust `[machines.hudson-trading.com](http://tunnel.hudson-trading.com)` (the tunnel authority RA) and generate the certificate:
+
+```bash
+export STEPPATH=/etc/step-ca
+step ca bootstrap --ca-url https://machines.hudson-trading.com \
+  --fingerprint <fp>
+mkdir /etc/step-ca/tunnel
+cd /etc/step-ca/tunnel
+step ca certificate smallstep-ra01.hudson-trading.com tunnel.crt tunnel_key
+```
+
+And, of course, create `/etc/step-ca/config/tunnel.json` exactly as before:
+
+```bash
+{
+   "type": "tTLS",
+   "host": "tunnel.smallstep.hudson-trading.com:443",
+   "crt": "/etc/step-ca/tunnel/tunnel.crt",
+   "key": "/etc/step-ca/tunnel/tunnel_key",
+   "root": "/etc/step-ca/tunnel/root_ca.crt"
+}
+```
+
+⚠️ A cron or systemd timer to renew the tunnel credentials is required to keep the credentials up-to-date.
+
+```bash
+$ step ca certificate smallstep-ra01.hudson-trading.com \
+  /etc/step-ca/tunnel/tunnel.crt /etc/step-ca/tunnel/tunnel_key \
+  --force \
+  --provisioner tunnel@hudson-trading.com \
+  --provisioner-password-file /etc/step-ca/secrets/password.txt 
+
+# Or if we have a CSR:
+
+$ step ca sign /etc/step-ca/tunnel/tunnel.csr /etc/step-ca/tunnel/tunnel.crt \
+  --force \
+  --provisioner tunnel@hudson-trading.com \
+  --provisioner-password-file /etc/step-ca/secrets/password.txt
+```
+
+An example using `systemd` timers looks like this:
+
+```bash
+$ cat /etc/systemd/system/tunnel.service
+[Unit]
+Description=Update the tunnel certificate
+Wants=tunnel.timer
+
+[Service]
+Type=oneshot
+User=step
+Group=step
+Environment="STEPPATH=/etc/step-ca/tunnel"
+ExecStart=/usr/local/bin/step ca sign \
+        --force \
+        --provisioner tunnel@hudson-trading.com \
+        --provisioner-password-file /etc/step-ca/tunnel/password \
+        /etc/step-ca/tunnel/tunnel.csr \
+        /etc/step-ca/tunnel/tunnel.crt
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+$ cat /etc/systemd/system/tunnel.timer
+[Unit]
+Description=Update the tunnel certificate
+Requires=tunnel.service
+
+[Timer]
+Unit=tunnel.service
+OnCalendar=*-*-* *:00:00
+
+[Install]
+WantedBy=timers.target
+```
