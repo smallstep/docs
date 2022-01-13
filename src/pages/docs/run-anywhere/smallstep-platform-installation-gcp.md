@@ -54,7 +54,7 @@ CREATE DATABASE courier;
 
 To interact with the cluster, you'll need to configure a local `kubectl` context. `gcloud` CLI can do this for you. In the GCP console, visit Kuberenetes Engine ⇒ Clusters, then click Connect in the menu for your primary cluster.
 
-![Smallstep%20Platform%20Installation%20-%20GCP%2095b2fda6dffb48bba342ac4abee08020/2021-03-16_10-09.png](Smallstep%20Platform%20Installation%20-%20GCP%2095b2fda6dffb48bba342ac4abee08020/2021-03-16_10-09.png)
+![GCP Kubernetes Configuration Console](/graphics/gcp-kubernetes-configuration-console.png)
 
 ### **Linkerd**
 
