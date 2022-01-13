@@ -14,7 +14,7 @@
 
 To complete the install, we'll need to be on the latest Beta channel release of the Smallstep Platform.
 
-Visit the KOTS admin. In the *License* tab, click *Sync license* to update with a license extended to your full term.
+Your Smallstep representative will need to make sure that your license is set appropriately in our systems. If not, they will send you a new license file to add to your admin-console in KOTS.
 
 In the *Version history* tab, check for the latest update and deploy it:
 
@@ -40,11 +40,11 @@ Create a keypair that will be used in the JWK provisioner (escrowed by the CA). 
 step crypto jwk create jwk.pub jwk.priv
 ```
 
-In `admin-tools`, create a new JWK provisioner:
+In `admin-tools`, create a new JWK provisioner (the values in the following code blocks are simply examples - please customize these to your needs as desired):
 
 ```bash
-manage-provisioners --type JWK --name "ra@hudson-trading.com" \
-  --authority "certs.poc.ca.smallstep.hudson-trading.com" \
+manage-provisioners --type JWK --name "ra@your-company.com" \
+  --authority "certs.ca.smallstep.your-company.com" \
   --public-key "jwk.pub" --private-key "jwk.priv" \
   --duration "240h" --max-duration "720h" \
   add
@@ -60,7 +60,7 @@ rm jwk.pub jwk.priv
 
 Install the latest version of step-ca using the appropriate build from:
 
-[https://github.com/smallstep/certificates/releases/tag/v0.15.11](https://github.com/smallstep/certificates/releases/tag/v0.15.11)
+[https://github.com/smallstep/certificates/releases/tag/v0.18.0](https://github.com/smallstep/certificates/releases/tag/v0.18.0)
 
 On the VM that will host your registration authority, configure a `step-ca` instance in RA mode with an ACME provisioner.
 
@@ -69,7 +69,7 @@ Save the following as `/etc/step-ca/config/ca.json`:
 ```json
 {
 	"address": ":443",
-	"dnsNames": ["smallstep-ra01.hudson-trading.com"],
+	"dnsNames": ["smallstep-ra01.your-company.com"],
 	"db": {
 		"type": "badger",
 		"dataSource": "/etc/step-ca/db"
@@ -77,11 +77,11 @@ Save the following as `/etc/step-ca/config/ca.json`:
 	"logger": {"format": "json"},
 	"authority": {
 		"type": "stepcas",
-		"certificateAuthority": "https://certs.poc.ca.smallstep.hudson-trading.com",
-		"certificateAuthorityFingerprint": "a4dd2d1fb04c1695c46cb7248f27795893330587309049640211a42b37e7819d",
+		"certificateAuthority": "https://certs.ca.smallstep.your-company.com",
+		"certificateAuthorityFingerprint": "your-certificate-authority-fingerprint",
 		"certificateIssuer": {
 			"type": "jwk", 
-			"provisioner": "ra@hudson-trading.com"
+			"provisioner": "ra@your-company.com"
 		},
 		"provisioners": [{
 			"type": "ACME",
@@ -119,7 +119,7 @@ For a longer-term approach to running `step-ca` refer to [systemd daemon instruc
 Test certificate issuance with `step`:
 
 ```bash
-step ca bootstrap --ca-url https://ra01.hudson-trading.com --fingerprint a4dd2d1fb04c1695c46cb7248f27795893330587309049640211a42b37e7819d
+step ca bootstrap --ca-url https://ra01.your-company.com --fingerprint your-certificate-authority-fingerprint
 step ca certificate localhost local.crt local.key
 ```
 
