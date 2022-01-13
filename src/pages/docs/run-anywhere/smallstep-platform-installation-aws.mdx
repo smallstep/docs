@@ -96,7 +96,7 @@ linkerd install \
 
 Shred the key material:
 
-```jsx
+```bash
 shred -uv ca.key issuer.key
 ```
 
@@ -145,13 +145,13 @@ refresh-authority <authority-id>
 
 **Add OIDC provisioner**
 
-```jsx
+```bash
 manage-provisioners --ssh --type OIDC --name "azuread" --listen-address 127.0.0.1:10000 --client-id <client-id> --client-secret <client-secret> --configuration-endpoint <configuraiton-endpoint> --domain <domain>  --authority <authority-id> --tenant-id <azure-tenant-id> add
 ```
 
 **Note:** After syncing over SCIM, don't forget to update the team SSH directory to point to the new IdP directory.
 
-```jsx
+```bash
 kubectl exec -it -n smallstep deploy/admin-tools -c admin-tools -- bash
 
 $ psql folk
