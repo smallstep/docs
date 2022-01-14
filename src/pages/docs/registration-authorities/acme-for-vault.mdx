@@ -1,0 +1,492 @@
+---
+title: ACME Registration Authority for Hashicorp Vault Certificate Authority
+html_title: ACME Registration Authority for Hashicorp Vault Certificate Authority
+description: How to configure a Smallstep ACME Registration Authority with Hashicorp Vault CA. 
+---
+
+
+A Registration Authority sits in front of a Certificate Authority (CA) and provides an authentication and authorization layer.
+This guide will show you how to set up an ACME Registration Authority (RA) backed by a [Hashicorp Vault Certificate Authority][hvca] (HVCA) instance.
+We will deploy the RA as a VM instance that issues X.509 Certificates for internal services, using the [ACME protocol][acme].
+
+Note about Hashicorp Vault Certificate Authority:
+
+> Vault's PKI secrets engine can dynamically generate X.509 certificates on demand. This allows services to acquire certificates without going through the usual manual process of generating a private key and Certificate Signing Request (CSR), submitting to a Certificate Authority (CA), and then waiting for the verification and signing process to complete.
+
+[hvca (onprem)]: https://learn.hashicorp.com/tutorials/vault/pki-engine
+[hvca (cloud)]: https://cloud.hashicorp.com/products/vault
+[acme]: https://en.wikipedia.org/wiki/Automated_Certificate_Management_Environment
+
+## Requirements
+
+* [step](https://smallstep.com/cli/) cli to create an offline Root CA.
+* [A runinng Hashicorp Vault](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy).
+* [jq](https://stedolan.github.io/jq/download/) tool to parse JSON output.
+
+When not specified, we run `vault` commands as `root`. A dedicated profile will be created after configuration.
+
+## Configuration Guide
+
+#### 1. Create Offline Root CA
+
+  Root CA could be `online` (managed by Vault) or `offline` (managed by an External Tool like step-ca)
+
+  For the purposes of this example, lets use offline mode where Root CA is managed outside.
+
+  In a console, create a Root CA:
+
+  ```shell
+  $ echo password > password-file
+  $ step certificate create --password-file ./password-file --profile root-ca "Root CA" root_ca.crt root_ca.key
+  ```
+  > Your certificate has been saved in root_ca.crt.
+  > Your private key has been saved in root_ca.key.
+
+  Please keep private offline, never store them in clear anywhere, the Root CA is the most critical part.
+
+  Also note that by default `--profile root-ca` will by default have a path length constraint that allows at least 2 intermediates.
+
+#### 2. Create Intermediate CA - ICA1
+
+  They are 2 intermediate CA, let's call it ICA1, then Vault will generate another intermediate ICA2 signed by ICA1.
+
+  It means that ICA1 is managed and signed manually by Root CA, but ICA2 is automated inside Vault.
+  Vault could eaysily create and destroy new intermediate signed by ICA1.
+
+  In the end, a full chain certificate will contain Root/ICA1/ICA2/Cert where Cert is the final cert.
+
+  Let's go, mount secret engine for ICA1:
+
+  ```shell
+  $ vault secrets enable -path=ica1/v1 pki
+  ```
+  > Success! Enabled the pki secrets engine at: ica1/v1/
+
+  Set a maximum of time-to-live (TTL), example with 3 years (= 94608000 seconds)
+
+  ```shell
+  $ vault secrets tune -max-lease-ttl=94608000s ica1/v1
+  ```
+  > Success! Tuned the secrets engine at: ica1/v1/
+
+  Set a default lease TTL, example with 1h (= 3600 seconds)
+
+  ```shell
+  $ vault secrets tune -default-lease-ttl=3600s ica1/v1
+  ```
+  > Success! Tuned the secrets engine at: ica1/v1/
+
+  Set URLs for the issuer and CRL
+
+  ```shell
+  $ vault write ica1/v1/config/urls \
+    issuing_certificates="http://somewhere.local/ca" \
+    crl_distribution_points="http://somewhere.local/crl"
+  ```
+  > Success! Data written to: ica1/v1/config/urls
+
+  Create intermediate and extract sign request (CSR)
+
+  ```shell
+  $ vault write -format=json ica1/v1/intermediate/generate/internal \
+    common_name="Intermediate Certificate Authority 1" \
+    key_type="rsa" \
+    key_bits="2048" \
+    ou="test org" \
+    organization="test" \
+    country="US" \
+    locality="Bethesda" \
+    province="MD" \
+    > ica1.json
+
+  $ jq -r '.data.csr' ica1.json > "ica1.csr"
+  ```
+
+  Create a template to add CRL
+  
+  ```shell
+  $ cat>extensions.tpl<<EOF
+  {
+    "subject": {{ toJson .Subject }},
+    "keyUsage": ["certSign", "crlSign"],
+    "basicConstraints": {
+        "isCA": true,
+        "maxPathLen": 0
+    },
+    "crlDistributionPoints": ["http://somewhere.local/crl"],
+    "issuingCertificateURL": ["http://somewhere.local/ca"]
+  }
+  EOF
+  ```
+
+  Sign
+
+  ```shell
+  $ step certificate sign \
+    --password-file ./password-file \
+    --template extensions.tpl \
+    ica1.csr root_ca.crt root_ca.key > ica1.crt
+  ```
+
+  Concatenate Intermediate and Root
+
+  ```shell
+  $ cat ica1.crt root_ca.crt > ica1-chain.crt
+  ```
+
+  Add signed intermediate certificate in Vault
+
+  ```shell
+  $ vault write ica1/v1/intermediate/set-signed certificate=@ica1-chain.crt
+  ```
+  > Success! Data written to: ica1/v1/intermediate/set-signed
+
+  Verify the ICA1 cert in Vault
+
+  ```shell
+  $ vault read -format json ica1/v1/cert/ca | jq -r .data.certificate | step certificate inspect
+  ```
+
+  Verify the ICA1 CA chain in Vault.
+
+  ```shell
+  $ vault read -format json ica1/v1/cert/ca_chain | jq -r .data.certificate
+  ```
+
+#### 2. Create Intermediate CA - ICA2
+
+  Next, create and manage ICA2 in Vault.
+
+  Let's go, mount secret engine for ICA2:
+
+  ```shell
+  $ vault secrets enable -path=ica2/v1 pki
+  ```
+  > Success! Enabled the pki secrets engine at: ica2/v1/
+
+  Set a maximum of time-to-live (TTL), example with 1 year (= 31536000 seconds)
+
+  ```shell
+  $ vault secrets tune -max-lease-ttl=31536000s ica2/v1
+  ```
+  > Success! Tuned the secrets engine at: ica2/v1/
+
+  Set a default lease TTL, example with 1h (= 3600 seconds)
+
+  ```shell
+  $ vault secrets tune -default-lease-ttl=3600s ica2/v1
+  ```
+  > Success! Tuned the secrets engine at: ica2/v1/
+
+  Create intermediate ICA2
+
+  ```shell
+  $ vault write -format=json "ica2/v1/intermediate/generate/internal" \
+    common_name="Intermediate Certificate Authority 2" \
+    key_type="rsa" \
+    key_bits="2048" \
+    ou="test org" \
+    organization="test" \
+    country="US" \
+    locality="Bethesda" \
+    province="MD"> ica2.json
+
+  $ jq -r '.data.csr' ica2.json > "ica2.csr"
+  ```
+
+  Sign for 1 year (= 31536000 seconds)
+
+  ```shell
+  $ vault write -format=json ica1/v1/root/sign-intermediate csr="@ica2.csr" \
+    format=pem_bundle \
+    ttl="31536000s" \
+    common_name="Intermediate Certificate Authority 2 v1.1" \
+    exclude_cn_from_sans=true \
+    ou="test org" \
+    organization="test" \
+    country="US" \
+    locality="Bethesda" \
+    province="MD" \
+    max_path_length=1 > ica2.crt.json
+
+  $ jq -r '.data.certificate' ica2.crt.json > ica2.crt
+  ```
+
+  Import in Vault
+
+  ```shell
+  $ vault write ica2/v1/intermediate/set-signed certificate=@ica2.crt
+  ```
+  > Success! Data written to: ica2/v1/intermediate/set-signed
+
+  Verify the ICA2 cert in Vault
+
+  ```shell
+  $ vault read -format json ica2/v1/cert/ca | jq -r .data.certificate | step certificate inspect
+  ```
+
+  Verify the ICA2 CA chain in Vault.
+
+  ```shell
+  $ vault read -format json ica2/v1/cert/ca_chain | jq -r .data.certificate
+  ```
+
+  Congratulations, you successfully established your intermediate CAs in Vault with an offline Root.
+
+
+#### 3. Define a Vault role to restrict certificates signatures
+
+  To avoid signing every certificates, you could use [role](https://learn.hashicorp.com/tutorials/vault/custom-secrets-engine-role?in=/custom-secrets-engine) to restrict what and who could sign.
+
+  In this part we will retrict signatures to StepCA nodes and on scoped domain.
+
+  On Vault a role can't sign different type of keys, so you need to define a role per key type.
+  Currently both of Step CA and Vault supports `rsa`, `Ed25519` and `ec`.
+
+  In the example bellow we define 
+  ```shell
+  $ vault write "ica2/v1/roles/example-dot-com-rsa" \
+    max_ttl=2160h \
+    key_type=rsa \
+    key_bits=4096 \
+    key_usage='["DigitalSignature"]' \
+    allowed_domains='["example.com"]' \
+    allow_any_name=false \
+    allow_bare_domains=false \
+    allow_ip_sans=true \
+    allow_localhost=false \
+    allow_subdomains=true \
+    server_flag=false \
+    client_flag=true \
+    no_store=false \
+    country='["US"]' \
+    locality='["Bethesda"]' \
+    province='["MD"]'
+
+  $ vault write "ica2/v1/roles/example-dot-com-ec" \
+    max_ttl=2160h \
+    key_type=ec \
+    key_bits=256 \
+    key_usage='["DigitalSignature"]' \
+    allowed_domains='["example.com"]' \
+    allow_any_name=false \
+    allow_bare_domains=false \
+    allow_ip_sans=true \
+    allow_localhost=false \
+    allow_subdomains=true \
+    server_flag=false \
+    client_flag=true \
+    no_store=false \
+    country='["US"]' \
+    locality='["Bethesda"]' \
+    province='["MD"]'
+
+  $ vault write "ica2/v1/roles/example-dot-com-ed25519" \
+    max_ttl=2160h \
+    key_type=ed25519 \
+    key_bits=2048 \
+    key_usage='["DigitalSignature"]' \
+    allowed_domains='["example.com"]' \
+    allow_any_name=false \
+    allow_bare_domains=false \
+    allow_ip_sans=true \
+    allow_localhost=false \
+    allow_subdomains=true \
+    server_flag=false \
+    client_flag=true \
+    no_store=false \
+    country='["US"]' \
+    locality='["Bethesda"]' \
+    province='["MD"]'
+  ```
+  > Success! Data written to: ica2/v1/roles/example-dot-com-rsa
+  > Success! Data written to: ica2/v1/roles/example-dot-com-ed
+  > Success! Data written to: ica2/v1/roles/example-dot-com-ed25519
+
+#### 4. Test sign
+
+  Congratulations, you successfully established your intermediate CAs in Vault with an offline Root.
+
+  We will basically test a certificate signature as RA will do.
+
+  Generate a CSR
+
+  ```shell
+  $ echo password  > password-file-example
+  $ step certificate create example example.csr example.key \
+    --csr \
+    --password-file password-file-example \
+    --kty RSA \
+    --san l1.example.com \
+    --san 1.1.1.1 \
+    --san l2.example.com
+  ```
+
+  Sign for 90 days
+
+  ```shell
+  $ vault write -format=json /ica2/v1/sign/example-dot-com-rsa \
+    csr=@example.csr \
+    format=pem_bundle \
+    exclude_cn_from_sans=true \
+    ttl=2160h > example.crt.json
+
+  $ jq -r '.data.certificate' example.crt.json > example.crt
+  ```
+
+  Verify certificate based on serial
+
+  ```shell
+  $ vault read -field=certificate ica2/v1/cert/$(jq -r .data.serial_number example.crt.json | tr ':' '-')
+  ```
+
+#### 5. Configure Vault AppRole
+
+  We will use AppRole authentication in [push mode](https://www.vaultproject.io/docs/auth/approle#secretid)
+
+  Define policies to restrict signature on defined roles
+  ```shell
+  $ tee policy.hcl <<EOF
+  path "ica2/v1/sign/example-dot-com-rsa" {
+    capabilities = ["create", "update"]
+  }
+
+  path "ica2/v1/sign/example-dot-com-ed" {
+    capabilities = ["create", "update"]
+  }
+
+  path "ica2/v1/sign/example-dot-com-ed25519" {
+    capabilities = ["create", "update"]
+  }
+
+  path "ica2/v1/revoke/*" {
+    capabilities = ["create", "update"]
+  }
+  EOF
+
+  $ vault policy write smallstep policy.hcl
+  > Success! Uploaded policy: smallstep
+  ```
+
+  Setup auth method
+
+  ```shell
+  # Enable the AppRole authentication method
+  $ vault auth enable -description="SmallStep RA AppRole" approle
+  > Success! Enabled approle auth method at: approle/
+
+  $ vault write auth/approle/role/approle \
+    bind_secret_id=true \
+    local_secret_ids=false \
+    secret_id_num_uses=0 \
+    secret_id_ttl=0s \
+    token_explicit_max_ttl=0s \
+    token_max_ttl=0s \
+    token_no_default_policy=false \
+    token_num_uses=0 \
+    token_period=0s \
+    token_policies="smallstep" \
+    token_ttl=0s \
+    token_type=default
+  > Success! Data written to: auth/approle/role/testrole
+  ```
+
+  Read RoleID and SecretID, and save them for later.
+
+  ```shell
+  $ vault read -field=role_id auth/approle/role/approle/role-id
+  > 3ada1d5f-3148-1b32-1ea4-cd4b85cb830b
+
+  $ vault write -field=secret_id -f auth/approle/role/approle/secret-id
+  > 74902f52-5a87-d514-ae74-31d9cf69c297
+  ```
+
+#### 5. Configure a "Smallstep ACME Registration Authority for CAS"
+
+  Configure authority in your `ca.json`, for clarity in the example other fields are hidden.
+
+  ```json
+  {
+    ...
+    "dnsNames": [
+      "ra.smallstep.com"
+    ],
+    "commonName": "ra.smallstep.com",
+    ...
+    "authority": {
+      "type": "vaultcas",
+      "config": {
+        "pki": "ica2/v1",
+        "pkiRoleRSA": "example-dot-com-rsa",
+        "pkiRoleEC": "example-dot-com-ec",
+        "pKIRoleED25519": "example-dot-com-ed25519",
+        "appRole": "approle",
+        "roleID": "3ada1d5f-3148-1b32-1ea4-cd4b85cb830b",
+        "secretID": "74902f52-5a87-d514-ae74-31d9cf69c297",
+        "IsWrappingToken": false
+      },
+      "provisioners": [
+        {
+          "type": "ACME",
+          "name": "acme"
+        }
+      ],
+      "certificateAuthority": "https://vault.smallstep.com",
+      "certificateAuthorityFingerprint": "939bbb0c77e5aa2d81a2fd06f4c9f6b3e51892f2c0d34d703cfc4cdb0270bdfd"
+    },
+    ...
+  }
+  ```
+
+  Start server
+
+  ```shell
+  $ step-ca $(step path)/config/ca.json
+
+  badger 2022/01/14 17:56:50 INFO: All 1 tables opened in 1ms
+  badger 2022/01/14 17:56:50 INFO: Replaying file id: 0 at offset: 232264
+  badger 2022/01/14 17:56:50 INFO: Replay took: 9.764µs
+  2022/01/14 17:56:51 Using root fingerprint 'edb3329d49b159ea5c01ebb5088eb59b43f5c6caeeee8ce82e1390bbafdd6467'
+  2022/01/14 17:56:51 Serving HTTPS on ra.smallstep.com:443 ...
+  ```
+
+  At boot HTTPS server will automatically send a CSR to vault to get signed.
+  Connect to vault and verify
+
+  ```shell
+
+  $ vault list ica2/v1/certs
+  Keys
+  ----
+  3b-ca-27-a9-9d-98-45-82-99-94-2a-8a-ac-20-5b-7f-d3-de-1d-ef
+
+  $ vault read -field=certificate ica2/v1/cert/3b-ca-27-a9-9d-98-45-82-99-94-2a-8a-ac-20-5b-7f-d3-de-1d-ef | openssl x509 -noout -text
+  Certificate:
+    Data:
+      ...
+  ```
+
+  \o/
+
+#### 6. Start an ACME request on a target machine
+
+  ```shell
+  $ step ca bootstrap --ca-url https://ra.smallstep.com --fingerprint edb3329d49b159ea5c01ebb5088eb59b43f5c6caeeee8ce82e1390bbafdd6467
+  The root certificate has been saved in /home/awesome/.step/certs/root_ca.crt.
+  The authority configuration has been saved in /home/awesome/.step/config/defaults.json.
+
+  $ step ca certificate test.example.com example.crt example.key --san sub.example.com
+  ✔ Provisioner: acme (ACME)
+  Using Standalone Mode HTTP challenge to validate test.example.com . done!
+  Using Standalone Mode HTTP challenge to validate sub.example.com . done!
+  Waiting for Order to be 'ready' for finalization .. done!
+  Finalizing Order .. done!
+  ✔ Certificate: example.crt
+  ✔ Private Key: example.key
+  ```
+
+  Hooray!
+
+
+
+
