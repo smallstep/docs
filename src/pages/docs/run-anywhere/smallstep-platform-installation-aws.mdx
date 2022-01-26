@@ -28,11 +28,6 @@ All steps involving the setup of your AWS Infrastructure use the AWS CLI at some
 
 If you already have a Terraform environment set up for your account, add the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/aws) module to your configuration and follow the steps listed in its README. They are also listed as follows:
 
-#### Requirements
-[`step`](https://github.com/smallstep/cli)
-
-[`aws`](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-
 #### Secret management
 
 Terraform will need some secrets for various pieces of your infrastructure. Some of these secrets must be manually entered and others will be auto-generated. All secrets are stored in AWS SecretsManager, encrypted by AWS KMS, and referenced by the Terraform state. Terraform will also automatically apply these secrets to your kubernetes cluster where needed.
