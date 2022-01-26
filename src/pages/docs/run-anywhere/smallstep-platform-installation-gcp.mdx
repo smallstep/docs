@@ -26,9 +26,53 @@ This document describes how to install the Smallstep Platform on GCP infrastruct
 
 Create a GCP project and create infrastructure using instructions in the shared terraform repo.
 
-If you already have a Terraform environment set up for your account, add the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/gcp) module to your configuration and follow the steps listed in its README, skipping the steps involving state creation. If you are new to Terraform, follow the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/gcp) module’s README in its entirety: it will instruct you how to set up a Terraform [state](https://www.terraform.io/language/state) in your GCP account, instantiate the [module](https://www.terraform.io/language/modules/syntax), and run the subsequent Terraform [apply](https://www.terraform.io/cli/commands/apply).
+If you already have a Terraform environment set up for your account, add the [run-anywhere-terraform](https://github.com/smallstep/run-anywhere-terraform/tree/main/gcp) module to your configuration and follow the steps listed in its README. They are also listed here as follows:
 
-Alternatively, you may use the Terraform module as documentation and deploy the same set of resources following the policies required by your organization. While the Terraform module does offer most configurations to be specified by the user, it is by no means “one size fits all” - there are still some finite configuration details some organizations may need to tweak beyond the capability we allow.
+#### Requirements
+[`step`](https://github.com/smallstep/cli)
+
+[`gcloud`](https://cloud.google.com/sdk/docs/install)
+
+#### Generate secrets
+
+Terraform will need some secrets for various pieces of your infrastructure. Some of these secrets must be manually entered and others will be auto-generated. All secrets are stored on disk in the location of your choice, encrypted by GCP Cloud KMS, and are safe to commit. Terraform will also automatically apply these secrets to your kubernetes cluster where needed. When instantiating this module, you must pass the relative path to these secrets to variable `path_to_secrets`, so it is recommended to store them in a directory within your Terraform workspace.
+
+To run the [script that generates and encrypts project secrets](https://github.com/smallstep/run-anywhere-terraform/blob/gcp-testing-phase/create_gcp_secrets.sh), you must have the [`step`](https://github.com/smallstep/cli) and [`gcloud`](https://cloud.google.com/sdk/docs/install) CLI utilities installed and configured.
+
+After completion, several new files will exist (eg. `postgresql_password.enc`). They are safe to commit to be re-applied by terraform.
+
+#### Set up your credentials
+
+```shell
+gcloud auth application-default login
+
+curl https://raw.githubusercontent.com/smallstep/run-anywhere-terraform/create_gcp_secrets.sh > create_gcp_secrets.sh
+chmod +x ./create_gcp_secrets && ./create_gcp_secrets.sh
+mv ./secrets /path/to/terraform/secrets
+```
+
+#### Example module intantiation
+
+```terraform
+module "run_anywhere" {
+  source = "github.com/smallstep/run-anywhere-terraform.git//gcp?ref=v1.0.0"
+
+  base_domain             = "something.com"
+  path_to_secrets         = "${path.module}/secrets"
+  project_id              = "smallstep"
+  region                  = "us-central1"
+  zone                    = "us-central1-c"
+}
+```
+
+#### Initialize and apply
+
+```shell
+terraform init
+terraform apply
+```
+
+Terraform will generate a lock file that can be committed to your repository.
 
 ### DNS
 
