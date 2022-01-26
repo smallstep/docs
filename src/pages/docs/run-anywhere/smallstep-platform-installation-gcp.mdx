@@ -5,8 +5,6 @@ description: Learn how to configure your GCP infrastructure and install your run
 ---
 
 
-# Smallstep Platform Installation - GCP
-
 Smallstep's `run anywhere` deployments require a certain set of infrastructure on which to run. Details about these requirements are listed throughout this guide. We provide a Terraform module if you would like to use our code to stand up your resources, but you are entirely welcome to simply use it as a reference guide instead.
 
 ## **Setting up GCP Infrastructure**
@@ -80,7 +78,7 @@ gcloud dns managed-zones describe default --flatten "nameServers[]" --format "va
 
 In the your base domain DNS provider's records, add an `NS` record to delegate resolution of the subdomain to the Cloud DNS nameservers.
 
-For example, an `NS` record for `[smallstep.basedomain.company.com](http://smallstep.basedomain.company.com)` may contain the following:
+For example, an `NS` record for `smallstep.basedomain.company.com` may contain the following:
 
 ```
 ns-cloud-c1.googledomains.com.
@@ -150,28 +148,6 @@ Shred the key material:
 shred -uv ca.key issuer.key
 ```
 
-## Secrets
-
-```bash
- kubectl create secret -n smallstep generic postgresql --from-literal=password=<pg-pass>
-
- kubectl create secret -n smallstep generic smtp --from-literal=password=<smtp-pass>
-
-# generate random
-cat /dev/urandom | head -c 32 | step base64 -u -r | xargs -r echo -n 2> /dev/null
- kubectl create secret -n smallstep generic auth --from-literal=secret=<random-string>
-
-# generate random
-cat /dev/urandom | head -c 32 | step base64 -u -r | xargs -r echo -n 2> /dev/null
- kubectl create secret -n smallstep generic majordomo-provisioner-password --from-literal=password=<random-string>
-
-# generate JWK keys
-echo -n "{\"keys\": [$(step crypto jwk create /dev/null /dev/stdout --kty RSA --force --no-password --insecure 2> /dev/null &)]}"
- kubectl create secret -n smallstep generic oidc --from-literal=jwks=<json-output>
-
- kubectl create secret -n smallstep generic scim-server-credentials --from-literal=credentials.json=""
-```
-
 ### Smallstep
 
 Begin the Smallstep platform installation process (powered by KOTS). Install into the `smallstep` namespace.
@@ -208,8 +184,6 @@ manage-provisioners --ssh --type SSHPOP --name "SSH POP" --authority <authority-
 
 refresh-authority <authority-id>
 ```
-
-# 🎉🥂
 
 **Add OIDC provisioner**
 

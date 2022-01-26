@@ -5,8 +5,6 @@ description: Learn how to configure your AWS infrastructure and install your run
 ---
 
 
-# Smallstep Platform Installation - AWS
-
 Smallstep's `run anywhere` deployments require a certain set of infrastructure on which to run. Details about these requirements are listed throughout this guide. We provide a Terraform module if you would like to use our code to stand up your resources, but you are entirely welcome to simply use it as a reference guide instead.
 
 ## Setting up AWS Infrastructure
@@ -95,7 +93,7 @@ Refer to the AWS Console, Route53 ⇒ Your Hosted Zone to retrieve the list of n
 
 In the your base domain DNS provider's records, add an `NS` record to delegate resolution of the subdomain to the DNS nameservers.
 
-For example, an `NS` record for `[smallstep.basedomain.company.com](http://smallstep.basedomain.company.com)` may contain the following:
+For example, an `NS` record for `smallstep.basedomain.company.com` may contain the following:
 
 ```
 ns-1111.awsdns-11.org.
@@ -192,8 +190,6 @@ manage-provisioners --ssh --type SSHPOP --name "SSH POP" --authority <authority-
 
 refresh-authority <authority-id>
 ```
-
-# 🎉🥂
 
 **Add OIDC provisioner**
 
