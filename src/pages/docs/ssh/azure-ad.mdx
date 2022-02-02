@@ -94,17 +94,32 @@ Your Users and Groups list should now look something like this:
 
 > **Alternative `userName` Attribute Mappings**
 >
-> The `userName` attribute determines the name of the POSIX account that will be created when users connect to a host. By default, the expression returns the everything before the @ in the UPN, converted to lowercase. Here are some alternative UPN expressions that have been useful to customers:
+> The `userName` attribute determines the name of the POSIX account that will be created when users connect to a host.
+> By default, the expression returns the everything before the `@` in the UPN, converted to lowercase:
 >
-> **Remove dots `.` from usernames**
+> ```
+> ToLower(Replace([userPrincipalName], , "(?<Suffix>@(.)*)", "Suffix", "", , ), )
+> ```
+> Here are some alternative UPN expressions that have been useful to customers:
 >
-> Some users have UPNs with dots in them, but POSIX usernames without dots.
-> Linux usernames with `.` in them have recently become POSIX-compliant,
-> and in practice dotted usernames work fine on many systems.
-> If your UPNs contain dots,
-> you can configure the `userName` attribute mapping to remove them.
-> Just use the following expression for your `userName` attribute:
-> `ToLower(Replace(Replace([userPrincipalName], , "(?<Suffix>@(.)*)", "Suffix", "", , ), ".", , ,"", , ))`
+> - Remove dots `.` from usernames
+>
+>   Some users have dotted UPNs, and POSIX usernames _without_ dots.
+>   Linux usernames with `.` in them are POSIX-compliant ([IEEE Std 1003.1-2017, section 3.437](https://pubs.opengroup.org/onlinepubs/9699919799/basedefs/V1_chap03.html#tag_03_437))
+>   and in practice dotted usernames work fine on many systems.
+>   If your UPNs contain dots,
+>   you can configure the `userName` attribute mapping to remove them.
+>   Use the following expression for your `userName` attribute:
+> 
+>   ``` 
+>   ToLower(Replace(Replace([userPrincipalName], , "(?<Suffix>@(.)*)", "Suffix", "", , ), ".", , ,"", , ))
+>   ```
+>
+> - Convert `bill.gates@microsoft.com` to `bgates`: 
+>
+>  ```
+>  ToLower(Replace(Replace([userPrincipalName], , "(?<=^.{1}).\w+.\.", "", "", , ), , "(@(.)*)","","" , ,))
+>  ```
 
 ##### Turn on Provisioning
 
