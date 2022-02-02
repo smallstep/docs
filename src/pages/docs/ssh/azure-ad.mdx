@@ -92,10 +92,15 @@ Your Users and Groups list should now look something like this:
     * Choose **Test Connection** and make sure that it works.
 	* Save.
 
-> **Do you have dots in your Azure UPNs?**
+> **Alternative `userName` Attribute Mappings**
 >
-> Linux usernames with `.` in them are not POSIX-compliant,
-> though in practice dotted usernames work fine on many systems.
+> The `userName` attribute determines the name of the POSIX account that will be created when users connect to a host. By default, the expression returns the everything before the @ in the UPN, converted to lowercase. Here are some alternative UPN expressions that have been useful to customers:
+>
+> **Remove dots `.` from usernames**
+>
+> Some users have UPNs with dots in them, but POSIX usernames without dots.
+> Linux usernames with `.` in them have recently become POSIX-compliant,
+> and in practice dotted usernames work fine on many systems.
 > If your UPNs contain dots,
 > you can configure the `userName` attribute mapping to remove them.
 > Just use the following expression for your `userName` attribute:
