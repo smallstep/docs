@@ -57,7 +57,7 @@ debugging invalid certificates remotely.
 TLS Server Name Indication that should be sent to request a specific certificate from the server.
 
 **--format**=`format`
-The `format` of the fingerprint, it must be "hex", "base64" or "base64-url".
+The `format` of the fingerprint, it must be "hex", "base64", "base64-url", "base64-raw", "base64-url-raw" or "emoji".
 
 ## Examples
 
@@ -73,7 +73,7 @@ $ step certificate fingerprint https://smallstep.com
 e2c4f12edfc1816cc610755d32e6f45d5678ba21ecda1693bb5b246e3c48c03d
 ```
 
-Get the fingerprints for a remote certificate with its intemediate:
+Get the fingerprints for a remote certificate with its intermediate:
 ```shell
 $ step certificate fingerprint --bundle https://smallstep.com
 e2c4f12edfc1816cc610755d32e6f45d5678ba21ecda1693bb5b246e3c48c03d

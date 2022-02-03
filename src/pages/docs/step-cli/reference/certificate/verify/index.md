@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step certificate verify <crt_file> [--host=<host>]
+step certificate verify <crt-file> [--host=<host>]
 [--roots=<root-bundle>] [--servername=<servername>]
 ```
 
@@ -25,7 +25,7 @@ an error occurs, this command will produce a non-zero return value.
 
 ## Positional arguments
 
-`crt_file`
+`crt-file`
 The path to a certificate to validate.
 
 ## Options

@@ -57,6 +57,9 @@ The path to the `file` containing passphrase to decrypt a private key.
 **--raw**
 Print the raw bytes instead of the fingerprint. These bytes can be piped to a different hash command.
 
+**--format**=`format`
+The `format` of the fingerprint, it must be "hex", "base64", "base64-url", "base64-raw", "base64-url-raw" or "emoji".
+
 ## Examples
 
 Print the fingerprint of a public key:

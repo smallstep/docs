@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step ssh logout <identity> [--all]
+step ssh logout [<identity>] [--all]
 [--identity=<identity>] [--offline] [--ca-config=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
@@ -58,6 +58,11 @@ The path to the PEM `file` used as the root certificate authority.
 The context `name` to apply for the given command.
 
 ## Examples
+
+Remove all identities signed by your SSH CA:
+```shell
+$ step ssh logout
+```
 
 Remove the certificate mariano@work from the SSH agent:
 ```shell
