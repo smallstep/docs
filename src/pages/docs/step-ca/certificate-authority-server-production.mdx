@@ -14,11 +14,12 @@ should know about when running `step-ca` as a certificate authority server.
 ## Overview
 
 - [Good Security Practices](#securing-your-pki)
-  - [Safeguard Your Root Key](#safeguard-your-root-key)
+  - [Safeguard Your Root And Intermediate Keys](#safeguard-your-root-and-intermediate-keys)
   - [Use Strong Passwords and Store Them Well](#use-strong-passwords-and-store-them-well)
   - [Avoid Storing Passwords In Environment Variables](#avoid-storing-passwords-in-environment-variables)
   - [Delete Your Default Provisioner](#delete-your-default-provisioner)
   - [Use Short-Lived Certificates](#use-short-lived-certificates)
+  - [Use Templates With Care](#use-templates-with-care)
   - [Create a Service User to Run `step-ca`](#create-a-service-user-to-run-step-ca)
 - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
 - [High Availability](#high-availability)
@@ -33,26 +34,27 @@ should know about when running `step-ca` as a certificate authority server.
 
 ## Good Security Practices
 
-In this section we recommend a few best practices when it comes to
-running, deploying, and managing your own online certificate authority server and PKI. Security is a moving
-target and we expect our recommendations to change and evolve as well.
+In this section we recommend a few best practices when it comes to running, deploying, and managing your own online certificate authority server and PKI.
+Security is a moving target.
+We expect our recommendations to change and evolve as well.
 
-### Safeguard Your Root Key
+### Safeguard Your Root And Intermediate CA Keys
 
-When you initialize a simple CA, two private keys are generated: one intermediate
-private key, and one root private key. It is very important that these private keys
-are kept secret.
+When you initialize a two-tier CA, two private keys are generated:
+one intermediate private key, and one root private key.
+It is very important that these private keys be kept secret.
 
 The intermediate key is used by the CA to sign certificates. The root key is not needed for day-to-day CA operation and should be stored offline.
-Typically the root key is generated on an air-gapped device, and it never leaves the device on which it was created.
+The keys can be generated on an air-gapped device or on a Hardware Security Module (HSM).
 
 Here's an example key protection strategy for a high-security production PKI.
 
 In this example, `step-ca` acts as a subordinate CA to an offline root CA.
 
-1. Generate a root CA (private key and certificate) on a [Hardware Security Module (HSM)](https://en.wikipedia.org/wiki/Hardware_security_module) that is kept in "cold storage", off the internet.
+1. Generate a root CA (private key and certificate) on a [Hardware Security Module (HSM)](https://en.wikipedia.org/wiki/Hardware_security_module) or air-gapped device that is kept in "cold storage", off the internet.
 HSMs are ideal for storing private keys and performing signing operations securely.
-2. Generate intermediate key(s) on a separate, online cloud HSM or in a key management service (KMS) that will be used by the CA in production
+For durability, keep at least two copies of your root key, in separate locations.
+2. Generate intermediate key(s) on a separate, online cloud HSM or in a key management service (KMS) that will be used by the CA for signing operations in production
 3. Generate Certificate Signing Requests (CSRs) for your intermediate CA(s)
 4. Sign the generated CSR using the root HSM
 5. Configure `step-ca` to use the signed root and intermediate certificates
@@ -100,7 +102,6 @@ In addition to using a password manager to store all passwords
 [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir's_Secret_Sharing)
 to divide the root private key password across a handful of trusted parties.
 
-
 ### Avoid Storing Passwords in Environment Variables
 
 `systemd` discourages using the environment for secrets 
@@ -137,28 +138,36 @@ See the section on [managing provisioners](/docs/step-ca/provisioners#managing-p
 
 ### Use Short-Lived Certificates
 
-We recommend certificates have the lifespan of a mayfly: about a day or less[^1]. Certificates from
-`step-ca` expire in 24 hours by default. We made it easy for you to
-[automate the renewal of your certificates](#automate-x509-certificate-lifecycle-management)
-using the `step` command. Carpe diem!
+We recommend the following:
+- User certificates should have the lifespan of a mayfly: about a day or less[^1].
+- Host or service account certificates should have a lifetime of one month or less.
 
-You can
-[configure certificate lifetimes](/docs/step-ca/configuration#basic-configuration-options) in the `ca.json` file. 
+Certificates from `step-ca` expire in 24 hours by default.
+We made it easy for you to [automate the renewal of your certificates](#automate-x509-certificate-lifecycle-management) using the `step` command.
+Carpe diem!
+
+You can [configure certificate lifetimes](/docs/step-ca/configuration#basic-configuration-options) in the `ca.json` file. 
 
 <Alert severity="info">
   <div>
-    Short-lived certificates are not a replacement for active revocation using certificate
-revocation lists (CRL) or Online Certificate Status Protocol (OCSP). Active revocation is 
-not yet available in `step-ca`.
+    Short-lived certificates are not a replacement for active revocation using certificate revocation lists (CRL) or Online Certificate Status Protocol (OCSP).
+	Active revocation is not yet available in `step-ca`.
   </div>
 </Alert>
 
 
 <Footnote id="fn-1" marker="1">
-Insects of the mayfly species <i>dolania americana</i> live for five minutes or less. So do some
-certificates. But it can be difficult to operationalize such short-lived certificates.
+Insects of the mayfly species <i>dolania americana</i> live for five minutes or less.
+So do some certificates.
+But it can be difficult to operationalize such short-lived certificates.
 </Footnote>
 
+### Use Templates With Care
+
+Because certificate templates add a lot of flexibility to `step-ca`,
+they can be a source of subtle vulnerabilities in your PKI.
+If you use [custom certificate templates](/docs/step-ca/templates), be sure they are tightly restricted for your use case.
+Use extreme caution when referencing user-supplied data marked as `Insecure` in templates.
 
 ### Create a Service User to Run `step-ca`
 
