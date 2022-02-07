@@ -14,9 +14,9 @@ menu:
 ```raw
 step ca renew <crt-file> <key-file>
 [--password-file=<file>] [--out=<file>] [--expires-in=<duration>]
-[--force] [--expires-in=<duration>] [--pid=<int>]
-[--pid-file=<file>] [--signal=<int>] [--exec=<string>] [--daemon]
-[--renew-period=<duration>] [--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--force] [--pid=<int>] [--pid-file=<file>] [--signal=<int>]
+[--exec=<string>] [--daemon] [--renew-period=<duration>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description

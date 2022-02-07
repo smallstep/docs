@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step certificate format <crt_file> [--out=<file>]
+step certificate format <crt-file> [--out=<file>]
 ```
 
 ## Description
@@ -24,7 +24,7 @@ a certificate or CSR in one format to the other.
 
 ## Positional arguments
 
-`crt_file`
+`crt-file`
 Path to a certificate or CSR file.
 
 ## Options

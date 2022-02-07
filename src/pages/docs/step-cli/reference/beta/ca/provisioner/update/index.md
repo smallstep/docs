@@ -20,7 +20,7 @@ step beta ca provisioner update <name> [--public-key=<file>]
 
 ACME
 
-step beta ca provisioner update <name> [--force-cn]
+step beta ca provisioner update <name> [--force-cn] [--require-eab] [--disable-eab]
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
@@ -63,6 +63,13 @@ step beta ca provisioner update <name>
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
+
+step beta ca provisioner update <name> [--force-cn] [--challenge=<challenge>] 
+[--capabilities=<capabilities>] [--include-root] [--minimum-public-key-length=<length>] 
+[--encryption-algorithm-identifier=<id>] [--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-provisioner=<name>] [--admin-subject=<subject>] [--password-file=<file>] 
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+
 ```
 
 ## Description
@@ -170,8 +177,40 @@ The `tenant-id` used to replace the templatized {tenantid} in the OpenID Configu
 Root certificate (chain) `file` used to validate the signature on X5C
 provisioning tokens.
 
+**--nebula-root**=`file`
+Root certificate (chain) `file` used to validate the signature on Nebula
+provisioning tokens.
+
 **--force-cn**
 Always set the common name in provisioned certificates.
+
+**--require-eab**
+Require (and enable) External Account Binding for Account creation.
+
+**--disable-eab**
+Disable External Account Binding for Account creation.
+
+**--challenge**=`challenge`
+The SCEP `challenge` to use as a shared secret between a client and the CA
+
+**--capabilities**=`capabilities`
+The SCEP `capabilities` to advertise
+
+**--include-root**
+Include the CA root certificate in the SCEP CA certificate chain
+
+**--min-public-key-length**=`length`
+The minimum public key `length` of the SCEP RSA encryption key
+
+**--encryption-algorithm-identifier**=`id`
+The `id` for the SCEP encryption algorithm to use.
+      Valid values are 0 - 4, inclusive. The values correspond to:
+      0: DES-CBC, 
+      1: AES-128-CBC,
+      2: AES-256-CBC, 
+      3: AES-128-GCM, 
+      4: AES-256-GCM. 
+      Defaults to DES-CBC (0) for legacy clients.
 
 **--aws-account**=`id`
 The AWS account `id` used to validate the identity documents.
@@ -287,7 +326,7 @@ step beta ca provisioner update x5c --x5c-root x5c_ca.crt
 
 Update an ACME provisioner:
 ```shell
-step beta ca provisioner update acme --force-cn
+step beta ca provisioner update acme --force-cn --require-eab
 ```
 
 Update an K8SSA provisioner:
@@ -301,7 +340,7 @@ $ step beta ca provisioner update Azure \
   --azure-resource-group identity --azure-resource-group accounting
 ```
 
-Update an GCP provisioner:
+Update a GCP provisioner:
 ```shell
 $ step beta ca provisioner update Google \
   --disable-custom-sans --gcp-project internal --remove-gcp-project public
@@ -310,5 +349,10 @@ $ step beta ca provisioner update Google \
 Update an AWS provisioner:
 ```shell
 $ step beta ca provisioner update Amazon --disable-custom-sans --disable-trust-on-first-use
+```
+
+Update a SCEP provisioner:
+```shell
+step beta ca provisioner update my_scep_provisioner --force-cn
 ```
 

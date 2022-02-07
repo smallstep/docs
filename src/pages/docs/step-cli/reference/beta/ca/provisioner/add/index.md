@@ -37,6 +37,11 @@ step beta ca provisioner add <name> --type=SSHPOP
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
 
+step beta ca provisioner add <name> --type=Nebula --nebula-root=<file>
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
+
 step beta ca provisioner add <name> --type=K8SSA [--public-key=<file>]
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
@@ -51,10 +56,16 @@ step beta ca provisioner add <name> --type=[AWS|Azure|GCP]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
 
-step beta ca provisioner add <name> --type=ACME [--force-cn]
+step beta ca provisioner add <name> --type=ACME [--force-cn] [--require-eab]
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
+
+step beta ca provisioner add <name> --type=SCEP [--force-cn] [--challenge=<challenge>] 
+[--capabilities=<capabilities>] [--include-root] [--min-public-key-length=<length>] 
+[--encryption-algorithm-identifier=<id>] [--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-provisioner=<string>] [--admin-subject=<string>] [--password-file=<file>] 
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -86,11 +97,16 @@ The `type` of provisioner to create.
 
 - **ACME**: Uses the ACME protocol to create certificates.
 
-- **X5C**: Uses an X509 Certificate / private key pair to sign provisioning tokens.
+- **X5C**: Uses an X509 certificate / private key pair to sign provisioning tokens.
 
 - **K8SSA**: Uses Kubernetes Service Account tokens.
 
-- **SSHPOP**: Uses an SSH Certificate / private key pair to sign provisioning tokens.
+- **SSHPOP**: Uses an SSH certificate / private key pair to sign provisioning tokens.
+
+- **SCEP**: Uses the SCEP protocol to create certificates.
+  
+- **Nebula**: Uses a Nebula certificate / private key pair to sign provisioning tokens.
+
 
 **--x509-template**=`file`
 The x509 certificate template `file`, a JSON representation of the certificate to create.
@@ -178,8 +194,37 @@ The `tenant-id` used to replace the templatized {tenantid} in the OpenID Configu
 Root certificate (chain) `file` used to validate the signature on X5C
 provisioning tokens.
 
+**--nebula-root**=`file`
+Root certificate (chain) `file` used to validate the signature on Nebula
+provisioning tokens.
+
 **--force-cn**
 Always set the common name in provisioned certificates.
+
+**--require-eab**
+Require (and enable) External Account Binding for Account creation.
+
+**--challenge**=`challenge`
+The SCEP `challenge` to use as a shared secret between a client and the CA
+
+**--capabilities**=`capabilities`
+The SCEP `capabilities` to advertise
+
+**--include-root**
+Include the CA root certificate in the SCEP CA certificate chain
+
+**--min-public-key-length**=`length`
+The minimum public key `length` of the SCEP RSA encryption key
+
+**--encryption-algorithm-identifier**=`id`
+The `id` for the SCEP encryption algorithm to use.
+      Valid values are 0 - 4, inclusive. The values correspond to:
+      0: DES-CBC, 
+      1: AES-128-CBC,
+      2: AES-256-CBC, 
+      3: AES-128-GCM, 
+      4: AES-256-GCM. 
+      Defaults to DES-CBC (0) for legacy clients.
 
 **--aws-account**=`id`
 The AWS account `id` used to validate the identity documents.
@@ -279,6 +324,11 @@ Create an ACME provisioner:
 step beta ca provisioner add acme --type ACME
 ```
 
+Create an ACME provisioner, forcing a CN and requiring EAB:
+```shell
+step beta ca provisioner add acme --type ACME --force-cn --require-eab
+```
+
 Create an K8SSA provisioner:
 ```shell
 step beta ca provisioner add kube --type K8SSA --ssh --public-key key.pub
@@ -287,6 +337,11 @@ step beta ca provisioner add kube --type K8SSA --ssh --public-key key.pub
 Create an SSHPOP provisioner for renewing SSH host certificates:")
 ```shell
 step beta ca provisioner add sshpop --type SSHPOP
+```
+
+Create a SCEP provisioner with 'secret' challenge and AES-256-CBC encryption:
+```shell
+step beta ca provisioner add my_scep_provisioner --type SCEP --challenge secret --encryption-algorithm-identifier 2  
 ```
 
 Create an Azure provisioner with two service groups:

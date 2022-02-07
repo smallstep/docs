@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step certificate bundle <crt_file> <ca> <bundle_file>
+step certificate bundle <crt-file> <ca> <bundle-file>
 ```
 
 ## Description
@@ -22,13 +22,13 @@ step certificate bundle <crt_file> <ca> <bundle_file>
 
 ## Positional arguments
 
-`crt_file`
+`crt-file`
 The path to a leaf certificate to bundle with issuing certificate(s).
 
 `ca`
 The path to the Certificate Authority issusing certificate.
 
-`bundle_file`
+`bundle-file`
 The path to write the bundle.
 
 ## Options

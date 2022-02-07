@@ -18,8 +18,8 @@ step ssh certificate <key-id> <key-file>
 [--add-user] [--not-before=<time|duration>]
 [--not-after=<time|duration>] [--token=<token>] [--issuer=<name>]
 [--no-password] [--insecure] [--force] [--x5c-cert=<file>]
-[--x5c-key=<file>] [--k8ssa-token-path=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>]
+[--x5c-key=<file>] [--k8ssa-token-path=<file>] [--no-agent]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -152,8 +152,18 @@ Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'x5c' header.
 
+**--nebula-cert**=`file`
+Certificate `file` in PEM format to store in the 'nebula' header of a JWT.
+
+**--nebula-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the certificate that will
+be stored in the 'nebula' header.
+
 **--k8ssa-token-path**=`file`
 Configure the `file` from which to read the kubernetes service account token.
+
+**--no-agent**
+Do not add the generated certificate and associated private key to the SSH agent.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
@@ -173,6 +183,11 @@ The context `name` to apply for the given command.
 Generate a new SSH key pair and user certificate:
 ```shell
 $ step ssh certificate mariano@work id_ecdsa
+```
+
+Generate a new SSH key pair and user certificate and do not add to SSH agent:
+```shell
+$ step ssh certificate mariano@work id_ecdsa --no-agent
 ```
 
 Generate a new SSH key pair and user certificate and set the lifetime to 2hrs:

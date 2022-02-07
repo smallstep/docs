@@ -117,6 +117,13 @@ Certificate (`chain`) in PEM format to store in the 'sshpop' header of a JWT.
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'sshpop' header.
 
+**--nebula-cert**=`file`
+Certificate `file` in PEM format to store in the 'nebula' header of a JWT.
+
+**--nebula-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the certificate that will
+be stored in the 'nebula' header.
+
 **--key**=`file`
 The private key `file` used to sign the JWT. This is usually downloaded from
 the certificate authority.

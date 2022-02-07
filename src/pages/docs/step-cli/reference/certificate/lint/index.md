@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step certificate lint <crt_file> [--roots=<root-bundle>]
+step certificate lint <crt-file> [--roots=<root-bundle>]
 [--servername=<servername>]
 ```
 
@@ -23,7 +23,7 @@ errors and outputs the result in JSON format.
 
 ## Positional arguments
 
-`crt_file`
+`crt-file`
 Path to a certificate or certificate signing request (CSR) to lint.
 
 ## Options

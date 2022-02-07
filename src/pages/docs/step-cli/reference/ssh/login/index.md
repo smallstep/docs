@@ -12,9 +12,9 @@ menu:
 ## Usage
 
 ```raw
-step ssh login <identity>
+step ssh login [<identity>]
 [--token=<token>] [--provisioner=<name>] [--provisioner-password-file=<file>]
-[--not-before=<time|duration>] [--not-after=<time|duration>]
+[--principal=<string>] [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--set=<key=value>] [--set-file=<file>] [--force]
 [--offline] [--ca-config=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
@@ -45,6 +45,13 @@ certificate.
 
 **--add-user**
 Create a user provisioner certificate used to create a new user.
+
+**--principal**=`value`, **-n**=`value`
+Add the specified principal (username) to the certificate request.
+      This flag can be used multiple times. However, it cannot be used in conjunction
+      with '--token' when requesting certificates from OIDC, JWK, and X5C provisioners, or
+      from any provisioner with 'disableCustomSANs' set to 'true'. These provisioners will
+      use the contents of the token to determine the principals.
 
 **--identity**=`value`
 The certificate identity. It is usually passed as a positional argument, but a
@@ -102,11 +109,21 @@ The context `name` to apply for the given command.
 
 Request a new SSH certificate and add it to the agent:
 ```shell
-$ step ssh login joe@example.com
+$ step ssh login bob
+```
+
+Request a new SSH certificate using an OIDC provisioner:
+```shell
+$ step ssh login
 ```
 
 Request a new SSH certificate valid only for 1h:
 ```shell
-$ step ssh login --not-after 1h joe@smallstep.com
+$ step ssh login --not-after 1h alice
+```
+
+Request a new SSH certificate with multiple principals:
+```shell
+$ step ssh login --principal admin --principal bob bob@smallstep.com
 ```
 
