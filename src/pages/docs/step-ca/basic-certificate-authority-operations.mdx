@@ -85,7 +85,7 @@ $ step ca sign foo.csr foo.crt
 
 Occasionally it's useful to separate enrollment process even further, into three steps:
 - Generating a private key and a CSR
-- Generating a single-use, signed, short-lived CA authentication token
+- Generating a single-use, signed, short-lived CA authentication token (a JWT)
 - Using the token and CSR to ask the CA for a signed certificate
 
 Each step can happen in a different context,
@@ -98,10 +98,10 @@ and inject the token into a Docker container.
 This way, the container can create its own private key and get a certificate,
 but it doesn't hold any long-lived CA credentials.
 
-Under the hood, many of `step-ca`'s [certificate provisioners](/docs/step-ca/certificate-authority-core-concepts/#provisioners) accept a token to authenticate certificate requests:
-- The JWK provisioner accepts tokens signed using a JavaScript Web Key whose public key is configured in the CA.
-- The OIDC provisioner accepts a token signed by an identity provider via a single sign-on flow.
-- The X5C provisioner accepts tokens signed using an X509 certificate private key whose root is configured in the CA.
+Under the hood, many of `step-ca`'s [certificate provisioners](/docs/step-ca/certificate-authority-core-concepts/#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
+- The JWK provisioner accepts JWTs signed using a JavaScript Web Key whose public key is configured in the CA.
+- The OIDC provisioner accepts JWTs signed by an identity provider via a single sign-on flow.
+- The X5C provisioner accepts JWTs signed using an X509 certificate private key whose root is configured in the CA.
 
 In the following example, the CA generates a token for the client who has the JWK's encrypted private key password:
 
