@@ -635,23 +635,36 @@ One can only run signing operations using the key.
 This is an excellent way to protect private keys for a Certificate Authority,
 which in normal operation simply needs to be able to sign Certificate Signing Requests.
  
-[Public-Key Cryptography Standards #11 (PKCS #11)](https://en.wikipedia.org/wiki/PKCS_11) is the most common platform-independent API used by HSM hardware.
+[Public-Key Cryptography Standards #11 (PKCS #11)](https://en.wikipedia.org/wiki/PKCS_11) is the most common platform-independent API used to access HSM hardware.
 It's supported by most HSM hardware, like Yubico's [YubiHSM2](https://www.yubico.com/product/yubihsm-2/), and the [Nitrokey HSM 2](https://shop.nitrokey.com/shop/product/nk-hsm-2-nitrokey-hsm-2-7).
 There's also a software-based "HSM," [SoftHSMv2](https://github.com/opendnssec/SoftHSMv2), which offers a PKCS #11 interface without the hardware.
+Finally, you can use PKCS#11 with a Trusted Platform Module (TPM) 2.0 chip on Linux. This requires the [libtpm2_pkcs11.so](https://github.com/tpm2-software/tpm2-pkcs11) library.
+
+#### 0. Before you begin
+
+Your HSM or TPM2 may need to be prepared before you can initialize a PKI on it.
+Preparation steps depend on the device and are beyond the scope of this documentation.
+For example,
+
+- With YubiHSM2, you will need to create an authentication key with appropriate capabiliites.
+- With TPM2, you will need to initialize the TPM and create a PKCS#11 token on it.
+
+You'll also want to consider how you will backup and restore your CA keys, for offline storage.
 
 #### 1. Initialize your PKI using the `step-pkcs11-init` tool.
 
 The `step-pkcs11-init` tool will create or import CA keys and/or certificates onto your HSM, for use with `step-ca`.
 It is configured to work with the YubiHSM2 by default, but you can provide a different PKCS #11 URI by using the `--kms` flag.
 
-Here are some examples of PKCS #11 URIs for various HSMs:
+Here are some examples of PKCS #11 URIs for accessing various devices in Linux:
 
 HSM              | URI format
 ---------------- | -------------------------------------------------------------------------------------
-YubiHSM2 (Linux) | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
+YubiHSM2         | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
 AWS CloudHSM     | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
 SoftHSM          | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
 nCipher nShield  | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
+TPM2             | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
 
 You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
 
