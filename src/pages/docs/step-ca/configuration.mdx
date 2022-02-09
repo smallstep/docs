@@ -671,7 +671,7 @@ You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
 In this URI,
 * `module-path` points to your PKCS #11 `.dll`, `.so`, or `.dylib` library file,
 * `token` is the label (`CKA_LABEL`) of the HSM you're using,
-* `pin-value` contains hardcoded HSM credentials. It may be a PIN, username and password, password, or a filename depending on the HSM,
+* `pin-value` contains hardcoded HSM credentials. It may be a PIN, username and password, password, or a filename. The YubiHSM2 is special in that the PIN value is the concatenation of the four-digit authorization key ID (eg. `0001`) and the PIN.
 * Or, `pin-source` is a filename containing HSM credentials.
 
 Once the utility creates your PKI, it will output a few paths for your keys and certificates before exiting.
