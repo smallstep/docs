@@ -194,7 +194,7 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
                   "maxPathLen": 0
           },
           "crlDistributionPoints":
-                  ["http://crl.example.com/crl/ca.crl.pem"]
+                  ["http://crl.example.com/crl/ca.crl"]
           }
   }
   ```
@@ -227,14 +227,20 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   default_md = sha256
   EOF
   touch index.txt
-  openssl ca -config openssl.conf \
+  openssl ca \
+      -config openssl.conf \
       -gencrl \
       -keyfile root_ca_key \
       -cert root_ca.crt \
-      -out intermediate.crl
+      -out ca.crl.pem
+  openssl crl \
+      -inform PEM \
+      -in ca.crl.pem \
+      -outform DER \
+      -out ca.crl
   ```
 
-3. Upload the CRL file to the location you specified in the template.
+3. Upload the DER-formatted `ca.crl` file to the location you specified in the template.
 4. Finally, configure your `step-ca` server to use the intermediate CA you created.
 
 
