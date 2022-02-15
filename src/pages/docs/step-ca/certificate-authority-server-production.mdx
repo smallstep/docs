@@ -19,6 +19,7 @@ should know about when running `step-ca` as a certificate authority server.
   - [Avoid Storing Passwords In Environment Variables](#avoid-storing-passwords-in-environment-variables)
   - [Delete Your Default Provisioner](#delete-your-default-provisioner)
   - [Use Short-Lived Certificates](#use-short-lived-certificates)
+  - [Enable Active Revocation On Your Intermediate CA](#enable-active-revocation-on-your-intermediate-ca)
   - [Use Templates With Care](#use-templates-with-care)
   - [Create a Service User to Run `step-ca`](#create-a-service-user-to-run-step-ca)
 - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
@@ -151,7 +152,7 @@ You can [configure certificate lifetimes](/docs/step-ca/configuration#basic-conf
 <Alert severity="info">
   <div>
     Short-lived certificates are not a replacement for active revocation using certificate revocation lists (CRL) or Online Certificate Status Protocol (OCSP).
-	Active revocation is not yet available in `step-ca`.
+	Active revocation is not yet available in `step-ca`, but you can manually manage a CRL for your CA certificates. See below.
   </div>
 </Alert>
 
@@ -161,6 +162,88 @@ Insects of the mayfly species <i>dolania americana</i> live for five minutes or 
 So do some certificates.
 But it can be difficult to operationalize such short-lived certificates.
 </Footnote>
+
+### Enable Active Revocation On Your Intermediate CA
+
+The value of a two-tiered PKI is that you can add your root CA certificate to the certificate trust store on all of your nodes, and store your root private key completely offline.
+A leaf certificate signed by the CA always comes in a bundle that contains the intermediate CA certificate alongside the leaf certificate.
+With this bundle, any client that trusts your root CA can verify the complete chain of trust.
+
+Now, what if one day your intermediate CA key is compromised?
+You could issue a new intermediate using your root CA key, but your old intermediate has a 10 year validity period!
+So, you're stuck having to rotate your root CA too, and that's a much bigger project because you have to distribute the new root certificate to everyone and ensure the old one is no longer trusted.
+To avoid this scenario, you can use _active revocation_ on your intermediate CA certificate,
+making it possible to immediately revoke a compromised intermediate.
+
+While `step-ca` doesn't directly support active revocation mechanisms like Certificate Revocation Lists (CRLs) or the Online Certificate Status Portocol (OCSP),
+you can independently manage your own CRL if you like.
+
+#### Create an intermediate CA with a CRL distribution endpoint
+
+Let's make it possible to revoke your intermediate CA down the road if necessary.
+This setup is more complex than the default `step-ca` PKI, but it offers an insurance policy for a compromised intermediate CA.
+
+1. Create an intermediate CA that includes a CRL endpoint. Save the following template to `intermediate.tpl`:
+
+  ```json
+  {
+          "subject": {{ toJson .Subject }},
+          "keyUsage": ["certSign", "crlSign"],
+          "basicConstraints": {
+                  "isCA": true,
+                  "maxPathLen": 0
+          },
+          "crlDistributionPoints":
+                  ["http://crl.example.com/crl/ca.crl.pem"]
+          }
+  }
+  ```
+
+  You'll need this template to manually create your intermediate CA.
+  The CRL endpoint here should be an HTTP URL; the CRL file itself is signed.
+  The CRL will be a static file, so you you might choose an object storage or CDN endpoint here.
+  
+  Use the template to create your intermediate CA. You will need your root CA certificate and key:
+  
+  ```bash
+  $ step certificate create "Example Intermediate CA" \
+       intermediate_ca.crt intermediate_ca_key \
+       --template intermediate.tpl \
+       --ca root_ca.crt \
+       --ca-key root_ca_key \
+       --not-after 87660h
+  ```
+
+2. Create an empty CRL file and sign it with your root CA key:
+
+  ```bash
+  cat <<EOF > openssl.conf
+  [ ca ]
+  default_ca = CA_default
+  
+  [ CA_default ]
+  default_crl_days = 30
+  database = index.txt
+  default_md = sha256
+  EOF
+  touch index.txt
+  openssl ca -config openssl.conf \
+      -gencrl \
+      -keyfile root_ca_key \
+      -cert root_ca.crt \
+      -out intermediate.crl
+  ```
+
+3. Upload the CRL file to the location you specified in the template.
+4. Finally, configure your `step-ca` server to use the intermediate CA you created.
+
+
+<Alert severity="warning">
+  <div>
+	Your CRL will expire, so you will need to generate and push a new empty CRL file regularly. We recommend updating the CRL once two-thirds of its lifetime has elapsed. Configuring automated CRL renewal is beyond the scope of this document.
+  </div>
+</Alert>
+
 
 ### Use Templates With Care
 
