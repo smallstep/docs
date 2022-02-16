@@ -250,6 +250,23 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   </div>
 </Alert>
 
+#### Revoke A Certificate
+
+To revoke a certificate, add it to the `index.txt` file before regenerating the CRL file. The format for this CRL database file is:
+
+- One certificate per line
+- Each line is tab-delimited
+- The tab-delimited fields are:
+  1. **Entry type.** May be `V` (valid), `R` (revoked) or `E` (expired).
+      An expired certificate may have the type `V` because the type has not been updated.
+	  `openssl ca updatedb` does such an update.
+  2. **Expiration datetime.** Format is `yymmddHHMMSSZ`.
+  3. **Revokation datetime** and **optional revocation reason**. Must be set for any entry of the type `R`. Format is `yymmddHHMMSSZ[,reason]`.
+  4. **Certificate serial number** in uppercase hexidecimal, eg. `804A72D941DB451A0123BA4706446D1F`.
+  5. **File name** This doesn't seem to be used, ever, so use the value `unknown`.
+  6. **Certificate subject** eg. `CN=Test Root CA,O=Smallstep Labs, Inc`
+
+Source: [OpenSSL PKI Tutorial](https://pki-tutorial.readthedocs.io/en/latest/cadb.html)
 
 ### Use Templates With Care
 
