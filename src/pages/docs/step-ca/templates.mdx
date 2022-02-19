@@ -96,6 +96,17 @@ Here are some common variables available in X.509 certificate template:
   —for example, with the JWK provisioner—
   this field contains the payload of that token.
 
+- **.AuthorizationCrt**:
+  For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
+  this is the certificate used to authorize the current certificate request with the CA.
+  The client has proven posession of this certificate's private key.
+  The `.AuthorizationCrt` will have the following properties: `Nonce`, `Serial`, `Type`, `KeyID`, `Principals`, `ValidBefore`, `ValidAfter`, `CriticalOptions`, `Extensions`, and `Reserved` (See [the Certificate struct shown here](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16)).
+
+- **.AuthorizationChain**:
+  For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
+  this is an array of the certificate chain from the request.
+  This chain connects the authorization certificate to the root CA configured in the provisioner.
+
 - **.Insecure.CR**<Reference id="star11" marker="*" />:
   This field holds the Certificate Request from the client.
 
