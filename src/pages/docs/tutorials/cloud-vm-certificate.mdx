@@ -35,7 +35,7 @@ between clouds, along with many other implementation details. In general,
 they're all the same: signed bearer tokens that identify at least the
 name and owner of a VM.
 
-Metadata API's expose IIDs via a non-roundtable IP address
+Metadata API's expose IIDs via a non-routable IP address
 (the [link-local address][4] 169.254.169.254). This magic is orchestrated by
 the [hypervisor][5], which identifies the requesting VM and services IID
 requests locally.
