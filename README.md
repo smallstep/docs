@@ -28,7 +28,7 @@ Issues and pull requests are welcome!
 - Follow the conventions outlined in Google's [Technical Writing](https://developers.google.com/tech-writing/one) classes.
 - Further reading: [Writing Tools I Learned from The Economist](https://builtbywords.substack.com/p/writing-tools-i-learned-from-the)
 
-## Run locally
+## Preview docs locally
 
 To run and preview docs locally (requires Node.js and Yarn):
 
@@ -47,4 +47,6 @@ Check formatting with `yarn lint`.
 
 ## Practical Zero Trust
 
-The Practical Zero Trust articles are templated rather than freeform markdown. Look at existing examples in [`src/pzt`](src/pzt) for reference.
+The Practical Zero Trust articles are a big different.
+They are templated, rather than freeform Markdown.
+Look at existing examples in [`src/pzt`](src/pzt) for reference.
