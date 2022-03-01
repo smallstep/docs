@@ -43,6 +43,10 @@ The port to connect to.
 **--provisioner**=`name`, **--issuer**=`name`
 The provisioner `name` to use.
 
+**--provisioner-password-file**=`file`, **--password-file**=`file`
+The path to the `file` containing the password to decrypt the one-time token
+generating key.
+
 **--set**=`key=value`
 The `key=value` pair with template data variables to send to the CA. Use the **--set** flag multiple times to add multiple variables.
 
