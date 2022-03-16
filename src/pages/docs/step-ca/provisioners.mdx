@@ -74,18 +74,16 @@ Common provisioner operations include:
 
 #### Add a provisioner
 
-See `step ca provisioner add --help` for documentation and examples on adding
-provisioners.
+See [`step ca provisioner add --help`](/docs/step-cli/reference/ca/provisioner/add) for documentation and examples on adding provisioners.
 
-We strongly recommend using the `step ca provisioner add [...]`
-utility to generate provisioners in your `ca.json` configuration. We often
-encode fields differently in the JSON than you might expect. And you can
-always modify the JSON configuration manually after using the utility.
+We strongly recommend using the [`step ca provisioner add [...]`](/docs/step-cli/reference/ca/provisioner/add) utility
+to generate provisioners in your `ca.json` configuration.
+We often encode fields differently in the JSON than you might expect.
+And you can always modify the JSON configuration manually after using the utility.
 
 #### Remove a provisioner
 
-See `step ca provisioner remove --help` for documentation and examples on removing
-provisioners.
+See [`step ca provisioner remove --help`](/docs/step-cli/reference/ca/provisioner/remove) for documentation and examples on removing provisioners.
 
 You can also edit the `ca.json` configuration directly and remove the entire block
 containing the provisioner you'd like to remove.
@@ -130,6 +128,8 @@ lifetimes, extensions, and any other attribute belonging to the certificate.
 See the [Modifiers](#modifiers) section for more details.
 
 ### Modifiers
+
+There are optional configuration modifiers that apply to all provisioner types.
 
 - [`claims`](#claims)
 - [`options`](#options)
@@ -188,7 +188,7 @@ Each provisioner can define an optional `options` attribute. This attribute
 allows an operator to set templates that will be applied to all X.509 or SSH 
 certificates generated using the provisioner.
 
-Learn more about configuring X.509 and SSH templates [here](/docs/step-ca/templates).
+Learn more about [configuring provisioner templates](/docs/step-ca/templates).
 
 ### JWK
 
@@ -196,8 +196,8 @@ JWK is the default provisioner type. It uses public-key cryptography to sign and
 validate a JSON Web Token (JWT).
 
 The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK
-provisioner when `step ca init` is used, and it also contains commands to add
-(`step ca provisioner add`) and remove (`step ca provisioner remove`) JWK
+provisioner when [`step ca init`](/docs/step-cli/reference/ca/init) is used, and it also contains commands to add
+([`step ca provisioner add`](/docs/step-cli/reference/ca/provisioner/add)) and remove ([`step ca provisioner remove`](/docs/step-cli/reference/ca/provisioner/remove)) JWK
 provisioners.
 
 #### Example
@@ -649,11 +649,11 @@ The SCEP provisioner can sign and renew certificates using the SCEP protocol ([R
 Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
 We use the RSA intermediate to encrypt/decrypt data, and you cannot do that with an ECDSA key.
 
-Because `step ca init` creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
+Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
 
 #### Configure the Provisioner
 
-The `step ca provisioner` command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
+The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
 
 ```json
 {
@@ -785,7 +785,7 @@ and use it to obtain a certificate from `step-ca`.
 
 From the CA's perspective, an IID is a single-use token.
 A host can only get one certificate, ever, per IID.
-A host can then renew its certificate using `step ca renew`.
+A host can then renew its certificate using [`step ca renew`](/docs/step-cli/reference/ca/renew).
 If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
 
 ### Security Risks and Limitations

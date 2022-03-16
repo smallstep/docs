@@ -5,7 +5,7 @@ description: Learn how to configure step-ca
 ---
 
 
-When the `step ca init` command sets up your PKI, it creates an initial
+When the [`step ca init`](/docs/step-cli/reference/ca/init) command sets up your PKI, it creates an initial
 configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
 In this document we'll describe how to configure every aspect of `step-ca`. You'll
@@ -43,12 +43,15 @@ learn how to configure your CA to:
 ## Specifying a Configuration File
 
 When you run `step-ca`, you must provide a path to a configuration file
-(`ca.json`). It is the only required argument. Typically you'd use `step path`
-to discover the path to `ca.json`:
+(`ca.json`).
+It is the only required argument.
+Typically you'd use [`step path`](/docs/step-cli/reference/path) to discover the path to `ca.json`:
 
 ```shell-session
 $ step-ca $(step path)/config/ca.json
 ```
+
+The output of [`step path`](/docs/step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](/docs/step-cli/the-step-command#contexts-working-with-multiple-cas).
 
 For non-interactive use (eg. as a `systemd` service), you can also add a
 `--password-file` flag with the name of a file containing the password for the
@@ -681,7 +684,7 @@ You'll need these for step 2.
 
 One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
 
-Start with a standard CA configuration, created using `step ca init` or `step ca init --ssh`.
+Start with a standard CA configuration, created using [`step ca init`](/docs/step-cli/reference/ca/init) or [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
 
 Now open up `.step/config/ca.json` in an editor.
 You'll want the top of the file to reference the HSM key paths provided by the `step-pkcs11-init` utility.
@@ -763,7 +766,7 @@ Configure additional RA provisioners just as you would configure provisioners fo
 #### Setting up the CA
 
 You can set up the CA using the [Getting Started](/docs/step-ca/getting-started) guide.
-You will need the name and password of the first provisioner you created during the `step ca init` process.
+You will need the name and password of the first provisioner you created when running [`step ca init`](/docs/step-cli/reference/ca/init).
 
 #### Setting up the RA
 
@@ -877,7 +880,7 @@ Finally, use `--issuer-password-file` to provide a private key password file whe
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
-* `step ca renew` (mTLS renewals) and `step ca rekey` are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
+* [`step ca renew`](/docs/step-cli/reference/ca/renew) (mTLS renewals) and [`step ca rekey`](/docs/step-cli/reference/ca/rekey) are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
   
   ```bash
   # 1. Create a CSR
@@ -969,7 +972,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 
 4. Initialize your PKI.
 
-  Run `step ca init --ra cloudcas` to create a new PKI in CAS.
+  Run [`step ca init --ra cloudcas`](/docs/step-cli/reference/ca/init) to create a new PKI in CAS.
   This will generate a root and intermediate certificate in Google CAS.
   You will be prompted for your GCP project id, a resource id, region, and other information.
 
