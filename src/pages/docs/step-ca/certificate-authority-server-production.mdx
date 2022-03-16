@@ -65,11 +65,11 @@ See the [Cryptographic Protection](/docs/step-ca/configuration#cryptographic-pro
 
 ### Use Strong Passwords and Store Them Well
 
-When you initialize your PKI (`step ca init`) 
+When you [initialize your PKI](/docs/step-ca/getting-started/#initialize-your-certificate-authority),
 the root and intermediate private keys will be encrypted with the same password.
 
 Use a password manager to generate random passwords, 
-or let `step ca init` generate a strong password for you.
+or let [`step ca init`](/docs/step-cli/reference/ca/init) generate a strong password for you.
 
 After initializing your CA, 
 we recommend that you immediately change the password for the intermediate CA private key:
@@ -131,7 +131,8 @@ However, **this approach is not recommended** simply because it's so difficult t
 
 ### Delete Your Default Provisioner
 
-When you initialize your PKI (`step ca init`), a default `JWK` provisioner will be created
+When you [initialize your PKI](/docs/step-ca/getting-started/#initialize-your-certificate-authority),
+a default `JWK` provisioner will be created
 and it's private key will be encrypted using the same password used to encrypt
 the root CA private key. Before deploying `step-ca` you should remove this
 provisioner and add new provisioners that are encrypted with secure, random passwords.
@@ -557,7 +558,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2599...1204]
 By default, `step-ca` issues certificates valid for 24 hours. This is suitably
 short for many scenarios. If it's not right for you, you can adjust the
 [`defaultTLSCertDuration`](/docs/step-ca/provisioners#claims) per provisioner
-or pass the `--not-after` flag to the `step ca certificate` to adjust the
+or pass the `--not-after` flag to the [`step ca certificate`](/docs/step-cli/reference/ca/certificate) to adjust the
 lifetime of an individual certificate. Very short lifetimes (eg. five minutes)
 are better from a security perspective, but this can be difficult in
 practice.
@@ -585,7 +586,7 @@ _Note the change in the validity period relative to the original certificate abo
 
 What good are short-lived certificates if we can't renew them automatically?
 
-Here are three options for setting up automated renewal of certificates using `step ca renew`:
+Here are three options for setting up automated renewal of certificates using [`step ca renew`](/docs/step-cli/reference/ca/renew):
 * [Renewal using `systemd` timers](#renewal-using-systemd-timers). This is the preferred approach.
 
 * [The standalone `step` renewal daemon](#the-standalone-step-renewal-daemon).
@@ -788,7 +789,7 @@ You can override your timer units too, but you probably won't need to.
 #### The standalone `step` renewal daemon
 
 Another way to automate renewal is with the `step` renewal daemon.
-With this method, `step ca renew` operates as a daemon that will keep your certificates up-to-date:
+With this method, [`step ca renew`](/docs/step-cli/reference/ca/renew) operates as a daemon that will keep your certificates up-to-date:
 
 ```shell-session nocopy
 $ step ca renew --daemon foo.crt foo.key
@@ -800,7 +801,7 @@ POST https://localhost/renew failed: Post https://localhost/renew: dial tcp [::1
 INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 ```
 
-When daemonized, `step ca renew` will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
+When daemonized, [`step ca renew`](/docs/step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
 So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
 
 There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
@@ -808,9 +809,9 @@ There is some random _jitter_ built into the daemon's schedule to prevent a larg
 
 If the CA is unreachable, renewals are retried every minute.
 
-You can trigger renewal anytime by sending a `SIGHUP` signal to the `step ca renew` process ID.
+You can trigger renewal anytime by sending a `SIGHUP` signal to the [`step ca renew`](/docs/step-cli/reference/ca/renew) process ID.
 
-You can add `step ca renew --daemon` as a `systemd` service that runs on startup and restarts as needed.
+You can add [`step ca renew --daemon`](/docs/step-cli/reference/ca/renew) as a `systemd` service that runs on startup and restarts as needed.
 
 Here's an example of setting up everything via `systemd`:
 
@@ -854,7 +855,7 @@ Many services that depend on certificates will only read the certificate files o
 So when you renew a certificate, a server process that depends on it may not detect that it has changed.
 
 It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
-To address this, `step ca renew` can send a `SIGHUP` to your service after each renewal.
+To address this, [`step ca renew`](/docs/step-cli/reference/ca/renew) can send a `SIGHUP` to your service after each renewal.
 Here's an example for `nginx`:
 
 ```shell-session nocopy
@@ -865,7 +866,7 @@ INFO: 2019/05/01 14:22:18 first renewal in 15h50m43s
 
 #### `cron`-based renewal
 
-With `cron`-based renewal, you can have `step ca renew` run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
+With `cron`-based renewal, you can have [`step ca renew`](/docs/step-cli/reference/ca/renew) run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
 
 You can request that certificate renewal only occur if the certificate is approaching its expiry using the `--expires-in <duration>` flag.
 The `<duration>` is a time interval like `4h` or `30m`.
@@ -895,7 +896,7 @@ Be sure the user (in this example, `step`) has write access to the certificate a
 
 #### Revoking a Certificate
 
-`step ca renew` allows a certificate owner to extend the lifetime of a certificate before it expires.
+[`step ca renew`](/docs/step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
 See the [certificate revocation section](#certificate-revocation) for details.
@@ -969,7 +970,7 @@ Valid from:  2019-04-23T22:55:54Z
 
 ### 2. Renew the certificate
 
-Before revoking the certificate, note that it can be renewed with `step ca renew`.
+Before revoking the certificate, note that it can be renewed with [`step ca renew`](/docs/step-cli/reference/ca/renew).
 
 ```shell-session nocopy
 $ step ca renew localhost.crt localhost.key
@@ -1134,7 +1135,7 @@ All supported key sizes are considered to be unbreakable for the foreseeable fut
 
 #### Root CA Certificate
 
-The Root CA certificate is generated once, when you run `step ca init`.
+The Root CA certificate is generated once, when you run [`step ca init`](/docs/step-cli/reference/ca/init).
 
 **Validity (10 year window)**
 
@@ -1164,7 +1165,7 @@ Key Usage describes how the certificate can be used.
 
 #### Intermediate CA Certificate
 
-The Intermediate CA certificate is generated once, when you run `step ca init`. It is signed by the Root CA certificate.
+The Intermediate CA certificate is generated once, when you run [`step ca init`](/docs/step-cli/reference/ca/init). It is signed by the Root CA certificate.
 
 The Path Length of the intermediate certificate is `0`. Otherwise it uses the same defaults as the root certificate.
 
