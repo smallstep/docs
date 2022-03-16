@@ -626,8 +626,7 @@ An example of an ACME provisioner in the `ca.json`:
 * **name**: a string used to identify the provider when the CLI is
   used.
 
-* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a
-  common name is not provided.
+* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided.
 
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
@@ -652,7 +651,7 @@ We use the RSA intermediate to encrypt/decrypt data, and you cannot do that with
 
 Because `step ca init` creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
 
-#### Configuration
+#### Configure the Provisioner
 
 The `step ca provisioner` command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
 
@@ -665,7 +664,10 @@ The `step ca provisioner` command group does not yet support SCEP. Configure a n
 }
 ```
 
-Change the `"challenge"` password to a value that you will distribute to your clients.
+- Change the `challenge` password to a value that you will distribute to your clients.
+- The `forceCN` parameter is optional. It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
+
+#### Enable the HTTP Server
 
 Most SCEP clients use HTTP. So, you will most likely need your CA to listen using HTTP, which it does not do by default. Enable this by filling in the `"insecureAddress"` property to your top-level CA configuration:
 
@@ -676,7 +678,13 @@ Most SCEP clients use HTTP. So, you will most likely need your CA to listen usin
 ```
 
 Finally, restart `step-ca`.
-Your SCEP provisioner is now available at the endpoint `http://your.ca.hostname:8080/scep/scepca`.
+Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
+
+<Alert severity="info">
+  <div>
+	<p><strong>Note:</strong> Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.</p>
+  </div>
+</Alert>
 
 ### K8sSA - Kubernetes Service Account
 
