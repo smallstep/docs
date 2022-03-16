@@ -680,11 +680,6 @@ Most SCEP clients use HTTP. So, you will most likely need your CA to listen usin
 Finally, restart `step-ca`.
 Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
 
-#### Need A Custom SCEP Path?
-
-For compatibility with SCEP clients that expect a specific path segment in the SCEP URL, an optional `customPath` parameter can be supplied in the SCEP provisioner configuration. If the above example configuration were extended with `"customPath": "/pkiclient.exe"`, the SCEP provisioner would be available at `http://ca.example.com:8080/scep/scepca/pkiclient.exe`.
-
-
 ### K8sSA - Kubernetes Service Account
 
 A K8sSA provisioner allows a client to request a certificate from the server
