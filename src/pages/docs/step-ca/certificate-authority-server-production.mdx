@@ -801,7 +801,7 @@ POST https://localhost/renew failed: Post https://localhost/renew: dial tcp [::1
 INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 ```
 
-When daemonized, [`step ca renew`](/docs/step-cli/reference/ca/init) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
+When daemonized, [`step ca renew`](/docs/step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
 So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
 
 There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
@@ -896,7 +896,7 @@ Be sure the user (in this example, `step`) has write access to the certificate a
 
 #### Revoking a Certificate
 
-[`step ca renew`](/docs/step-cli/reference/ca/init) allows a certificate owner to extend the lifetime of a certificate before it expires.
+[`step ca renew`](/docs/step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
 See the [certificate revocation section](#certificate-revocation) for details.
