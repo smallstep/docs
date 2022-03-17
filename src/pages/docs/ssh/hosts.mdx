@@ -110,8 +110,9 @@ as long as you provide the following _required flags_:
 * One or more `--tag "key=value"` to assign [host tags](#understanding-host-tags)
 
 The following additional flags are available:
-* Any number of `--principal "[additional hostname]"`,
-to add additional hostnames to the host certificate
+* Any number of `--principal "[hostname or IP]"`,
+  to add additional hostnames or IPs to the host certificate.
+  Add all hostnames or IPs that people will use to access the host.
 * `--is-bastion` to indicate a bastion host
 * `--bastion "[bastion hostname]"` to specify the bastion that sits in front of this host
 
