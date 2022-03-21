@@ -246,32 +246,32 @@ In the ca.json configuration file, a complete JWK provisioner example looks like
 }
 ```
 
-- **type**: for a JWK provisioner it must be `JWK`, this field is case
-  insensitive.
+- **type**: for a JWK provisioner it must be `JWK`, this field is case insensitive.
 
-- **name**: identifies the provisioner, a good practice is to
-  use an email address or a descriptive string that allows the identification of
-  the owner, but it can be any non-empty string.
+- **name**: identifies the provisioner, a good practice is to use an email address or a descriptive string that allows the identification of the owner, but it can be any non-empty string.
 
 - **key**: is the JWK (JSON Web Key) representation of a public key
   used to validate a signed token.
 
-- **encryptedKey**<Reference id="star1" marker="*" />: is the encrypted private key used to sign a
-  token. It's a JWE compact string containing the JWK representation of the
-  private key.
+- **encryptedKey**<Reference id="star1" marker="*" />: is the encrypted private key used to sign a token. 
+It's a JWE compact string containing the JWK representation of the private key.
+This value is not necessary for CA operation, but is provided for the convenience of clients.
+Without the `encryptedKey` attribute, the private key must be provided by the client, using the `--key` flag.
 
-- **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star2" marker="**" />: see the [options](#options) section for more details.
+- **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
+See [claims](#claims) for details.
+
+- **options**<Reference id="star2" marker="**" />: see [options](#options) for more details.
 
 <Footnote id="star1" marker="*">Recommended</Footnote>
 <Footnote id="star2" marker="**">Optional</Footnote>
 
 <br /><br />
 
-We can use [`step`](https://github.com/smallstep/cli) to see the private key
-encrypted with the password `asdf`:
+#### Decrypting the private key
+
+We can use [`step crypto jwe decrypt`](/docs/step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
 
 <CodeBlock
   language="shell-session"
@@ -291,9 +291,92 @@ Please enter the password to decrypt the content encryption key:
 }`}
 </CodeBlock>
 
-If the `ca.json` does not contain the `encryptedKey` attribute, the private key
-must be provided using the `--key` flag when using the `step ca [token |
-certificate | sign]` utilities.
+#### Changing a JWK provisioner password
+
+1. Retrieve the current encrypted key.
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+
+  ```shell
+  OLD_ENCRYPTED_KEY=$(jq -r \
+     '.authority.provisioners[] | select(.name == "carl@smallstep.com").encryptedKey' \
+     $(step path)/config/ca.json)
+  ```
+
+2. Update the encrypted key password.
+
+  Run:
+
+  ```shell
+  ENCRYPTED_KEY=$(echo $OLD_ENCRYPTED_KEY | \
+    step crypto jwe decrypt | \
+    step crypto jwe encrypt --alg PBES2-HS256+A128KW | \
+    step crypto jose format)
+  ```
+
+  You'll be asked for the old and new passwords.
+
+3. Update `ca.json`.
+  
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  jq --tab \
+     --arg encryptedkey "$ENCRYPTED_KEY" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
+      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  ```
+  
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+  
+4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+#### Rekeying a JWK provisioner
+
+**Note:** This section requires [`jq`](https://stedolan.github.io/jq/).
+
+1. Create a new JWK key pair:
+
+  ```shell
+  step crypto jwk create jwk.pub jwk.priv
+  ```
+
+2. Update the `"key"` field in the JWK provisioner configuration block.
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  jq --tab \
+     --argjson jwk "$(< jwk.pub )" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com").key) = $jwk' \
+     $(step path)/config/ca.json > $(step path)/config/canew.json
+  ```
+
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+
+3. Format the private key and update the `"encryptedKey"` field in the provisioner configuration:
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  ENCRYPTED_KEY=(step crypto jose format < jwk.priv)
+  jq --tab \
+     --arg encryptedkey "$ENCRYPTED_KEY" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
+      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  ```
+  
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+
+4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
 
 ### OAuth/OIDC Single Sign-on
 
