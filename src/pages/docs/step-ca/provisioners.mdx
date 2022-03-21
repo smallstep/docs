@@ -299,7 +299,7 @@ Please enter the password to decrypt the content encryption key:
 
   ```shell
   OLD_ENCRYPTED_KEY=$(jq -r \
-     '.authority.provisioners[] | select(.name == "carl@smallstep.com").encryptedKey' \
+     '.authority.provisioners[] | select(.name == "carl@example.com").encryptedKey' \
      $(step path)/config/ca.json)
   ```
 
