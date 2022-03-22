@@ -29,6 +29,7 @@ learn how to configure your CA to:
   - [Badger](#badger)
   - [BoltDB](#boltdb)
   - [MySQL](#mysql)
+  - [PostgreSQL](#postgresql)
   - [Schema](#schema)
 - [Cryptographic Protection](#cryptographic-protection)
   - [Google Cloud KMS](#google-cloud-kms)
@@ -217,11 +218,11 @@ CA's keys.
 
 - **db**: data persistence layer. See [database documentation](#databases) for more info.
 
-  - **type**: badger, bbolt, mysql, etc.
+  - **type**: badger, bbolt, mysql, postgresql, etc.
 
   - **dataSource**: string that can be interpreted differently depending on the type of the database. Usually a path to where the data is stored. See the database configuration docs for more info.
 
-  - **database**: name of the database. Used for back-ends that may have multiple databases. ex. MySQL
+  - **database**: name of the database. Used for back-ends that may have multiple databases. e.g. MySQL and PostgreSQL
 
   - **valueDir**: directory to store the value log in (Badger specific).
 
@@ -311,6 +312,7 @@ for supported databases:
 - [Badger](#badger)
 - [BoltDB](#boltdb)
 - [MySQL](#mysql)
+- [PostgreSQL](#postgresql)
 
 ### Badger
 
@@ -381,6 +383,32 @@ for supported databases:
 <Alert severity="info">
   <div>
     Extra parameters can be passed in the mysql dataSource name as follows: <Code>"dataSource": "user:password@tcp(127.0.0.1:3306)/myDBName?tls=true&"</Code>. The <Code>&</Code> in the end is important.
+  </div>
+</Alert>
+
+### PostgreSQL
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/",
+    "database": "myDBName"
+  },
+  ...
+},
+```
+
+**Options**
+
+- `type`: **postgresql**
+- `dataSource`: a PostgreSQL DSN.
+- `database`: database name. Takes precedence over name in the DSN if provided.
+
+<Alert severity="info">
+  <div>
+    Extra parameters can be passed in the PostgreSQL dataSource name as follows: <Code>"dataSource": "postgresql://user:password@127.0.0.1:5432/myDBName?connect_timeout=10"</Code>.
   </div>
 </Alert>
 
@@ -892,7 +920,7 @@ An RA can use any `step-ca` provisioners to authenticate requests, but there are
   ```
   
 * SSH is not supported.
-* ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` database for your RAs.
+* ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` or `postgresql` database for your RAs.
 * StepCAS RA keys cannot be stored in KMS or HSMs; only files are supported. This is because all the keys are kept in memory.
 
 ### Google Cloud CAS RA mode
