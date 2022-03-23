@@ -412,6 +412,40 @@ for supported databases:
   </div>
 </Alert>
 
+*** TLS ***
+
+The PostgreSQL DSN can be used to configure TLS settings for connecting to the server.
+An example DSN that enables TLS server hostname verification is shown below:
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full",
+  },
+  ...
+},
+```
+
+The database driver will look for a file with root CAs to trust in `$HOME/.postgresql/root.crt`, but will use the system CA trust store if that file is not found.
+Similarly, `$HOME/.postgresql/postgresql.crt` and the corresponding `$HOME/.postgresql/postgresql.key` will be used for mutual TLS authentication if these files exist and if the server requests a client certificate.
+It is also possible to override the locations for these files by providing them in the DSN:
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full&sslrootcert=/path/to/roots.pem&sslcert=/path/to/client.pem&sslkey=/path/to/client.key",
+  },
+  ...
+},
+```
+
+The behavior of the database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
+More info about the options that `libpq` provides can be found at https://www.postgresql.org/docs/current/libpq-ssl.html.
+
 ### Schema
 
 As the interface is a key-value store, the schema is very simple. We support tables, keys, and values. An entry in the database is a `[]byte value` that is indexed by `[]byte table` and `[]byte key`.
