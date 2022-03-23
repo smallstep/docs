@@ -400,7 +400,7 @@ for supported databases:
 },
 ```
 
-**Options**
+#### Options
 
 - `type`: **postgresql**
 - `dataSource`: a PostgreSQL DSN.
@@ -412,10 +412,10 @@ for supported databases:
   </div>
 </Alert>
 
-*** TLS ***
+#### Use TLS with PostgreSQL
 
 The PostgreSQL DSN can be used to configure TLS settings for connecting to the server.
-An example DSN that enables TLS server hostname verification is shown below:
+An example database configuration that enables TLS server hostname verification is shown below:
 
 ```json
 {
@@ -443,8 +443,8 @@ It is also possible to override the locations for these files by providing them 
 },
 ```
 
-The behavior of the database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
-More info about the options that `libpq` provides can be found at https://www.postgresql.org/docs/current/libpq-ssl.html.
+The behavior of the PostgreSQL database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
+More info about TLS options and the DSN query parameters for `libpq` can be found at https://www.postgresql.org/docs/current/libpq-ssl.html.
 
 ### Schema
 
