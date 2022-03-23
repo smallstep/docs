@@ -28,9 +28,9 @@ on the network and accepts certificate requests.
 
 ## Provisioners
 
-Provisioners are methods of proving an entities' identity to the CA prior to getting a new certificate.
-The CA needs proof the an entity that is requesting a new certificate is who they say they are.
-Once a provisioner authenticates an entities' identity, it then issues the entity a bearer token to submit to the CA, along with a [certificate
+Provisioners are methods of proving an entity's identity to the CA prior to getting a new certificate.
+The CA needs proof that an entity that is requesting a new certificate is who they say they are.
+Once a provisioner authenticates an entity's identity, it then issues the entity a bearer token to submit to the CA, along with a [certificate
 signing
 request](https://smallstep.com/blog/everything-pki.html#certificate-signing-requests
 'CSR') (CSR), to obtain the new certificate.
@@ -56,7 +56,7 @@ Passive revocation doesn't use Certificate Revocation List (CRL) and Online Cert
 To passively revoke a certificate means to block its renewal at the CA.
 This eliminates the additional network request that occurs when using a web PKI because the certificate just expires by itself. 
 Unlike active revocation, certificates cannot be immedietely revoked.
-Therefore, certificates should have a shorter lifetime to reduce the value of a key that has be exfiltrated.
+Therefore, certificates should have a shorter lifetime to reduce the value of a key that has been exfiltrated.
 
 ![passive revocation diagram](/graphics/passive-revocation.png)
 
