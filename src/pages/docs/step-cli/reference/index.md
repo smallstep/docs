@@ -10,6 +10,7 @@ menu:
       - ca
       - beta
       - certificate
+      - completion
       - context
       - crl
       - crypto
@@ -51,6 +52,7 @@ print the version
 | **[ca](ca/)** | initialize and manage a certificate authority |
 | **[beta](beta/)** | commands that are being tested; these APIs are likely to change |
 | **[certificate](certificate/)** | create, revoke, validate, bundle, and otherwise manage certificates |
+| **[completion](completion/)** | print the shell completion script |
 | **[context](context/)** | manage certificate authority contexts |
 | **[crl](crl/)** | initialize and manage a certificate revocation list |
 | **[crypto](crypto/)** | useful cryptographic plumbing |
@@ -61,9 +63,9 @@ print the version
 
 ## Version
 
-Smallstep CLI/0.18.1 (linux/amd64)
+Smallstep CLI/0.18.2 (linux/amd64)
 
 ## Copyright
 
-(c) 2018-2020 Smallstep Labs, Inc.
+(c) 2018-2022 Smallstep Labs, Inc.
 

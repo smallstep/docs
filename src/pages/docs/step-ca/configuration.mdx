@@ -5,7 +5,7 @@ description: Learn how to configure step-ca
 ---
 
 
-When the `step ca init` command sets up your PKI, it creates an initial
+When the [`step ca init`](/docs/step-cli/reference/ca/init) command sets up your PKI, it creates an initial
 configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
 In this document we'll describe how to configure every aspect of `step-ca`. You'll
@@ -29,6 +29,7 @@ learn how to configure your CA to:
   - [Badger](#badger)
   - [BoltDB](#boltdb)
   - [MySQL](#mysql)
+  - [PostgreSQL](#postgresql)
   - [Schema](#schema)
 - [Cryptographic Protection](#cryptographic-protection)
   - [Google Cloud KMS](#google-cloud-kms)
@@ -43,12 +44,15 @@ learn how to configure your CA to:
 ## Specifying a Configuration File
 
 When you run `step-ca`, you must provide a path to a configuration file
-(`ca.json`). It is the only required argument. Typically you'd use `step path`
-to discover the path to `ca.json`:
+(`ca.json`).
+It is the only required argument.
+Typically you'd use [`step path`](/docs/step-cli/reference/path) to discover the path to `ca.json`:
 
 ```shell-session
 $ step-ca $(step path)/config/ca.json
 ```
+
+The output of [`step path`](/docs/step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](/docs/step-cli/the-step-command#contexts-working-with-multiple-cas).
 
 For non-interactive use (eg. as a `systemd` service), you can also add a
 `--password-file` flag with the name of a file containing the password for the
@@ -214,11 +218,11 @@ CA's keys.
 
 - **db**: data persistence layer. See [database documentation](#databases) for more info.
 
-  - **type**: badger, bbolt, mysql, etc.
+  - **type**: badger, bbolt, mysql, or postgresql
 
   - **dataSource**: string that can be interpreted differently depending on the type of the database. Usually a path to where the data is stored. See the database configuration docs for more info.
 
-  - **database**: name of the database. Used for back-ends that may have multiple databases. ex. MySQL
+  - **database**: name of the database. Used for back-ends that may have multiple databases. e.g. MySQL and PostgreSQL
 
   - **valueDir**: directory to store the value log in (Badger specific).
 
@@ -308,6 +312,7 @@ for supported databases:
 - [Badger](#badger)
 - [BoltDB](#boltdb)
 - [MySQL](#mysql)
+- [PostgreSQL](#postgresql)
 
 ### Badger
 
@@ -377,9 +382,69 @@ for supported databases:
 
 <Alert severity="info">
   <div>
-    Extra parameters can be passed in the mysql dataSource name as follows: <Code>"dataSource": "user:password@tcp(127.0.0.1:3306)/myDBName?tls=true&"</Code>. The <Code>&</Code> in the end is important.
+    Extra parameters can be passed in the mysql dataSource name as follows: <Code>"dataSource": "user:password@tcp(127.0.0.1:3306)/myDBName?tls=true"</Code>.
   </div>
 </Alert>
+
+### PostgreSQL
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/",
+    "database": "myDBName"
+  },
+  ...
+},
+```
+
+#### Options
+
+- `type`: **postgresql**
+- `dataSource`: a PostgreSQL DSN.
+- `database`: database name. Takes precedence over name in the DSN if provided.
+
+<Alert severity="info">
+  <div>
+    Extra parameters can be passed in the PostgreSQL dataSource name as follows: <Code>"dataSource": "postgresql://user:password@127.0.0.1:5432/myDBName?connect_timeout=10"</Code>.
+  </div>
+</Alert>
+
+#### Use TLS with PostgreSQL
+
+The PostgreSQL DSN can be used to configure TLS settings for connecting to the server.
+An example database configuration that enables TLS server hostname verification is shown below:
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full",
+  },
+  ...
+},
+```
+
+The database driver will look for a file with root CAs to trust in `$HOME/.postgresql/root.crt`, but will use the system CA trust store if that file is not found.
+Similarly, `$HOME/.postgresql/postgresql.crt` and the corresponding `$HOME/.postgresql/postgresql.key` will be used for mutual TLS authentication if these files exist and if the server requests a client certificate.
+It is also possible to override the locations for these files by providing them in the DSN:
+
+```json
+{
+  ...
+  "db": {
+    "type": "postgresql",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full&sslrootcert=/path/to/roots.pem&sslcert=/path/to/client.pem&sslkey=/path/to/client.key",
+  },
+  ...
+},
+```
+
+The behavior of the PostgreSQL database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
+More info about TLS options and the DSN query parameters for `libpq` can be found at https://www.postgresql.org/docs/current/libpq-ssl.html.
 
 ### Schema
 
@@ -681,7 +746,7 @@ You'll need these for step 2.
 
 One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
 
-Start with a standard CA configuration, created using `step ca init` or `step ca init --ssh`.
+Start with a standard CA configuration, created using [`step ca init`](/docs/step-cli/reference/ca/init) or [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
 
 Now open up `.step/config/ca.json` in an editor.
 You'll want the top of the file to reference the HSM key paths provided by the `step-pkcs11-init` utility.
@@ -763,7 +828,7 @@ Configure additional RA provisioners just as you would configure provisioners fo
 #### Setting up the CA
 
 You can set up the CA using the [Getting Started](/docs/step-ca/getting-started) guide.
-You will need the name and password of the first provisioner you created during the `step ca init` process.
+You will need the name and password of the first provisioner you created when running [`step ca init`](/docs/step-cli/reference/ca/init).
 
 #### Setting up the RA
 
@@ -877,7 +942,7 @@ Finally, use `--issuer-password-file` to provide a private key password file whe
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
-* `step ca renew` (mTLS renewals) and `step ca rekey` are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
+* [`step ca renew`](/docs/step-cli/reference/ca/renew) (mTLS renewals) and [`step ca rekey`](/docs/step-cli/reference/ca/rekey) are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
   
   ```bash
   # 1. Create a CSR
@@ -889,7 +954,7 @@ An RA can use any `step-ca` provisioners to authenticate requests, but there are
   ```
   
 * SSH is not supported.
-* ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` database for your RAs.
+* ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` or `postgresql` database for your RAs.
 * StepCAS RA keys cannot be stored in KMS or HSMs; only files are supported. This is because all the keys are kept in memory.
 
 ### Google Cloud CAS RA mode
@@ -969,7 +1034,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 
 4. Initialize your PKI.
 
-  Run `step ca init --ra cloudcas` to create a new PKI in CAS.
+  Run [`step ca init --ra cloudcas`](/docs/step-cli/reference/ca/init) to create a new PKI in CAS.
   This will generate a root and intermediate certificate in Google CAS.
   You will be prompted for your GCP project id, a resource id, region, and other information.
 

@@ -147,7 +147,7 @@ running the following command on your CA:
 </CodeBlock>
 
 After bootstrapping, we're ready to get a certificate. If we pass our AWS IID
-provisioner name to `step ca certificate` with the `--provisioner` attribute,
+provisioner name to [`step ca certificate`](/docs/step-cli/reference/ca/certificate) with the `--provisioner` attribute,
 `step` will automatically use IID-based authentication to get a certificate:
 
 ```shell-session nocopy
@@ -158,12 +158,12 @@ $ step ca certificate foo.local foo.crt foo.key --provisioner "AWS IID Provision
 ✔ Private Key: foo.key
 ```
 
-The first positional argument to `step ca certificate` specifies our workload's
+The first positional argument to [`step ca certificate`](/docs/step-cli/reference/ca/certificate) specifies our workload's
 name, the certificate subject. In this case, it's _foo.local_. The next two
 positional arguments specify which files to write the certificate and private
 key, respectively.
 
-We can use `step certificate inspect` to check our work:
+We can use [`step certificate inspect`](/docs/step-cli/reference/certificate/inspect) to check our work:
 
 ```shell-session nocopy
 $ step certificate inspect --short foo.crt

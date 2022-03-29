@@ -74,18 +74,16 @@ Common provisioner operations include:
 
 #### Add a provisioner
 
-See `step ca provisioner add --help` for documentation and examples on adding
-provisioners.
+See [`step ca provisioner add --help`](/docs/step-cli/reference/ca/provisioner/add) for documentation and examples on adding provisioners.
 
-We strongly recommend using the `step ca provisioner add [...]`
-utility to generate provisioners in your `ca.json` configuration. We often
-encode fields differently in the JSON than you might expect. And you can
-always modify the JSON configuration manually after using the utility.
+We strongly recommend using the [`step ca provisioner add [...]`](/docs/step-cli/reference/ca/provisioner/add) utility
+to generate provisioners in your `ca.json` configuration.
+We often encode fields differently in the JSON than you might expect.
+And you can always modify the JSON configuration manually after using the utility.
 
 #### Remove a provisioner
 
-See `step ca provisioner remove --help` for documentation and examples on removing
-provisioners.
+See [`step ca provisioner remove --help`](/docs/step-cli/reference/ca/provisioner/remove) for documentation and examples on removing provisioners.
 
 You can also edit the `ca.json` configuration directly and remove the entire block
 containing the provisioner you'd like to remove.
@@ -130,6 +128,8 @@ lifetimes, extensions, and any other attribute belonging to the certificate.
 See the [Modifiers](#modifiers) section for more details.
 
 ### Modifiers
+
+There are optional configuration modifiers that apply to all provisioner types.
 
 - [`claims`](#claims)
 - [`options`](#options)
@@ -188,7 +188,7 @@ Each provisioner can define an optional `options` attribute. This attribute
 allows an operator to set templates that will be applied to all X.509 or SSH 
 certificates generated using the provisioner.
 
-Learn more about configuring X.509 and SSH templates [here](/docs/step-ca/templates).
+Learn more about [configuring provisioner templates](/docs/step-ca/templates).
 
 ### JWK
 
@@ -196,8 +196,8 @@ JWK is the default provisioner type. It uses public-key cryptography to sign and
 validate a JSON Web Token (JWT).
 
 The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK
-provisioner when `step ca init` is used, and it also contains commands to add
-(`step ca provisioner add`) and remove (`step ca provisioner remove`) JWK
+provisioner when [`step ca init`](/docs/step-cli/reference/ca/init) is used, and it also contains commands to add
+([`step ca provisioner add`](/docs/step-cli/reference/ca/provisioner/add)) and remove ([`step ca provisioner remove`](/docs/step-cli/reference/ca/provisioner/remove)) JWK
 provisioners.
 
 #### Example
@@ -246,32 +246,32 @@ In the ca.json configuration file, a complete JWK provisioner example looks like
 }
 ```
 
-- **type**: for a JWK provisioner it must be `JWK`, this field is case
-  insensitive.
+- **type**: for a JWK provisioner it must be `JWK`, this field is case insensitive.
 
-- **name**: identifies the provisioner, a good practice is to
-  use an email address or a descriptive string that allows the identification of
-  the owner, but it can be any non-empty string.
+- **name**: identifies the provisioner, a good practice is to use an email address or a descriptive string that allows the identification of the owner, but it can be any non-empty string.
 
 - **key**: is the JWK (JSON Web Key) representation of a public key
   used to validate a signed token.
 
-- **encryptedKey**<Reference id="star1" marker="*" />: is the encrypted private key used to sign a
-  token. It's a JWE compact string containing the JWK representation of the
-  private key.
+- **encryptedKey**<Reference id="star1" marker="*" />: is the encrypted private key used to sign a token. 
+It's a JWE compact string containing the JWK representation of the private key.
+This value is not necessary for CA operation, but is provided for the convenience of clients.
+Without the `encryptedKey` attribute, the private key must be provided by the client, using the `--key` flag.
 
-- **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star2" marker="**" />: see the [options](#options) section for more details.
+- **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
+See [claims](#claims) for details.
+
+- **options**<Reference id="star2" marker="**" />: see [options](#options) for more details.
 
 <Footnote id="star1" marker="*">Recommended</Footnote>
 <Footnote id="star2" marker="**">Optional</Footnote>
 
 <br /><br />
 
-We can use [`step`](https://github.com/smallstep/cli) to see the private key
-encrypted with the password `asdf`:
+#### Decrypting the private key
+
+We can use [`step crypto jwe decrypt`](/docs/step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
 
 <CodeBlock
   language="shell-session"
@@ -291,9 +291,92 @@ Please enter the password to decrypt the content encryption key:
 }`}
 </CodeBlock>
 
-If the `ca.json` does not contain the `encryptedKey` attribute, the private key
-must be provided using the `--key` flag when using the `step ca [token |
-certificate | sign]` utilities.
+#### Changing a JWK provisioner password
+
+1. Retrieve the current encrypted key.
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+
+  ```shell
+  OLD_ENCRYPTED_KEY=$(jq -r \
+     '.authority.provisioners[] | select(.name == "carl@example.com").encryptedKey' \
+     $(step path)/config/ca.json)
+  ```
+
+2. Update the encrypted key password.
+
+  Run:
+
+  ```shell
+  ENCRYPTED_KEY=$(echo $OLD_ENCRYPTED_KEY | \
+    step crypto jwe decrypt | \
+    step crypto jwe encrypt --alg PBES2-HS256+A128KW | \
+    step crypto jose format)
+  ```
+
+  You'll be asked for the old and new passwords.
+
+3. Update `ca.json`.
+  
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  jq --tab \
+     --arg encryptedkey "$ENCRYPTED_KEY" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
+      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  ```
+  
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+  
+4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+#### Rekeying a JWK provisioner
+
+**Note:** This section requires [`jq`](https://stedolan.github.io/jq/).
+
+1. Create a new JWK key pair:
+
+  ```shell
+  step crypto jwk create jwk.pub jwk.priv
+  ```
+
+2. Update the `"key"` field in the JWK provisioner configuration block.
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  jq --tab \
+     --argjson jwk "$(< jwk.pub )" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com").key) = $jwk' \
+     $(step path)/config/ca.json > $(step path)/config/canew.json
+  ```
+
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+
+3. Format the private key and update the `"encryptedKey"` field in the provisioner configuration:
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  
+  ```shell
+  ENCRYPTED_KEY=(step crypto jose format < jwk.priv)
+  jq --tab \
+     --arg encryptedkey "$ENCRYPTED_KEY" \
+     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
+      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  ```
+  
+  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+
+4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
 
 ### OAuth/OIDC Single Sign-on
 
@@ -626,8 +709,7 @@ An example of an ACME provisioner in the `ca.json`:
 * **name**: a string used to identify the provider when the CLI is
   used.
 
-* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a
-  common name is not provided.
+* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided.
 
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
@@ -650,11 +732,11 @@ The SCEP provisioner can sign and renew certificates using the SCEP protocol ([R
 Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
 We use the RSA intermediate to encrypt/decrypt data, and you cannot do that with an ECDSA key.
 
-Because `step ca init` creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
+Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
 
-#### Configuration
+#### Configure the Provisioner
 
-The `step ca provisioner` command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
+The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
 
 ```json
 {
@@ -665,7 +747,10 @@ The `step ca provisioner` command group does not yet support SCEP. Configure a n
 }
 ```
 
-Change the `"challenge"` password to a value that you will distribute to your clients.
+- Change the `challenge` password to a value that you will distribute to your clients.
+- The `forceCN` parameter is optional. It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
+
+#### Enable the HTTP Server
 
 Most SCEP clients use HTTP. So, you will most likely need your CA to listen using HTTP, which it does not do by default. Enable this by filling in the `"insecureAddress"` property to your top-level CA configuration:
 
@@ -676,7 +761,13 @@ Most SCEP clients use HTTP. So, you will most likely need your CA to listen usin
 ```
 
 Finally, restart `step-ca`.
-Your SCEP provisioner is now available at the endpoint `http://your.ca.hostname:8080/scep/scepca`.
+Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
+
+<Alert severity="info">
+  <div>
+	<p><strong>Note:</strong> Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.</p>
+  </div>
+</Alert>
 
 ### K8sSA - Kubernetes Service Account
 
@@ -777,7 +868,7 @@ and use it to obtain a certificate from `step-ca`.
 
 From the CA's perspective, an IID is a single-use token.
 A host can only get one certificate, ever, per IID.
-A host can then renew its certificate using `step ca renew`.
+A host can then renew its certificate using [`step ca renew`](/docs/step-cli/reference/ca/renew).
 If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
 
 ### Security Risks and Limitations

@@ -25,7 +25,6 @@ It's trivial to install the `step-ca` binary on your local machine.
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
-  - [Linux (other)](#linux-other)
 - [Linux binaries](#linux-binaries)
 - [Kubernetes](#kubernetes)
 - [Docker](#docker)
@@ -56,8 +55,8 @@ brew install step
     Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
-    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.18.1/step-cli_0.18.1_amd64.deb
-    sudo dpkg -i step-cli_0.18.1_amd64.deb
+    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.18.2/step-cli_0.18.2_amd64.deb
+    sudo dpkg -i step-cli_0.18.2_amd64.deb
     ```
 
 2. Install `step-ca`
@@ -65,8 +64,8 @@ brew install step
     Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.18.1/step-ca_0.18.1_amd64.deb
-    sudo dpkg -i step-ca_0.18.1_amd64.deb
+    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.18.2/step-ca_0.18.2_amd64.deb
+    sudo dpkg -i step-ca_0.18.2_amd64.deb
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -121,9 +120,9 @@ Big shout out to the maintainers of these packages! We appreciate you.
 
 #### NixOS
 
-There are community-maintained packages for NixOS 21.05:
-- [`step-ca`](https://search.nixos.org/packages?channel=21.05&show=step-ca&from=0&size=50&sort=relevance&query=step-ca)
-- [`step-cli`](https://search.nixos.org/packages?channel=21.05&show=step-cli&from=0&size=50&sort=relevance&query=step-cli)
+There are community-maintained packages for NixOS:
+- [`step-ca`](https://search.nixos.org/packages?show=step-ca&from=0&size=50&sort=relevance&query=step-ca)
+- [`step-cli`](https://search.nixos.org/packages?show=step-cli&from=0&size=50&sort=relevance&query=step-cli)
 
 #### FreeBSD
 
@@ -147,9 +146,9 @@ Here's how to download and install the `step` and `step-ca` binaries on an amd64
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
     ```shell
-    wget -O step.tar.gz https://dl.step.sm/gh-release/cli/docs-ca-install/v0.18.1/step_linux_0.18.1_amd64.tar.gz
+    wget -O step.tar.gz https://dl.step.sm/gh-release/cli/docs-ca-install/v0.18.2/step_linux_0.18.2_amd64.tar.gz
     tar -xf step.tar.gz
-    sudo cp step_0.18.1/bin/step /usr/bin
+    sudo cp step_0.18.2/bin/step /usr/bin
     ```
 
 2. Install `step-ca`
@@ -157,9 +156,9 @@ Here's how to download and install the `step` and `step-ca` binaries on an amd64
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget -O step-ca.tar.gz https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.18.1/step-ca_linux_0.18.1_amd64.tar.gz
+    wget -O step-ca.tar.gz https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.18.2/step-ca_linux_0.18.2_amd64.tar.gz
     tar -xf step-ca.tar.gz
-    sudo cp step-ca_0.18.1/bin/step-ca /usr/bin
+    sudo cp step-ca_0.18.2/bin/step-ca /usr/bin
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
