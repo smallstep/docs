@@ -18,7 +18,7 @@ step ca token <subject>
 [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--password-file=<file>] [--provisioner-password-file=<file>]
 [--output-file=<file>] [--key=<file>] [--san=<SAN>] [--offline]
-[--revoke] [--x5c-cert=<file>] [--x5c-key=<file>]
+[--revoke] [--x5c-cert=<file>] [--x5c-key=<file>] [--x5c-insecure]
 [--sshpop-cert=<file>] [--sshpop-key=<file>]
 [--ssh] [--host] [--principal=<name>] [--k8ssa-token-path=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
@@ -109,6 +109,9 @@ Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 **--x5c-key**=`file`
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'x5c' header.
+
+**--x5c-insecure**
+Use the JWT header 'x5cInsecure' instead of 'x5c'.
 
 **--sshpop-cert**=`chain`
 Certificate (`chain`) in PEM format to store in the 'sshpop' header of a JWT.
@@ -254,5 +257,11 @@ $ step ca token max@smallstep.com --ssh
 Get a new token for an SSH host certificate:
 ```shell
 $ step ca token my-remote.hostname --ssh --host
+```
+
+Generate a renew token and use it in a renew after expiry request:
+```shell
+$ TOKEN=$(step ca token --x5c-cert internal.crt --x5c-key internal.key --renew internal.example.com)
+$ curl -X POST -H "Authorization: Bearer $TOKEN" https://ca.example.com/1.0/renew
 ```
 

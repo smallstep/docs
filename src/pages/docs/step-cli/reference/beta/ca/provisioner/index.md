@@ -56,6 +56,8 @@ with the following properties:
     by default.
   * **disableRenewal**: whether or not to disable certificate renewal, set to false
     by default.
+  * **allowRenewalAfterExpiry**: whether or not to allow certificate renewal of
+    expired certificates, set to false by default.
 
 ## Examples
 

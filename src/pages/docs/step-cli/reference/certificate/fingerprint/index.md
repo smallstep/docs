@@ -13,7 +13,8 @@ menu:
 
 ```raw
 step certificate fingerprint <crt-file>
-[--bundle] [--roots=<root-bundle>] [--servername=<servername>] [--format=<format>]
+[--bundle] [--roots=<root-bundle>] [--servername=<servername>] 
+[--format=<format>] [--sha1] [--insecure]
 ```
 
 ## Description
@@ -58,6 +59,9 @@ TLS Server Name Indication that should be sent to request a specific certificate
 
 **--format**=`format`
 The `format` of the fingerprint, it must be "hex", "base64", "base64-url", "base64-raw", "base64-url-raw" or "emoji".
+
+**--sha1**
+Use the SHA-1 hash algorithm to hash the certificate. Requires **--insecure** flag.
 
 ## Examples
 

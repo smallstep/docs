@@ -29,7 +29,7 @@ step ca provisioner add <name> --type=k8sSA
 step ca provisioner add <name> --type=[AWS|Azure|GCP]
 [--ca-config=<file>] [--aws-account=<id>]
 [--gcp-service-account=<name>] [--gcp-project=<name>]
-[--azure-tenant=<id>] [--azure-resource-group=<name>]
+[--azure-tenant=<id>] [--azure-resource-group=<name>] [--azure-subscription-id=<id>] [--azure-object-id=<id>]
 [--instance-age=<duration>] [--iid-roots=<file>]
 [--disable-custom-sans] [--disable-trust-on-first-use]
 
@@ -123,7 +123,15 @@ The Microsoft Azure tenant `id` used to validate the identity tokens.
 
 **--azure-resource-group**=`name`
 The Microsoft Azure resource group `name` used to validate the identity tokens.
-Use the flag multipl etimes to configure multiple resource groups
+Use the flag multiple times to configure multiple resource groups
+
+**--azure-subscription-id**=`id`
+The Microsoft Azure subscription `id` used to validate the identity tokens.
+Use the flag multiple times to configure multiple subscription IDs
+
+**--azure-object-id**=`id`
+The Microsoft Azure AD object `id` used to validate the identity tokens.
+Use the flag multiple times to configure multiple object IDs
 
 **--gcp-service-account**=`email`
 The Google service account `email` or `id` used to validate the identity tokens.
@@ -216,11 +224,13 @@ $ step ca provisioner add Google --type GCP --ca-config ca.json \
   --gcp-project identity --gcp-project accounting
 ```
 
-Add an Azure provisioner with two service groups:
+Add an Azure provisioner with two resource groups, one subscription ID and one object ID:
 ```shell
 $ step ca provisioner add Azure --type Azure --ca-config ca.json \
   --azure-tenant bc9043e2-b645-4c1c-a87a-78f8644bfe57 \
-  --azure-resource-group identity --azure-resource-group accounting
+  --azure-resource-group identity --azure-resource-group accounting \
+  --azure-subscription-id dc760a01-2886-4a84-9abc-f3508e0f87d9 \
+  --azure-object-id f50926c7-abbf-4c28-87dc-9adc7eaf3ba7
 ```
 
 Add an GCP provisioner that will only accept the SANs provided in the identity token:

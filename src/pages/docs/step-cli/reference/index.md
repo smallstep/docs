@@ -63,7 +63,7 @@ print the version
 
 ## Version
 
-Smallstep CLI/0.18.2 (linux/amd64)
+Smallstep CLI/0.19.0 (linux/amd64)
 
 ## Copyright
 
