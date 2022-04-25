@@ -47,6 +47,8 @@ registration_authorities:
     path: registration-authorities/acme-for-certificate-manager
   - title: ACME for Google Certificate Authority Service
     path: registration-authorities/acme-for-cas
+  - title: ACME for Hashicorp Vault
+    path: registration-authorities/acme-for-vault
 
 step_cli:
   - title: Installation
