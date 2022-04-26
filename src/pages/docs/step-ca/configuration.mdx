@@ -228,7 +228,7 @@ CA's keys.
 - **authority**: controls the request authorization and signature processes.
 
   - **type**: the type of backing CA service that issues certificates for this step-ca instance. The default is an internal certificate authority service.
-  Other options can turn `step-ca` into a Registration Authority: `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
+  Other options can [turn `step-ca` into a Registration Authority](/docs/step-ca/registration-authority-ra-mode): `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
 
   - **template**: default ASN1DN values for new certificates.
 
