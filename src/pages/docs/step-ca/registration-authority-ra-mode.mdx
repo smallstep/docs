@@ -335,17 +335,15 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 
 ## Hashicorp Vault RA mode
 
-Note about Hashicorp Vault Certificate Authority:
+The RA mode in `step-ca` can peer with Vault's PKI secrets engine, using it as an upstream CA.
+From the [Vault Documentation](https://www.vaultproject.io/docs/secrets/pki):
 
-> Vault's PKI secrets engine can dynamically generate X.509 certificates on demand. This allows services to acquire certificates without going through the usual manual process of generating a private key and Certificate Signing Request (CSR), submitting to a Certificate Authority (CA), and then waiting for the verification and signing process to complete.
-
-[hvca (onprem)]: https://learn.hashicorp.com/tutorials/vault/pki-engine
-[hvca (cloud)]: https://cloud.hashicorp.com/products/vault
+> "The PKI secrets engine generates dynamic X.509 certificates. With this secrets engine, services can get certificates without going through the usual manual process of generating a private key and CSR, submitting to a CA, and waiting for a verification and signing process to complete."
 
 ### Overview
 
-In this tutorial, we'll create a PKI and a Certificate Authority on our Vault server
-Then we'll configure a `step-ca`, in RA mode, to use our Vault server to sign certificates.
+In this tutorial, we'll create a PKI and a Certificate Authority in Vault.
+Then we'll configure `step-ca`'s RA mode to use Vault to sign certificates.
 
 ### Requirements
 
@@ -464,8 +462,8 @@ vault write pki_int1/roles/rsa-role key_type=rsa allow_any_name=true enforce_hos
 vault write pki_int1/roles/ed25519-role key_type=ed25519 allow_any_name=true enforce_hostnames=false max_ttl=$LEAF_MAX_TTL
 ```
 
-You'll also need policies for each role.
-Run:
+You'll also need Vault access policies for each role.
+To create those, run:
 
 ```bash
 echo 'path "pki_int1/sign/ec-role" {
@@ -484,7 +482,7 @@ vault policy write smallstep policy.hcl
 ```
 
 In this example, Vault will sign certificates of all three key types for the RA server: EC, RSA, and Ed25519.
-If you know your PKI will only use a subset of tehse key types, you could limit this policy.
+Please limit this policy if your PKI will only use a subset of these key types.
 Vault's [Policy documentation](https://www.vaultproject.io/docs/concepts/policies) describes the policy langauge used by Vault.
 
 #### 4. Enable Vault authentication for your RA.
