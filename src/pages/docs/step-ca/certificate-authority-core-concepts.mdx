@@ -73,11 +73,15 @@ RA mode lets you separate certificate request authentication (the RA) from certi
 This operational mode centralizes key management:
 a single CA can serve several RAs.
 
-In RA mode, `step-ca` can peer with two kinds of upstream CA: A `step-ca` instance, or a [Google CloudCAS](https://cloud.google.com/certificate-authority-service/) authority.
+When in RA mode, `step-ca` can peer with three kinds of upstream CA:
+
+- Another `step-ca` server ("StepCAS" mode)
+- A [Google CloudCAS](https://cloud.google.com/certificate-authority-service/) CA
+- A [Hashicorp Vault](https://www.hashicorp.com/products/vault) CA
 
 ![Example PKI topology with StepCAS RA Mode](/graphics/stepcas-ra-mode.png)
 
-See the [Registration Authority (RA) Mode](/docs/step-ca/configuration#registration-authority-ra-mode) section of our Configuration Guide for more on RA mode.
+To create an RA-based PKI topology, see our [Registration Authority (RA) Mode](/docs/step-ca/registration-authority-ra-mode) documentation.
 
 ### Offline Mode
 
