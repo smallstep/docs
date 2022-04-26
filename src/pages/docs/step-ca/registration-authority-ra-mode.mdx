@@ -4,12 +4,15 @@ html_title: Link step-ca to an upstream signing CA using RA mode
 description: Use RA Mode to link step-ca to an upstream signing CA
 ---
 
-Sometimes you may wish to run a Registration Authority (RA).
-An RA acts as a front-end to a CA, authenticating certificate requests from its clients
-before passing them along to an upstream Certificate Authority that trusts the RA and will issue the certificates.
-RAs are often used to distribute certificates across several cloud providers or on-prem environments.
+Some PKI topologies rely on one or more Registration Authority (RA) servers.
+An RA server acts as a front-end to a Certificate Authority.
+While the CA holds the signing keys, the RA is responsible for authenticating requests from its clients and enforcing policies before passing them along to the CA.
+The CA implicitly trusts the RA and will sign certificates for it.
 
-The RA operational mode for `step-ca` centralizes and simplifies key management,
+Local RA servers are often used to distribute certificates across several cloud providers or on-prem environments.
+
+`step-ca` has a special operational mode that turns it into an RA server.
+This mode allows you to centralize and simplifies key management,
 because a single backing CA can serve several RAs.
 
 ![Example PKI topology with StepCAS RA Mode](/graphics/stepcas-ra-mode.png)
