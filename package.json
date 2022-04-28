@@ -21,7 +21,7 @@
     "@mdx-js/react": "^1.6.22",
     "@smallstep/internal": "./vendor/internal",
     "@smallstep/step-ui": "./vendor/step-ui",
-    "cross-fetch": "^3.1.4",
+    "cross-fetch": "^3.1.5",
     "formik": "^2.2.9",
     "gatsby": "^3.12.1",
     "gatsby-plugin-compile-es6-packages": "^2.1.1",
