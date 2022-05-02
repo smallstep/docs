@@ -44,8 +44,8 @@ Certificate lifetimes, access control policies, renewal, templates, and many oth
 By setting *claims* on a provisioner, you can control minimum, maximum, and default certificate lifetimes. 
 Let's take a look at the provisioner claims on the `authority-admin` provisioner that's automatically created with your Authority.
 
-<CodeBlock language="shell-session" copyText="step beta ca provisioner get authority-admin">
-{`$ step beta ca provisioner get authority-admin\n
+<CodeBlock language="shell-session" copyText="step ca provisioner get authority-admin">
+{`$ step ca provisioner get authority-admin\n
 No admin credentials found. You must login to execute admin commands.
 ✔ Please enter admin name/subject (e.g., name@example.com): TeamAdmin@yourco.com
 ✔ Provisioner: authority-admin (OIDC) [client: 380d0a5a-7263-4e43-bb73-980afd0dc5c0]
@@ -83,8 +83,8 @@ A default duration is not set,  so it uses the Authority default value of 24 hou
 Let's update the claims on the provisioner to produce a 7 day (168h) default certificate.
 We will also set the minimum lifetime to 5 minutes and the maximum lifetime to 500 days (12000h). 
 
-<CodeBlock language="shell-session" copyText="step beta ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h">
-  {`$ step beta ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h
+<CodeBlock language="shell-session" copyText="step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h">
+  {`$ step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h
 ...
 },
   "claims": {
