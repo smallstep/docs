@@ -539,16 +539,16 @@ see the [claims](#claims) section for all the options.
 **This is an experimental feature.**
 
 If you have a [Nebula overlay network](https://www.defined.net/nebula/), you can create a Nebula provisioner and configure it with your Nebula root CA certificate.
-Clients using the `step` CLI can then authenticate with the Nebula provisioner using their Nebula host certificate and private key.
-Clients are then allowed to request an X.509 or SSH certificate with any of the hostname(s) that appear on their Nebula host certificate.
+Clients can then use their Nebula host certificate and private key to request an X.509 or SSH host certificate.
+The Nebula certificate they use for authentication must be issued by the Nebula root CA configured in the provisioner.
+Once the client is authenticated, their Nebula host certificate is used for authorization, too:
+The client is allowed to request an X.509 or SSH host certificate with any hostnames or IPs appearing on the Nebula host certificate they provided.
 
 Create a Nebula provisioner:
 
 ```shell
-step beta ca provisioner add --type Nebula --nebula-root /etc/nebula/ca.crt
+step ca provisioner add --type Nebula --nebula-root /etc/nebula/ca.crt
 ```
-
-Note that the Nebula provisioner is only supported by the `step beta ca provisioner` command (and a database-backed provisioner configuration). It is not yet supported to configure a Nebula provisioner using `ca.json`.
 
 Get an X509 certificate with the Nebula provisioner, using the Nebula host certificate and key:
 
