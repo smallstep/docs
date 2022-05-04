@@ -96,6 +96,17 @@ Here are some common variables available in X.509 certificate template:
   —for example, with the JWK provisioner—
   this field contains the payload of that token.
 
+- **.AuthorizationCrt**:
+  For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
+  this is the certificate used to authorize the current certificate request with the CA.
+  The client has proven posession of this certificate's private key.
+  The `.AuthorizationCrt` will have the following properties: `Nonce`, `Serial`, `Type`, `KeyID`, `Principals`, `ValidBefore`, `ValidAfter`, `CriticalOptions`, `Extensions`, and `Reserved` (See [the Certificate struct shown here](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16)).
+
+- **.AuthorizationChain**:
+  For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
+  this is an array of the certificate chain from the request.
+  This chain connects the authorization certificate to the root CA configured in the provisioner.
+
 - **.Insecure.CR**<Reference id="star11" marker="*" />:
   This field holds the Certificate Request from the client.
 
@@ -188,7 +199,7 @@ Here are the most relevant parameters available in SSH certificate template:
 
 - **.Insecure.CR.Principals**: If you trust a host to register its own custom SANs
   (for example, when using the IID provisioner),
-  then the host can pass several `--principal` values to `step ssh certificate` when registering the host,
+  then the host can pass several `--principal` values to [`step ssh certificate`](/docs/step-cli/reference/ssh/certificate) when registering the host,
   and use `.Insecure.CR.Principals` to access those from a template.
 
 - **.Insecure.CR.Type**:
@@ -199,7 +210,7 @@ Here are the most relevant parameters available in SSH certificate template:
   The key ID being requested.
 
 - **.Insecure.User**: This field holds user-supplied data from the certificate request.
-  Users can supply arbitrary values using `--set` or `--set-file` flags in `step ssh certificate`.
+  Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](/docs/step-cli/reference/ssh/certificate).
 
 You can also import parameter values
 from your provisioner's [configuration block](#configuring-the-ca-to-use-templates).
@@ -305,8 +316,8 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
 <Alert severity="info">
   <div>
     <strong>Here's an easy way to test X.509 templates</strong><br />
-    You can create <a href="/docs/step-ca/certificate-authority-core-concepts#online-and-offline-x509-certificate-authority">a stateless offline CA</a> with <code>step certificate</code>,
-    and pass <code>--template &lt;path&gt;</code> to the <code>step certificate create</code> or <code>step certificate sign</code> subcommands.
+    You can create <a href="/docs/step-ca/certificate-authority-core-concepts#online-and-offline-x509-certificate-authority">a stateless offline CA</a> with <a href="/docs/step-cli/reference/certificate"><code>step certificate</code></a>,
+    and pass <code>--template &lt;path&gt;</code> to the <a href="/docs/step-cli/reference/certificate/create"><code>step certificate create</code></a> or <a href="/docs/step-cli/reference/certificate/sign"><code>step certificate sign</code></a> subcommands.
   </div>
 </Alert>
 
@@ -430,7 +441,7 @@ least a `maxPathLen` of `1`. So if you want to use an intermediate certificate
 that can sign other intermediates, make sure to set more permissive `maxPathLen`
 in the root and intermediate certificate used.
 
-The command `step certificate create` with the `--profile intermediate-ca` flag
+The command [`step certificate create`](/docs/step-cli/reference/certificate/create) with the `--profile intermediate-ca` flag
 uses the template above, but if you want to create an intermediate with a custom
 template you can run:
 
@@ -466,7 +477,7 @@ and then create intermediates that set a specific limit, i.e. `0` for those that
 can sign only leaf certificates and `1` for those that can sign at most one downstream
 intermediate certificate.
 
-The command `step certificate create` with the `--profile root-ca` flag uses the
+The command [`step certificate create`](/docs/step-cli/reference/certificate/create) with the `--profile root-ca` flag uses the
 above template. To create a custom root certificate, you can run:
 
 ```shell
@@ -544,7 +555,7 @@ $ step ca sign --set-file vars.json input.csr output.crt
 ```
 
 Both flags, `--set <name=value>` and `--set-file <path>` are available in
-`step ca certificate` and `step ca sign`. If you need to pass more than one
+[`step ca certificate`](/docs/step-cli/reference/ca/certificate) and [`step ca sign`](/docs/step-cli/reference/ca/sign). If you need to pass more than one
 variable, you can use `--set` multiple times or use a JSON file with multiple
 properties.
 
@@ -849,7 +860,7 @@ Then, use the following template to merge the group accounts with the user's own
 
 This is a good example of the use of [Sprig functions](https://masterminds.github.io/sprig/) in templates.
 
-Finally, test out your flow with `step ssh login`, and use `step ssh inspect` to check the principals of the certificate you're issued by the CA.
+Finally, test out your flow with [`step ssh login`](/docs/step-cli/reference/ssh/login), and use [`step ssh inspect`](/docs/step-cli/reference/ssh/inspect) to check the principals of the certificate you're issued by the CA.
 
 ### Even More Templates
 
@@ -863,7 +874,7 @@ object represents a certificate template with all its properties.
 * The
 [CertificateRequest](https://pkg.go.dev/go.step.sm/crypto/x509util#CertificateRequest)
 object represents all properties for a CSR template that can be used in
-`step certificate create --csr`.
+[`step certificate create --csr`](/docs/step-cli/reference/certificate/create).
 
 * All key usages and supported extended key usages without using
 `"unknownExtKeyUsage"` are available

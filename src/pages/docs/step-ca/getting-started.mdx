@@ -23,7 +23,7 @@ You will need [`step`](/docs/step-cli) and [`step-ca`](/docs/step-ca) installed 
 
 The certificate authority is what you’ll be using to issue and sign certificates, knowing that you can trust anything using a certificate signed by the root certificate.
 
-Run the command `step ca init` in a terminal to configure the `step ca` and reply to the prompts with information about your project, DNS setup, etc.
+Run the command [`step ca init`](/docs/step-cli/reference/ca/init) in a terminal to configure your CA. You'll be asked about your project, DNS setup, etc.
 
 <Alert severity="info">
     <AlertTitle>Want to run an SSH CA?</AlertTitle>
@@ -92,7 +92,7 @@ Please enter the password to decrypt /Users/bob/.step/secrets/intermediate_ca_ke
 
 #### Accessing your CA
 
-You can use `step ca` and `step ssh` command groups to interact with the CA. See [Basic CA Operations](/docs/step-ca/basic-certificate-authority-operations) for an overview of common operations.
+You can use [`step ca`](/docs/step-cli/reference/ca) and [`step ssh`](/docs/step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](/docs/step-ca/basic-certificate-authority-operations) for an overview of common operations.
 
 #### Accessing your CA remotely
 
@@ -101,7 +101,7 @@ Or you can [use any ACME client to get certificates](/docs/tutorials/acme-protoc
 
 Because your CA root certificate is a self-signed certificate, it is not automatically trusted by clients.
 Any new `step` client will need to establish a trust relationship with your CA.
-You can do this by supplying your CA fingerprint to `step ca bootstrap`.
+You can do this by supplying your CA fingerprint to [`step ca bootstrap`](/docs/step-cli/reference/ca/bootstrap).
 Your CA fingerprint is a cryptographic signature identifying your root CA certificate.
 
 To configure `step` to access your CA from a new machine, run:
@@ -199,7 +199,7 @@ First, let's try making a curl request to our example server. In a new terminal,
 $ curl https://localhost:9443/hi
 ```
 
-If you already ran `step certificate install` to install your root CA into your system's trust store, this command will work and you'll see "Hello, World!".
+If you already ran [`step certificate install`](/docs/step-cli/reference/certificate/install) to install your root CA into your system's trust store, this command will work and you'll see "Hello, World!".
 
 If not, you'll see this error:
 

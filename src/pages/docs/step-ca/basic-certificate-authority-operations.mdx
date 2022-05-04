@@ -26,7 +26,7 @@ Let's perform some basic operations on X.509 certificates:
 
 ### Get a Certificate
 
-Once you have a certificate authority up and running, the `step ca certificate` command is a one-step option for generating a private key and obtaining a signed certificate:
+Once you have a certificate authority up and running, the [`step ca certificate`](/docs/step-cli/reference/ca/certificate) command is a one-step option for generating a private key and obtaining a signed certificate:
 
 ```shell-session nocopy
 $ step ca certificate svc.example.com svc.crt svc.key
@@ -37,9 +37,9 @@ $ step ca certificate svc.example.com svc.crt svc.key
 ✔ Private Key: svc.key
 ```
 
-The positional arguments in the `step ca certificate` command indicate the name you would like associated with the certificate (in this case, the DNS host name of a service) and the output filenames for the certificate and private key.
+The positional arguments in the [`step ca certificate`](/docs/step-cli/reference/ca/certificate) command indicate the name you would like associated with the certificate (in this case, the DNS host name of a service) and the output filenames for the certificate and private key.
 
-You can check your work using `step certificate inspect`:
+You can check your work using [`step certificate inspect`](/docs/step-cli/reference/certificate/inspect):
 
 ```shell-session nocopy
 $ step certificate inspect svc.crt --short
@@ -68,7 +68,7 @@ Sometimes it's useful to separate enrollment into two steps:
 
 This is necessary if you want to generate a private key in a place that can't reach the CA directly.
 
-Let's make a CSR, using `step certificate create --csr`, then we'll use `step ca sign` to get a signed certificate from the CA:
+Let's make a CSR, using [`step certificate create --csr`](/docs/step-cli/reference/certificate/create), then we'll use [`step ca sign`](/docs/step-cli/reference/ca/sign) to get a signed certificate from the CA:
 
 ```shell-session nocopy
 $ step certificate create --csr foo.example.com foo.csr foo.key
@@ -85,7 +85,7 @@ $ step ca sign foo.csr foo.crt
 
 Occasionally it's useful to separate enrollment process even further, into three steps:
 - Generating a private key and a CSR
-- Generating a single-use, signed, short-lived CA authentication token
+- Generating a single-use, signed, short-lived CA authentication token (a JWT)
 - Using the token and CSR to ask the CA for a signed certificate
 
 Each step can happen in a different context,
@@ -98,10 +98,10 @@ and inject the token into a Docker container.
 This way, the container can create its own private key and get a certificate,
 but it doesn't hold any long-lived CA credentials.
 
-Under the hood, many of `step-ca`'s [certificate provisioners](/docs/step-ca/certificate-authority-core-concepts/#provisioners) accept a token to authenticate certificate requests:
-- The JWK provisioner accepts tokens signed using a JavaScript Web Key whose public key is configured in the CA.
-- The OIDC provisioner accepts a token signed by an identity provider via a single sign-on flow.
-- The X5C provisioner accepts tokens signed using an X509 certificate private key whose root is configured in the CA.
+Under the hood, many of `step-ca`'s [certificate provisioners](/docs/step-ca/certificate-authority-core-concepts/#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
+- The JWK provisioner accepts JWTs signed using a JavaScript Web Key whose public key is configured in the CA.
+- The OIDC provisioner accepts JWTs signed by an identity provider via a single sign-on flow.
+- The X5C provisioner accepts JWTs signed using an X509 certificate private key whose root is configured in the CA.
 
 In the following example, the CA generates a token for the client who has the JWK's encrypted private key password:
 
@@ -171,7 +171,7 @@ Your certificate has been saved in foo.crt.
 
 When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](/docs/step-ca/certificate-authority-server-production#automate-x509-certificate-lifecycle-management) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
-Note that because `step ca renew` uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
+Note that because [`step ca renew`](/docs/step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
 ### Adjust Certificate Lifetimes
 
@@ -225,7 +225,7 @@ In this section we'll go over the basics of issuing and renewing SSH certificate
 
 ### Requirements
 
-* You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running `step ca init --ssh`.
+* You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
 * To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](/docs/step-ca/getting-started#accessing-step-ca-remotely).
 
 ### Establishing trust
@@ -397,5 +397,5 @@ You're all done. Now test your SSH connection.
 ## Next Steps
 
 * Our [Tutorials](/docs/tutorials) can guide you through more complex scenarios for using `step-ca` in different contexts and workflows.
-* Run `step ca help` or `step ssh help` for many more flags and examples.
+* Run [`step ca help`](/docs/step-cli/reference/ca) or [`step ssh help`](/docs/step-cli/reference/ssh) for many more flags and examples.
 * See [Configuration](/docs/step-ca/configuration), [Core Concepts](/docs/step-ca/certificate-authority-core-concepts), and [Production Considerations](/docs/step-ca/certificate-authority-server-production) to learn more about tailoring `step-ca` to your infrastructure.

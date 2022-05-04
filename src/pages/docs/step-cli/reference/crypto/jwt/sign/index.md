@@ -17,7 +17,8 @@ step crypto jwt sign [- | <filename>]
 [--exp=<expiration>] [--iat=<issued_at>] [--nbf=<not-before>]
 [--key=<file>] [--jwks=<jwks>] [--kid=<kid>] [--jti=<jti>]
 [--header=<key=value>] [--password-file=<file>]
-[--x5c-cert=<file>] [--x5c-key=<file>] [--x5t-cert=<file>] [--x5t-key=<file>]
+[--x5c-cert=<file>] [--x5c-key=<file>] [--x5c-insecure]
+[--x5t-cert=<file>] [--x5t-key=<file>]
 ```
 
 ## Description
@@ -173,4 +174,7 @@ Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 
 **--x5t-cert**=`file`
 Certificate `file` in PEM format to use for the 'x5t' header of a JWS or JWT
+
+**--x5c-insecure**
+Use the JWT header 'x5cInsecure' instead of 'x5c'.
 

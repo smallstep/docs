@@ -83,6 +83,8 @@ step_ca:
     path: step-ca/templates
   - title: Production Considerations
     path: step-ca/certificate-authority-server-production
+  - title: Registration Authority Mode
+    path: step-ca/registration-authority-ra-mode
   - title: Integrations
     path: step-ca/integrations
   - title: Discussions
