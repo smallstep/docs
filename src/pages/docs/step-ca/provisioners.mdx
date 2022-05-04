@@ -539,14 +539,15 @@ see the [claims](#claims) section for all the options.
 **This is an experimental feature.**
 
 If you have a [Nebula overlay network](https://www.defined.net/nebula/), you can create a Nebula provisioner and configure it with your Nebula root CA certificate.
-Clients can then use their Nebula host certificate and private key to request an X.509 or SSH host certificate.
+Clients can then use their Nebula client certificate and private key to request an X.509 or SSH host certificate from `step-ca`.
 The Nebula certificate they use for authentication must be issued by the Nebula root CA configured in the provisioner.
-Once the client is authenticated, their Nebula host certificate is used for authorization, too:
-The client is allowed to request an X.509 or SSH host certificate with the name or IPs appearing on the Nebula certificate they provided.
 
-To be clear, Nebula certificates have a Name and a list of IPs.
+The Nebula client certificate is used for authorization, too:
+The client is allowed to request an X.509 or SSH host certificate with the Name or IPs appearing on the Nebula certificate they provided.
+
+To be clear, Nebula certificates can contain a single Name and a list of IPs.
 The Name is often a DNS hostname, but it could be an email, IP, or URI.
-The Nebula provisioner will authorize a certificate with a single SAN for the Name (an email SAN, DNS SAN, IP SAN, or URI SAN) plus any number of IP SANs, for the list of IPs.
+In `step-ca`, the Nebula provisioner will authorize a certificate with a single SAN for the Name (an email SAN, DNS SAN, IP SAN, or URI SAN) plus any number of IP SANs, for the list of IPs.
 
 To get started, create a Nebula provisioner:
 
