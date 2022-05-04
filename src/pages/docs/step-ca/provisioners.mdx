@@ -631,7 +631,7 @@ The client is allowed to request an X.509 or SSH host certificate with the `name
 To be clear, Nebula certificates can contain a single `name` and a list of `ips`.
 The `name` field is often a DNS hostname, but it could be an email, IP, or URI.
 And `ips` contains a list of CIDR blocks.
-In `step-ca`, the Nebula provisioner will authorize certificate subjects that include the `name`, plus IP SANs for any of the CIDR blocks in the `ips` list on the Nebula certificate.
+In `step-ca`, the Nebula provisioner will authorize certificate subjects or SANs that include the `name`, plus IPs in any of the CIDR blocks in `ips` on the Nebula certificate.
 
 To get started, create a Nebula provisioner:
 
