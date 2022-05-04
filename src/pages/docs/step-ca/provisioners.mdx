@@ -34,7 +34,7 @@ Provisioner Capabilities| x509-sign | x509-renew | x509-revoke | ssh-user-cert-s
 JWK    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫
 OIDC   | ✔️  | ✔️  | ✔️  | ✔️  | ✔️ <Reference id="f1" marker="1"/> | 𝗫 | 𝗫 | ✔️  | 𝗫
 X5C    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
-Nebula | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫  | ✔️ | 𝗫 | 𝗫 | 𝗫
+Nebula | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫  | ✔️ | 𝗫 | ✔️ | 𝗫
 K8sSA  | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
 ACME   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
 SCEP   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
@@ -543,11 +543,12 @@ Clients can then use their Nebula client certificate and private key to request 
 The Nebula certificate they use for authentication must be issued by the Nebula root CA configured in the provisioner.
 
 The Nebula client certificate is used for authorization, too:
-The client is allowed to request an X.509 or SSH host certificate with the Name or IPs appearing on the Nebula certificate they provided.
+The client is allowed to request an X.509 or SSH host certificate with the `name` or any of the `ips` appearing on the Nebula client certificate.
 
-To be clear, Nebula certificates can contain a single Name and a list of IPs.
-The Name is often a DNS hostname, but it could be an email, IP, or URI.
-In `step-ca`, the Nebula provisioner will authorize a certificate with a single SAN for the Name (an email SAN, DNS SAN, IP SAN, or URI SAN) plus any number of IP SANs, for the list of IPs.
+To be clear, Nebula certificates can contain a single `name` and a list of `ips`.
+The `name` field is often a DNS hostname, but it could be an email, IP, or URI.
+And `ips` contains a list of CIDR blocks.
+In `step-ca`, the Nebula provisioner will authorize certificate subjects that include the `name`, plus IP SANs for any of the CIDR blocks in the `ips` list on the Nebula certificate.
 
 To get started, create a Nebula provisioner:
 
@@ -555,14 +556,14 @@ To get started, create a Nebula provisioner:
 step ca provisioner add --type Nebula --nebula-root /etc/nebula/ca.crt
 ```
 
-Get an X509 certificate with the Nebula provisioner, using a Nebula client certificate and key that has tne DNS name `host3.example.com` in the Name field, and two IPs:
+Now you can get an X509 certificate with the Nebula provisioner, using a Nebula client certificate. Here's an example using the DNS name `host3.example.com`, and two IPs:
 
 ```shell
 step ca certificate host3.example.com host3.crt host3.key \
 	--nebula-cert /etc/nebula/client.crt \
 	--nebula-key /etc/nebula/client.key \
-	--san 15.2.25.12 \
-	--san 15.2.25.13
+	--san 192.168.100.2 \ 
+	--san 192.168.100.3
 ```
 
 ### SSHPOP - SSH Certificate
