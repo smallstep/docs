@@ -555,10 +555,14 @@ To get started, create a Nebula provisioner:
 step ca provisioner add --type Nebula --nebula-root /etc/nebula/ca.crt
 ```
 
-Get an X509 certificate with the Nebula provisioner, using the Nebula host certificate and key:
+Get an X509 certificate with the Nebula provisioner, using a Nebula client certificate and key that has tne DNS name `host3.example.com` in the Name field, and two IPs:
 
 ```shell
-step ca certificate host3.example.com host3.crt host3.key --nebula-cert /etc/nebula/host3.crt --nebula-key /etc/nebula/host3.key
+step ca certificate host3.example.com host3.crt host3.key \
+	--nebula-cert /etc/nebula/client.crt \
+	--nebula-key /etc/nebula/client.key \
+	--san 15.2.25.12 \
+	--san 15.2.25.13
 ```
 
 ### SSHPOP - SSH Certificate
