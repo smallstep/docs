@@ -343,9 +343,11 @@ We can use [`step crypto jwe decrypt`](/docs/step-cli/reference/crypto/jwe/decry
 
 <CodeBlock
   language="shell-session"
-  copyText="echo ey...lw | step crypto jwe decrypt  | jq"
 >
-{`$ echo ey...lw | step crypto jwe decrypt  | jq
+{`$ step ca provisioner list \\
+    | jq -r '.[] | select(.name == "you@smallstep.com") | .encryptedKey' \\
+	| step crypto jwe decrypt \\
+	| jq
 Please enter the password to decrypt the content encryption key:
 {
   "use": "sig",
@@ -366,9 +368,8 @@ Please enter the password to decrypt the content encryption key:
   Run the following, changing the provisioner name in the `jq` command to match your configuration:
 
   ```shell
-  OLD_ENCRYPTED_KEY=$(jq -r \
-     '.authority.provisioners[] | select(.name == "carl@example.com").encryptedKey' \
-     $(step path)/config/ca.json)
+  OLD_ENCRYPTED_KEY=$(step ca provisioner list \
+     | jq -r '.[] | select(.name == "you@smallstep.com").encryptedKey')
   ```
 
 2. Update the encrypted key password.
@@ -384,20 +385,18 @@ Please enter the password to decrypt the content encryption key:
 
   You'll be asked for the old and new passwords.
 
-3. Update `ca.json`.
+3. Update the provisioner.
   
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  Run the following, changing the provisioner name in the command to match your configuration:
   
   ```shell
-  jq --tab \
-     --arg encryptedkey "$ENCRYPTED_KEY" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
-      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  step beta ca provisioner update you@smallstep.com \
+    --private-key=<(echo -n "$ENCRYPTED_KEY")
   ```
   
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
-  
 4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
 
   ```shell
   killall -i -s SIGHUP step-ca
