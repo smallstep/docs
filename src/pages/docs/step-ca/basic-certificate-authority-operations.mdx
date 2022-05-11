@@ -191,7 +191,7 @@ $ step ca certificate localhost localhost.crt localhost.key --not-after=5m
 $ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h
 ```
 
-Note that default maximum certificate duration is 24 hours. To adjust it, add a `claims` section to the `ca.json` configuration file, either under `"authority"` or under a specific provisioner's configuration block, with the following keys:
+Note that default maximum certificate duration is 24 hours. To adjust the global default, minimum, and maximum certificate durations for your CA, add a `claims` section to the `$(step path)/config/ca.json` configuration file, under `"authority"`, with the following keys:
 
 ```json
 "claims": {
@@ -201,6 +201,7 @@ Note that default maximum certificate duration is 24 hours. To adjust it, add a 
 }
 ```
 
+You can also set default, minimum, and maximum certificate durations on each provisioner.
 See [Basic Configuration Options](/docs/step-ca/configuration#basic-configuration-options) for more details.
 
 ### Revoke a Certificate
