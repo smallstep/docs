@@ -390,7 +390,7 @@ Please enter the password to decrypt the content encryption key:
   Run the following, changing the provisioner name in the command to match your configuration:
   
   ```shell
-  step beta ca provisioner update you@smallstep.com \
+  step ca provisioner update you@smallstep.com \
     --private-key=<(echo -n "$ENCRYPTED_KEY")
   ```
   
