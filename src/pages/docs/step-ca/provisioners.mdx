@@ -406,40 +406,24 @@ Please enter the password to decrypt the content encryption key:
 
 **Note:** This section requires [`jq`](https://stedolan.github.io/jq/).
 
-1. Create a new JWK key pair:
+1. Create a new JWK key pair.
 
   ```shell
   step crypto jwk create jwk.pub jwk.priv
   ```
 
-2. Update the `"key"` field in the JWK provisioner configuration block.
+2. Update the provisioner.
 
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
-  
+  Run the following, changing the provisioner name in the command to match your configuration:
+
   ```shell
-  jq --tab \
-     --argjson jwk "$(< jwk.pub )" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com").key) = $jwk' \
-     $(step path)/config/ca.json > $(step path)/config/canew.json
+  step ca provisioner update you@smallstep.com \
+    --public-key=jwk.pub --private-key=jwk.priv
   ```
-
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
-
-3. Format the private key and update the `"encryptedKey"` field in the provisioner configuration:
-
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
-  
-  ```shell
-  ENCRYPTED_KEY=(step crypto jose format < jwk.priv)
-  jq --tab \
-     --arg encryptedkey "$ENCRYPTED_KEY" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
-      $(step path)/config/ca.json > $(step path)/config/canew.json 
-  ```
-  
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
 
 4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
 
   ```shell
   killall -i -s SIGHUP step-ca
@@ -528,7 +512,7 @@ One of the most common providers, and the one used in the following example, is 
 Add a Google provisioner:
 
 ```shell-session
-$ step ca provisioner add Google --type oidc --ca-config $(step path)/config/ca.json \
+$ step ca provisioner add Google --type oidc \
   --client-id 650445034027-jsjdrkiskeq9ke99ud2rqkst82ft8uch.apps.googleusercontent.com \
   --client-secret 6Q7lGMua_Oox4nA92QBXYypT \
   --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration \
@@ -695,7 +679,7 @@ generated using SSH certificates created by `step-ca`.
 An SSHPOP token is a JWT, signed by the certificate private key, with an `sshpop`
 header that contains the SSH certificate.
 
-When configured with the `--ssh` option (`step ca init --ssh`), the `ca.json`
+When configured with the `--ssh` option (`step ca init --ssh`), the CA
 will contain a default SSHPOP provisioner named `sshpop`.
 
 #### Example
@@ -803,7 +787,17 @@ Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chai
 
 #### Configure the Provisioner
 
-The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
+Add a SCEP provisoiner:
+
+```shell
+step ca provisioner add my_scep_provisioner \
+  --type SCEP --challenge "secret1234" \
+  --encryption-algorithm-identifier 2
+```
+
+The shared `challenge` should be a value that you will distribute to your SCEP clients.
+
+Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
 
 ```json
 {
@@ -814,7 +808,6 @@ The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command gro
 }
 ```
 
-- Change the `challenge` password to a value that you will distribute to your clients.
 - The `forceCN` parameter is optional. It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
 
 #### Enable the HTTP Server
