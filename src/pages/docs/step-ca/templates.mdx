@@ -415,16 +415,7 @@ The default template for an intermediate certificate is:
 }
 ```
 
-This template is most commonly used when initializing a CA. But it can also be set in the
-`ca.json` and used in a specific provisioner in `step-ca`.
-
-<Alert severity="warning">
-  <div>
-    Exercise caution when configuring intermediate templates for
-    <Code>step-ca</Code> provisioners. Make sure only administrators with the 
-    right permissions have access to those provisioners.
-  </div>
-</Alert>
+This template is most commonly used when initializing a CA.
 
 The `keyUsage` **_certSign_** allows a certificate to sign other certificates.
 **_crlSign_** allows a certificate to sign Certificate Revocation Lists or CRLs.
@@ -486,7 +477,8 @@ step certificate create --template root.tpl "ACME Root CA" root_ca.crt root_ca_k
 
 <Alert severity="info">
   <div>
-    It is not possible to use <Code>step-ca</Code> to sign a root certificate.
+    It is not possible to use <Code>step-ca</Code> to sign root certificates.
+	And, <Code>step-ca</Code> cannot sign intermediates directly from its root for clients.
   </div>
 </Alert>
 
