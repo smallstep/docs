@@ -40,6 +40,7 @@
     "react-dom": "^16.13.1",
     "react-helmet-async": "^1.1.2",
     "react-instantsearch-dom": "^6.25.0",
+    "react-instantsearch-hooks-web": "^6.25.0",
     "react-moment": "^0.9.6",
     "refractor": "^2.10.0",
     "rxjs": "^6.5.2",
