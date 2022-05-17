@@ -17,6 +17,7 @@ import {
 
 import NavItem from './NavItem';
 import NavSubItem from './NavSubItem';
+import SearchBar from './SearchBar';
 
 const RE_EXTERNAL = /^(https?:|mailto:)/;
 
@@ -81,6 +82,8 @@ const DocsNav = ({ pathname, submenusRef }) => {
 
   return (
     <>
+      <SearchBar/>
+
       <Box mb={2}>
         <Heading variant="h5">Platform</Heading>
         <NavMenu>
