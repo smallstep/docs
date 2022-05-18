@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { graphql, useStaticQuery } from 'gatsby';
 import Box from '@material-ui/core/Box';
+import Search from './Search';
+
 import {
   NavMenu,
   Heading,
@@ -17,7 +19,6 @@ import {
 
 import NavItem from './NavItem';
 import NavSubItem from './NavSubItem';
-import SearchBar from './SearchBar';
 
 const RE_EXTERNAL = /^(https?:|mailto:)/;
 
@@ -79,10 +80,10 @@ const DocsNav = ({ pathname, submenusRef }) => {
         />
       ));
   };
-
+  const searchIndices = [{ name: `Pages`, title: `Pages` }]
   return (
     <>
-      <SearchBar/>
+      <Search indices={searchIndices} />
 
       <Box mb={2}>
         <Heading variant="h5">Platform</Heading>
