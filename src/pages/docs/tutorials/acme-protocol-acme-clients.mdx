@@ -4,44 +4,95 @@ html_title: Configure ACME clients to use a private CA with the ACME protocol
 description: Connect popular ACME clients to a private ACME server with this ACME protocol client configuration tutorial.
 ---
 
-
-The ACME protocol radically simplifies TLS and HTTPS's deployment by letting
-you obtain certificates automatically, without human interaction. `step-ca`
-works with any ACMEv2 (RFC8555) compliant client that supports the `http-01`,
-`dns-01`, or `tls-alpn-01` challenge.  This page contains tutorial-style
-example client configuration.  Even if you don't use one of the listed
-clients, the concepts are generally portable to arbitrary clients.
-
-If you run into any issues please let us know [in GitHub Discussions][gh-discussions].
-
-[gh-discussions]: https://github.com/smallstep/certificates/discussions
+The Automated Certificate Management Environment (ACME) protocol radically simplifies TLS deployment.
+With ACME, endpoints can obtain TLS certificates on their own, automatically.
+`step-ca` works with any ACME-compliant (specifically, ACMEv2; RFC8555) client.
 
 ## About this tutorial
 
-- Learn how to automatically issue certificates to popular ACME clients using the ACME protocol.
+- Learn how to configure popular ACME clients to get certificates from `step-ca`.
 - Examples include copy/paste code blocks and specific commands for nginx, certbot, and more.
 - When complete, you will have a fully functioning ACME configuration using a private certificate authority. 
 - Estimated effort: Reading time ~7 mins, Lab time ~20 to 60 mins. 
 
-<Alert severity="info">
-  <div>
-    If you run into any issues please let us know <Link href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</Link>.
-  </div>
-</Alert>
+If you run into any issues, please let us know [in GitHub Discussions][gh-discussions] or on our [Discord server][discord].
+
+[gh-discussions]: https://github.com/smallstep/certificates/discussions
+[discord]: https://u.step.sm/discord
+
 
 ## Requirements
+
 - **Open source -** For `step-ca`, this tutorial assumes you have initialized and started up an instance using the steps in [Getting Started](/docs/step-ca/getting-started). Additionally, you'll need to configure your CA with an ACME provisioner. Run `step ca provisioner add acme --type ACME`, and restart your CA. 
 - **[Smallstep Certificate Manager](/docs/certificate-manager/acme) -** this tutorial assumes you have [created a hosted or linked authority](/docs/certificate-manager/getting-started) and are running a local [ACME Registration Authority](/docs/registration-authorities/acme-for-certificate-manager). 
 
-
 ## Overview
 
+Here are the most common configuration parameters for any ACME client:
+
+### Directory URL
+
 Most ACME clients connect to Let’s Encrypt’s CA by default.
-To connect to smallstep, you need to point the client to the right [ACME Directory URL][acme-dir].
+To connect to a private CA, you need to point the client your [ACME Directory URL][acme-dir].
 
 [acme-dir]: https://tools.ietf.org/html/rfc8555#section-7.1.1
 
-* [ACME and `step-ca`](#acme-and-step-ca-recap)
+A single instance of `step-ca` can have multiple ACME provisioners, each with their own ACME Directory URL. The URL follows this form:
+
+`https://{ca-host}/acme/{provisioner-name}/directory`
+
+For example, an ACME provisioner named `ACME` on the host `ca.internal` has the directory URL:
+
+`https://ca.internal/acme/ACME/directory`
+
+### ACME challenge type
+
+You'll need to select the ACME challenge type.
+
+### CA Certificate
+
+Communication between an ACME client and server uses HTTPS.
+Many clients will validate the server’s TLS certificate using the public root certificates in your system’s default [trust store][pki-ts].
+Some clients will let you pass a CA certificate bundle into the client.
+
+[pki-ts]: https://smallstep.com/blog/everything-pki/#trust-stores
+
+Clients will validate the server’s HTTPS certificate using the public root certificates in your system’s default trust store.
+When you’re connecting to Let’s Encrypt, it’s a public certificate authority and its root certificate is already in your system’s default trust store.
+Your internal root certificate isn’t, so HTTPS connections from ACME clients to `step-ca` will fail.
+
+There are two ways to address this challenge.
+Either:
+
+- Explicitly configure your ACME client to trust `step-ca`’s root certificate, or
+- Add the `step-ca` root certificate to your system’s default trust store.
+
+`step` provides a helper command to do the latter:
+
+```shell
+step certificate install
+```
+
+If you are using your certificate authority for TLS in production, explicitly configuring your ACME client to only trust your root certificate is a better option.
+You will see how this method works with an example below.
+You can find several other examples [here](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients).
+
+If you are simulating Let’s Encrypt in pre-production, installing your root certificate is a more realistic simulation of production.
+Once your root certificate is installed, no additional client configuration is necessary.
+
+<Alert severity="warning">
+  <AlertTitle>A Word of Caution</AlertTitle>
+  Adding a root certificate to your system’s trust store is a global operation. Certificates issued by your CA will be trusted everywhere, including in many web browsers.
+</Alert>
+
+
+### Renewal Period
+
+With most ACME clients, you can configure how often you want to renew your certificates.
+Choose a renewal period that is two-thirds of the entire certificate's lifetime, so that you'll have enough time to fix any renewal issues before it's too late.
+
+## Popular ACME Clients
+
 * [Certbot](#certbot)
 * [acme.sh](#acmesh)
 * [win-acme](#win-acme)
@@ -53,24 +104,10 @@ To connect to smallstep, you need to point the client to the right [ACME Directo
 * [Python](#python)
 * [Traefik](#traefik)
 
-### ACME and open source `step-ca` Recap
-
-A single instance of `step-ca` can have multiple ACME provisioners, each with their own ACME Directory URL that looks like:
-
-`https://{ca-host}/acme/{provisioner-name}/directory`
-
-For example, an ACME provisioner named `acme` has the directory URL:
-
-`https://ca.internal/acme/acme/directory`
-
-Communication between an ACME client and server always uses HTTPS.
-Clients will validate the server’s HTTPS certificate using the public root certificates in your system’s default [trust store][pki-ts].
-
-[pki-ts]: https://smallstep.com/blog/everything-pki/#trust-stores
-
 ### Certbot
 
-[`certbot`](https://certbot.eff.org/) is the granddaddy of ACME clients. Built
+[`certbot`](https://certbot.eff.org/) is the granddaddy of all ACME clients.
+Built
 and supported by [the EFF](https://www.eff.org/), it's the standard-bearer for
 production-grade command-line ACME.
 
