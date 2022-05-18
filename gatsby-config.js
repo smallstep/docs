@@ -74,6 +74,7 @@ module.exports = {
         },
       },
     },
+    
     `gatsby-transformer-yaml`,
     {
       resolve: `gatsby-plugin-next-seo`,
