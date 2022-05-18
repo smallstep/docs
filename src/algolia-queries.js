@@ -1,6 +1,6 @@
 const escapeStringRegexp = require("escape-string-regexp")
 
-const pagePath = `content`
+const pagePath = `pages`
 const indexName = `Pages`
 
 const pageQuery = `{
