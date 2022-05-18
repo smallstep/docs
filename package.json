@@ -37,6 +37,7 @@
     "moment-timezone": "^0.5.33",
     "query-string": "^7.0.1",
     "react": "^16.13.1",
+    "react-autosuggest": "^10.1.0",
     "react-dom": "^16.13.1",
     "react-helmet-async": "^1.1.2",
     "react-instantsearch-dom": "^6.25.0",

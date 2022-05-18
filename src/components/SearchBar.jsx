@@ -1,30 +1,46 @@
-import React from 'react';
-import Box from '@material-ui/core/Box';
-import Input from '@material-ui/core/Input';
-import { useSearchBox } from 'react-instantsearch-hooks-web';
+import React, { useState } from 'react';
 import algoliasearch from 'algoliasearch/lite';
-import { InstantSearch,SearchBox,Hits } from 'react-instantsearch-hooks-web';
+import PropTypes from "prop-types";
+import "./SearchBar.css";
+import { InstantSearch,
+  SearchBox,
+  Hits,
+  Highlight, 
+} from 'react-instantsearch-hooks-web';
 
-const searchClient = algoliasearch('01ZCGVJMMX', '66bcc13d348eac437d89c68e2d5a2a76');
+const searchClient = algoliasearch('********', '****************');
 
-function Hit({ hit }) {
-  return (
-    <article>
-      <h1>{hit.firstname}</h1>
-    </article>
-  );
-}
 const ariaLabel = { 'aria-label': 'description' };
 function SearchBar(){
+  const [filteredData, setFilteredData] = useState([]);
     return(
-    <Box mb={2} >
-        <InstantSearch searchClient={searchClient} indexName="instant_search">
-            <Input placeholder="Search" inputProps={ariaLabel} />
-            <Hits hitComponent={Hit} />
+      <div className='search'>
+        <InstantSearch searchClient={searchClient} indexName="instant_search" >
+          <SearchBox placeholder="Search" inputProps={ariaLabel} />
+          {filteredData.length != 0 && (
+            <div className='dataResult'>
+              <p>
+                <Hits hitComponent={Hit} />
+              </p>
+            </div>
+          )}
         </InstantSearch>
-      
-      
-    </Box>
-)
+      </div>
+  );
 }
-export default SearchBar;
+function Hit(props) {
+  return (
+    <Highlight attribute="firstname" hit={props.hit} />
+  );
+}
+Hit.propTypes = {
+  hit: PropTypes.object.isRequired
+};
+
+function App(){
+  return <div className='App'>
+    <SearchBar />
+  </div>;
+}
+
+export default App;
