@@ -24,7 +24,7 @@ To list all admins on your authority before adding new ones, use the `step` comm
 step ca admin list
 ```
 
-See the [`step ca admin list` command reference](https://smallstep.com/docs/step-cli/reference/beta/ca/admin/list) for additional flags.
+See the [`step ca admin list` command reference](https://smallstep.com/docs/step-cli/reference/ca/admin/list) for additional flags.
 
 To add a new basic admin to a provisioner, run:
 
@@ -32,9 +32,9 @@ To add a new basic admin to a provisioner, run:
 step ca admin add <email-address> <provisioner-name>
 ```
 
-See the [`step ca admin add` command reference](https://smallstep.com/docs/step-cli/reference/beta/ca/admin/add) for additional flags.
+See the [`step ca admin add` command reference](https://smallstep.com/docs/step-cli/reference/ca/admin/add) for additional flags.
 
-You can also [update](https://smallstep.com/docs/step-cli/reference/beta/ca/admin/update) or [remove](https://smallstep.com/docs/step-cli/reference/beta/ca/admin/remove) admins with the `step ca admin` command group.
+You can also [update](https://smallstep.com/docs/step-cli/reference/ca/admin/update) or [remove](https://smallstep.com/docs/step-cli/reference/ca/admin/remove) admins with the `step ca admin` command group.
 
 ### Managing Provisioners
 
@@ -44,13 +44,13 @@ To review the configuration for all existing provisioners on your certificate au
 step ca provisioner list
 ```
 
-Check the existing configuration for a given provisioner by running [`step ca provisioner get`](https://smallstep.com/docs/step-cli/reference/beta/ca/provisioner/get):
+Check the existing configuration for a given provisioner by running [`step ca provisioner get`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/get):
 
 ```bash
 step ca provisioner get <provisioner-name>
 ```
 
-To add a new provisioner, use [`step ca provisioner add`](https://smallstep.com/docs/step-cli/reference/beta/ca/provisioner/add). There are several options for find-tuning a provisioner for your use case. On all provisioner types, you can constrain certificate lifetimes, configure templates to be used, and specify provisioner admins. Provisioner admins can issue certificates with arbitrary subjects. The [command reference](https://smallstep.com/docs/step-cli/reference/beta/ca/provisioner/add) describes other provisioner-specific configuration options that are available.
+To add a new provisioner, use [`step ca provisioner add`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/add). There are several options for find-tuning a provisioner for your use case. On all provisioner types, you can constrain certificate lifetimes, configure templates to be used, and specify provisioner admins. Provisioner admins can issue certificates with arbitrary subjects. The [command reference](https://smallstep.com/docs/step-cli/reference/ca/provisioner/add) describes other provisioner-specific configuration options that are available.
 
 If you just want stand up a basic, password-based provisioner with default values to get moving, run:
 
@@ -61,5 +61,4 @@ step ca provisioner add <provisioner-name> --type JWK --create
 You will be prompted to enter a password for the provisioner.
 
 > For more information on each provisioner type and recommended configurations, please see our open source documentation on [How to Configure Provisioners](https://smallstep.com/docs/step-ca/provisioners#authorization-scope-by-provisioner).
-> Our open source documentation was written for `step-ca`, so it instructs you to use the `step ca` commands instead of the `step` commands. Instead, use the `step` commands listed in the guide above.
 
