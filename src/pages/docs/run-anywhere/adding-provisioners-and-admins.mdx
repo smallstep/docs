@@ -44,12 +44,6 @@ To review the configuration for all existing provisioners on your certificate au
 step ca provisioner list
 ```
 
-Check the existing configuration for a given provisioner by running [`step ca provisioner get`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/get):
-
-```bash
-step ca provisioner get <provisioner-name>
-```
-
 To add a new provisioner, use [`step ca provisioner add`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/add). There are several options for find-tuning a provisioner for your use case. On all provisioner types, you can constrain certificate lifetimes, configure templates to be used, and specify provisioner admins. Provisioner admins can issue certificates with arbitrary subjects. The [command reference](https://smallstep.com/docs/step-cli/reference/ca/provisioner/add) describes other provisioner-specific configuration options that are available.
 
 If you just want stand up a basic, password-based provisioner with default values to get moving, run:
