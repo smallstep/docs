@@ -1,7 +1,7 @@
 const escapeStringRegexp = require("escape-string-regexp")
 const { default: slugify } = require("slugify")
 
-const pagePath = `pages`
+const pagePath = `pages/`
 const indexName = `Pages`
 
 const pageQuery = `{
@@ -26,7 +26,7 @@ const pageQuery = `{
 function pageToAlgoliaRecord({ node: { id, slug, frontmatter, fields, ...rest } }) {
   return {
     objectID: id,
-    slug,
+    slug: `/docs/${slug}`,
     ...frontmatter,
     ...fields,
     ...rest,
