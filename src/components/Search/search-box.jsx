@@ -5,6 +5,7 @@ import { Search as SearchIcon } from "@styled-icons/fa-solid"
 export default connectSearchBox(
   ({ refine, currentRefinement, className, onFocus }) => (
     <form className={className}>
+      <SearchIcon className="SearchIcon" />
       <input
         className="SearchInput"
         type="text"
@@ -14,7 +15,6 @@ export default connectSearchBox(
         value={currentRefinement}
         onFocus={onFocus}
       />
-      <SearchIcon className="SearchIcon" />
     </form>
   )
 )

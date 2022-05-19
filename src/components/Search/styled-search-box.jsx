@@ -2,27 +2,25 @@ import styled, { css } from "styled-components"
 import SearchBox from "./search-box"
 
 const open = css`
-  width: 18.2em;
+  width: 15em;
   background: ${({ theme }) => theme.background};
   cursor: text;
-  margin-left: -1.6em;
-  margin-right: 0.72em;
-  padding-left: 1.6em;
+  margin: 0em;
 `
 
 const closed = css`
   width: 0;
   background: transparent;
   cursor: pointer;
-  margin-left: 24em;
+  margin-left: 16.8em;
   padding-left: 1em;
 `
 
 export default styled(SearchBox)`
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
-  margin-bottom: 0;
+  margin-bottom: 3em;
 
   .SearchInput {
     outline: none;
@@ -34,12 +32,13 @@ export default styled(SearchBox)`
     ::placeholder {
       color: ${({ theme }) => theme.faded};
     }
-    ${({ hasFocus }) => (hasFocus ? open : closed)}
+    ${({ hasFocus }) => (open)}
   }
 
   .SearchIcon {
     width: 1.4em;
-    margin: 0.5sem;
+    margin-right: 2em;
+    margin-left: 0.8em;
     color: ${({ theme }) => theme.foreground};
     pointer-events: none;
   }
