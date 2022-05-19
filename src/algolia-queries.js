@@ -23,10 +23,10 @@ const pageQuery = `{
   }
 }`
 
-function pageToAlgoliaRecord({ node: { id, frontmatter, fields, ...rest } }) {
+function pageToAlgoliaRecord({ node: { id, slug, frontmatter, fields, ...rest } }) {
   return {
     objectID: id,
-    slugify,
+    slug,
     ...frontmatter,
     ...fields,
     ...rest,
