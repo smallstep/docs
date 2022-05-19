@@ -14,9 +14,7 @@ const pageQuery = `{
         id
         frontmatter {
           title
-
         }
-        
         excerpt(pruneLength: 5000)
       }
     }
