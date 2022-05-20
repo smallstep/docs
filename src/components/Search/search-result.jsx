@@ -20,7 +20,7 @@ const HitCount = connectStateResults(({ searchResults }) => {
 
 const PageHit = ({ hit }) => (
   <div>
-    <Link to={hit.slug}>
+    <Link to= {(hit.title[0] == hit.title[0].toUpperCase()) ? `/docs/${hit.slug}` : `/docs/step-cli/reference/${hit.slug}`}>
       <h4>
         <Highlight attribute="title" hit={hit} tagName="mark" />
       </h4>

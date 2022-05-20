@@ -26,7 +26,7 @@ const pageQuery = `{
 function pageToAlgoliaRecord({ node: { id, slug, frontmatter, fields, ...rest } }) {
   return {
     objectID: id,
-    slug: `/docs/${slug}`,
+    slug,
     ...frontmatter,
     ...fields,
     ...rest,
