@@ -554,21 +554,21 @@ cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
 })' $(step path)/config/ca.json) > $(step path)/config/ca.json
 ```
 
-`config` options for type=`vaultcas`:
+`config` options for [type=`vaultcas`]:
 
 - **pkiMountPath**: the vault mount path for the pki engine you want to use, defaults to `pki`
 
 - **pkiRoleDefault**: the default pki role you want to use to issue certificates if the specific roles are not set, defaults to `default`
 
-- **pkiRoleRSA**: the pki role used to issue RSA certificates, defaults to pkiRoleDefault
+- **pkiRoleRSA**: the pki role used to issue RSA certificates, defaults to *pkiRoleDefault*
 
-- **pkiRoleEC**: the pki role used to issue EC certificates, defaults to pkiRoleDefault
+- **pkiRoleEC**: the pki role used to issue EC certificates, defaults to *pkiRoleDefault*
 
-- **pkiRoleEd25519**: the pki role used to issue Ed25519 certificates, defaults to pkiRoleDefault
+- **pkiRoleEd25519**: the pki role used to issue Ed25519 certificates, defaults to *pkiRoleDefault*
 
 - **authType**: required. the authentication method used to login to the vault, one of `approle` or `kubernetes`
 
-- **authMountPath**: the vault mount path for the auth method you want to use, if not set used the default mount path for that auth type (usually the same name as the auth method).
+- **authMountPath**: the vault mount path for the auth method you want to use, if not set the default mount path for that auth type is used (usually the same name as the auth method)
 
 - **authOptions**: required. a set of options specific to the selected auth method type
 
