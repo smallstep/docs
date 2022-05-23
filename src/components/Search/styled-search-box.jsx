@@ -26,12 +26,4 @@ export default styled(SearchBox)`
     }
     ${({ hasFocus }) => open}
   }
-
-  .SearchIcon {
-    width: 1.4em;
-    margin-right: 2em;
-    margin-left: 0.8em;
-    color: ${({ theme }) => theme.foreground};
-    pointer-events: none;
-  }
 `;
