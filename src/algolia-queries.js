@@ -1,8 +1,8 @@
-const escapeStringRegexp = require("escape-string-regexp")
-const { default: slugify } = require("slugify")
+const escapeStringRegexp = require('escape-string-regexp');
+const { default: slugify } = require('slugify');
 
-const pagePath = `pages/`
-const indexName = `Pages`
+const pagePath = `pages/`; //path to the docs pages /pages/docs/ect...
+const indexName = `pages_replica_dont_delete`; //Algolia querie index name
 
 const pageQuery = `{
   pages: allMdx(
@@ -16,24 +16,24 @@ const pageQuery = `{
         frontmatter {
           title
         }
-        excerpt(pruneLength: 5000)
+        excerpt(pruneLength: 3000)
         slug
       }
     }
   }
-}`
+}`;
 
-function pageToAlgoliaRecord({ node: { id, slug, frontmatter, fields, ...rest } }) {
+function pageToAlgoliaRecord({
+  node: { id, slug, frontmatter, fields, ...rest },
+}) {
   return {
     objectID: id,
     slug,
     ...frontmatter,
     ...fields,
     ...rest,
-  }
+  };
 }
-
-  
 
 const queries = [
   {
@@ -42,6 +42,6 @@ const queries = [
     indexName,
     settings: { attributesToSnippet: [`excerpt:20`] },
   },
-]
+];
 
-module.exports = queries
+module.exports = queries;

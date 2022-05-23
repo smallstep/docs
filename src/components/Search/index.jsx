@@ -1,22 +1,22 @@
-import algoliasearch from "algoliasearch/lite"
-import { createRef, default as React, useState, useMemo } from "react"
-import { InstantSearch } from "react-instantsearch-dom"
-import { ThemeProvider } from "styled-components"
-import StyledSearchBox from "./styled-search-box"
-import StyledSearchResult from "./styled-search-result"
-import StyledSearchRoot from "./styled-search-root"
-import useClickOutside from "./use-click-outside"
+import algoliasearch from 'algoliasearch/lite';
+import { createRef, default as React, useState, useMemo } from 'react';
+import { InstantSearch } from 'react-instantsearch-dom';
+import { ThemeProvider } from 'styled-components';
+import StyledSearchBox from './styled-search-box';
+import StyledSearchResult from './styled-search-result';
+import StyledSearchRoot from './styled-search-root';
+import useClickOutside from './use-click-outside';
 
 const theme = {
-  foreground: "#050505",
-  background: "white",
-  faded: "#888",
-}
+  foreground: '#050505',
+  background: 'white',
+  faded: '#888',
+};
 
 export default function Search({ indices }) {
-  const rootRef = createRef()
-  const [query, setQuery] = useState()
-  const [hasFocus, setFocus] = useState(false)
+  const rootRef = createRef();
+  const [query, setQuery] = useState();
+  const [hasFocus, setFocus] = useState(false);
   const searchClient = useMemo(
     () =>
       algoliasearch(
@@ -24,9 +24,9 @@ export default function Search({ indices }) {
         process.env.GATSBY_ALGOLIA_SEARCH_KEY
       ),
     []
-  )
+  );
 
-  useClickOutside(rootRef, () => setFocus(false))
+  useClickOutside(rootRef, () => setFocus(false));
 
   return (
     <ThemeProvider theme={theme}>
@@ -44,5 +44,5 @@ export default function Search({ indices }) {
         </InstantSearch>
       </StyledSearchRoot>
     </ThemeProvider>
-  )
+  );
 }

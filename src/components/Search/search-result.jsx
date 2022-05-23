@@ -1,47 +1,54 @@
-import { Link } from "gatsby"
-import { default as React } from "react"
+import { Link } from 'gatsby';
+import { default as React } from 'react';
 import {
   connectStateResults,
   Highlight,
   Hits,
   Index,
   Snippet,
-} from "react-instantsearch-dom"
+} from 'react-instantsearch-dom';
 
 const HitCount = connectStateResults(({ searchResults }) => {
-  const hitCount = searchResults && searchResults.nbHits
+  const hitCount = searchResults && searchResults.nbHits;
 
   return hitCount > 0 ? (
     <div className="HitCount">
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </div>
-  ) : null
-})
+  ) : null;
+});
 
 const PageHit = ({ hit }) => (
+  //fix to have the cli-referece pages go to the correct slug. Graphql queries miss /docs and /step-cli/reference/...
   <div>
-    <Link to= {(hit.title[0] == hit.title[0].toUpperCase()) ? `/docs/${hit.slug}` : `/docs/step-cli/reference/${hit.slug}`}>
+    <Link
+      to={
+        hit.title[0] == hit.title[0].toUpperCase()
+          ? `/docs/${hit.slug}`
+          : `/docs/step-cli/reference/${hit.slug}`
+      }
+    >
       <h4>
         <Highlight attribute="title" hit={hit} tagName="mark" />
       </h4>
     </Link>
     <Snippet attribute="excerpt" hit={hit} tagName="mark" />
   </div>
-)
+);
 
 const HitsInIndex = ({ index }) => (
   <Index indexName={index.name}>
     <HitCount />
     <Hits className="Hits" hitComponent={PageHit} />
   </Index>
-)
+);
 
 const SearchResult = ({ indices, className }) => (
   <div className={className}>
-    {indices.map(index => (
+    {indices.map((index) => (
       <HitsInIndex index={index} key={index.name} />
     ))}
   </div>
-)
+);
 
-export default SearchResult
+export default SearchResult;
