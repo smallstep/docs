@@ -2,7 +2,7 @@ import styled, { css } from 'styled-components';
 import SearchBox from './search-box';
 
 const open = css`
-  width: 15em;
+  width: 18em;
   background: ${({ theme }) => theme.background};
   cursor: text;
   margin: 0em;
@@ -33,5 +33,6 @@ export default styled(SearchBox)`
     margin-left: 0.8em;
     color: ${({ theme }) => theme.foreground};
     pointer-events: none;
+    
   }
 `;

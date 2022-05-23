@@ -11,7 +11,7 @@ const Popover = css`
   top: 100%;
   margin-top: 0.5em;
   width: 80vw;
-  max-width: 30em;
+  max-width: 26.5em;
   box-shadow: 0 0 5px 0;
   padding: 1em;
   border-radius: 2px;
@@ -30,7 +30,7 @@ export default styled(SearchResult)`
   .Hits {
     ul {
       list-style: none;
-      margin-left: 0;
+      margin-left: -2em;
     }
 
     li.ais-Hits-item {
@@ -46,13 +46,4 @@ export default styled(SearchResult)`
     }
   }
 
-  .ais-PoweredBy {
-    display: flex;
-    justify-content: flex-end;
-    font-size: 80%;
-
-    svg {
-      width: 70px;
-    }
-  }
 `;
