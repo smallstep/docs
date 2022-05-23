@@ -45,5 +45,4 @@ export default styled(SearchResult)`
       }
     }
   }
-
 `;

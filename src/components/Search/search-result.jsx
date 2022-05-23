@@ -1,6 +1,6 @@
 import { Link } from 'gatsby';
 import { default as React } from 'react';
-import {Tile, Paragraph} from '@smallstep/step-ui'
+import { Tile, Paragraph } from '@smallstep/step-ui';
 
 import {
   connectStateResults,
@@ -23,17 +23,17 @@ const HitCount = connectStateResults(({ searchResults }) => {
 const PageHit = ({ hit }) => (
   <div>
     <Tile>
-    <Link
-      to={
-        hit.title[0] === hit.title[0].toUpperCase()
-          ? `/docs/${hit.slug}`
-          : `/docs/step-cli/reference/${hit.slug}`
-      }
-    >
-      <Paragraph>
-        <Highlight attribute="title" hit={hit} tagName="mark" />
-      </Paragraph>
-    </Link>
+      <Link
+        to={
+          hit.title[0] === hit.title[0].toUpperCase()
+            ? `/docs/${hit.slug}`
+            : `/docs/step-cli/reference/${hit.slug}`
+        }
+      >
+        <Paragraph>
+          <Highlight attribute="title" hit={hit} tagName="mark" />
+        </Paragraph>
+      </Link>
       <Snippet attribute="excerpt" hit={hit} tagName="mark" />
     </Tile>
   </div>

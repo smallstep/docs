@@ -33,6 +33,5 @@ export default styled(SearchBox)`
     margin-left: 0.8em;
     color: ${({ theme }) => theme.foreground};
     pointer-events: none;
-    
   }
 `;

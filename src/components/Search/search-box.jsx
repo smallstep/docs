@@ -1,6 +1,6 @@
 import React from 'react';
 import { connectSearchBox } from 'react-instantsearch-dom';
-import {TextField} from '@smallstep/step-ui'
+import { TextField } from '@smallstep/step-ui';
 
 export default connectSearchBox(
   ({ refine, currentRefinement, className, onFocus }) => (
