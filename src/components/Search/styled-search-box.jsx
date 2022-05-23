@@ -8,7 +8,6 @@ const open = css`
   margin: 0em;
 `;
 
-
 export default styled(SearchBox)`
   display: flex;
   flex-direction: row;

@@ -19,7 +19,6 @@ const HitCount = connectStateResults(({ searchResults }) => {
 });
 
 const PageHit = ({ hit }) => (
-  //fix to have the cli-referece pages go to the correct slug. Graphql queries miss /docs and /step-cli/reference/...
   <div>
     <Link
       to={
