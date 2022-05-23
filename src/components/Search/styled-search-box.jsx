@@ -8,13 +8,6 @@ const open = css`
   margin: 0em;
 `;
 
-const closed = css`
-  width: 0;
-  background: transparent;
-  cursor: pointer;
-  margin-left: 16.8em;
-  padding-left: 1em;
-`;
 
 export default styled(SearchBox)`
   display: flex;

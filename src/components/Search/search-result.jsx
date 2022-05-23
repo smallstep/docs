@@ -23,7 +23,7 @@ const PageHit = ({ hit }) => (
   <div>
     <Link
       to={
-        hit.title[0] == hit.title[0].toUpperCase()
+        hit.title[0] === hit.title[0].toUpperCase()
           ? `/docs/${hit.slug}`
           : `/docs/step-cli/reference/${hit.slug}`
       }
