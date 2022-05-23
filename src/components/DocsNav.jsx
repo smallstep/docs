@@ -81,7 +81,7 @@ const DocsNav = ({ pathname, submenusRef }) => {
       ));
   };
   const searchIndices = [
-    { name: `pages_replica_dont_delete`, title: `pages_replica_dont_delete` },
+    { name: `IndexOfPages_Replica`, title: `IndexOfPages_Replica` },
   ];
   return (
     <>

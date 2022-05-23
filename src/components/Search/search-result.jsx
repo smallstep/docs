@@ -1,5 +1,6 @@
 import { Link } from 'gatsby';
 import { default as React } from 'react';
+
 import {
   connectStateResults,
   Highlight,
