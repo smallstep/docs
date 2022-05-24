@@ -1,0 +1,28 @@
+## I want to get a certificate for the service running in a container
+
+There’s a wide range of use cases for certificates *inside* containers, depending on what you're running. Since you can run any application/service inside a container, asking why a container might need a certificate is roughly equivalent to asking why an application/service might need a certificate. Here are a few examples. 
+
+- A container running Redis or Postgres may need a server TLS certificate.
+- A container running a program that connects to Redis or Postgres using mTLS might need a client TLS certificate
+- You may want to enable service-to-service mTLS everywhere
+
+There are two primary patterns used to get certificates to containers
+
+ a `[kubernetes.io/tls](http://kubernetes.io/tls)` secret
+
+Let’s take a quick digression into TLS secrets. Kubernetes has the concept of Resources, which are typically YAML files with some data that are managed by the Kubernetes API Server, and that you can volume mount into containers and authorize users and other components to interact with. The `[kubernetes.io/tls](http://kubernetes.io/tls)` Secret type is a specific sort of secret that's designed to hold an x509 certificate (`tls.crt`) and key (`tls.key`) for use with TLS ([learn more](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets)). Like any other Secret, TLS Secrets can be mounted into pods, read/written by clients with appropriate access, and can be referenced by some other Resource types.
+
+Delivering the certificate directly to the container. 
+
+Add autocert background here 
+
+### Our Recommendation
+
+When you want to get a certificate to a container in Kubernetes, you must first ask:
+
+**Do you trust the backing datastore you're using for Kubernetes (often this is `etcd`)?** This datastore is used for Kubernetes TLS Secrets and is where the certificate and private keys are stored. Depending on how your datastore is configured, the data may or may not be encrypted. 
+
+Here are two common answers to this question and what we recommend:
+
+- I trust my backing datastore and want to use TLS secrets - we recommend using Smallstep Certificate Manager in combination with step-issuer and the [Kubernetes cert-manager](https://cert-manager.io/docs/) utility. You can find the detailed instructions here.
+- I want to deliver certs directly to the container - we recommend using Smallstep Certificate Manager in combination with [Autocert](https://github.com/smallstep/autocert). You can find detailed instructions here.
