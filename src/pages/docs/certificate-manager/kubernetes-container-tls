@@ -26,3 +26,14 @@ Here are two common answers to this question and what we recommend:
 
 - I trust my backing datastore and want to use TLS secrets - we recommend using Smallstep Certificate Manager in combination with step-issuer and the [Kubernetes cert-manager](https://cert-manager.io/docs/) utility. You can find the detailed instructions here.
 - I want to deliver certs directly to the container - we recommend using Smallstep Certificate Manager in combination with [Autocert](https://github.com/smallstep/autocert). You can find detailed instructions here.
+
+### Extra Credit: I want to use ACME
+
+You may also want to consider consolidating certificate automation around the ACME protocol. This approach can be useful when deploying certificates across a broader infrastructure than Kubernetes. You can learn more about the benefits of ACME [here](https://smallstep.com/blog/private-acme-server/). 
+
+ACME can be used with Kubernetes TLS Secrets or with certificates delivered directly to the container. Again you will need to decide if you trust the backing datastore. 
+
+Here are the ACME solutions we recommend:
+
+- **I trust my backing datastore and want to use ACME and TLS secrets**. We recommend using Smallstep Certificate Manager in combination with an ACME RA and the [Kubernetes cert-manager](https://cert-manager.io/docs/) utility using a TLS Secret. You can find the detailed instructions here.
+- **I want to deliver certs directly to the container**. We recommend using Smallstep Certificate Manager in combination with an ACME RA and the [Kubernetes cert-manager](https://cert-manager.io/docs/) utility using the [CSI driver](https://cert-manager.io/docs/usage/csi/). You can find the detailed instructions here.
