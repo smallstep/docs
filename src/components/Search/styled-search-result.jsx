@@ -1,5 +1,5 @@
-//import styled, { css } from 'styled-components';
-import { styled, css } from '@material-ui/core/styles';
+import styled, { css } from 'styled-components';
+//import { styled, css } from '@material-ui/core/styles';
 import SearchResult from './search-result';
 
 const Popover = css`
@@ -16,7 +16,7 @@ const Popover = css`
   box-shadow: 0 0 5px 0;
   padding: 1em;
   border-radius: 2px;
-  background: black;
+  background: ${({ theme }) => theme.background};
 `;
 
 export default styled(SearchResult)`
@@ -38,7 +38,7 @@ export default styled(SearchResult)`
       margin-bottom: 1em;
 
       a {
-        color: red;
+        color: ${({ theme }) => theme.foreground};
 
         h4 {
           margin-bottom: 0.2em;
