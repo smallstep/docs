@@ -209,7 +209,7 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   ```bash
   $ step certificate create "Example Intermediate CA" \
        $(step path)/certs/intermediate_ca.crt \
-	   $(step path)/secrets/intermediate_ca_key \
+       $(step path)/secrets/intermediate_ca_key \
        --template intermediate.tpl \
        --ca $(step path)/certs/root_ca.crt \
        --ca-key $(step path)/secrets/root_ca_key \
