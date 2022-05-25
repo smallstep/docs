@@ -401,24 +401,37 @@ Please enter the password to decrypt the content encryption key:
 
 #### Rekeying a JWK provisioner
 
-**Note:** This section requires [`jq`](https://stedolan.github.io/jq/).
-
-1. Create a new JWK key pair.
-
-  ```shell
-  step crypto jwk create jwk.pub jwk.priv
-  ```
-
-2. Update the provisioner.
+1. Update the provisioner.
 
   Run the following, changing the provisioner name in the command to match your configuration:
 
   ```shell
-  step ca provisioner update you@smallstep.com \
-    --public-key=jwk.pub --private-key=jwk.priv
+  step ca provisioner update you@smallstep.com --create
   ```
 
-4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+#### Removing the encrypted private key from a JWK provisioner
+
+The encrypted private key stored in the JWK provisioner configuration and published to the public `/provisioners` endpoint is provided for client convenience.
+It is not required for `step-ca` to operate.
+To remove this key:
+
+1. Update the provisioner.
+
+  Run the following, changing the provisioner name in the command to match your configuration:
+
+  ```shell
+  step ca provisioner update you@smallstep.com --private-key ""
+  ```
+
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
 
   (Skip this step if you have enabled remote provisioner administration.)
 
