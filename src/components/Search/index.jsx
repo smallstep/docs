@@ -1,17 +1,28 @@
 import algoliasearch from 'algoliasearch/lite';
 import { createRef, default as React, useState, useMemo } from 'react';
 import { InstantSearch } from 'react-instantsearch-dom';
-import { ThemeProvider } from 'styled-components';
+import { createTheme } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
 import StyledSearchBox from './styled-search-box';
 import StyledSearchResult from './styled-search-result';
 import StyledSearchRoot from './styled-search-root';
 import useClickOutside from './use-click-outside';
 
-const theme = {
-  foreground: '#050505',
-  background: 'white',
-  faded: '#888',
-};
+// const theme = {
+//   foreground: '#050505',
+//   background: 'white',
+//   faded: '#888',
+// };
+const theme = createTheme({
+  palette: {
+    primary: {
+      light: '#757ce8',
+      main: '#3f50b5',
+      dark: '#002884',
+      contrastText: '#fff',
+    },
+  },
+});
 
 export default function Search({ indices }) {
   const rootRef = createRef();
