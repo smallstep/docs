@@ -901,6 +901,16 @@ Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
 See the [certificate revocation section](#certificate-revocation) for details.
 
+#### Renewal after expiry: For intermittently-connected devices
+
+You can configure a provisioner to allow certificates to be renewed after they expire.
+This is not the default behavior,
+but it's useful if you have devices with intermittent network connectivity.
+The device will be able to renew its certificate the next time it has network access,
+provided the certificate has not been revoked.
+
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) management commands. See [managing provisioners](/docs/step-ca/provisioners/#managing-provisioners).
+
 ## X.509 Certificate Revocation
 
 The hardware, software and policies for managing and distributing public keys and certificates is called Public Key Infrastructure (PKI). 

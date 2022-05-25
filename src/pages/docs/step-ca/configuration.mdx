@@ -90,6 +90,7 @@ CA's keys.
       "maxTLSCertDuration": "24h",
       "defaultTLSCertDuration": "24h",
       "disableRenewal": false,
+      "allowRenewAfterExpiry": false,
       "minHostSSHCertDuration": "5m",
       "maxHostSSHCertDuration": "1680h",
       "defaultHostSSHCertDuration": "720h",
@@ -239,6 +240,10 @@ CA's keys.
     - **maxTLSCertDuration**: do not allow certificates with a duration greater than this value.
 
     - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
+
+    - **disableRenewal**: do not allow any certificates to be renewed.
+
+    - **allowRenewAfterExpiry**: allow expired certificates to be renewed.
 
     - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
 
