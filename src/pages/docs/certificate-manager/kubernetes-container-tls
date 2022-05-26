@@ -2,6 +2,7 @@
 title: Kubernetes Container TLS
 html_title: Kubernetes Container TLS
 description: Best practices and detailed instructions for delivering certificates to Kubernetes containers.
+image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 There’s a wide range of use cases for certificates *inside* containers, depending on what you're running. 
