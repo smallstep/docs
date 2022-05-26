@@ -2,6 +2,7 @@
 title: Kubernetes Ingress TLS
 html_title: Kubernetes Ingress TLS
 description: Best practices and detailed instructions for configuring Kubernetes ingress TLS.
+image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 ## Connecting things outside Kubernetes to things inside Kubernetes
