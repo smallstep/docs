@@ -259,7 +259,7 @@ CA's keys.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
-  - **disableIssuedAtCheck**: disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
+  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
  against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
   - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](/docs/step-ca/provisioners) for details.
@@ -268,7 +268,7 @@ CA's keys.
 
     - **options**: Each provisioner can define an optional `options` attribute. This attribute allows an operator to set templates that will be applied to all X.509 or SSH certificates generated using the provisioner. See the [templates documentation](/docs/step-ca/templates) for details.
 
-  - **password**: plain text password for starting the CA. Used to decrypt the intermediate private key. 
+  - **password**: ☠️  plain text password for starting the CA. Used to decrypt the intermediate private key. 
 
     <Alert severity="warning">
       <div> 
