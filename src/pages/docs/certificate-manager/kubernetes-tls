@@ -1,8 +1,9 @@
---
+---
 title: Kubernetes TLS
 html_title: Kubernetes TLS
 description: Best practices and detailed instructions for configuring Kubernetes TLS.
---
+image: /graphics/kubernetes-tls-unfurl.png
+---
 
 TLS is the cryptographic protocol that powers encryption for many network applications. 
 And for Kubernetes TLS, you need certificates. 
