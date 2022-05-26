@@ -22,6 +22,9 @@ step beta ca provisioner get <name>
 
 **step beta ca provisioner get** gets a provisioner from the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Options
 
 
@@ -56,5 +59,4 @@ Get a provisioner by name:
 ```shell
 $ step beta ca provisioner get acme
 ```
-
 

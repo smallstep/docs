@@ -63,18 +63,14 @@ step beta ca provisioner update <name>
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
 [--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
 [--root=<file>] [--context=<name>]
-
-step beta ca provisioner update <name> [--force-cn] [--challenge=<challenge>] 
-[--capabilities=<capabilities>] [--include-root] [--minimum-public-key-length=<length>] 
-[--encryption-algorithm-identifier=<id>] [--admin-cert=<file>] [--admin-key=<file>] 
-[--admin-provisioner=<name>] [--admin-subject=<subject>] [--password-file=<file>] 
-[--ca-url=<uri>] [--root=<file>] [--context=<name>]
-
 ```
 
 ## Description
 
 **step ca provisioner update** updates a provisioner in the CA configuration.
+
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
 
 ## Positional arguments
 
@@ -208,11 +204,11 @@ The minimum public key `length` of the SCEP RSA encryption key
 **--encryption-algorithm-identifier**=`id`
 The `id` for the SCEP encryption algorithm to use.
       Valid values are 0 - 4, inclusive. The values correspond to:
-      0: DES-CBC, 
+      0: DES-CBC,
       1: AES-128-CBC,
-      2: AES-256-CBC, 
-      3: AES-128-GCM, 
-      4: AES-256-GCM. 
+      2: AES-256-CBC,
+      3: AES-128-GCM,
+      4: AES-256-GCM.
       Defaults to DES-CBC (0) for legacy clients.
 
 **--aws-account**=`id`

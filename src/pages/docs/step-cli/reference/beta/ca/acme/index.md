@@ -9,17 +9,17 @@ menu:
 ---
 
 ## Name
-**step beta ca acme** -- manage ACME
+**step beta ca acme** -- manage ACME settings
 
 ## Usage
 
 ```raw
-step beta ca acme <subcommand> [arguments] [global-flags] [subcommand-flags]
+step ca acme <subcommand> [arguments] [global-flags] [subcommand-flags]
 ```
 
 ## Description
 
-**step beta ca acme** command group provides facilities for managing ACME.
+**step ca acme** command group provides facilities for managing ACME.
 
 ## Commands
 
