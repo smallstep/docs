@@ -25,6 +25,9 @@ step beta ca provisioner <subcommand> [arguments] [global-flags] [subcommand-fla
 **step beta ca provisioner** command group provides facilities for managing the
 certificate authority provisioners.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca provisioner ...' going forwards.
+
 A provisioner is an entity that controls provisioning credentials, which are
 used to generate provisioning tokens.
 

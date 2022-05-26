@@ -22,6 +22,9 @@ step beta ca admin remove <subject> [--provisioner=<name>]
 
 **step beta ca admin remove** removes an admin from the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Positional arguments
 
 `name`

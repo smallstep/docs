@@ -12,19 +12,20 @@ In this section we'll discuss the different provisioners, their target use cases
 ## Overview
 
 - [Authorization Scope by Provisioner](#authorization-scope-by-provisioner)
-- [Managing Provisioners](#managing-provisioners)
-- [Modifiers](#modifiers)
-- [JWK](#jwk)
-- [OAuth/OIDC Single Sign-on](#oauthoidc-single-sign-on)
-- [X5C - X.509 Certificate](#x5c-x509-certificate)
-- [Nebula](#nebula)
-- [SSHPOP - SSH Certificate](#sshpop-ssh-certificate)
-- [ACME](#acme)
-- [SCEP](#scep)
-- [K8sSA - Kubernetes Service Account](#k8ssa-kubernetes-service-account)
-- [Cloud Provisioners](#cloud-provisioners)
+- [Provisioner Management](#provisioner-management)
+- [Remote Provisioner Management](#remote-provisioner-management)
+- [Provisioner Types](#provisioner-types)
+  - [JWK](#jwk)
+  - [OAuth/OIDC Single Sign-on](#oauthoidc-single-sign-on)
+  - [X5C - X.509 Certificate](#x5c-x509-certificate)
+  - [SSHPOP - SSH Certificate](#sshpop-ssh-certificate)
+  - [ACME](#acme)
+  - [Nebula](#nebula)
+  - [SCEP](#scep)
+  - [K8sSA - Kubernetes Service Account](#k8ssa-kubernetes-service-account)
+  - [Cloud Provisioners](#cloud-provisioners)
 
-### Authorization Scope by Provisioner
+## Authorization Scope by Provisioner
 
 Every provisioner has a slightly different scope of authorization. Below is a
 table detailing the authorization capabilities of each provisioner.
@@ -59,7 +60,33 @@ user certificates.
 It's important to understand the capabilities and limitations when selecting a 
 provisioner for a given workload.
 
-### Managing Provisioners
+## Provisioner Management
+
+Use the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
+
+<Alert severity="warning">
+  <div>
+	<p><b>May I edit <Code>ca.json</Code> directly?</b></p>
+    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
+Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
+	</div>
+</Alert>
+
+Some provisioner options override global defaults for your CA.
+For a list of global options, see the [configuration guide](/docs/step-ca/configuration) section for the `authority` configuration block.
+
+A remote provisioner management API can be enabled in `step-ca`.
+It is disabled by default.
+With remote provisioner management, the CA's provisioner configuration is stored in the database instead of `ca.json`. (The global CA configuration remains in `ca.json`.)
+
+This feature can be useful if you
+have multiple CA administrators,
+[run several load-balanced](/docs/step-ca/certificate-authority-server-production/#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
+
+See [Remote Provisioner Management](#remote-provisioner-management) for more.
+
+### Common Provisioner Operations
 
 Common provisioner operations include:
 
@@ -68,139 +95,177 @@ Common provisioner operations include:
 - [Listing all provisioner](#list-all-provisioners)
 - [Modifying the configuration of an existing provisioner](#modify-a-provisioner)
 
-<Alert severity="info">
-  <div>
-    Remember to <Code>SIGHUP</Code> or restart your <Code>step-ca</Code> process after any provisioner changes.
-  </div>
-</Alert>
+Unless you are using [remote provisioner management](#remote-provisioner-management), you must send a `SIGHUP` signal, or restart the `step-ca` process, for changes to your provisioner configuration to take effect.
 
 #### Add a provisioner
 
-See [`step ca provisioner add --help`](/docs/step-cli/reference/ca/provisioner/add) for documentation and examples on adding provisioners.
+Use [`step ca provisioner add`](/docs/step-cli/reference/ca/provisioner/add) to add a provisioner:
 
-We strongly recommend using the [`step ca provisioner add [...]`](/docs/step-cli/reference/ca/provisioner/add) utility
-to generate provisioners in your `ca.json` configuration.
-We often encode fields differently in the JSON than you might expect.
-And you can always modify the JSON configuration manually after using the utility.
+```bash
+step ca provisioner add acme --type ACME
+```
+
+See the [command reference](/docs/step-cli/reference/ca/provisioner/add) for complete documentation and examples.
 
 #### Remove a provisioner
 
-See [`step ca provisioner remove --help`](/docs/step-cli/reference/ca/provisioner/remove) for documentation and examples on removing provisioners.
+Use [`step ca provisioner remove`](/docs/step-cli/reference/ca/provisioner/remove) to remove provisioners:
 
-You can also edit the `ca.json` configuration directly and remove the entire block
+```bash
+step ca provisioner remove acme
+```
+
+You can also edit the `ca.json` configuration file and remove the entire block
 containing the provisioner you'd like to remove.
 
 #### List all provisioners
 
-To get a list of all of your current provisioners, run the following command in your terminal:
-
-```shell
-step ca provisioner list
-```
+To get a list of all of your current provisioners, use [`step ca provisioner list`](/docs/step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
 
 #### Modify a provisioner
 
-Modify a provisioner by directly modifying the `ca.json` configuration.
+Use [`step ca provisioner update`](/docs/step-cli/reference/ca/provisioner/update) to update provisioner configurations:
 
-The following diff is an example of modifications in `ca.json` that add few
-configuration options to a provisioner:
-
-```diff
---- a/ca.json
-+++ b/ca.json
-@@ -86,7 +86,10 @@
-                 "type": "JWK",
-                 "name": "max@smallstep.com",
-                 "claims": {
--                    "enableSSHCA": true
-+                    "enableSSHCA": true,
-+                    "minTLSCertDuration": "20m",
-+                    "maxTLSCertDuration": "3h",
-+                    "defaultTLSCertDuration": "2"
-                 }
-                },
-                {
+```bash
+step ca provisioner update acme \
+   --x509-min-dir=20m \
+   --x509-max-dir=72h \
+   --x509-default-dur=36h
 ```
 
-In this example we've modified the `min, max, and default` duration for TLS
-certificates generated by this provisioner.
+In this example we've modified the minumum, maximum, and default durations for TLS certificates generated by this provisioner.
 
-Provisioner configuration can be used to affect X.509 and SSH certificate
-lifetimes, extensions, and any other attribute belonging to the certificate.
-See the [Modifiers](#modifiers) section for more details.
+Provisioner configuration can be used to affect X.509 and SSH certificate lifetimes, extensions, and templates.
+There are some provisioner-specific options,
+which are covered by the documentation for each provisioner type, below.
 
-### Modifiers
+## Remote Provisioner Management
 
-There are optional configuration modifiers that apply to all provisioner types.
+**This feature is disabled by default.**
 
-- [`claims`](#claims)
-- [`options`](#options)
+When remote provisioner management is enabled, your provisioner configuration is
+stored in the database, rather than in `ca.json`.
+Provisioner configuration is managed by running [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) commands locally or remotely.
+These commands require you to sign in as an Admin user.
 
-#### Claims
+### Enable Remote Provisioner Management
 
-Each provisioner can define an optional `claims` attribute. The settings in this
-attribute override any settings in the global `claims` attribute in the authority
-configuration.
+To enable remote provisioner management, update your `"authority"` block in `ca.json` to include the following:
 
-Example claims:
-
-```json nocopy
-...
-"claims": {
-    "minTLSCertDuration": "5m",
-    "maxTLSCertDuration": "24h",
-    "defaultTLSCertDuration": "24h",
-    "disableRenewal": false,
-    "minHostSSHCertDuration": "5m",
-    "maxHostSSHCertDuration": "1680h",
-    "minUserSSHCertDuration": "5m",
-    "maxUserSSHCertDuration": "24h",
-    "enableSSHCA": true
+```json
+"authority": {
+		"enableAdmin": true,
+		"provisioners": []
 },
-...
 ```
 
-**X.509 CA properties**
+The `"provisioners"` list must be empty, and `"enableAdmin"` must be set to `true`.
 
-- **minTLSCertDuration**: do not allow certificates with a duration less than this value.
+### Bootstrap Remote Provisioner Management
 
-- **maxTLSCertDuration**: do not allow certificates with a duration greater than this value.
+During this step:
+- An initial [JWK](#jwk) provisioner called Admin JWK will be added to the database.
+- An initial Super Admin user, with username `step`, will be created and linked to the Admin JWK provisioner.
 
-- **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
+"Admins" can remotely manage provisioners.
+"Super Admin" are Admins that can also manage the list of Admins for the CA.
 
-**SSH CA properties**
+1. Stop `step-ca` if it is running.
+2. Start `step-ca` from the command line.
+   You will be prompted for a password that will encrypt the Admin JWK provisioner.
 
-- **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
+<Alert severity="info">
+  <div>
+	<p><b>Who can manage provisioner configurations remotely?</b></p>
+	<p>Only Admin users can manage CA provisioners remotely.
+	Admin users are disabled by default,
+	and are enabled when <Code>enableAdmin</Code> is set to <Code>true</Code> for an <Code>authority</Code>.
+	The default Admin user is a Super Admin called `step`.
+	Super Admins are special because they can manage Admins, using <a href="/step-cli/reference/ca/admin"><Code>step ca admin</Code></a>.
+	</p>
+  </div>
+</Alert>
 
-- **maxUserSSHCertDuration**: do not allow certificates with a duration greater than this value.
+### Create An Admin User
 
-- **defaultUserSSHCertDuration**: if no certificate validity period is specified, use this value.
+To perform CA administrative operations, you sign into that provisioner as an Admin.
 
-- **minHostSSHCertDuration**: do not allow certificates with a duration less than this value.
+As a Super Admin, lets create an Admin user linked to the Admin JWK provisioner:
 
-- **maxHostSSHCertDuration**: do not allow certificates with a duration greater than this value.
+```bash
+step ca admin add carl "Admin JWK"
+```
 
-- **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
+Output:
 
-- **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
+```bash
+SUBJECT    PROVISIONER        TYPE
+carl       Admin JWK (JWK)    ADMIN
+```
 
-#### Options
+An Admin (or Super Admin) user is a combination of a username (aka a subject) and a provisioner.
 
-Each provisioner can define an optional `options` attribute. This attribute
-allows an operator to set templates that will be applied to all X.509 or SSH 
-certificates generated using the provisioner.
+The Admin and Super Admin privileges **are not scoped to a provisioner**:
+Admins can modify any provisioner configuration.
+Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
-Learn more about [configuring provisioner templates](/docs/step-ca/templates).
+### Use Remote Provisioner Management
+
+You're all set. 🎉
+
+You can use the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
+
+You will be asked for a username and provisioner password to sign in.
+**The default username is `step`, and the default provisioner is called `Admin JWK`.**
+
+#### Unattended Remote Provisioner Management
+
+If you want to manage provisioners remotely using a script or an Infrastructure as Code (IaC) tool,
+you will need an _administrative certificate_ and key.
+
+An administrative certificate must meet the following criteria:
+- The Subject (or any SAN) must match the name of an Admin or Super Admin.
+- The certificate must be issued by the provisioner of the Admin or Super Admin.
+- The certificate must be valid and unexpired.
+- A passively revoked certificate is valid until it expires; for immediate revocation, remove the admin instead of revoking the certificate.
+
+To create an admin certificate, run:
+
+```bash
+step ca certificate step admin.crt admin.key --provisioner "Admin JWK"
+```
+
+Output:
+
+```
+✔ Provisioner: Admin JWK (JWK) [kid: 5UasaZcgkI_PxQeZqssfq5mzFnGHOWL5g5kDt07Vc1k]
+Please enter the password to decrypt the provisioner key:
+✔ CA: https://localhost
+✔ Certificate: admin.crt
+✔ Private Key: admin.key
+```
+
+With that certificate, you can use it as follows:
+
+```bash
+step ca provisioner add ... --admin-cert=admin.crt --admin-key=admin.key
+```
+
+If the `admin.crt` represents a Super Admin, the same flags can also be used to manage Admins:
+
+```bash
+step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
+```
+
+
+## Provisioner Types
 
 ### JWK
 
 JWK is the default provisioner type. It uses public-key cryptography to sign and
 validate a JSON Web Token (JWT).
 
-The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK
-provisioner when [`step ca init`](/docs/step-cli/reference/ca/init) is used, and it also contains commands to add
-([`step ca provisioner add`](/docs/step-cli/reference/ca/provisioner/add)) and remove ([`step ca provisioner remove`](/docs/step-cli/reference/ca/provisioner/remove)) JWK
-provisioners.
+The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`](/docs/step-cli/reference/ca/init) is used.
 
 #### Example
 
@@ -277,9 +342,11 @@ We can use [`step crypto jwe decrypt`](/docs/step-cli/reference/crypto/jwe/decry
 
 <CodeBlock
   language="shell-session"
-  copyText="echo ey...lw | step crypto jwe decrypt  | jq"
 >
-{`$ echo ey...lw | step crypto jwe decrypt  | jq
+{`$ step ca provisioner list \\
+    | jq -r '.[] | select(.name == "you@smallstep.com") | .encryptedKey' \\
+	| step crypto jwe decrypt \\
+	| jq
 Please enter the password to decrypt the content encryption key:
 {
   "use": "sig",
@@ -300,9 +367,8 @@ Please enter the password to decrypt the content encryption key:
   Run the following, changing the provisioner name in the `jq` command to match your configuration:
 
   ```shell
-  OLD_ENCRYPTED_KEY=$(jq -r \
-     '.authority.provisioners[] | select(.name == "carl@example.com").encryptedKey' \
-     $(step path)/config/ca.json)
+  OLD_ENCRYPTED_KEY=$(step ca provisioner list \
+     | jq -r '.[] | select(.name == "you@smallstep.com").encryptedKey')
   ```
 
 2. Update the encrypted key password.
@@ -318,20 +384,18 @@ Please enter the password to decrypt the content encryption key:
 
   You'll be asked for the old and new passwords.
 
-3. Update `ca.json`.
+3. Update the provisioner.
   
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+  Run the following, changing the provisioner name in the command to match your configuration:
   
   ```shell
-  jq --tab \
-     --arg encryptedkey "$ENCRYPTED_KEY" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
-      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  step ca provisioner update you@smallstep.com \
+    --private-key=<(echo -n "$ENCRYPTED_KEY")
   ```
   
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
-  
 4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
 
   ```shell
   killall -i -s SIGHUP step-ca
@@ -339,42 +403,39 @@ Please enter the password to decrypt the content encryption key:
 
 #### Rekeying a JWK provisioner
 
-**Note:** This section requires [`jq`](https://stedolan.github.io/jq/).
+1. Update the provisioner.
 
-1. Create a new JWK key pair:
+  Run the following, changing the provisioner name in the command to match your configuration:
 
   ```shell
-  step crypto jwk create jwk.pub jwk.priv
+  step ca provisioner update you@smallstep.com --create
   ```
 
-2. Update the `"key"` field in the JWK provisioner configuration block.
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
 
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
-  
+  (Skip this step if you have enabled remote provisioner administration.)
+
   ```shell
-  jq --tab \
-     --argjson jwk "$(< jwk.pub )" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com").key) = $jwk' \
-     $(step path)/config/ca.json > $(step path)/config/canew.json
+  killall -i -s SIGHUP step-ca
   ```
 
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
+#### Removing the encrypted private key from a JWK provisioner
 
-3. Format the private key and update the `"encryptedKey"` field in the provisioner configuration:
+The encrypted private key stored in the JWK provisioner configuration and published to the public `/provisioners` endpoint is provided for client convenience.
+It is not required for `step-ca` to operate.
+To remove this key:
 
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
-  
+1. Update the provisioner.
+
+  Run the following, changing the provisioner name in the command to match your configuration:
+
   ```shell
-  ENCRYPTED_KEY=(step crypto jose format < jwk.priv)
-  jq --tab \
-     --arg encryptedkey "$ENCRYPTED_KEY" \
-     '(.authority.provisioners[] | select(.name == "carl@example.com".encryptedkey) = $encryptedkey' \
-      $(step path)/config/ca.json > $(step path)/config/canew.json 
+  step ca provisioner update you@smallstep.com --private-key ""
   ```
-  
-  Inspect `$(step path)/config/canew.json` before replacing your `ca.json` with it.
 
-4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
 
   ```shell
   killall -i -s SIGHUP step-ca
@@ -463,7 +524,7 @@ One of the most common providers, and the one used in the following example, is 
 Add a Google provisioner:
 
 ```shell-session
-$ step ca provisioner add Google --type oidc --ca-config $(step path)/config/ca.json \
+$ step ca provisioner add Google --type oidc \
   --client-id 650445034027-jsjdrkiskeq9ke99ud2rqkst82ft8uch.apps.googleusercontent.com \
   --client-secret 6Q7lGMua_Oox4nA92QBXYypT \
   --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration \
@@ -662,7 +723,7 @@ generated using SSH certificates created by `step-ca`.
 An SSHPOP token is a JWT, signed by the certificate private key, with an `sshpop`
 header that contains the SSH certificate.
 
-When configured with the `--ssh` option (`step ca init --ssh`), the `ca.json`
+When configured with the `--ssh` option (`step ca init --ssh`), the CA
 will contain a default SSHPOP provisioner named `sshpop`.
 
 #### Example
@@ -754,7 +815,7 @@ see the [claims](#claims) section for all the options.
 
 <br /><br />
 
-See our [`step-ca` ACME tutorial](/docs/tutorials/acme-challenge)
+See [ACME Basics](/docs/tutorials/acme-basics)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 ### SCEP
@@ -770,7 +831,17 @@ Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chai
 
 #### Configure the Provisioner
 
-The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group does not yet support SCEP. Configure a new SCEP provisioner by adding the following to the `provisioners` section of `$(step path)/config/ca.json`:
+Add a SCEP provisoiner:
+
+```shell
+step ca provisioner add my_scep_provisioner \
+  --type SCEP --challenge "secret1234" \
+  --encryption-algorithm-identifier 2
+```
+
+The shared `challenge` should be a value that you will distribute to your SCEP clients.
+
+Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
 
 ```json
 {
@@ -781,7 +852,6 @@ The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command gro
 }
 ```
 
-- Change the `challenge` password to a value that you will distribute to your clients.
 - The `forceCN` parameter is optional. It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
 
 #### Enable the HTTP Server

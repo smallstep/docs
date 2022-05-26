@@ -136,7 +136,7 @@ a default `JWK` provisioner will be created
 and it's private key will be encrypted using the same password used to encrypt
 the root CA private key. Before deploying `step-ca` you should remove this
 provisioner and add new provisioners that are encrypted with secure, random passwords.
-See the section on [managing provisioners](/docs/step-ca/provisioners#managing-provisioners).
+See the section on [managing provisioners](/docs/step-ca/provisioners#provisioner-management).
 
 ### Use Short-Lived Certificates
 
@@ -208,10 +208,11 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   
   ```bash
   $ step certificate create "Example Intermediate CA" \
-       intermediate_ca.crt intermediate_ca_key \
+       $(step path)/certs/intermediate_ca.crt \
+       $(step path)/secrets/intermediate_ca_key \
        --template intermediate.tpl \
-       --ca root_ca.crt \
-       --ca-key root_ca_key \
+       --ca $(step path)/certs/root_ca.crt \
+       --ca-key $(step path)/secrets/root_ca_key \
        --not-after 87660h
   ```
 
@@ -231,8 +232,8 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   openssl ca \
       -config openssl.conf \
       -gencrl \
-      -keyfile root_ca_key \
-      -cert root_ca.crt \
+      -keyfile $(step path)/secrets/root_ca_key \
+      -cert $(step path)/certs/root_ca.crt \
       -out ca.crl.pem
   openssl crl \
       -inform PEM \
@@ -241,7 +242,7 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
       -out ca.crl
   ```
 
-3. Upload the DER-formatted `ca.crl` file to the location you specified in the template.
+3. Upload the DER-formatted `ca.crl` file to the distribution point URL you specified in the template.
 4. Finally, configure your `step-ca` server to use the intermediate CA you created.
 
 
@@ -474,6 +475,8 @@ A few things to consider / implement when running multiple instances of `step-ca
 
 If you need to place a load balancer or reverse proxy downstream from the CA, we recommend using layer 4 (TCP)
 load balancing or proxying (aka "TLS passthrough").
+
+We also recommend enabling [remote provisioner management](/docs/step-ca/provisioners/#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
 
 Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
 - `step` expects to be able to establish a TLS connection directly with `step-ca` using the CA's root certificate.
@@ -900,6 +903,25 @@ Be sure the user (in this example, `step`) has write access to the certificate a
 Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
 See the [certificate revocation section](#certificate-revocation) for details.
+
+#### Renewal after expiry: For intermittently-connected devices
+
+You can configure a provisioner to allow certificates to be renewed after they expire.
+This is not the default behavior,
+but it's useful if you have devices with intermittent network connectivity.
+The device will be able to renew its certificate the next time it has network access,
+provided the certificate has not been revoked.
+
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) management commands. See [managing provisioners](/docs/step-ca/provisioners/#managing-provisioners).
+
+<Alert severity="warning">
+  <div>
+	Enabling certificate renewal after expiry adds security risk.
+	Consider alternatives, such as longer certificate lifetimes.
+	If you enable this option, use the principle of least privilege and limit its availability as narrowly as possible.
+  </div>
+</Alert>
+
 
 ## X.509 Certificate Revocation
 

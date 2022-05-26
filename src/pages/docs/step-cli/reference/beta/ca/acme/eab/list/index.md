@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step beta ca acme eab list <provisioner> [<reference>]
+step ca acme eab list <provisioner> [<eab-key-reference>]
 [--limit=<number>] [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-provisioner=<string>] [--admin-subject=<string>]
 [--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
@@ -21,7 +21,7 @@ step beta ca acme eab list <provisioner> [<reference>]
 
 ## Description
 
-**step beta ca acme eab list** lists all ACME External Account Binding (EAB) Keys.
+**step ca acme eab list** lists all ACME External Account Binding (EAB) Keys.
 
 Output will go to stdout by default. If many EAB keys are stored in the ACME provisioner, output will be sent to $PAGER (when set). 
 
@@ -30,7 +30,7 @@ Output will go to stdout by default. If many EAB keys are stored in the ACME pro
 `provisioner`
 Name of the provisioner to list ACME EAB keys for
 
-`reference`
+`eab-key-reference`
 (Optional) reference (from external system) for the key to be listed
 
 
@@ -72,12 +72,12 @@ The context `name` to apply for the given command.
 
 List all ACME External Account Binding Keys:
 ```shell
-$ step beta ca acme eab list my_acme_provisioner
+$ step ca acme eab list my_acme_provisioner
 ```
 
 Show ACME External Account Binding Key with specific reference:
 ```shell
-$ step beta ca acme eab list my_acme_provisioner my_reference
+$ step ca acme eab list my_acme_provisioner my_reference
 ```
 
 

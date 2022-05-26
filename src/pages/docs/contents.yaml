@@ -75,6 +75,8 @@ step_ca:
     path: step-ca/getting-started
   - title: Basic CA Operations
     path: step-ca/basic-certificate-authority-operations
+  - title: ACME Basics
+    path: step-ca/acme-basics
   - title: Configuration
     path: step-ca/configuration
   - title: Provisioners
@@ -101,8 +103,6 @@ practical_zero_trust: []
 mutual_tls: []
 
 tutorials:
-  - title: Run a private internal ACME CA
-    path: tutorials/acme-challenge
   - title: Configure popular ACME clients to use a private CA
     path: tutorials/acme-protocol-acme-clients
   - title: Use Kubernetes cert-manager with `step-ca`

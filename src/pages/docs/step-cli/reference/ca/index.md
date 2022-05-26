@@ -18,6 +18,9 @@ menu:
       - root
       - roots
       - federation
+      - acme
+      - policy
+      - admin
 ---
 
 ## Name
@@ -98,4 +101,7 @@ $ step ca renew internal.crt internal.key \
 | **[root](root/)** | download and validate the root certificate |
 | **[roots](roots/)** | download all the root certificates |
 | **[federation](federation/)** | download all the federated certificates |
+| **[acme](acme/)** | manage ACME settings |
+| **[policy](policy/)** | manage certificate issuance policies |
+| **[admin](admin/)** | create and manage the certificate authority admins |
 

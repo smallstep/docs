@@ -22,6 +22,9 @@ step beta ca admin list [--super] [--provisioner=<name>]
 
 **step beta ca admin list** lists all admins in the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Options
 
 

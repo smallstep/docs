@@ -22,6 +22,9 @@ step beta ca admin add <subject> <provisioner> [--super]
 
 **step beta ca admin add** adds an admin to the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Positional arguments
 
 `subject`
