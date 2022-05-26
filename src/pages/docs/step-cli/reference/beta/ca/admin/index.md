@@ -25,6 +25,9 @@ step beta ca admin <subcommand> [arguments] [global-flags] [subcommand-flags]
 **step ca admin** command group provides facilities for managing the
 certificate authority admins.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 An admin is an entity that manages administrative resources (like authority
 configuration, provisioner configuration, and other admins) within a certificate
 authority.

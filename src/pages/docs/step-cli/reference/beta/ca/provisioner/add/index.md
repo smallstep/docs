@@ -72,6 +72,9 @@ step beta ca provisioner add <name> --type=SCEP [--force-cn] [--challenge=<chall
 
 **step ca provisioner add** adds a provisioner to the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Positional arguments
 
 `name`
@@ -222,11 +225,11 @@ The minimum public key `length` of the SCEP RSA encryption key
 **--encryption-algorithm-identifier**=`id`
 The `id` for the SCEP encryption algorithm to use.
       Valid values are 0 - 4, inclusive. The values correspond to:
-      0: DES-CBC, 
+      0: DES-CBC,
       1: AES-128-CBC,
-      2: AES-256-CBC, 
-      3: AES-128-GCM, 
-      4: AES-256-GCM. 
+      2: AES-256-CBC,
+      3: AES-128-GCM,
+      4: AES-256-GCM.
       Defaults to DES-CBC (0) for legacy clients.
 
 **--aws-account**=`id`

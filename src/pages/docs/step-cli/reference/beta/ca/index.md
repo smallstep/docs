@@ -31,5 +31,5 @@ commands may change, disappear, or be promoted to a different subcommand in the 
 |---|---|
 | **[admin](admin/)** | create and manage the certificate authority admins |
 | **[provisioner](provisioner/)** | create and manage the certificate authority provisioners |
-| **[acme](acme/)** | manage ACME |
+| **[acme](acme/)** | manage ACME settings |
 

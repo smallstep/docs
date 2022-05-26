@@ -19,6 +19,7 @@ This document lists, briefly describes, and links to documentation for all
   - [OIDC](#oidc)
   - [Cloud Instance Identity](#cloud-instance-identity)
   - [Kubernetes](#kubernetes)
+  - [Nebula](#nebula)
   - [Envoy Secret Discovery Service](#envoy-secret-discovery-service-sds)
 - Cryptographic Protection
   - [Cloud Key Management Services](#cloud-key-management-services)
@@ -81,6 +82,12 @@ We have two integration options with `cert-manager`:
 - Or, if you want a pure ACME solution, you can [configure `cert-manager`'s ACME Issuer to use `step-ca`](/docs/tutorials/kubernetes-acme-ca).
 
 [`autocert`][autocert] is our k8s add-on that automatically injects TLS/HTTPS certificates into your containers. It is a simple admission controller that modifies a Deployment to inject a new Pod that generates and renews the Pod's certificate. It's not designed to support k8s Ingresses. Learn more about how to [install and configure `autocert`][autocert].
+
+### Nebula
+
+The [Nebula](https://github.com/slackhq/nebula) networking service supports encrypted overlay networks. Nebula uses certificates to authenticate clients joining the network. Nebula has its own custom certificate format (it's not X.509).
+
+`step-ca` has a [Nebula provisioner](/docs/step-ca/provisioners) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
 
 ### Envoy Secret Discovery Service (SDS)
 

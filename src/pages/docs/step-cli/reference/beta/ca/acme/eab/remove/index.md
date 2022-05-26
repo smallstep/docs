@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step beta ca acme eab remove <provisioner> <key_id>
+step ca acme eab remove <provisioner> <eab-key-id>
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-provisioner=<string>] [--admin-subject=<string>]
 [--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
@@ -21,14 +21,14 @@ step beta ca acme eab remove <provisioner> <key_id>
 
 ## Description
 
-**step beta ca acme eab remove** removes an ACME EAB Key from the CA.
+**step ca acme eab remove** removes an ACME EAB Key from the CA.
 
 ## Positional arguments
 
 `provisioner`
 Name of the provisioner to remove an ACME EAB key for
 
-`key_id`
+`eab-key-id`
 The ACME EAB Key ID to remove
 
 ## Options
@@ -63,7 +63,7 @@ The context `name` to apply for the given command.
 
 Remove ACME EAB Key with Key ID "zFGdKC1sHmNf3Wsx3OujY808chxwEdmr" from my_acme_provisioner:
 ```shell
-$ step beta ca acme eab remove my_acme_provisioner zFGdKC1sHmNf3Wsx3OujY808chxwEdmr
+$ step ca acme eab remove my_acme_provisioner zFGdKC1sHmNf3Wsx3OujY808chxwEdmr
 ```
 
 

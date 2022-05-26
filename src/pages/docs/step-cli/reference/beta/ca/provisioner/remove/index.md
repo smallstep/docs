@@ -22,6 +22,9 @@ step beta ca provisioner remove <name>
 
 **step beta ca provisioner remove** removes a provisioner from the CA configuration.
 
+WARNING: The 'beta' prefix is deprecated and will be removed in a future release.
+Please use 'step ca admin ...' going forwards.
+
 ## Options
 
 

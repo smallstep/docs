@@ -45,7 +45,7 @@ Here's how to obtain a user certificate using an OAuth token from G-Suite.
 Add a [G-suite provisioner](/docs/step-ca/provisioners#gcp):
 
 ```shell-session nocopy
-step ca provisioner add Google --type oidc --ca-config $(step path)/config/ca.json \
+step ca provisioner add Google --type oidc \
     --client-id 650445034027-jsjdrkiskeq9ke99ud2rqkst82ft8uch.apps.googleusercontent.com \
     --client-secret 6Q7lGMua_Oox4nA92QBXYypT \
     --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration \

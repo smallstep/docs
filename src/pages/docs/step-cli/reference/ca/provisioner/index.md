@@ -8,6 +8,7 @@ menu:
       - list
       - jwe-key
       - add
+      - update
       - remove
 ---
 
@@ -86,6 +87,7 @@ $ step ca provisioner remove max@smallstep.com --kid 1234 --ca-config ca.json
 |---|---|
 | **[list](list/)** | list provisioners configured in the CA |
 | **[jwe-key](jwe-key/)** | retrieve and print a provisioning key in the CA |
-| **[add](add/)** | add one or more provisioners to the CA configuration |
-| **[remove](remove/)** | remove one, or more, provisioners from the CA configuration |
+| **[add](add/)** | add a provisioner |
+| **[update](update/)** | update a provisioner |
+| **[remove](remove/)** | remove a provisioner from the CA configuration |
 
