@@ -149,6 +149,7 @@ Example claims:
     "maxTLSCertDuration": "24h",
     "defaultTLSCertDuration": "24h",
     "disableRenewal": false,
+    "allowRenewalAfterExpiry": false,
     "minHostSSHCertDuration": "5m",
     "maxHostSSHCertDuration": "1680h",
     "minUserSSHCertDuration": "5m",
@@ -166,6 +167,10 @@ Example claims:
 
 - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
 
+- **disableRenewal**: do not allow certificates to be renewed. The default is false.
+
+- **allowRenewalAfterExpiry**: ☠️  allow expired certificates to be renewed. The default is false. This option adds security risk; proceed with caution and consider alternative approaches first.
+
 **SSH CA properties**
 
 - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
@@ -179,6 +184,10 @@ Example claims:
 - **maxHostSSHCertDuration**: do not allow certificates with a duration greater than this value.
 
 - **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
+
+- **disableRenewal**: do not allow certificates to be renewed. The default is false.
+
+- **allowRenewalAfterExpiry**: ☠️  allow expired certificates to be renewed. The default is false. This option adds security risk; proceed with caution and consider alternative approaches first.
 
 - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
