@@ -2,6 +2,7 @@
 title: Integrate Certificate Manager, step-issuer, and cert-manager for Kubernetes TLS
 html_title: Integrate Certificate Manager, step-issuer, and cert-manager for Kubernetes TLS
 description: Documentation for instructions for configuring Kubernetes TLS
+image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 When connecting things outside Kubernetes to things inside Kubernetes, we recommend using Smallstep Certificate Manager in combination with `[step-issuer](https://github.com/smallstep/step-issuer)` and [Kubernetes’ cert-manager](https://cert-manager.io/docs/) utility. 
