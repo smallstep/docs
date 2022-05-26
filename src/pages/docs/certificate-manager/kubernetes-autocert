@@ -2,6 +2,7 @@
 title: Integrate Certificate Manager with Autocert for Kubernetes TLS
 html_title: Integrate Certificate Manager with Autocert for Kubernetes TLS
 description: Learn how to deliver certificates directly to Kubernetes pods and containers.
+image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 Autocert exists to make it easy to use mutual TLS to improve security within a cluster and to secure communication into, out of, and between Kubernetes clusters. 
