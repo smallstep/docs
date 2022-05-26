@@ -136,7 +136,7 @@ a default `JWK` provisioner will be created
 and it's private key will be encrypted using the same password used to encrypt
 the root CA private key. Before deploying `step-ca` you should remove this
 provisioner and add new provisioners that are encrypted with secure, random passwords.
-See the section on [managing provisioners](/docs/step-ca/provisioners#managing-provisioners).
+See the section on [managing provisioners](/docs/step-ca/provisioners#provisioner-management).
 
 ### Use Short-Lived Certificates
 
@@ -475,6 +475,8 @@ A few things to consider / implement when running multiple instances of `step-ca
 
 If you need to place a load balancer or reverse proxy downstream from the CA, we recommend using layer 4 (TCP)
 load balancing or proxying (aka "TLS passthrough").
+
+We also recommend enabling [remote provisioner management](/docs/step-ca/provisioners/#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
 
 Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
 - `step` expects to be able to establish a TLS connection directly with `step-ca` using the CA's root certificate.

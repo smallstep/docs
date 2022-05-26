@@ -170,8 +170,8 @@ Setting up an RA manually involves the following steps:
     Now, as a Super Administrator, add a JWK provisioner to the Authority, and give it a name (eg. `acme-ra-jwk`):
     <FormValues>
     {({provisioner="acme-ra-jwk"}) => (
-    <CodeBlock language="shell-session" copyText={`step beta ca provisioner add ${provisioner} --type JWK --create`}>
-      {`$ step beta ca provisioner add ${provisioner} --type JWK --create`}
+    <CodeBlock language="shell-session" copyText={`step ca provisioner add ${provisioner} --type JWK --create`}>
+      {`$ step ca provisioner add ${provisioner} --type JWK --create`}
     </CodeBlock>
     )}
     </FormValues>
@@ -269,8 +269,8 @@ If you're running Kubernetes, you can run an ACME Registration Authority in your
 
     Now, as a Super Administrator, add a JWK provisioner to the Authority, and give it a name (eg. `registration-authority`):
 
-    <CodeBlock language="shell-session" copyText="step beta ca provisioner add registration-authority --type JWK --create">
-      {`$ step beta ca provisioner add registration-authority --type JWK --create`}
+    <CodeBlock language="shell-session" copyText="step ca provisioner add registration-authority --type JWK --create">
+      {`$ step ca provisioner add registration-authority --type JWK --create`}
     </CodeBlock>
 
     You'll be asked for a password for the JWK encryption key. Provide a strong password and store it somewhere safe. You'll need it later in this setup process.
