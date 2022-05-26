@@ -16,7 +16,7 @@ You will need:
 
 ## 
 
-![CognitiveScale@2x.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3d45ac03-a87d-4541-badd-930b750f8669/CognitiveScale2x.png)
+![kubernetes diagram](/docs/static/graphics/k8s-step-issuer-diagram.png)
 
 ### Dependencies
 
