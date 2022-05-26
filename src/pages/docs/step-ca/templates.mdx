@@ -18,7 +18,7 @@ With certificate templates, you can do things like:
 - Add conditionals around a certificate's parameters, and fail if they are not met
 
 Certificate templates are JSON documents
-that describe the most important fields in the final certificate or certificate request.
+that describe the most important properties in the final certificate or certificate request.
 They use [Go templates](https://golang.org/pkg/text/template/) at the core
 and are extended with [Sprig functions](http://masterminds.github.io/sprig/).
 
@@ -94,7 +94,7 @@ Here are some common variables available in X.509 certificate template:
 - **.Token**:
   If a signed token was used to obtain the certificate 
   —for example, with the JWK provisioner—
-  this field contains the payload of that token.
+  this property contains the payload of that token.
 
 - **.AuthorizationCrt**:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
@@ -107,20 +107,35 @@ Here are some common variables available in X.509 certificate template:
   this is an array of the certificate chain from the request.
   This chain connects the authorization certificate to the root CA configured in the provisioner.
 
-- **.Insecure.CR**<Reference id="star11" marker="*" />:
-  This field holds the Certificate Request from the client.
+- **.Insecure.CR**<Reference id="star11" marker="*" />: ☠️
+  This holds the Certificate Request (CSR) received from the client.
+  How step-ca treats these values depends on the provisioner.
+  While a CSR is always passed to step-ca (often alongside a signed token),
+  in most cases _only the public key value in the CSR is used by step-ca_.
+  These properties are marked _insecure_ because CSRs are not explicitly authenticated by step-ca.
+  Instead, step-ca will authenticate the signed values from OIDC tokens, JWK tokens, cloud IIDs,
+  and the validated SANs from ACME orders.
+  For ACME, step-ca validates that the CSR's subject and SANs only contain values that are in the validated ACME order.
 
 - **.Insecure.CR.DNSNames**:
-  The DNSNames SANs provided in the certificate request
-
-- **.Insecure.CR.EmailAddresses**:
-  The EmailAddresses SANs provided in the certificate request
+  The DNS Name Subject Alternative Names (SANs) provided in the CSR
 
 - **.Insecure.CR.IPAddresses**:
-  The IPAddresses SANs provided in the certificate request
+  The IP Address SANs provided in the CSR
 
 - **.Insecure.CR.URIs**:
-  The URIs SANs provided in the certificate request
+  The URI SANs provided in the CSR
+
+- **.Insecure.CR.EmailAddresses**:
+  The Email Address SANs provided in the CSR
+
+- **.Insecure.CR.CommonName**:
+  The Common Name (CN) provided in the CSR's subject
+
+- **.Insecure.CR.ExtraNames**:
+  The Extra Names provided in the CSR subject.
+  This is an array of all subject distinguished names (DNs) in the CSR.
+  Each contains an OID (`type`) and a value (`value`).
 
 - **.Insecure.CR.PublicKey**:
   The public key provided in the certificate request.
@@ -128,7 +143,7 @@ Here are some common variables available in X.509 certificate template:
   You can check the request's key size with a conditional, like `{{- if lt .Insecure.CR.PublicKey.Size 384 }}`.
 
 - **.Insecure.User**:
-  This field holds user-supplied data from the certificate request.
+  This propert holds user-supplied data from the certificate request.
   Users can supply arbitrary values using `--set` or `--set-file` flags in `step ca certificate`.
 
 You can also import values
@@ -157,9 +172,9 @@ Third parties can also add custom extensions.
 
 Here are the most relevant parameters available in SSH certificate template:
 - **.Token**:
-  This field offers the best opportunity for injecting signed, secure data into the certificate.
+  This property offers the best opportunity for injecting signed, secure data into the certificate.
   If a token was used to obtain the certificate,  
-  this field contains token payload used in the certificate request.
+  this property contains token payload used in the certificate request.
   For example, when using an OAuth ID token,
   `.Token.email` will contain the user's email address.
   To add custom data to `.Token`, you could use custom OAuth claims, or sign your own JWTs.
@@ -209,7 +224,7 @@ Here are the most relevant parameters available in SSH certificate template:
 - **.Insecure.CR.KeyID**:
   The key ID being requested.
 
-- **.Insecure.User**: This field holds user-supplied data from the certificate request.
+- **.Insecure.User**: This property holds user-supplied data from the certificate request.
   Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](/docs/step-cli/reference/ssh/certificate).
 
 You can also import parameter values
