@@ -911,6 +911,15 @@ provided the certificate has not been revoked.
 
 To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) management commands. See [managing provisioners](/docs/step-ca/provisioners/#managing-provisioners).
 
+<Alert severity="warning">
+  <div>
+	Enabling certificate renewal after expiry adds security risk.
+	Consider alternatives, such as longer certificate lifetimes.
+	If you enable this option, use the principle of least privilege and limit its availability as narrowly as possible.
+  </div>
+</Alert>
+
+
 ## X.509 Certificate Revocation
 
 The hardware, software and policies for managing and distributing public keys and certificates is called Public Key Infrastructure (PKI). 
