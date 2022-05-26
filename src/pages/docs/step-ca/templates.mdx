@@ -143,7 +143,7 @@ Here are some common variables available in X.509 certificate template:
   You can check the request's key size with a conditional, like `{{- if lt .Insecure.CR.PublicKey.Size 384 }}`.
 
 - **.Insecure.User**:
-  This propert holds user-supplied data from the certificate request.
+  This property holds user-supplied data from the certificate request.
   Users can supply arbitrary values using `--set` or `--set-file` flags in `step ca certificate`.
 
 You can also import values
