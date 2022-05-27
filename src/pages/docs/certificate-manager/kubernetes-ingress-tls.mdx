@@ -5,23 +5,28 @@ description: Best practices and detailed instructions for configuring Kubernetes
 image: /graphics/kubernetes-tls-unfurl.png
 ---
 
-## Connecting things outside Kubernetes to things inside Kubernetes
+## Securing external connections to Kubernetes services
 
-An [`Ingress`](https://kubernetes.io/docs/concepts/services-networking/ingress/) is a Kubernetes resource that lets you define a reverse proxy that exposes services in your cluster to other internal infrastructure outside of your cluster or to the internet. 
-To enable this type of connection, you can specify a `[kubernetes.io/tls](http://kubernetes.io/tls)` secret for your ingress to use TLS (see [docs here](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)).
+### Definitions
 
-<Alert severity="info">
-  <div>
-About TLS secrets. Kubernetes has the concept of Resources, which are typically YAML files with some data that are managed by the Kubernetes API Server, and that you can volume mount into containers and authorize users and other components to interact with. The `[kubernetes.io/tls](http://kubernetes.io/tls)` Secret type is a specific sort of secret that's designed to hold an x509 certificate (`tls.crt`) and key (`tls.key`) for use with TLS ([learn more](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets)). Like any other Secret, TLS Secrets can be mounted into pods, read/written by clients with appropriate access, and can be referenced by some other Resource types.
+An **[Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/)** is a Kubernetes resource that lets you define a reverse proxy that exposes services in your cluster to anything outside your container, including internal infrastructure or the internet.
+
+To enable this type of connection, you can specify a [`kubernetes.io/tls` Secret](http://kubernetes.io/tls) (aka a **TLS Secret**) for your Ingress to use for TLS (see the [official Kubernetes docs for more](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls)).
+
+<Alert>
+<div>
+<b>What's a TLS Secret?</b><br/>
+A <b><a href="https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets"><code>kubernetes.io/tls</code> Secret</a></b> is a Kubernetes object type designed to hold an X.509 certificate (tls.crt) and private key (tls.key) for use with TLS. Like other Secrets, TLS Secrets can be mounted into pods, read/written by clients with appropriate access, and can be referenced by some other resources.
   </div>
 </Alert>
 
+An **Admission Controller** intercepts requests to the Kubernetes API server and are used to limit requests to create, delete, modify objects or connect to proxy. For example, the Nginx Admission Controller will reconfigure Nginx for you.
 
-An Admission Controller intercepts requests to the Kubernetes API server and are used to limit requests to create, delete, modify objects or connect to proxy. An Ingress Controller is a type of Admission Controller that gets called when an `Ingress` resource is created, updated, or deleted, and manages the proxy. For example, the Nginx Admission Controller will reconfigure Nginx for you. 
+An **Ingress Controller** is a type of Admission Controller that gets called when an `Ingress` resource is created, updated, or deleted, and manages the proxy.
 
 ### Our Recommendation
 
-When connecting things outside Kubernetes to things inside Kubernetes, we recommend using Smallstep Certificate Manager in combination with `[step-issuer](https://github.com/smallstep/step-issuer)` and [Kubernetes’ cert-manager](https://cert-manager.io/docs/) utility. [You can find the detailed instructions here.](/docs/certificate-manager/kubernetes-step-issuer)
+When connecting anything outside Kubernetes to services inside Kubernetes, we recommend securing your Ingress resources by using Smallstep Certificate Manager in combination with [`step-issuer`](https://github.com/smallstep/step-issuer) and [Kubernetes’ cert-manager](https://cert-manager.io/docs/) utility. [You can find the detailed instructions here.](/docs/certificate-manager/kubernetes-step-issuer)
 
 ### Extra Credit: I want Mutual TLS
 
@@ -31,6 +36,8 @@ The Smallstep toolchain is designed to provide reach to all the things in your s
 
 <Alert severity="info">
   <div>
-This content is designed to help the reader configure Kubernetes to use private certificates. If you are looking to enable publicly trusted certificates to connect your cluster to the internet, we recommend using Let’s Encrypt with the [Kubernetes cert-manager](https://cert-manager.io/docs/) project.
+This content is designed to help you configure Kubernetes to use private certificates.
+If you are looking to enable publicly trusted certificates to connect your cluster to the internet,
+we recommend using Let’s Encrypt with [Kubernetes cert-manager](https://cert-manager.io/docs/).
   </div>
 </Alert>

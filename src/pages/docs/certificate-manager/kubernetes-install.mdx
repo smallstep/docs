@@ -6,7 +6,7 @@ image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 Kubernetes is a distributed system, and it uses TLS certificates extensively for connecting components. 
-When following Kelsey Hightower’s popular Kubernetes the Hard Way instructions you will be guided to use `cfssl` for generating 1yr certs for the following components: etcd, kube-apiserver, kube-controller-manager, kube-scheduler, kubelet, and kube-proxy. 
+When following Kelsey Hightower’s popular Kubernetes the Hard Way instructions you will be guided to use `cfssl` for generating one-year certs for the following components: etcd, kube-apiserver, kube-controller-manager, kube-scheduler, kubelet, and kube-proxy. 
 Issuing certificates to all of these components and keeping them renewed is one of the hardest parts of running k8s yourself.
 
 Beyond certificates for the components, you will need to secure the API server and any Admission Controllers. 
@@ -15,9 +15,9 @@ This API uses TLS and needs a certificate.
 
 ### Our Recommendation
 
-We think issuing a 1yr certificate and moving on is setting you up for pain 365 days later. 
-So much so that we [blogged about a better way](/blog/kubernetes-the-secure-way) and created a pull request to the Hightower repo. 
-You should certainly check it out if you are building Kubernetes the hard way.
+We think issuing a one-year certificate and moving on is setting you up for pain 365 days later. 
+So much so, that we [blogged about a better way](/blog/kubernetes-the-secure-way) and created a pull request to Hightower's repo. 
+You should certainly check it out if you are building a Kubernetes cluster from scratch.
 
 ### Extra Credit: Admission Controllers
 

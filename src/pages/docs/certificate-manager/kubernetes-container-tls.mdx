@@ -15,18 +15,16 @@ Here are a few examples.
 
 There are two primary patterns used to get certificates to containers
 
-**1. A `[kubernetes.io/tls](http://kubernetes.io/tls)` secret**
+**1. A [`kubernetes.io/tls`](http://kubernetes.io/tls) Secret**
 
-Let’s take a quick digression into TLS secrets. Kubernetes has the concept of Resources, which are typically YAML files with some data that are managed by the Kubernetes API Server, and that you can volume mount into containers and authorize users and other components to interact with. 
-The `[kubernetes.io/tls](http://kubernetes.io/tls)` Secret type is a specific sort of secret that's designed to hold an x509 certificate (`tls.crt`) and key (`tls.key`) for use with TLS ([learn more](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets)). 
-Like any other Secret, TLS Secrets can be mounted into pods, read/written by clients with appropriate access, and can be referenced by some other Resource types.
+A **`kubernetes.io/tls` Secret** is a Kubernetes object type designed to hold an X.509 certificate (tls.crt) and private key (tls.key) for use with TLS. Like other Secrets, TLS Secrets can be mounted into pods, read/written by clients with appropriate access, and can be referenced by some other resources.
 
-**2. Delivering the certificate directly to the container.** 
+**2. Deliver the certificate directly to the container.** 
 
-There are a number of ways to deliver a certificate directly to a container in Kubernetes. We created [Autocert](https://github.com/smallstep/autocert) to make it easy to use mTLS to improve security within a cluster and to secure communication into, out of, and between kubernetes clusters. 
+There's a few ways to deliver a certificate directly to a container in Kubernetes. We created [Autocert](https://github.com/smallstep/autocert) to make it easy to use mutual TLS to improve security within a cluster and to secure communication into, out of, and between Kubernetes clusters. 
 
 Autocert is a kubernetes add-on that automatically injects TLS/HTTPS certificates into your containers. 
-To get a certificate simply annotate your pods with a name. 
+To get a certificate, simply annotate your pods with a name. 
 An X.509 (TLS/HTTPS) certificate is automatically created and mounted at `/var/run/autocert.step.sm/` along with a corresponding private key and root certificate (everything you need for mTLS).
 
 ### Our Recommendation
@@ -43,10 +41,8 @@ Here are two common answers to this question and what we recommend:
 1. **I trust my backing datastore and want to use TLS secrets** - we recommend using Smallstep Certificate Manager in combination with step-issuer and the [Kubernetes cert-manager](https://cert-manager.io/docs/) utility. [You can find the detailed instructions here.](/docs/certificate-manager/kubernetes-step-issuer)
 2. **I want to deliver certs directly to the container** - we recommend using Smallstep Certificate Manager in combination with Autocert. [You can find detailed instructions here.](/docs/certificate-manager/kubernetes-autocert) 
 
-
-
 <Alert severity="info">
   <div>
-This content is designed to help the reader configure Kubernetes to use private certificates. If you are looking to enable publicly trusted certificates to connect your cluster to the internet, we recommend using Let’s Encrypt with the [Kubernetes cert-manager](https://cert-manager.io/docs/) project.
+This content is designed to help the reader configure Kubernetes to use private certificates. If you are looking to enable publicly-trusted certificates to connect your cluster to the internet, we recommend using Let’s Encrypt with the [Kubernetes cert-manager](https://cert-manager.io/docs/) project.
   </div>
 </Alert>

@@ -6,34 +6,36 @@ image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 TLS is the cryptographic protocol that powers encryption for many network applications. 
-And for Kubernetes TLS, you need certificates. 
+To use TLS with Kubernetes, you need certificates. 
 TLS certificates are fundamental to standing up a Kubernetes cluster and for interacting with/within the cluster. 
-Given this reliance on certificates, we are often asked for advice on how to *“do certificates in Kubernetes”.* 
+Given this reliance on certificates, we are often asked for advice on how to “do certificates in Kubernetes”. 
 
-It turns out there are lots of things that Kubernetes TLS can mean. 
-Here’s a hit list of some of the places where you can use certificates:
+"Doing certificates in Kubernetes" can mean a lot of things!
 
-- Ingresses / ingress controllers
+Here’s a hit list of places where you can use TLS certificates:
+
+- Kubernetes Ingresses / ingress controllers
 - Containers (the application in a container needs a cert)
 - Service mesh
-- `[kubernetes.io/tls](http://kubernetes.io/tls)` secrets
+- [`kubernetes.io/tls`](http://kubernetes.io/tls) secrets
 - The Kubernetes datastore (eg. `etcd`)
-- Kubernetes Nodes & other components
+- Kubernetes Nodes and other components
 - Admission Controllers
-- Users & Kubernetes API Server connections
+- Users and Kubernetes API Server connections
 
-Kubernetes can be a complicated beast, and there are a lot of concepts to learn and practice before one knows what they’re doing. 
-It can become even more difficult to secure this workload while wrangling the other moving pieces of your cluster. 
+Kubernetes can be a complex beast. 
+There's a lot of concepts to learn and practice before one knows what they’re doing. 
+It can become even more difficult to secure Kubernetes while wrangling the other moving pieces of your cluster. 
 Regardless of the network hierarchy and policies in place, automating security by design will always make your cluster’s workload safer and more reliable.
 
-At Smallstep, we’ve thought deeply about these cases and have created a series of documents to help you navigate what can be a complex journey to secure Kubernetes. 
+At Smallstep, we’ve thought deeply about these cases and have created a series of tutorials to help you on your journey to secure Kubernetes. 
 
 ### It all starts with a question - “What are you looking to achieve?”
 
-1. [**I want to connect things outside Kubernetes to things inside Kubernetes.**](/docs/certificate-manager/kubernetes-ingress-tls) 
+1. [**I want to securely expose Kubernetes services outside my cluster.**](/docs/certificate-manager/kubernetes-ingress-tls) 
 2. [**I want to get a cert for a service running in a container or pod.**](/docs/certificate-manager/kubernetes-container-tls)
-3. [**I am installing Kubernetes and need certs to secure things.**](/docs/certificate-manager/kubernetes-install)
+3. [**I am bringing up a cluster and I need certs to secure Kubernetes itself.**](/docs/certificate-manager/kubernetes-install)
 
 Using [Certificate Manager](https://smallstep.com/certificate-manager/) alongside some of Smallstep’s open-source projects, it suddenly becomes simple to automate certificate issuance into a Kubernetes deployment. 
-All you need is a little bit of YAML and a working cluster to start issuing Kubernetes TLS certificates for your microservices and stop bad actors right their tracks. 
+All you need is a little bit of YAML and a working cluster to start issuing TLS certificates to your microservices, and stop bad actors in their tracks. 
 Simple and straightforward tooling can make the difference between an exposed microservice, and one that is secure by design.
