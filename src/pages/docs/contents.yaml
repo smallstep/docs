@@ -41,7 +41,9 @@ certificate_manager:
     path: certificate-manager/acme
   - title: Certs For Humans
     path: certificate-manager/oidc
-
+  - title: Kubernetes TLS
+    path: certificate-manager/kubernetes-tls
+    
 registration_authorities:
   - title: ACME for Smallstep Certificate Manager
     path: registration-authorities/acme-for-certificate-manager
