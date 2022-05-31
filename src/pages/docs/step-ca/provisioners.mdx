@@ -829,7 +829,8 @@ A shared secret authenticates clients to the CA.
 #### Requirements
 
 Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
-The RSA intermediate is used to encrypt/decrypt data, and you cannot do that with an ECDSA key.
+The RSA intermediate is used to decrypt the contents of the SCEP `pkcsPKIEnvelope` and to encrypt the response containing the certificate. 
+These operations cannot be performed using an ECDSA key.
 
 Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
 
@@ -844,7 +845,7 @@ Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chai
 
 #### Configure the Provisioner
 
-Add a SCEP provisioner using challenge secret `secret1234` and `AES-256-CBC` as the <Link href="https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63">encryption algorithm</Link>:
+In this example, we will add a SCEP provisioner using challenge secret `secret1234` and `AES-256-CBC` as the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63):
 
 ```shell
 step ca provisioner add my_scep_provisioner \
@@ -873,7 +874,7 @@ It behaves the same as `forceCN` in the ACME provisioner, and it defaults to fal
 - `challenge` is the secret shared between the provisioner and SCEP clients. By default no secret is used.
 - The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
 - When `includeRoot` is set to true, the root CA certificate will be returned in `GetCACert` requests in addition to the intermediate CA certificate. Defaults to false.
-- The `encryptionAlgorithmIdentifier` parameter can be used to change the <Link href="https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63">encryption algorithm</Link> used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
+- The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
 
 #### Enable the HTTP Server
 
