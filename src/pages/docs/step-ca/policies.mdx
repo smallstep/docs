@@ -23,7 +23,7 @@ This means that rules for X.509 certificates will not be evaluated when an SSH u
       href="https://smallstep.com/signup?product=cm"
     >
       free hosted smallstep Certificate Manager authority
-    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account.
+    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account, providing more granular control.
   </div>
 </Alert>
 
@@ -202,4 +202,94 @@ principal   |johndoe            |johndoe                                |janedoe
 
 ## Policy Configuration
 
-TODO: using CLI; using ca.json
+Policies can be administered using the `step` CLI application.
+The commands are part of the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
+There are subcommands for administering `authority`, `provisioner` and `acme` policies.
+In a self-hosted `step-ca`, policies can be configured on the authority level.
+
+<Alert severity="info">
+  <AlertTitle>Need more control?</AlertTitle>
+  <div>
+    A self-hosted <Code>step-ca</Code> instance can only be configured with a policy on the authority level.
+    In a <Link
+      external
+      href="https://smallstep.com/signup?product=cm"
+    >
+      free hosted smallstep Certificate Manager authority
+    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account, providing more granular control.
+  </div>
+</Alert>
+
+### Examples
+
+Allow all DNS subdomains of `"local"` in X.509 certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority x509 allow dns '*.local'">
+  {`$ step ca policy authority x509 allow dns "*.local"`}
+</CodeBlock>
+
+Allow IP range `10.0.0.0/24` in X.509 certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority x509 allow ip 10.0.0.0/24">
+  {`$ step ca policy authority x509 allow ip 10.0.0.0/24`}
+</CodeBlock>
+
+Allow all `devops` principals in SSH user certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority ssh host allow principal '@devops'">
+  {`$ step ca policy authority ssh user allow email "@devops"`}
+</CodeBlock>
+
+Allow all DNS subdomains of `"local"` in SSH host certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority ssh host allow dns '*.local'">
+  {`$ step ca policy authority ssh host allow dns "*.local"`}
+</CodeBlock>
+
+You can find more examples in the `step` CLI command reference for the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
+
+### Policy in Configuration File
+
+When running a self-hosted `step-ca` it is also possible to configure the authority policy in the `ca.json` CA configuration file.
+It has to be embedded in the `"authority"` object.
+An example is shown below:
+
+```json
+"policy": {
+    "x509":
+        "allow": {
+            "dns": ["*.local"],
+            "ip": ["192.168.0.0/24"]
+        },
+        "deny": {
+            "dns": ["forbidden.local"],
+            "ip": ["192.168.0.1"]
+        },
+        "allowWildcardNames": false,
+    },
+    "ssh": {
+        "user": {
+            "allow": {
+                "email": ["@local"]
+            },
+            "deny": {
+                "email": ["root@local"]
+            }
+        },
+        "host": {
+            "allow": {
+                "dns": ["*.local"],
+                "ip": ["192.168.0.0/24"]
+            },
+            "deny": {
+                "dns": ["forbidden.local"],
+                "ip": ["192.168.0.1"]
+            }
+        }
+    }
+}
+```
+
+It is not required to add rules for every type of certificate.
+If you run a CA intended just for X.509 certificates, you don't need to provide rules for SSH certificates and can omit the corresponding keys.
+
