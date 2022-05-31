@@ -24,6 +24,7 @@ learn how to configure your CA to:
 - [Environment Variables](#environment-variables)
 - [Basic Configuration Options](#basic-configuration-options)
 - [Provisioners](#provisioners)
+- [Certificate Issuance Policy](#policy)
 - [Certificate Templates](#templates)
 - [Databases](#databases)
   - [Badger](#badger)
@@ -284,6 +285,25 @@ CA's keys.
 Provisioners are people or entities that are registered with the certificate authority and 
 authorized to issue certificates. Visit the [`step-ca` provisioners](/docs/step-ca/provisioners) page to learn about the 
 different provisioners, their target use cases, and how to add, remove, and configure them.
+
+## Policy
+
+With certificate issuance policies administrators can configure what Subjects, SANs and Principals the CA is allowed to sign.
+An example of a policy is to only allow (strict) subdomains of `internal.example.com`, which would be encoded as `*.internal.example.com`.
+Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
+
+<Alert severity="info">
+  <AlertTitle>Need more control?</AlertTitle>
+  <div>
+    A self-hosted <Code>step-ca</Code> instance can be configured with a policy on the authority level only.
+    In a <Link
+      external
+      href="https://smallstep.com/signup?product=cm"
+    >
+      free hosted smallstep Certificate Manager authority
+    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account.
+  </div>
+</Alert>
 
 ## Templates
 
