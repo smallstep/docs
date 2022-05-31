@@ -1,10 +1,9 @@
 import algoliasearch from 'algoliasearch/lite';
 import { createRef, default as React, useState, useMemo } from 'react';
 import { InstantSearch } from 'react-instantsearch-dom';
-import { ThemeProvider, createTheme } from '@material-ui/core/styles';
-import StyledSearchBox from './styled-search-box';
-import StyledSearchResult from './styled-search-result';
-import StyledSearchRoot from './styled-search-root';
+import { ThemeProvider, createTheme, Box } from '@mui/system';
+import SearchBox from './search-box';
+import SearchResult from './search-result';
 import useClickOutside from './use-click-outside';
 
 // const theme = {
@@ -12,13 +11,14 @@ import useClickOutside from './use-click-outside';
 //   background: 'white',
 //   faded: '#888',
 // };
+
 const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#fff'
-    },
-  },
-});
+  sx: {
+    foreground: '#050505',
+    background: 'white',
+    faded: '#888',
+  }
+})
 
 export default function Search({ indices }) {
   const rootRef = createRef();
@@ -34,22 +34,20 @@ export default function Search({ indices }) {
   );
 
   useClickOutside(rootRef, () => setFocus(false));
-
   return (
     <ThemeProvider theme={theme}>
-      <StyledSearchRoot ref={rootRef}>
-        <InstantSearch
-          searchClient={searchClient}
-          indexName={indices[0].name}
-          onSearchStateChange={({ query }) => setQuery(query)}
-        >
-          <StyledSearchBox onFocus={() => setFocus(true)} hasFocus={hasFocus} />
-          <StyledSearchResult
-            show={query && query.length > 0 && hasFocus}
-            indices={indices}
-          />
-        </InstantSearch>
-      </StyledSearchRoot>
-    </ThemeProvider>
+        <Box ref={rootRef} sx = {{position: "relative",marginBottom: 1.6,}} >
+          <InstantSearch
+            searchClient={searchClient}
+            indexName={indices[0].name}
+            onSearchStateChange={({ query }) => setQuery(query)}
+          >
+            <SearchBox onFocus = {() => setFocus(true)} hasFocus={hasFocus}/>
+              { hasFocus ? <SearchResult
+                  show={query && query.length > 0 && hasFocus}
+                  indices={indices} /> : null }
+          </InstantSearch>
+        </Box>
+      </ThemeProvider>
   );
 }

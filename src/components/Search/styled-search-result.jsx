@@ -1,5 +1,4 @@
 import styled, { css } from 'styled-components';
-//import { styled, css } from '@material-ui/core/styles';
 import SearchResult from './search-result';
 
 const Popover = css`

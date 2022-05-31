@@ -1,7 +1,6 @@
 import { Link } from 'gatsby';
-import { default as React } from 'react';
+import React from 'react';
 import { Tile, Paragraph } from '@smallstep/step-ui';
-
 import {
   connectStateResults,
   Highlight,
