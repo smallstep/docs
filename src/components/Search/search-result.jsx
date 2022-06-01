@@ -24,7 +24,7 @@ const useStyles = makeStyles({
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
 
-  return hitCount > 0 ? (
+  return hitCount >= 0 ? (
     <div className="HitCount">
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </div>

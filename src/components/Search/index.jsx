@@ -14,11 +14,14 @@ const useStyles = makeStyles({
   },
   pop: {
     borderRadius: 15,
-    maxHeight: '80%',
+    height: '80%',
     width: '31.6%',
     boxShadow: 5,
     marginTop: 15,
   },
+  hits: {
+    width: 350,
+  }
 });
 
 export default function Search({ indices }) {
@@ -75,6 +78,7 @@ export default function Search({ indices }) {
               }}
             >
               <SearchResult
+                className={theme.hits}
                 show={query && query.length > 0 && hasFocus}
                 indices={indices}
               />
