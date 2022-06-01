@@ -28,7 +28,6 @@ const useStyles = makeStyles({
 export default function Search({ indices }) {
   const rootRef = createRef();
   const [query, setQuery] = useState();
-  const [hasFocus, setFocus] = useState(false);
   const searchClient = useMemo(
     () =>
       algoliasearch(
@@ -40,13 +39,15 @@ export default function Search({ indices }) {
 
   //useClickOutside(rootRef, () => setFocus(false));
   const theme = useStyles();
+  const [hasFocus, setFocus] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const divRef = React.useRef();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
+    setFocus(true);
   };
   const handleClose = () => {
     setAnchorEl(null);
+    setFocus(false);
   };
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
@@ -58,7 +59,7 @@ export default function Search({ indices }) {
           indexName={indices[0].name}
           onSearchStateChange={({ query }) => setQuery(query)}
         >
-          <SearchBox ref={divRef} onInput = {handleClick} onFocus = {() => setFocus(true)} hasFocus={hasFocus}/>
+          <SearchBox onInput = {handleClick} />
             { hasFocus ? 
             <Popover 
               className={theme.pop}

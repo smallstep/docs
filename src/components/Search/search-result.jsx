@@ -9,6 +9,7 @@ import {
   Snippet,
 } from 'react-instantsearch-dom';
 import { makeStyles } from '@material-ui/styles';
+import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles({
   HitCount:{
@@ -35,7 +36,7 @@ const HitCount = connectStateResults(({ searchResults }) => {
 });
 
 const PageHit = ({ hit }) => (
-  <div>
+  <Box mb={1}>
     <Tile>
       <Link
         to={
@@ -50,7 +51,7 @@ const PageHit = ({ hit }) => (
       </Link>
       <Snippet attribute="excerpt" hit={hit} tagName="mark" />
     </Tile>
-  </div>
+  </Box>
 );
 
 function HitsInIndex ({ index }) {
