@@ -24,7 +24,7 @@ learn how to configure your CA to:
 - [Environment Variables](#environment-variables)
 - [Basic Configuration Options](#basic-configuration-options)
 - [Provisioners](#provisioners)
-- [Certificate Issuance Policy](#policy)
+- [Certificate Issuance Policies](#policy)
 - [Certificate Templates](#templates)
 - [Databases](#databases)
   - [Badger](#badger)
@@ -288,8 +288,17 @@ different provisioners, their target use cases, and how to add, remove, and conf
 
 ## Policy
 
-With certificate issuance policies administrators can configure what Subjects, SANs and Principals the CA is allowed to sign.
-An example of a policy is to only allow (strict) subdomains of `internal.example.com`, which would be encoded as `*.internal.example.com`.
+Certificate issuance policies can be used to enforce which Subjects, SANs and Principals the CA is allowed to sign.
+They can be configured for X.509 certificates as well as SSH user and host certificates.
+Policies are evaluated before a certificate is signed.
+Some examples of policies you can configure are:
+
+- A `dns` rule for `www.example.com`, only matching the domain `www.example.com`
+- A `dns` rule for `*.internal.example.com`, matching all subdomains of `internal.example.com`.
+- An `ip` rule for the `192.168.0.0/24` CIDR, matching all IPs in the range from `192.168.0.0`-`192.168.0.255`.
+- An `email` rule for `@devops`, matching all SSH user principals in the `@devops` domain.
+- A `uri` rule for `*.example.com`, matching all URIs for subdomains of `example.com`, ignoring the URI scheme.
+
 Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
 
 <Alert severity="info">
@@ -305,19 +314,16 @@ Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certifica
   </div>
 </Alert>
 
+
 ## Templates
 
-People use private CAs for all sorts of things, in many different contexts:
-web apps, mobile apps, code signing, cloud VM instances, SSH, IoT devices, etc.
-So `step-ca` must be flexible enough to handle a wide variety of flows.
+Using X.509 and SSH certificate templates administrators can configure information that gets processed and added to certificates.
+These include things like:
 
-X.509 and SSH certificate templates open up these possibilities.
-With certificate templates, you can do things like:
-
-- Add custom SANs or extensions to X.509 certificates
-- Make longer certificate chains, with multiple intermediate CAs
-- Use SSH `force-command` or `source-address` extensions
-- Add conditionals around a certificate's parameters, and fail if they are not met
+- Custom SANs or extensions for X.509 certificates
+- Create longer certificate chains, including multiple intermediate CAs
+- Embed SSH `force-command` or `source-address` extensions
+- Evaluate basic logic operations on certificate's parameters, and fail if requirements are not met
 
 Visit the [`step-ca` templates](/docs/step-ca/templates) page to learn how to use templates.
 
