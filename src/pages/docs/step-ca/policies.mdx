@@ -43,6 +43,25 @@ Creating the opposite set of rules, denying a certain range and allowing a subse
 
 The semantics used for evaluating rules and matching requested certificate names is described in the following sections.
 
+<Alert severity="info">
+  <AlertTitle>Certificate Issuance Policy vs. Name Constraints</AlertTitle>
+  <div>
+    This page describes how certificate issuance policies work in the smallstep platform.
+    These policies must not be confused with <Link
+        external
+        href="https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10"
+      >
+      X.509 Name Constraints (RFC 5280)
+    </Link>, which work slightly different.
+  </div>
+  <br/>
+  <div>
+      When Name Constraints are in use, clients must verify that a leaf certificate was allowed to be signed by the CA.
+    A certificate issuance policy is evaluated by the CA before a certificate is signed instead, shifting control and responsibility to the CA.
+    Certificate issuance policies and Name Constraints are not mutually exclusive: they can be combined and used simultaneously.
+  </div>
+</Alert>
+
 
 ## X.509 Policies
 
