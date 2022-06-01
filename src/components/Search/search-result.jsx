@@ -11,6 +11,11 @@ import {
 import { makeStyles } from '@material-ui/styles';
 
 const useStyles = makeStyles({
+  HitCount:{
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+
   hits: {
     marginLeft: -30,
     '& ul ': {
@@ -21,9 +26,9 @@ const useStyles = makeStyles({
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
-
+  const classes = useStyles();
   return hitCount > 0 ? (
-    <div className="HitCount">
+    <div className={classes.HitCount}>
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </div>
   ) : null;

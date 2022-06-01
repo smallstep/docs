@@ -20,8 +20,8 @@ const useStyles = makeStyles({
   pop: {
     borderRadius: 15,
     maxHeight: 600,
-    maxWidth: 550,
-    marginTop: 18,
+    maxWidth: 500,
+    marginTop: 45,
   }
 });
 
@@ -41,6 +41,7 @@ export default function Search({ indices }) {
   //useClickOutside(rootRef, () => setFocus(false));
   const theme = useStyles();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const divRef = React.useRef();
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -57,7 +58,7 @@ export default function Search({ indices }) {
           indexName={indices[0].name}
           onSearchStateChange={({ query }) => setQuery(query)}
         >
-          <SearchBox onInput = {handleClick} onFocus = {() => setFocus(true)} hasFocus={hasFocus}/>
+          <SearchBox ref={divRef} onInput = {handleClick} onFocus = {() => setFocus(true)} hasFocus={hasFocus}/>
             { hasFocus ? 
             <Popover 
               className={theme.pop}
@@ -65,6 +66,8 @@ export default function Search({ indices }) {
               open={open} 
               anchorEl={anchorEl}
               onClose={handleClose}
+              disableAutoFocus={true}
+              disableEnforceFocus={true}
               anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'left',
