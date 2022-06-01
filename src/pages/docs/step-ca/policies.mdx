@@ -50,7 +50,7 @@ A policy for X.509 certificates can have rules for the following types of names:
 
 - Domain Names
 - IP Addresses
-- Email addresses
+- Email Addresses
 - URIs
 - Subject Common Names
 
@@ -61,7 +61,7 @@ The following subsections describe the specifics for each of those.
 Rules for DNS domains are evaluated to match largely according to how [Name Constraints (RFC 5280)](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10)
 are evaluated, but applied to leaf certificates instead of CA certificates:
 
-- Domain names are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
+- Requested domain names as well as the rules for domain names are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
 - The domain to be evaluated must have the same number of labels, demarcated by periods, as the rule has.
 - Each domain label is compared using a string comparison.
 
@@ -69,6 +69,9 @@ The rules for domain names allow a wildcard (`*`) to be specified as the first l
 This allows (strictly) the first label to be filled freely.
 For example, the rule `*.example.com` allows any subdomain of `example.com`, such as `www.example.com`.
 It doesn't allow the domain `example.com` itself, though.
+
+A rule for `*.éxàmplê.com` will internally be represented using its internationalized form: `*.xn–xmpl-0na6cm.com`. 
+This rule will match `www.éxàmplê.com` as well as its internationalized representation `www.xn–xmpl-0na6cm.com` (and other subdomains).
 
 By default it is not possible to request a certificate with a literal wildcard character in the domain, like `*.example.com`.
 It is possible to configure the policy to allow this.
@@ -125,11 +128,12 @@ Rules for evaluating URIs are evaluated as follows:
 
 - URI domains are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
 - URI rules must contain an authority part and cannot contain IP addresses, in correspondence with [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10).
-- URI schemes are not matched. When configuring an URI rule, the scheme is ignored.
 - Matching URI domains is performed by matching URI domain labels, similar as what's done for DNS domains.
 
 Wildcards in URI rules are evaluated similar to wildcards for domain names.
 URIs cannot contain literal wildcards, unlike DNS domains.
+
+☠️ URI schemes are (currently) not matched. When configuring an URI rule, the scheme is ignored. This could lead to certificates being signed with URI schemes you didn't anticipate, so please take note of this if your application or environment relies on the URI scheme.
 
 #### Examples
 
@@ -174,7 +178,6 @@ A policy for SSH host certificates can have rules for the following:
 
 - DNS domains
 - IP ranges and addresses
-- Principals
 
 When an SSH certificate is requested the policy to be evaluated will be based on the certificate type.
 Then the appropriate policy is evaluated for every principal in the certificate.
@@ -204,7 +207,6 @@ principal   |johndoe            |johndoe                                |janedoe
 
 Policies can be administered using the `step` CLI application.
 The commands are part of the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
-There are subcommands for administering `authority`, `provisioner` and `acme` policies.
 In a self-hosted `step-ca`, policies can be configured on the authority level.
 
 <Alert severity="info">
@@ -289,6 +291,14 @@ An example is shown below:
     }
 }
 ```
+
+Make `step-ca` reload its configuration by sending it a `SIGHUP`:
+
+```shell
+killall -i -s SIGHUP step-ca
+```
+
+Alternatively, you can restart `step-ca` manually.
 
 It is not required to add rules for every type of certificate.
 If you run a CA intended just for X.509 certificates, you don't need to provide rules for SSH certificates and can omit the corresponding keys.
