@@ -4,12 +4,9 @@ import { TextField } from '@smallstep/step-ui';
 import { Box } from '@material-ui/core';
 
 export default connectSearchBox(
-  ({ refine, currentRefinement, className, onFocus, onInput}) => (
+  ({ refine, currentRefinement, className, onFocus, onInput }) => (
     <form className={className}>
-      <Box
-        component="form"
-        width={350}
-      >
+      <Box component="form" width={350}>
         <TextField
           fullWidth
           className="SearchInput"

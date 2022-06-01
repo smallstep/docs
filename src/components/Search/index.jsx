@@ -2,27 +2,25 @@ import algoliasearch from 'algoliasearch/lite';
 import { createRef, default as React, useState, useMemo } from 'react';
 import { InstantSearch } from 'react-instantsearch-dom';
 import { Box } from '@material-ui/core';
-import { ThemeProvider, makeStyles } from '@material-ui/core'
+import { ThemeProvider, makeStyles } from '@material-ui/core';
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 //import useClickOutside from './use-click-outside';
 import Popover from '@material-ui/core/Popover';
 
-// const theme = {
-//   foreground: '#050505',
-//   background: 'white',
-//   faded: '#888',
-// };
 const useStyles = makeStyles({
   root: {
     background: 'white',
   },
   pop: {
     borderRadius: 15,
+    position: 'absolute',
     maxHeight: 600,
-    maxWidth: 500,
+    maxWidth: 600,
+    width: 600,
     marginTop: 45,
-  }
+    boxShadow: 5,
+  },
 });
 
 export default function Search({ indices }) {
@@ -53,18 +51,18 @@ export default function Search({ indices }) {
   const id = open ? 'simple-popover' : undefined;
   return (
     <ThemeProvider theme={theme.root}>
-      <Box  ref={rootRef} mb={1.6} >
+      <Box ref={rootRef} mb={1.6}>
         <InstantSearch
           searchClient={searchClient}
           indexName={indices[0].name}
           onSearchStateChange={({ query }) => setQuery(query)}
         >
-          <SearchBox onInput = {handleClick} />
-            { hasFocus ? 
-            <Popover 
+          <SearchBox onInput={handleClick} />
+          {hasFocus ? (
+            <Popover
               className={theme.pop}
-              id={id} 
-              open={open} 
+              id={id}
+              open={open}
               anchorEl={anchorEl}
               onClose={handleClose}
               disableAutoFocus={true}
@@ -80,8 +78,10 @@ export default function Search({ indices }) {
             >
               <SearchResult
                 show={query && query.length > 0 && hasFocus}
-                indices={indices} />
-            </Popover>  : null }
+                indices={indices}
+              />
+            </Popover>
+          ) : null}
         </InstantSearch>
       </Box>
     </ThemeProvider>

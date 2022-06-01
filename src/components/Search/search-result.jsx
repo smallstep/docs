@@ -12,15 +12,15 @@ import { makeStyles } from '@material-ui/styles';
 import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  HitCount:{
-    display: "flex",
-    justifyContent: "flex-end",
+  HitCount: {
+    display: 'flex',
+    justifyContent: 'flex-end',
   },
 
   hits: {
     marginLeft: -30,
     '& ul ': {
-      listStyle: "none",
+      listStyle: 'none',
     },
   },
 });
@@ -54,15 +54,15 @@ const PageHit = ({ hit }) => (
   </Box>
 );
 
-function HitsInIndex ({ index }) {
+function HitsInIndex({ index }) {
   const classes = useStyles();
-  return(
+  return (
     <Index indexName={index.name}>
       <HitCount />
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
-  )
-};
+  );
+}
 
 const SearchResult = ({ indices, className }) => (
   <div className={className}>
