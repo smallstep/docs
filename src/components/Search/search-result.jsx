@@ -1,6 +1,8 @@
 import { Link } from 'gatsby';
 import { default as React } from 'react';
 import { Tile, Paragraph } from '@smallstep/step-ui';
+import { makeStyles } from '@material-ui/styles';
+import { Box } from '@material-ui/core';
 import {
   connectStateResults,
   Highlight,
@@ -8,8 +10,6 @@ import {
   Index,
   Snippet,
 } from 'react-instantsearch-dom';
-import { makeStyles } from '@material-ui/styles';
-import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles({
   hits: {

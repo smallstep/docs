@@ -1,18 +1,15 @@
 import algoliasearch from 'algoliasearch/lite';
 import { createRef, default as React, useState, useMemo } from 'react';
 import { InstantSearch } from 'react-instantsearch-dom';
-import { Box } from '@material-ui/core';
-import { ThemeProvider, makeStyles } from '@material-ui/core';
+import { ThemeProvider, makeStyles, Box, Popover } from '@material-ui/core';
 import SearchBox from './search-box';
 import SearchResult from './search-result';
-//import useClickOutside from './use-click-outside';
-import Popover from '@material-ui/core/Popover';
 
 const useStyles = makeStyles({
   root: {
     background: 'white',
   },
-  pop: {
+  popover: {
     borderRadius: 15,
     height: '80%',
     width: '31.6%',
@@ -21,7 +18,7 @@ const useStyles = makeStyles({
   },
   hits: {
     width: 350,
-  }
+  },
 });
 
 export default function Search({ indices }) {
@@ -36,7 +33,6 @@ export default function Search({ indices }) {
     []
   );
 
-  //useClickOutside(rootRef, () => setFocus(false));
   const theme = useStyles();
   const [hasFocus, setFocus] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -61,7 +57,7 @@ export default function Search({ indices }) {
           <SearchBox onInput={handleClick} />
           {hasFocus ? (
             <Popover
-              className={theme.pop}
+              className={theme.popover}
               id={id}
               open={open}
               anchorEl={anchorEl}
