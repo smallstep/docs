@@ -1,16 +1,14 @@
 import React from 'react';
 import { connectSearchBox } from 'react-instantsearch-dom';
 import { TextField } from '@smallstep/step-ui';
-import Box from '@mui/material/Box';
+import { Box } from '@material-ui/core';
 
 export default connectSearchBox(
-  ({ refine, currentRefinement, className, onFocus }) => (
+  ({ refine, currentRefinement, className, onFocus, onInput}) => (
     <form className={className}>
       <Box
         component="form"
-        sx= {{
-          width: 350,
-        }}
+        width={350}
       >
         <TextField
           fullWidth
@@ -21,6 +19,7 @@ export default connectSearchBox(
           onChange={(e) => refine(e.target.value)}
           value={currentRefinement}
           onFocus={onFocus}
+          onInput={onInput}
         />
       </Box>
     </form>

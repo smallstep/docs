@@ -1,5 +1,5 @@
 import { Link } from 'gatsby';
-import React from 'react';
+import { default as React } from 'react';
 import { Tile, Paragraph } from '@smallstep/step-ui';
 import {
   connectStateResults,
@@ -8,6 +8,16 @@ import {
   Index,
   Snippet,
 } from 'react-instantsearch-dom';
+import { makeStyles } from '@material-ui/styles';
+
+const useStyles = makeStyles({
+  hits: {
+    marginLeft: -30,
+    '& ul ': {
+      listStyle: "none",
+    },
+  },
+});
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
@@ -38,12 +48,15 @@ const PageHit = ({ hit }) => (
   </div>
 );
 
-const HitsInIndex = ({ index }) => (
-  <Index indexName={index.name}>
-    <HitCount />
-    <Hits className="Hits" hitComponent={PageHit} />
-  </Index>
-);
+function HitsInIndex ({ index }) {
+  const classes = useStyles();
+  return(
+    <Index indexName={index.name}>
+      <HitCount />
+      <Hits className={classes.hits} hitComponent={PageHit} />
+    </Index>
+  )
+};
 
 const SearchResult = ({ indices, className }) => (
   <div className={className}>
