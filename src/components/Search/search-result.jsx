@@ -12,13 +12,9 @@ import { makeStyles } from '@material-ui/styles';
 import { Box } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  HitCount: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-  },
-
   hits: {
     marginLeft: -30,
+    marginRight: 10,
     '& ul ': {
       listStyle: 'none',
     },
@@ -27,9 +23,9 @@ const useStyles = makeStyles({
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
-  const classes = useStyles();
+
   return hitCount > 0 ? (
-    <div className={classes.HitCount}>
+    <div className="HitCount">
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </div>
   ) : null;
@@ -58,7 +54,11 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-      <HitCount />
+      <Box ml={1.6} mt={-1.6} mb={-1.6}>
+        <h4>
+          <HitCount />
+        </h4>
+      </Box>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
   );

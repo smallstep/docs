@@ -14,12 +14,10 @@ const useStyles = makeStyles({
   },
   pop: {
     borderRadius: 15,
-    position: 'absolute',
-    maxHeight: 600,
-    maxWidth: 600,
-    width: 600,
-    marginTop: 45,
+    maxHeight: '80%',
+    width: '31.6%',
     boxShadow: 5,
+    marginTop: 15,
   },
 });
 
