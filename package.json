@@ -24,6 +24,7 @@
     "@styled-icons/fa-solid": "^10.34.0",
     "algoliasearch": "^4.13.1",
     "cross-fetch": "^3.1.5",
+    "eventsource": "1.1.1",
     "formik": "^2.2.9",
     "gatsby": "^3.12.1",
     "gatsby-plugin-algolia": "^0.26.0",
