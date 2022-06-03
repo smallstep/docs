@@ -16,29 +16,29 @@ menu:
 ## Usage
 
 ```raw
-step beta ca acme eab <subcommand> [arguments] [global-flags] [subcommand-flags]
+step ca acme eab <subcommand> [arguments] [global-flags] [subcommand-flags]
 ```
 
 ## Description
 
-**step beta ca acme eab** command group provides facilities for managing ACME 
+**step ca acme eab** command group provides facilities for managing ACME 
     External Account Binding Keys.
 
 ## Examples
 
 List the active ACME External Account Binding Keys:
 ```shell
-$ step beta ca acme eab list <provisioner>
+$ step ca acme eab list my_provisioner
 ```
 
 Add an ACME External Account Binding Key:
 ```shell
-$ step beta ca acme eab add provisioner_name some_name_or_reference
+$ step ca acme eab add my_provisioner my_reference
 ```
 
 Remove an ACME External Account Binding Key:
 ```shell
-$ step beta ca acme eab remove key_id
+$ step ca acme eab remove my_provisioner my_key_id
 ```
 
 

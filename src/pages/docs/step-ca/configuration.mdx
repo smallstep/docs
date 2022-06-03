@@ -90,6 +90,7 @@ CA's keys.
       "maxTLSCertDuration": "24h",
       "defaultTLSCertDuration": "24h",
       "disableRenewal": false,
+      "allowRenewalAfterExpiry": false,
       "minHostSSHCertDuration": "5m",
       "maxHostSSHCertDuration": "1680h",
       "defaultHostSSHCertDuration": "720h",
@@ -240,6 +241,10 @@ CA's keys.
 
     - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
 
+    - **disableRenewal**: do not allow any certificates to be renewed. The default is false.
+
+    - **allowRenewalAfterExpiry**: ☠️  allow expired certificates to be renewed. The default is false. This option adds security risk; proceed with caution and consider alternatives.
+
     - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
 
     - **maxUserSSHCertDuration**: do not allow certificates with a duration greater than this value.
@@ -254,12 +259,16 @@ CA's keys.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
-  - **disableIssuedAtCheck**: disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
+  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
  against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
-  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. See [provisioner documentation](/docs/step-ca/provisioners) for more info.
+  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](/docs/step-ca/provisioners) for details.
 
-  - **password**: plain text password for starting the CA. Used to decrypt the intermediate private key. 
+    - **claims**: Each provisioner can define an optional `claims` attribute. The settings in this attribute override any settings in the global `claims` attribute in the authority configuration. See the authority's **claims** section above for a complete list of options.
+
+    - **options**: Each provisioner can define an optional `options` attribute. This attribute allows an operator to set templates that will be applied to all X.509 or SSH certificates generated using the provisioner. See the [templates documentation](/docs/step-ca/templates) for details.
+
+  - **password**: ☠️  plain text password for starting the CA. Used to decrypt the intermediate private key. 
 
     <Alert severity="warning">
       <div> 

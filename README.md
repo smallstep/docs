@@ -47,6 +47,6 @@ Check formatting with `yarn lint`.
 
 ## Practical Zero Trust
 
-The Practical Zero Trust articles are a big different.
+The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.

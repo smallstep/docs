@@ -41,7 +41,9 @@ certificate_manager:
     path: certificate-manager/acme
   - title: Certs For Humans
     path: certificate-manager/oidc
-
+  - title: Kubernetes TLS
+    path: certificate-manager/kubernetes-tls
+    
 registration_authorities:
   - title: ACME for Smallstep Certificate Manager
     path: registration-authorities/acme-for-certificate-manager
@@ -75,6 +77,8 @@ step_ca:
     path: step-ca/getting-started
   - title: Basic CA Operations
     path: step-ca/basic-certificate-authority-operations
+  - title: ACME Basics
+    path: step-ca/acme-basics
   - title: Configuration
     path: step-ca/configuration
   - title: Provisioners
@@ -101,8 +105,6 @@ practical_zero_trust: []
 mutual_tls: []
 
 tutorials:
-  - title: Run a private internal ACME CA
-    path: tutorials/acme-challenge
   - title: Configure popular ACME clients to use a private CA
     path: tutorials/acme-protocol-acme-clients
   - title: Use Kubernetes cert-manager with `step-ca`

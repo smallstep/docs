@@ -7,91 +7,143 @@ menu:
 ---
 
 ## Name
-**step ca provisioner add** -- add one or more provisioners to the CA configuration
+**step ca provisioner add** -- add a provisioner
 
 ## Usage
 
 ```raw
-step ca provisioner add <name> <jwk-file> [<jwk-file> ...]
---ca-config=<file> [--type=JWK]  [--create] [--password-file=<file>]
+step ca provisioner add <name> --type=JWK [--public-key=<file>]
+[--private-key=<file>] [--create] [--password-file=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
 
-step ca provisioner add <name> --type=OIDC --ca-config=<file>
+OIDC
+
+step ca provisioner add <name> --type=OIDC
 [--client-id=<id>] [--client-secret=<secret>]
 [--configuration-endpoint=<url>] [--domain=<domain>]
 [--admin=<email>]...
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
 
-step ca provisioner add <name> --type=x5c --x5c-root=<file>
-[--ca-config=<file>]...
+X5C
 
-step ca provisioner add <name> --type=k8sSA
-[--pem-keys=<file>] [--ca-config=<file>]...
+step ca provisioner add <name> --type=X5C --x5c-root=<file>
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
+
+SSHPOP
+
+step ca provisioner add <name> --type=SSHPOP
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
+
+Nebula
+
+step ca provisioner add <name> --type=Nebula --nebula-root=<file>
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
+
+K8SSA
+
+step ca provisioner add <name> --type=K8SSA [--public-key=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
+
+IID
 
 step ca provisioner add <name> --type=[AWS|Azure|GCP]
-[--ca-config=<file>] [--aws-account=<id>]
-[--gcp-service-account=<name>] [--gcp-project=<name>]
-[--azure-tenant=<id>] [--azure-resource-group=<name>] [--azure-subscription-id=<id>] [--azure-object-id=<id>]
-[--instance-age=<duration>] [--iid-roots=<file>]
+[--aws-account=<id>] [--gcp-service-account=<name>] [--gcp-project=<name>]
+[--azure-tenant=<id>] [--azure-resource-group=<name>]
+[--azure-audience=<name>] [--azure-subscription-id=<id>]
+[--azure-object-id=<id>] [--instance-age=<duration>] [--iid-roots=<file>]
 [--disable-custom-sans] [--disable-trust-on-first-use]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
 
-step ca provisioner add <name> --type=ACME --ca-config=<file>
+ACME
+
+step ca provisioner add <name> --type=ACME [--force-cn] [--require-eab]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
+
+SCEP
+
+step ca provisioner add <name> --type=SCEP [--force-cn] [--challenge=<challenge>]
+[--capabilities=<capabilities>] [--include-root] [--min-public-key-length=<length>]
+[--encryption-algorithm-identifier=<id>] [--admin-cert=<file>] [--admin-key=<file>]
+[--admin-provisioner=<string>] [--admin-subject=<string>] [--password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 ```
 
 ## Description
 
-**step ca provisioner add** adds one or more provisioners
-to the configuration and writes the new configuration back to the CA config.
-
-To pick up the new configuration you must SIGHUP (kill -1 `pid`) or restart the
-step-ca process.
+**step ca provisioner add** adds a provisioner to the CA configuration.
 
 ## Positional arguments
 
 `name`
-The name of the provisioners, if a list of JWK files are passed, this name
-will be linked to all the keys.
-
-`jwk-path`
-List of private (or public) keys in JWK or PEM format.
+The name of the provisioner.
 
 ## Options
 
-
-**--ca-config**=`file`
-The certificate authority configuration `file`. Defaults to
-$(step path)/config/ca.json
 
 **--type**=`type`
 The `type` of provisioner to create.
 
 `type` is a case-insensitive string and must be one of:
 
-- **JWK**: Uses an JWK key pair to sign provisioning tokens. (default)
+**JWK**
+Uses an JWK key pair to sign provisioning tokens. (default)
 
-- **OIDC**: Uses an OpenID Connect provider to sign provisioning tokens.
+**OIDC**
+Uses an OpenID Connect provider to sign provisioning tokens.
 
-- **AWS**: Uses Amazon AWS instance identity documents.
+**AWS**
+Uses Amazon AWS instance identity documents.
 
-- **GCP**: Use Google instance identity tokens.
+**GCP**
+Use Google instance identity tokens.
 
-- **Azure**: Uses Microsoft Azure identity tokens.
+**Azure**
+Uses Microsoft Azure identity tokens.
 
-- **ACME**: Uses the ACME protocol to create certificates.
+**ACME**
+Uses the ACME protocol to create certificates.
 
-- **X5C**: Uses an X509 Certificate / private key pair to sign provisioning tokens.
+**X5C**
+Uses an X509 certificate / private key pair to sign provisioning tokens.
 
-- **K8sSA**: Uses Kubernetes Service Account tokens.
+**K8SSA**
+Uses Kubernetes Service Account tokens.
 
-- **SSHPOP**: Uses an SSH Certificate / private key pair to sign provisioning tokens.
+**SSHPOP**
+Uses an SSH certificate / private key pair to sign provisioning tokens.
 
-**--password-file**=`file`
-The path to the `file` containing the password to encrypt or decrypt the private key.
+**SCEP**
+Uses the SCEP protocol to create certificates.
+
+**Nebula**
+Uses a Nebula certificate / private key pair to sign provisioning tokens.
+
+
+**--public-key**=`file`
+The `file` containing the JWK public key. Or, a `file`
+containing one or more PEM formatted keys, if used with the K8SSA provisioner.
 
 **--create**
-Create a new ECDSA key pair using curve P-256 and populate a new JWK
-provisioner with it.
+Create the JWK key pair for the provisioner.
 
-**--ssh**
-Enable SSH on the new provisioners.
+**--private-key**=`file`
+The `file` containing the JWK private key.
 
 **--client-id**=`id`
 The `id` used to validate the audience in an OpenID Connect token.
@@ -110,9 +162,54 @@ The `email` of an admin user in an OpenID Connect provisioner, this user
 will not have restrictions in the certificates to sign. Use the
 '--admin' flag multiple times to configure multiple administrators.
 
-**--domain**=`domain`
-The `domain` used to validate the email claim in an OpenID Connect provisioner.
-Use the '--domain' flag multiple times to configure multiple domains.
+**--remove-admin**=`email`
+Remove the `email` of an admin user in an OpenID Connect provisioner, this user
+will not have restrictions in the certificates to sign. Use the
+'--admin' flag multiple times to configure multiple administrators.
+
+**--group**=`group`
+The `group` list used to validate the groups extenstion in an OpenID Connect token.
+Use the '--group' flag multiple times to configure multiple groups.
+
+**--tenant-id**=`tenant-id`
+The `tenant-id` used to replace the templatized {tenantid} in the OpenID Configuration.
+
+**--x5c-root**=`file`
+Root certificate (chain) `file` used to validate the signature on X5C
+provisioning tokens.
+
+**--nebula-root**=`file`
+Root certificate (chain) `file` used to validate the signature on Nebula
+provisioning tokens.
+
+**--force-cn**
+Always set the common name in provisioned certificates.
+
+**--require-eab**
+Require (and enable) External Account Binding (EAB) for Account creation.
+If this flag is set to false, then disable EAB.
+
+**--challenge**=`challenge`
+The SCEP `challenge` to use as a shared secret between a client and the CA
+
+**--capabilities**=`capabilities`
+The SCEP `capabilities` to advertise
+
+**--include-root**
+Include the CA root certificate in the SCEP CA certificate chain
+
+**--min-public-key-length**=`length`
+The minimum public key `length` of the SCEP RSA encryption key
+
+**--encryption-algorithm-identifier**=`id`
+The `id` for the SCEP encryption algorithm to use.
+      Valid values are 0 - 4, inclusive. The values correspond to:
+      0: DES-CBC,
+      1: AES-128-CBC,
+      2: AES-256-CBC,
+      3: AES-128-GCM,
+      4: AES-256-GCM.
+      Defaults to DES-CBC (0) for legacy clients.
 
 **--aws-account**=`id`
 The AWS account `id` used to validate the identity documents.
@@ -124,6 +221,9 @@ The Microsoft Azure tenant `id` used to validate the identity tokens.
 **--azure-resource-group**=`name`
 The Microsoft Azure resource group `name` used to validate the identity tokens.
 Use the flag multiple times to configure multiple resource groups
+
+**--azure-audience**=`name`
+The Microsoft Azure audience `name` used to validate the identity tokens.
 
 **--azure-subscription-id**=`id`
 The Microsoft Azure subscription `id` used to validate the identity tokens.
@@ -139,17 +239,13 @@ Use the flag multiple times to configure multiple service accounts.
 
 **--gcp-project**=`id`
 The Google project `id` used to validate the identity tokens.
-Use the flag multipl etimes to configure multiple projects
+Use the flag multiple times to configure multiple projects
 
 **--instance-age**=`duration`
 The maximum `duration` to grant a certificate in AWS and GCP provisioners.
 A `duration` is sequence of decimal numbers, each with optional fraction and a
 unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
 "us" (or "µs"), "ms", "s", "m", "h".
-
-**--iid-roots**=`file`
-The `file` containing the certificates used to validate the
-instance identity documents in AWS.
 
 **--disable-custom-sans**
 On cloud provisioners, if enabled only the internal DNS and IP will be added as a SAN.
@@ -160,116 +256,197 @@ On cloud provisioners, if enabled multiple sign request for this provisioner
 with the same instance will be accepted. By default only the first request
 will be accepted.
 
-**--x5c-root**=`file`
-Root certificate (chain) `file` used to validate the signature on X5C
-provisioning tokens.
+**--x509-template**=`file`
+The x509 certificate template `file`, a JSON representation of the certificate to create.
 
-**--pem-keys**=`file`
-Public key `file` for validating signatures on K8s Service Account Tokens.
-PEM formatted bundle (can have multiple PEM blocks in the same file) of public
-keys and x509 Certificates.
+**--x509-template-data**=`file`
+The x509 certificate template data `file`, a JSON map of data that can be used by the certificate template.
+
+**--ssh-template**=`file`
+The x509 certificate template `file`, a JSON representation of the certificate to create.
+
+**--ssh-template-data**=`file`
+The ssh certificate template data `file`, a JSON map of data that can be used by the certificate template.
+
+**--x509-min-dur**=`duration`
+The minimum `duration` for an x509 certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--x509-max-dur**=`duration`
+The maximum `duration` for an x509 certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--x509-default-dur**=`duration`
+The default `duration` for an x509 certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-user-min-dur**=`duration`
+The minimum `duration` for an ssh user certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-user-max-dur**=`duration`
+The maximum `duration` for an ssh user certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-user-default-dur**=`duration`
+The maximum `duration` for an ssh user certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-host-min-dur**=`duration`
+The minimum `duration` for an ssh host certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-host-max-dur**=`duration`
+The maximum `duration` for an ssh host certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--ssh-host-default-dur**=`duration`
+The maximum `duration` for an ssh host certificate generated by this provisioner.
+Value must be a sequence of decimal numbers, each with optional fraction, and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--disable-renewal**
+Disable renewal for all certificates generated by this provisioner.
+
+**--allow-renewal-after-expiry**
+Allow renewals for expired certificates generated by this provisioner.
+
+**--ssh**
+Enable provisioning of ssh certificates. The default value is true. To
+disable ssh use '--ssh=false'.
+
+**--admin-cert**=`chain`
+Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
+
+**--admin-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the admin certificate that will
+be stored in the 'x5c' header.
+
+**--admin-provisioner**=`name`, **--admin-issuer**=`name`
+The provisioner `name` to use for generating admin credentials.
+
+**--admin-subject**=`subject`, **--admin-name**=`subject`
+The admin `subject` to use for generating admin credentials.
+
+**--password-file**=`file`
+The path to the `file` containing the password to encrypt or decrypt the private key.
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
+
+**--ca-config**=`file`
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
 
 ## Examples
 
-Add a single JWK provisioner:
+Create a JWK provisioner with newly generated keys and a template for x509 certificates:
 ```shell
-$ step ca provisioner add max@smallstep.com ./max-laptop.jwk --ca-config ca.json
+step ca provisioner add cicd --type JWK --create --x509-template ./templates/example.tpl
 ```
 
-Add a single JWK provisioner using an auto-generated asymmetric key pair:
+Create a JWK provisioner and explicitly select the configuration file to update:
 ```shell
-$ step ca provisioner add max@smallstep.com --ca-config ca.json \
---create
+step ca provisioner add cicd --type JWK --create --ca-config /path/to/ca.json
 ```
 
-Add a single JWK provisioner with ssh enabled:
+Create a JWK provisioner with duration claims:
 ```shell
-$ step ca provisioner add max@smallstep.com --ca-config ca.json --ssh --create
+step ca provisioner add cicd --type JWK --create --x509-min-dur 20m --x509-default-dur 48h --ssh-user-min-dur 17m --ssh-host-default-dur 16h
 ```
 
-Add a list of provisioners for a single name:
+Create a JWK provisioner with existing keys:
 ```shell
-$ step ca provisioner add max@smallstep.com ./max-laptop.jwk ./max-phone.pem ./max-work.pem \
---ca-config ca.json
+step ca provisioner add jane@doe.com --type JWK --public-key jwk.pub --private-key jwk.priv
 ```
 
-Add a single OIDC provisioner:
+Create an OIDC provisioner:
 ```shell
-$ step ca provisioner add Google --type oidc --ca-config ca.json \
+step ca provisioner add Google --type OIDC --ssh \
   --client-id 1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com \
+  --client-secret udTrOT3gzrO7W9fDPgZQLfYJ \
   --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration
 ```
 
-Add an OIDC provisioner with two administrators:
+Create an X5C provisioner:
 ```shell
-$ step ca provisioner add Google --type oidc --ca-config ca.json \
-  --client-id 1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com \
-  --client-secret udTrOT3gzrO7W9fDPgZQLfYJ \
-  --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration \
-  --admin mariano@smallstep.com --admin max@smallstep.com \
-  --domain smallstep.com
+step ca provisioner add x5c --type X5C --x5c-root x5c_ca.crt
 ```
 
-Add an AWS provisioner on one account with a one hour of instance age:
+Create an ACME provisioner:
 ```shell
-$ step ca provisioner add Amazon --type AWS --ca-config ca.json \
-  --aws-account 123456789 --instance-age 1h
+step ca provisioner add acme --type ACME
 ```
 
-Add an GCP provisioner with two service accounts and two project ids:
+Create an ACME provisioner, forcing a CN and requiring EAB:
 ```shell
-$ step ca provisioner add Google --type GCP --ca-config ca.json \
-  --gcp-service-account 1234567890-compute@developer.gserviceaccount.com \
-  --gcp-service-account 9876543210-compute@developer.gserviceaccount.com \
-  --gcp-project identity --gcp-project accounting
+step ca provisioner add acme --type ACME --force-cn --require-eab
 ```
 
-Add an Azure provisioner with two resource groups, one subscription ID and one object ID:
+Create an K8SSA provisioner:
 ```shell
-$ step ca provisioner add Azure --type Azure --ca-config ca.json \
+step ca provisioner add kube --type K8SSA --ssh --public-key key.pub
+```
+
+Create an SSHPOP provisioner for renewing SSH host certificates:")
+```shell
+step ca provisioner add sshpop --type SSHPOP
+```
+
+Create a SCEP provisioner with 'secret' challenge and AES-256-CBC encryption:
+```shell
+step ca provisioner add my_scep_provisioner --type SCEP --challenge secret --encryption-algorithm-identifier 2
+```
+
+Create an Azure provisioner with two resource groups, one subscription ID and one object ID:
+```shell
+$ step ca provisioner add Azure --type Azure \
   --azure-tenant bc9043e2-b645-4c1c-a87a-78f8644bfe57 \
   --azure-resource-group identity --azure-resource-group accounting \
   --azure-subscription-id dc760a01-2886-4a84-9abc-f3508e0f87d9 \
   --azure-object-id f50926c7-abbf-4c28-87dc-9adc7eaf3ba7
 ```
 
-Add an GCP provisioner that will only accept the SANs provided in the identity token:
+Create an GCP provisioner that will only accept the SANs provided in the identity token:
 ```shell
-$ step ca provisioner add Google --type GCP --ca-config ca.json \
+$ step ca provisioner add Google --type GCP \
   --disable-custom-sans --gcp-project internal
 ```
 
-Add an AWS provisioner that will only accept the SANs provided in the identity
+Create an AWS provisioner that will only accept the SANs provided in the identity
 document and will allow multiple certificates from the same instance:
 ```shell
-$ step ca provisioner add Amazon --type AWS --ca-config ca.json \
+$ step ca provisioner add Amazon --type AWS \
   --aws-account 123456789 --disable-custom-sans --disable-trust-on-first-use
 ```
 
-Add an AWS provisioner that will use a custom certificate to validate the instance
+Create an AWS provisioner that will use a custom certificate to validate the instance
 identity documents:
 ```shell
-$ step ca provisioner add Amazon --type AWS --ca-config ca.json \
-  --aws-account 123456789 --iid-roots $(step path)/certs/aws.crt
-```
-
-Add an ACME provisioner.
-```shell
-$ step ca provisioner add acme-smallstep --type ACME
-```
-
-Add an X5C provisioner.
-```shell
-$ step ca provisioner add x5c-smallstep --type X5C --x5c-root x5cRoot.crt
-```
-
-Add a K8s Service Account provisioner.
-```shell
-$ step ca provisioner add my-kube-provisioner --type K8sSA --pem-keys keys.pub
-```
-
-Add an SSH-POP provisioner.
-```shell
-$ step ca provisioner add sshpop-smallstep --type SSHPOP
+$ step ca provisioner add Amazon --type AWS \
+  --aws-account 123456789
 ```
 

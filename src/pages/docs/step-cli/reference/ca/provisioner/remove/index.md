@@ -7,98 +7,63 @@ menu:
 ---
 
 ## Name
-**step ca provisioner remove** -- remove one, or more, provisioners from the CA configuration
+**step ca provisioner remove** -- remove a provisioner from the CA configuration
 
 ## Usage
 
 ```raw
 step ca provisioner remove <name>
-[--kid=<kid>] [--config=<file>] [--all]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
+[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>] [--ca-config=<file>]
 ```
 
 ## Description
 
-**step ca provisioner remove** removes one or more provisioners
-from the configuration and writes the new configuration back to the CA config.
-
-To pick up the new configuration you must SIGHUP (kill -1 `pid`) or restart the
-step-ca process.
-
-## Positional arguments
-
-`name`
-The name field of the provisioner(s) to be removed.
+**step ca provisioner remove** removes a provisioner from the CA configuration.
 
 ## Options
 
 
+**--admin-cert**=`chain`
+Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
+
+**--admin-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the admin certificate that will
+be stored in the 'x5c' header.
+
+**--admin-provisioner**=`name`, **--admin-issuer**=`name`
+The provisioner `name` to use for generating admin credentials.
+
+**--admin-subject**=`subject`, **--admin-name**=`subject`
+The admin `subject` to use for generating admin credentials.
+
+**--password-file**=`file`
+The path to the `file` containing the password to encrypt or decrypt the private key.
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
+
 **--ca-config**=`file`
-The `file` containing the CA configuration.
-
-**--kid**=`kid`
-The `kid` (Key ID) of the JWK provisioner key to be removed.
-
-**--client-id**=`id`
-The `id` (Client ID) of the OIDC provisioner to be removed.
-
-**--all**
-Remove all provisioners with a given name. Cannot be
-used in combination w/ the **--kid** or **--client-id** flag.
-
-**--type**=`type`
-The `type` of provisioner to remove. Type is a case-insensitive string
-and must be one of:
-- **JWK**: Uses an JWK key pair to sign provisioning tokens.
-
-- **OIDC**: Uses an OpenID Connect provider to sign provisioning tokens.
-
-- **AWS**: Uses Amazon AWS instance identity documents.
-
-- **GCP**: Use Google instance identity tokens.
-
-- **Azure**: Uses Microsoft Azure identity tokens.
-
-- **ACME**: Uses ACME protocol.
-
-- **X5C**: Uses an X509 Certificate / private key pair to sign provisioning tokens.
-
-- **K8sSA**: Uses Kubernetes Service Account tokens.
+The certificate authority configuration `file`. Defaults to
+$(step path)/config/ca.json
 
 ## Examples
 
-Remove all provisioners associated with a given name (max@smallstep.com):
+Remove provisioner by name:
 ```shell
-$ step ca provisioner remove max@smallstep.com --all --ca-config ca.json
+$ step ca provisioner remove acme
 ```
 
-Remove the provisioner matching a given name and kid:
+Remove provisioner from a ca.json that is not in the default location:
 ```shell
-$ step ca provisioner remove max@smallstep. --kid 1234 --ca-config ca.json
+$ step ca provisioner remove acme --ca-config /path/to/ca.json
 ```
 
-Remove the provisioner matching a given name and a client id:
-```shell
-$ step ca provisioner remove Google --ca-config ca.json \
-  --client-id 1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com
-```
-
-Remove the cloud identity provisioner given name and a type:
-```shell
-$ step ca provisioner remove Amazon --ca-config ca.json --type AWS
-```
-
-Remove the ACME provisioner by name:
-```shell
-$ step ca provisioner remove my-acme-provisioner --type acme
-```
-
-Remove an X5C provisioner by name:
-```shell
-$ step ca provisioner remove my-x5c-provisioner --type x5c
-```
-
-Remove a K8sSA provisioner by name:
-```shell
-$ step ca provisioner remove k8sSA-default --type k8sSA
-```
 

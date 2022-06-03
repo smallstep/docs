@@ -191,7 +191,7 @@ $ step ca certificate localhost localhost.crt localhost.key --not-after=5m
 $ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h
 ```
 
-Note that default maximum certificate duration is 24 hours. To adjust it, add a `claims` section to the `ca.json` configuration file, either under `"authority"` or under a specific provisioner's configuration block, with the following keys:
+Note that default maximum certificate duration is 24 hours. To adjust the global default, minimum, and maximum certificate durations for your CA, add a `claims` section to the `$(step path)/config/ca.json` configuration file, under `"authority"`, with the following keys:
 
 ```json
 "claims": {
@@ -201,6 +201,7 @@ Note that default maximum certificate duration is 24 hours. To adjust it, add a 
 }
 ```
 
+You can also set default, minimum, and maximum certificate durations on each provisioner.
 See [Basic Configuration Options](/docs/step-ca/configuration#basic-configuration-options) for more details.
 
 ### Revoke a Certificate
@@ -396,6 +397,7 @@ You're all done. Now test your SSH connection.
 
 ## Next Steps
 
-* Our [Tutorials](/docs/tutorials) can guide you through more complex scenarios for using `step-ca` in different contexts and workflows.
+* Learn to automate certificate management in your PKI. [ACME Basics](/docs/step-ca/acme-basics) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
+* See [Provisioners](/docs/step-ca/provisioners), [Production Considerations](/docs/step-ca/certificate-authority-server-production), and our [Configuration Guide](/docs/step-ca/configuration) to learn more about tailoring `step-ca` to your infrastructure.
 * Run [`step ca help`](/docs/step-cli/reference/ca) or [`step ssh help`](/docs/step-cli/reference/ssh) for many more flags and examples.
-* See [Configuration](/docs/step-ca/configuration), [Core Concepts](/docs/step-ca/certificate-authority-core-concepts), and [Production Considerations](/docs/step-ca/certificate-authority-server-production) to learn more about tailoring `step-ca` to your infrastructure.
+* Our [Tutorials](/docs/tutorials) can guide you through more complex scenarios for using `step-ca` in various contexts and workflows.

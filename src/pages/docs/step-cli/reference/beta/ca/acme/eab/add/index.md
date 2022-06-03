@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step beta ca acme eab add <provisioner> [<reference>]
+step ca acme eab add <provisioner> [<eab-key-reference>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-provisioner=<string>] [--admin-subject=<string>]
 [--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
@@ -21,14 +21,14 @@ step beta ca acme eab add <provisioner> [<reference>]
 
 ## Description
 
-**step beta ca acme eab add** adds ACME External Account Binding Key.
+**step ca acme eab add** adds ACME External Account Binding Key.
 
 ## Positional arguments
 
 `provisioner`
 Name of the provisioner to which the ACME EAB key will be added
 
-`reference`
+`eab-key-reference`
 (Optional) reference (from external system) for the key that will be added
 
 ## Options
@@ -63,11 +63,11 @@ The context `name` to apply for the given command.
 
 Add an ACME External Account Binding Key without reference:
 ```shell
-$ step beta ca acme eab add my_acme_provisioner
+$ step ca acme eab add my_acme_provisioner
 ```
 
 Add an ACME External Account Binding Key with reference:
 ```shell
-$ step beta ca acme eab add my_acme_provisioner my_first_eab_key
+$ step ca acme eab add my_acme_provisioner my_first_eab_key
 ```
 

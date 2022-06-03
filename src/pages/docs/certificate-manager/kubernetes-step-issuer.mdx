@@ -1,0 +1,490 @@
+---
+title: Integrate Certificate Manager, step-issuer, and cert-manager for Kubernetes TLS
+html_title: Integrate Certificate Manager, step-issuer, and cert-manager for Kubernetes TLS
+description: Documentation for instructions for configuring Kubernetes TLS
+image: /graphics/kubernetes-tls-unfurl.png
+---
+
+When connecting things outside Kubernetes to Kubernetes services,
+we recommend using Smallstep Certificate Manager in combination with [`step-issuer`](https://github.com/smallstep/step-issuer) and [Kubernetes’ cert-manager](https://cert-manager.io/docs/) utility. 
+
+## Before you begin
+
+You will need:
+
+- An account on the Smallstep platform. Need one? [Register here](https://smallstep.com/signup?product=cm).
+- An Authority in Certificate Manager that will act as your upstream CA.
+- Additionally, we assume that you have a functioning Kubernetes Cluster already running and accessible.
+
+![kubernetes diagram](/graphics/k8s-step-issuer-diagram.png)
+
+### Dependencies
+
+- [`step`](https://smallstep.com/docs/step-ca/installation)
+- [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
+- [`helm`](https://helm.sh/docs/intro/install/)
+
+## Add a Certificate Manager Provisioner
+
+First, we'll add a Certificate Manager provisioner for `step-issuer` to use.
+In this case, we will create a JWK provisioner. 
+Running [the following command](https://smallstep.com/docs/step-cli/reference/beta/ca/provisioner/add) will start an authentication flow to Certificate Manager.
+Upon success, it will request a password for the new provisioner. 
+Make sure that this password is saved in your password manager.
+You'll need it for later steps.
+
+<CodeBlock
+  language="shell-session"
+  copyText='step ca provisioner add "step-issuer" --type JWK --create'
+>
+{`$ step ca provisioner add "step-issuer" --type JWK --create
+`}
+</CodeBlock>
+
+Upon success, you will see the provisioner’s configuration returned as a successful response. 
+
+Run the [following command](https://smallstep.com/docs/step-cli/reference/ca/provisioner/list), and make a note of the new provisioner’s `“kid”` field (the *5th line listed*; it will be required in later steps):
+
+<CodeBlock
+  language="shell-session"
+  copyText="step ca provisioner list | grep step-issuer -A 9"
+>
+{`$ step ca provisioner list | grep step-issuer -A 9
+"name": "step-issuer",
+      "key": {
+         "use": "sig",
+         "kty": "EC",
+         "kid": "c39XHcunqE...BbR0xhl7I",
+         "crv": "P-256",
+         "alg": "ES256",
+         "x": "abQRrRWF6cMlhRvpQlAZNLWUmwYjWi0MJvspgw",
+         "y": "jeIdFtUu5lZwZacDeX8nElNtZPpQrW70WyUKOo"
+},
+`}
+</CodeBlock>
+
+## Install and Configure `cert-manager`
+
+[`cert-manager`](https://github.com/cert-manager/cert-manager) is a Kubernetes certificate management controller. 
+This important add-on helps issue and renew certificates. 
+Switch to the correct `kubectl` context for your Kubernetes Cluster,
+and run the following commands to install `cert-manager` to the cluster:
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm repo add jetstack https://charts.jetstack.io"
+>
+{`$ helm repo add jetstack https://charts.jetstack.io
+"jetstack" has been added to your repositories
+`}
+</CodeBlock>
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm repo update"
+>
+{`$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+Update Complete. ⎈Happy Helming!⎈
+`}
+</CodeBlock>
+
+Next, run:
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm install
+     cert-manager jetstack/cert-manager 
+     --namespace cert-manager 
+     --create-namespace 
+     --version v1.7.1 
+     --set installCRDs=true"
+>
+{`$ helm install \\
+     cert-manager jetstack/cert-manager \\
+     --namespace cert-manager \\
+     --create-namespace \\
+     --version v1.7.1 \\
+     --set installCRDs=true
+NAME: cert-manager
+LAST DEPLOYED: Thu Mar 17 14:19:59 2022
+NAMESPACE: cert-manager
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+cert-manager v1.7.1 has been deployed successfully!
+  
+In order to begin issuing certificates, you will need to set up a ClusterIssuer
+or Issuer resource (for example, by creating a 'letsencrypt-staging' issuer).
+  
+More information on the different types of issuers and how to configure them
+can be found in our documentation:
+  
+https://cert-manager.io/docs/configuration/
+  
+For information on how to configure cert-manager to automatically provision
+Certificates for Ingress resources, take a look at the 'ingress-shim'
+documentation:
+  
+https://cert-manager.io/docs/usage/ingress/
+`}
+</CodeBlock>
+
+Now that `cert-manager` is installed, confirm your pods are running:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get pods -n cert-manager"
+>
+{`$ kubectl get pods -n cert-manager
+NAME                                       READY   STATUS    RESTARTS   AGE
+cert-manager-6d6bb4f487-gdtrj              1/1     Running   0          3m17s
+cert-manager-cainjector-7d55bf8f78-hqhnm   1/1     Running   0          3m17s
+cert-manager-webhook-577f77586f-n5q9h      1/1     Running   0          3m17s
+`}
+</CodeBlock>
+
+## Install & Connect `step-issuer`
+
+`step-issuer` is a `cert-manager` `CertificateRequest` controller that signs the certificate requests from the cluster. We’ll need to connect it to your Certificate Manager authority before it can start signing certificates.
+
+To install `step-issuer` into your cluster, first add the Smallstep repository:
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm repo add smallstep  https://smallstep.github.io/helm-charts"
+>
+{`$ helm repo add smallstep  https://smallstep.github.io/helm-charts
+"smallstep" has been added to your repositories
+`}
+</CodeBlock>
+
+Next, run:
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm repo update"
+>
+{`$ helm repo update
+Hang tight while we grab the latest from your chart repositories...
+...Successfully got an update from the "jetstack" chart repository
+...Successfully got an update from the "smallstep" chart repository
+Update Complete. ⎈Happy Helming!⎈
+`}
+</CodeBlock>
+
+Next, run:
+
+<CodeBlock
+  language="shell-session"
+  copyText="helm install 
+     step-issuer smallstep/step-issuer 
+     --namespace step-issuer 
+     --create-namespace"
+>
+{`$ helm install \\
+     step-issuer smallstep/step-issuer \\
+     --namespace step-issuer \\
+     --create-namespace
+NAME: step-issuer
+LAST DEPLOYED: Thu Mar 17 15:39:29 2022
+NAMESPACE: default
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+⚙️  To get step-issuer up and running follow the next steps:
+....
+`}
+</CodeBlock>
+
+Now that `step-issuer` is installed, let's confirm its pods are running:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get pods -n step-issuer"
+>
+{`$ kubectl get pods -n step-issuer
+NAME                           READY   STATUS    RESTARTS   AGE
+step-issuer-56cc6c4498-g4pl2   2/2     Running   0          63s
+`}
+</CodeBlock>
+
+We start initializing `step-issuer` using the base64 representation of the Certificate Manager authority’s Root Certificate. Do so by running the following [command](https://smallstep.com/docs/step-cli/reference/base64):
+
+<CodeBlock
+  language="shell-session"
+  copyText="step ca root | step base64"
+>
+{`$ step ca root | step base64
+LS0tLS1CRUdJTWhrak9....pzdnZ3bHpHcFg4eFJFRVJUSUZJQ0FUtCg==
+`}
+</CodeBlock>
+
+In addition to this value, also gather your authority URL, provisioner password, and provisioner `kid`. Use these values to populate `issuer-config.yaml` below:
+
+```yaml
+apiVersion: certmanager.step.sm/v1beta1
+kind: StepIssuer
+metadata:
+ name: step-issuer
+ namespace: step-issuer
+spec:
+ # The CA URL.
+ url: https://${authority name}.${team name}.ca.smallstep.com
+ # The base64 encoded version of the CA root certificate in PEM format.
+ caBundle: ${base64 Value Above}
+ # The provisioner name, kid, and a reference to the provisioner password secret.
+ provisioner:
+   name: step-issuer
+   kid: ${Provisioner `kid`}
+   passwordRef:
+     name: step-issuer-provisioner-password
+     key: password
+```
+
+Create a Kubernetes [Secret](https://kubernetes.io/docs/concepts/configuration/secret/) holding the provisioner password for the `step-issuer` provisioner you’ve set up in Certificate Manager:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl create secret \\
+		-n step-issuer generic step-issuer-provisioner-password \\
+		--from-literal=password=<your provisioner password>"
+>
+{`$ kubectl create secret \\
+		-n step-issuer generic step-issuer-provisioner-password \\
+		--from-literal=password=<your provisioner password>
+secret/step-issuer-provisioner-password created
+`}
+</CodeBlock>
+
+Apply `issuer-config.yaml` to the cluster:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl apply -f issuer-config.yaml"
+>
+{`$ kubectl apply -f issuer-config.yaml
+stepissuer.certmanager.step.sm/step-issuer created
+`}
+</CodeBlock>
+
+Moments later, you should be able to see the status property in the resource:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get stepissuers.certmanager.step.sm step-issuer
+    -n step-issuer 
+    -o yaml"
+>
+{`$ kubectl get stepissuers.certmanager.step.sm step-issuer \\
+    -n step-issuer \\
+    -o yaml
+apiVersion: certmanager.step.sm/v1beta1
+kind: StepIssuer
+...
+status:
+  conditions:
+  - lastTransitionTime: "2022-03-17T16:09:51Z"
+    message: StepIssuer verified and ready to sign certificates
+    reason: Verified
+    status: "True"
+    type: Ready
+`}
+</CodeBlock>
+
+At this point, `step-issuer` is ready to begin signing certificates.
+
+`step-issuer` has a controller watching for CertificateRequest resources.
+To create this request we first need to create a CSR with `step`.
+This [command](https://smallstep.com/docs/step-cli/reference/certificate/create) will ask for a password to encrypt the private key;
+generate a password in your password manager for this step:
+
+<CodeBlock
+  language="shell-session"
+  copyText="step certificate create --csr 
+    internal.smallstep.com internal.csr internal.key"
+>
+{`$ step certificate create --csr \\
+    internal.smallstep.com internal.csr internal.key
+Your certificate signing request has been saved in internal.csr.
+Your private key has been saved in internal.key.
+`}
+</CodeBlock>
+
+Encode the new CSR using base64:
+
+<CodeBlock
+  language="shell-session"
+  copyText="cat internal.csr | step base64"
+>
+{`$ cat internal.csr | step base64
+LS0tLxRWFJIdH....LS0tLS0=
+`}
+</CodeBlock>
+
+Now, create `certificate-request.yaml` and replace the request value with the base64 value of your new CSR:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: CertificateRequest
+metadata:
+ name: internal-smallstep-com
+ namespace: step-issuer
+spec:
+ # The base64 encoded version of the certificate request in PEM format.
+ request: ${base64 Value from Above}
+ # The duration of the certificate
+ duration: 24h
+ # If the certificate will be a CA or not.
+ isCA: false
+ # A reference to the issuer in charge of signing the CSR.
+ issuerRef:
+   group: certmanager.step.sm
+   kind: StepIssuer
+   name: step-issuer
+```
+
+And now apply `certificate-request.yaml` to the cluster:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl apply -f certificate-request.yaml"
+>
+{`$ kubectl apply -f certificate-request.yaml
+certificaterequest.cert-manager.io/internal-smallstep-com created
+`}
+</CodeBlock>
+
+And moments later the bundled signed certificate with the intermediate as well as the root certificate will be available in the resource:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get certificaterequests.cert-manager.io internal-smallstep-com 
+    -n step-issuer 
+    -o yaml"
+>
+{`$ kubectl get certificaterequests.cert-manager.io internal-smallstep-com \
+    -n step-issuer \
+    -o yaml
+apiVersion: cert-manager.io/v1
+kind: CertificateRequest
+metadata:
+....
+conditions:
+  - lastTransitionTime: "2022-03-18T09:59:26Z"
+    message: Certificate request has been approved by cert-manager.io
+    reason: cert-manager.io
+    status: "True"
+    type: Approved
+  - lastTransitionTime: "2022-03-18T09:59:27Z"
+    message: Certificate issued
+    reason: Issued
+    status: "True"
+    type: Ready
+`}
+</CodeBlock>
+
+Now, you are ready to use the TLS certificate in your app.
+
+## Using the Certificate Resource
+
+Before supporting CertificateRequest, `cert-manager` supported the resource Certificate; this allows you to create TLS certificates providing only X.509 properties like the common name, DNS, or IP address SANs. `cert-manager` now provides a method to support Certificate resources using CertificateRequest controllers like `step-issuer`.
+
+The YAML for a Certificate resource looks like example `certificate.yaml` below:
+
+```yaml
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: backend-smallstep-com
+  namespace: step-issuer
+spec:
+  # The secret name to store the signed certificate
+  secretName: backend-smallstep-com-tls
+  # Common Name
+  commonName: backend.smallstep.com
+  # DNS SAN
+  dnsNames:
+    - localhost
+    - backend.smallstep.com
+  # IP Address SAN
+  ipAddresses:
+    - "127.0.0.1"
+  # Duration of the certificate
+  duration: 24h
+  # Renew 8 hours before the certificate expiration
+  renewBefore: 8h
+  # The reference to the step issuer
+  issuerRef:
+    group: certmanager.step.sm
+    kind: StepIssuer
+    name: step-issuer
+```
+
+To apply the certificate resource, run:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl apply -f certificate.yaml"
+>
+{`$ kubectl apply -f certificate.yaml
+certificate.cert-manager.io/backend-smallstep-com created
+`}
+</CodeBlock>
+
+Moments later, a `CertificateRequest` will be automatically created by cert-manager:
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get certificates.cert-manager.io -n step-issuer"
+>
+{`$ kubectl get certificates.cert-manager.io \\
+        -n step-issuer
+NAME                    READY   SECRET                      AGE
+backend-smallstep-com   True    backend-smallstep-com-tls   18s
+`}
+</CodeBlock>
+
+`step-issuer` gets this `CertificateRequest` and sends the signing request to Certificate Manager and stores the signed certificate in the same resource. `cert-manager` retrieves the signed certificate and stores the signed certificate/key pair in the `Secret` denoted in the YAML file property `secretName`.
+
+<CodeBlock
+  language="shell-session"
+  copyText="kubectl get secrets backend-smallstep-com-tls 
+       -n step-issuer 
+		-o yaml"
+>
+{`$ kubectl get secrets backend-smallstep-com-tls \\
+       -n step-issuer \\
+	   -o yaml
+apiVersion: v1
+data:
+  ca.crt: LS0tLS1CRtLS....0FURS0tLS0tCg==
+  tls.crt: LS0tKVjJXTj....dNSd3Qc3a0tLQo=
+  tls.key: LS0tLS1CRUd....JTiBSU0LS0tLQo=
+kind: Secret
+metadata:
+  annotations:
+    cert-manager.io/alt-names: localhost,backend.smallstep.com
+    cert-manager.io/certificate-name: backend-smallstep-com
+    cert-manager.io/common-name: backend.smallstep.com
+    cert-manager.io/ip-sans: 127.0.0.1
+    cert-manager.io/issuer-group: certmanager.step.sm
+    cert-manager.io/issuer-kind: StepIssuer
+    cert-manager.io/issuer-name: step-issuer
+    cert-manager.io/uri-sans: ""
+  creationTimestamp: "2022-03-22T12:37:57Z"
+  name: backend-smallstep-com-tls
+  namespace: step-issuer
+  resourceVersion: "305291"
+  uid: fc54d1e7-4501-409b-b71b-e2c560504709
+type: kubernetes.io/tls
+`}
+</CodeBlock>
+
+That's it. You can now reference this secret from your app to access the certificate. 
+No headaches involved, no custom tools required, and one less problem to think about. 
+Zero Trust doesn’t have to be hard to implement:
+With the right tools, it’s simple to “set it and forget it” the first time around and automatically have mutual TLS at hand.

@@ -44,36 +44,31 @@ Certificate lifetimes, access control policies, renewal, templates, and many oth
 By setting *claims* on a provisioner, you can control minimum, maximum, and default certificate lifetimes. 
 Let's take a look at the provisioner claims on the `authority-admin` provisioner that's automatically created with your Authority.
 
-<CodeBlock language="shell-session" copyText="step beta ca provisioner get authority-admin">
-{`$ step beta ca provisioner get authority-admin\n
-No admin credentials found. You must login to execute admin commands.
-✔ Please enter admin name/subject (e.g., name@example.com): TeamAdmin@yourco.com
-✔ Provisioner: authority-admin (OIDC) [client: 380d0a5a-7263-4e43-bb73-980afd0dc5c0]
-Your default web browser has been opened to visit:
-https://auth.smallstep.com/oidc/\n
-{
-  "id": "2e8b84fa-5af6-4635-a3c2-f852f8011834",
-  "authorityId": "f09f83fd-7e58-418d-9a30-ef4885336873",
-  "type": "OIDC",
-  "name": "authority-admin",
-  "details": {
-    "OIDC": {
-      "clientId": "380d0a5a-7263-4e4365",
-      "clientSecret": "fab9df242449bf96",
-      "configurationEndpoint": "https://auth.smallstep.com/oidc/beta/.well-known/openid-configuration",
+<CodeBlock language="shell-session" copyText="step ca provisioner list">
+{`$ step ca provisioner list
+[
+   {
+      "type": "OIDC",
+      "name": "authority-admin",
+      "clientID": "43a20143-9e0e-416e-876a-47ca074416c6",
+      "clientSecret": "8f60f2d310dcdf7287048ee3c10e359650986e0172ce0213c00004e31d30ede7",
+      "configurationEndpoint": "https://auth.smallstep.com/oidc/smallstep/.well-known/openid-configuration",
       "admins": [
-        "TeamAdmins@yourco.com"
+         "TeamAdmins@yourco.com"
       ],
-      "listenAddress": "127.0.0.1:10000"
-    }
-  },
-  "claims": {
-    "x509": {
-      "enabled": true,
-      "durations": {
-        "max": "8784h0m0s"
+      "listenAddress": "127.0.0.1:10000",
+      "claims": {
+         "maxTLSCertDuration": "8784h0m0s",
+         "enableSSHCA": true,
+         "disableRenewal": false,
+         "allowRenewalAfterExpiry": false
+      },
+      "options": {
+         "x509": {},
+         "ssh": {}
       }
-  }
+   }
+]
 }`}
 </CodeBlock>
 
@@ -83,10 +78,13 @@ A default duration is not set,  so it uses the Authority default value of 24 hou
 Let's update the claims on the provisioner to produce a 7 day (168h) default certificate.
 We will also set the minimum lifetime to 5 minutes and the maximum lifetime to 500 days (12000h). 
 
-<CodeBlock language="shell-session" copyText="step beta ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h">
-  {`$ step beta ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h
+<CodeBlock language="shell-session" copyText="step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h">
+  {`$ step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h
+iNo admin credentials found. You must login to execute admin commands.
+✔ Please enter admin name/subject (e.g., name@example.com): eng@smallstep.com
+✔ Provisioner: authority-admin (OIDC) [client: 43a20143-9e0e-416e-876a-47ca074416c6]
+{
 ...
-},
   "claims": {
     "x509": {
       "enabled": true,
@@ -95,7 +93,10 @@ We will also set the minimum lifetime to 5 minutes and the maximum lifetime to 5
         "min": "5m",
         "max": "12000h"
       }
-    },`}
+    }
+  }
+...
+}`}
 </CodeBlock>
 
 Get and inspect a certificate to test the new seven-day default expiry. 

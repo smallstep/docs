@@ -1,0 +1,261 @@
+---
+title: Integrate Certificate Manager with Autocert for Kubernetes TLS
+html_title: Integrate Certificate Manager with Autocert for Kubernetes TLS
+description: Learn how to deliver certificates directly to Kubernetes pods and containers.
+image: /graphics/kubernetes-tls-unfurl.png
+---
+
+Autocert exists to make it easy to use mutual TLS to improve security within a cluster and to secure communication into, out of, and between Kubernetes clusters. 
+To get a certificate you simply need to telll autocert your workload's name, using the `autocert.step.sm/name`pod annotation. 
+Autocert will issue a cert to the pod, make it available in `var/run/autocert.step.sm`, and keep it renewed. 
+It requires a certificate authority to issue certificates. 
+This guide shows how to configure autocert to use Certificate Manager as the upstream CA.
+
+## Before you begin
+
+You will need:
+
+* An account on the Smallstep platform. Need one? [Register here](https://smallstep.com/signup?product=cm)
+* An Authority in Certificate Manager that will act as your upstream CA
+
+## Bootstrap with your CA
+
+Bootstrapping with your Authority configures your workstation to trust the authority's root certificate.
+
+Run:
+
+```bash
+step ca bootstrap --ca-url [your CA URL] \
+    --fingerprint [your CA fingerprint] \
+	--install
+```
+
+## Add a provisioner
+
+Autocert requires a JWK provisioner (it's the default type).
+Let's call it `autocert`. Run:
+
+```bash
+step ca provisioner add autocert --create
+```
+
+You’ll be asked to provide a password to encrypt the provisioner private key.
+
+## Create ConfigMaps and a Secret for Autocert
+
+In Kubernetes, create a namespace for autocert:
+
+```bash
+kubectl create ns step
+```
+
+Output:
+
+```bash
+namespace/step created
+```
+
+Use the same password you entered when creating the provisioner to create the Secret.
+
+```bash
+kubectl -n step create secret generic autocert-password --from-file=password=autocert-password.txt
+```
+
+Output:
+
+```bash
+secret/autocert-password created
+```
+
+Now create a `ConfigMap` that includes your (bootstrapped) config dir:
+
+```bash
+kubectl -n step create configmap config --from-file $(step path)/config`
+```
+
+Output:
+
+```bash
+configmap/config created
+```
+
+We'll do the same thing for the `certs` dir, which contains our CA's root certificate:
+
+```bash
+kubectl -n step create configmap certs --from-file $(step path)/certs
+```
+
+Output:
+
+```bash
+configmap/certs created
+```
+
+## Deploy Autocert
+
+1. Download the yaml config:
+
+  ```bash
+  curl -O https://raw.githubusercontent.com/smallstep/autocert/master/install/02-autocert.yaml
+  ```
+
+2. Edit the `caUrl` in the `autocert-config` ConfigMap in the `02-autocert.yaml` file you just downloaded. Change it from `https://ca.step.svc.cluster.local` to your Certificate Manager authority URL, e.g. `https://autocert.areed.ca.smallstep.com`.
+
+3. Run:
+
+  ```bash
+  kubectl apply -f https://raw.githubusercontent.com/smallstep/autocert/master/install/03-rbac.yaml
+  ```
+
+  Output:
+  
+  ```bash
+  clusterrole.rbac.authorization.k8s.io/autocert-controller created
+  clusterrolebinding.rbac.authorization.k8s.io/autocert-controller created
+  ```
+
+4. Now let's deploy autocert. Run:
+
+   ```bash
+   kubectl apply -f 02-autocert.yaml
+   ```
+   
+   Output:
+   
+   ```bash
+   service/autocert created
+   configmap/autocert-config created
+   deployment.apps/autocert created
+   ```
+
+5. And, let's deploy the admission webhook:
+
+  You can see in this block that we're including the root CA certificate (in base64) as part of the client configuration for autocert.
+
+  ```bash
+  cat <<EOF | kubectl apply -f -
+  apiVersion: admissionregistration.k8s.io/v1
+  kind: MutatingWebhookConfiguration
+  metadata:
+    name: autocert-webhook-config
+    labels: {app: autocert}
+  webhooks:
+    - name: autocert.step.sm
+      sideEffects: None
+      admissionReviewVersions: ["v1beta1"]
+      clientConfig:
+        service:
+          name: autocert
+          namespace: step
+          path: "/mutate"
+        caBundle: $(cat $(step path)/certs/root_ca.crt | base64 | tr -d '\n')
+      rules:
+        - operations: ["CREATE"]
+          apiGroups: [""]
+          apiVersions: ["v1"]
+          resources: ["pods"]
+      namespaceSelector:
+        matchLabels:
+          autocert.step.sm: enabled
+  EOF
+  ```
+  
+  output:
+  
+  ```jsx
+  mutatingwebhookconfiguration.admissionregistration.k8s.io/autocert-webhook-config created
+  ```
+
+Autocert is now added to the cluster and configured.
+You can run this command to verify the autocert pods are marked Ready.
+
+```bash
+kubectl -n step get deployment/autocert
+```
+
+## Usage
+
+Let’s create a test app that will use autocert. 
+It’s a “Hello World” web server that uses mutual TLS authentication.
+
+Since this deployment is in the default namespace, label it to tell autocert to issue and renew certificates for new pods with the `autocert.step.sm/name` annotation:
+
+```bash
+kubectl label namespace default autocert.step.sm=enabled
+```
+
+Output:
+
+```bash
+namespace/default labeled
+```
+
+To test things out, we'll create a deployment with the `autocert.step.sm/name` pod annotation.
+This example uses the name `localhost`, since we will be testing from our workstation.
+
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: hello-mtls
+  name: hello-mtls
+spec:
+  selector:
+    matchLabels:
+      app: hello-mtls
+  template:
+    metadata:
+      annotations:
+        autocert.step.sm/name: localhost
+      labels:
+        app: hello-mtls
+    spec:
+      containers:
+      - image: smallstep/hello-mtls-server-go:latest
+        name: hello-mtls
+EOF
+```
+
+Output:
+
+```bash
+deployment.apps/hello-mtls created
+```
+
+For testing, forward `localhost:8443` to port 443 on the pod.
+
+```
+kubectl port-forward deploy/hello-mtls 8443:443
+```
+
+Output:
+
+```bash
+Forwarding from 127.0.0.1:8443 -> 443
+Forwarding from [::1]:8443 -> 443
+```
+
+Keep this running in the background during the next steps.
+
+Now issue a client certificate signed by your CA. 
+You’ll need this to authenticate to the “Hello mTLS” test server.
+
+```bash
+step ca certificate andrew@smallstep.com areed.crt areed.key
+```
+
+Finally, you should be able to verify it's all working:
+
+```bash
+curl --cacert $(step path)/certs/root_ca.crt \
+     --cert areed.crt --key areed.key \
+     https://localhost:8443
+```
+
+Output:
+
+```bash
+Hello andrew@smallstep.com!
+```
