@@ -10,8 +10,7 @@ const useStyles = makeStyles({
     background: 'white',
   },
   popover: {
-    borderRadius: 15,
-    height: 'auto',
+    //borderRadius: 15,
     position: 'absolute',
     maxHeight: '80%',
     width: 'auto',
@@ -50,13 +49,13 @@ export default function Search({ indices }) {
   const id = open ? 'simple-popover' : undefined;
   return (
     <ThemeProvider theme={theme.root}>
-      <Box ref={rootRef} mb={1.6}>
+      <Box ref={rootRef} mb={2}>
         <InstantSearch
           searchClient={searchClient}
           indexName={indices[0].name}
           onSearchStateChange={({ query }) => setQuery(query)}
         >
-          <SearchBox onInput={handleClick} />
+          <SearchBox onInput={handleClick}/>
           {hasFocus ? (
             <Popover
               className={theme.popover}

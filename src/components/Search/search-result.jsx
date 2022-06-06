@@ -10,6 +10,7 @@ import {
   Index,
   Snippet,
 } from 'react-instantsearch-dom';
+import { ListItem, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles({
   hits: {
@@ -32,21 +33,29 @@ const HitCount = connectStateResults(({ searchResults }) => {
 });
 
 const PageHit = ({ hit }) => (
-  <Box mb={1}>
-    <Tile>
-      <Link
-        to={
-          hit.title[0] === hit.title[0].toUpperCase()
-            ? `/docs/${hit.slug}`
-            : `/docs/step-cli/reference/${hit.slug}`
-        }
-      >
+  <Box mb={0.5}>
+    <ListItem>
+      <ListItemText
+      primary= {
+        <Link
+          to={
+            hit.title[0] === hit.title[0].toUpperCase()
+              ? `/docs/${hit.slug}`
+              : `/docs/step-cli/reference/${hit.slug}`
+          }
+        >
+          <h4>
+            <Highlight attribute="title" hit={hit} tagName="mark" />
+          </h4>
+        </Link>
+      }
+      secondary = {
         <Paragraph>
-          <Highlight attribute="title" hit={hit} tagName="mark" />
+          <Snippet attribute="excerpt" hit={hit} tagName="mark" />
         </Paragraph>
-      </Link>
-      <Snippet attribute="excerpt" hit={hit} tagName="mark" />
-    </Tile>
+      }
+      />
+    </ListItem>
   </Box>
 );
 
