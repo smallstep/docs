@@ -11,8 +11,10 @@ const useStyles = makeStyles({
   },
   popover: {
     borderRadius: 15,
-    height: '80%',
-    width: '31.6%',
+    height: 'auto',
+    position: 'absolute',
+    maxHeight: '80%',
+    width: 'auto',
     boxShadow: 5,
     marginTop: 15,
   },
