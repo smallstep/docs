@@ -1,8 +1,7 @@
 import { Link } from 'gatsby';
 import { default as React } from 'react';
-import { Tile, Paragraph } from '@smallstep/step-ui';
+import { Paragraph } from '@smallstep/step-ui';
 import { makeStyles } from '@material-ui/styles';
-import { Box } from '@material-ui/core';
 import {
   connectStateResults,
   Highlight,
@@ -10,7 +9,7 @@ import {
   Index,
   Snippet,
 } from 'react-instantsearch-dom';
-import { ListItem, ListItemText } from '@material-ui/core';
+import { Box, ListItem, ListItemText, Divider } from '@material-ui/core';
 
 const useStyles = makeStyles({
   hits: {
@@ -18,6 +17,10 @@ const useStyles = makeStyles({
     marginRight: 10,
     '& ul ': {
       listStyle: 'none',
+    },
+    '& a:-webkit-any-link ': {
+      textDecoration: 'none',
+      color: 'inherit',
     },
   },
 });
@@ -32,30 +35,32 @@ const HitCount = connectStateResults(({ searchResults }) => {
   ) : null;
 });
 
+
 const PageHit = ({ hit }) => (
-  <Box mb={0.5}>
-    <ListItem>
-      <ListItemText
-      primary= {
-        <Link
-          to={
-            hit.title[0] === hit.title[0].toUpperCase()
-              ? `/docs/${hit.slug}`
-              : `/docs/step-cli/reference/${hit.slug}`
+  <Box >
+    <Link
+        to={
+          hit.title[0] === hit.title[0].toUpperCase()
+            ? `/docs/${hit.slug}`
+            : `/docs/step-cli/reference/${hit.slug}`
+        }
+      >
+        <ListItem button attribute="slug" hit={hit} tagName="mark" >
+          <ListItemText
+          primary= {
+            <h4>
+              <Highlight attribute="title" hit={hit} tagName="mark" />
+            </h4>
           }
-        >
-          <h4>
-            <Highlight attribute="title" hit={hit} tagName="mark" />
-          </h4>
-        </Link>
-      }
-      secondary = {
-        <Paragraph>
-          <Snippet attribute="excerpt" hit={hit} tagName="mark" />
-        </Paragraph>
-      }
-      />
-    </ListItem>
+          secondary = {
+            <Paragraph>
+              <Snippet attribute="excerpt" hit={hit} tagName="mark" />
+            </Paragraph>
+          }
+        />
+      </ListItem>
+    </Link>  
+    <Divider />
   </Box>
 );
 
@@ -63,10 +68,11 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-      <Box ml={1.6} mt={-1.6} mb={-1.6}>
+      <Box ml={1.6} mt={0} mb={-2} >
         <h4>
           <HitCount />
         </h4>
+        <Divider className={classes.hits} />
       </Box>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
