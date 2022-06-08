@@ -15,6 +15,9 @@ const useStyles = makeStyles({
   hits: {
     marginLeft: -30,
     marginRight: 10,
+    '& mark ': {
+      backgroundColor: '#3F75EF',
+    },
     '& ul ': {
       listStyle: 'none',
     },
@@ -80,13 +83,13 @@ function HitsInIndex({ index }) {
 }
 
 const SearchResult = ({ indices, className }) => (
-  <div className={className}>
+  <Box className={className}>
     {indices.map((index) => (
       <Paragraph>
         <HitsInIndex index={index} key={index.name} />
       </Paragraph>
     ))}
-  </div>
+  </Box>
 );
 
 export default SearchResult;
