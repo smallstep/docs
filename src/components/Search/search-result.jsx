@@ -9,14 +9,17 @@ import {
   Index,
   Snippet,
 } from 'react-instantsearch-dom';
-import { Box, ListItem, ListItemText, Divider } from '@material-ui/core';
+import { Box, ListItem, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles({
+  border:{
+    borderColor: '#eee',
+  },
   hits: {
     marginLeft: -30,
     marginRight: 10,
     '& mark ': {
-      backgroundColor: '#3F75EF',
+      backgroundColor: '#84A8FF',
     },
     '& ul ': {
       listStyle: 'none',
@@ -40,7 +43,7 @@ const HitCount = connectStateResults(({ searchResults }) => {
 
 
 const PageHit = ({ hit }) => (
-  <Box >
+  <Box mx={-2}>
     <Link
         to={
           hit.title[0] === hit.title[0].toUpperCase()
@@ -63,7 +66,6 @@ const PageHit = ({ hit }) => (
         />
       </ListItem>
     </Link>  
-    <Divider />
   </Box>
 );
 
@@ -71,11 +73,12 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-      <Box ml={1.6} mt={0} mb={-2} >
-        <h4>
-          <HitCount />
-        </h4>
-        <Divider className={classes.hits} />
+      <Box borderBottom={1} className={classes.border}>
+        <Box ml={28} mt={-2} mb={-2} >
+          <h4>
+            <HitCount />
+          </h4>
+        </Box>
       </Box>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
@@ -83,7 +86,7 @@ function HitsInIndex({ index }) {
 }
 
 const SearchResult = ({ indices, className }) => (
-  <Box className={className}>
+  <Box className={className} >
     {indices.map((index) => (
       <Paragraph>
         <HitsInIndex index={index} key={index.name} />

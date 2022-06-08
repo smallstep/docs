@@ -10,15 +10,18 @@ const useStyles = makeStyles({
     background: 'white',
   },
   popover: {
-    //borderRadius: 15,
+    background: 'white',
     position: 'relative',
-    maxHeight: '75%',
+    maxHeight: 750,
     width: 'auto',
     height: 'auto',
-    boxShadow: 5,
-    marginTop: 15,
+    overflow: 'scroll',
+    overflowX: 'hidden',
+    //boxShadow: 5,
   },
   hits: {
+    borderRadius: 3,
+    borderColor: '#eee',
   },
 });
 
@@ -42,7 +45,7 @@ export default function Search({ indices }) {
   };
   return (
     <ThemeProvider theme={theme.root}>
-      <Box mb={2}>
+      <Box mb={2} >
       <ClickAwayListener onClickAway={handleClose}>
         <InstantSearch
           searchClient={searchClient}
@@ -52,17 +55,18 @@ export default function Search({ indices }) {
           <SearchBox onInput={handleClick} />
           {window.addEventListener('resize', handleClose)}
           {open ? (
-            <List
-              className={theme.popover}
-              disableAutoFocus={true}
-              disableEnforceFocus={true}
-            >
-              <SearchResult
-                  className={theme.hits}
-                  show={query && query.length > 0 && open}
-                  indices={indices}
+            <Box border={1} mr={3} mt={2} className={theme.hits}>
+              <List
+                className={theme.popover}
+                disableAutoFocus={true}
+                disableEnforceFocus={true}
+              >
+                <SearchResult
+                    show={query && query.length > 0 && open}
+                    indices={indices}
                 />
-            </List>
+              </List>
+            </Box>  
           ) : null}
         </InstantSearch>
       </ClickAwayListener>
