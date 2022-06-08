@@ -9,21 +9,26 @@ const useStyles = makeStyles({
   root: {
     background: 'white',
   },
+ 
   popover: {
     //borderRadius: 15,
-    position: 'absolute',
-    maxHeight: '80%',
+    position: 'relative',
+    maxHeight: '75%',
     width: 'auto',
+    height: 'auto',
     boxShadow: 5,
-    marginTop: 15,
+    margin: 0,
   },
   hits: {
     width: 350,
   },
+  search:{
+    paddingBottom: '15%',
+    background: 'yellow',
+  },
 });
 
 export default function Search({ indices }) {
-  const rootRef = createRef();
   const [query, setQuery] = useState();
   const searchClient = useMemo(
     () =>
@@ -40,22 +45,26 @@ export default function Search({ indices }) {
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
     setFocus(true);
+    
   };
   const handleClose = () => {
     setAnchorEl(null);
     setFocus(false);
   };
+
+
   const open = Boolean(anchorEl);
   const id = open ? 'simple-popover' : undefined;
   return (
     <ThemeProvider theme={theme.root}>
-      <Box ref={rootRef} mb={2}>
+      <Box mb={2}>
         <InstantSearch
           searchClient={searchClient}
           indexName={indices[0].name}
           onSearchStateChange={({ query }) => setQuery(query)}
         >
-          <SearchBox onInput={handleClick}/>
+          <SearchBox onFocus={handleClick} />
+          {window.addEventListener('resize', handleClose)}
           {hasFocus ? (
             <Popover
               className={theme.popover}
