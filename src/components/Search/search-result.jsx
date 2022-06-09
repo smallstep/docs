@@ -14,8 +14,8 @@ import { Box, ListItem, ListItemText } from '@material-ui/core';
 const useStyles = makeStyles({
   resultsBorder: {
     borderColor: '#D3D3D3',
-    marginBottom: -22,
-    marginTop: -22,
+    marginBottom: -16,
+    marginTop: -2,
     textAlign: 'right',
   },
   hits: {
@@ -81,9 +81,9 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-      <h4>
+      <Paragraph>
         <HitCount />
-      </h4>
+      </Paragraph>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
   );
