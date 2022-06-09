@@ -31,7 +31,7 @@ const useStyles = makeStyles({
     width: 'auto',
     height: 'auto',
     boxShadow: 5,
-    overflow: 'scroll',
+    overflow: 'auto',
     overflowX: 'hidden',
   },
 });
@@ -65,7 +65,7 @@ export default function Search({ indices }) {
           >
             <SearchBox onInput={handleClick} />
             {open ? (
-              <Box position={'relative'} zIndex={2} mr={1} mt={2} >
+              <Box position={'relative'} zIndex={2} mr={1} >
                   <List
                     className={theme.popover}
                     disableAutoFocus={true}

@@ -38,13 +38,13 @@ const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
   const theme = useStyles();
   return hitCount > 0 ? (
-    <Box borderBottom={1} className={theme.resultsBorder}>
-      <Box mr={1}>
+    <Box borderBottom={1} className={theme.resultsBorder} >
+      <Box mr={2}>
         {hitCount} result{hitCount !== 1 ? `s` : ``}
-      </Box>
+      </Box> 
     </Box>
   ) : (
-    <Box className={theme.resultsBorder} mr={1}>
+    <Box className={theme.resultsBorder} mr={2} >
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </Box>
   );
