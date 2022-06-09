@@ -17,13 +17,14 @@ const useStyles = makeStyles({
   },
   popover: {
     background: 'white',
-    position: 'relative',
+    position: 'absolute',
     maxHeight: 750,
     width: 'auto',
     height: 'auto',
     overflow: 'scroll',
     overflowX: 'hidden',
     boxShadow: 5,
+    zIndex: 2,
   },
   hits: {
     borderRadius: 3,
@@ -61,7 +62,7 @@ export default function Search({ indices }) {
             <SearchBox onInput={handleClick} />
             {window.addEventListener('resize', handleClose)}
             {open ? (
-              <Box border={1} mr={3} mt={2} className={theme.hits}>
+              <Box position={'relative'} zIndex={2} mr={3} mt={2} >
                 <List
                   className={theme.popover}
                   disableAutoFocus={true}
