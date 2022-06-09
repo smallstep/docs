@@ -11,6 +11,8 @@ import {
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
+//{window.addEventListener('resize', handleClose)}
+
 const useStyles = makeStyles({
   root: {
     background: 'white',
@@ -18,17 +20,19 @@ const useStyles = makeStyles({
   popover: {
     background: 'white',
     position: 'absolute',
+    zIndex: 2,
+  },
+  resultsBorder: {
+    borderRadius: 3,
+    borderColor: '#D3D3D3',
+  },
+  search:{
     maxHeight: 750,
     width: 'auto',
     height: 'auto',
+    boxShadow: 5,
     overflow: 'scroll',
     overflowX: 'hidden',
-    boxShadow: 5,
-    zIndex: 2,
-  },
-  hits: {
-    borderRadius: 3,
-    borderColor: '#D3D3D3',
   },
 });
 
@@ -60,19 +64,21 @@ export default function Search({ indices }) {
             onSearchStateChange={({ query }) => setQuery(query)}
           >
             <SearchBox onInput={handleClick} />
-            {window.addEventListener('resize', handleClose)}
             {open ? (
-              <Box position={'relative'} zIndex={2} mr={3} mt={2} >
-                <List
-                  className={theme.popover}
-                  disableAutoFocus={true}
-                  disableEnforceFocus={true}
-                >
-                  <SearchResult
-                    show={query && query.length > 0 && open}
-                    indices={indices}
-                  />
-                </List>
+              <Box position={'relative'} zIndex={2} mr={1} mt={2} >
+                  <List
+                    className={theme.popover}
+                    disableAutoFocus={true}
+                    disableEnforceFocus={true}
+                  >
+                    <Box border={1} className={theme.resultsBorder}>
+                      <SearchResult
+                        className={theme.search}
+                        show={query && query.length > 0 && open}
+                        indices={indices}
+                      />
+                    </Box>
+                  </List>
               </Box>
             ) : null}
           </InstantSearch>

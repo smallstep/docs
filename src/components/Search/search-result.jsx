@@ -36,15 +36,15 @@ const useStyles = makeStyles({
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
-  const classes = useStyles();
+  const theme = useStyles();
   return hitCount > 0 ? (
-    <Box borderBottom={1} className={classes.resultsBorder}>
+    <Box borderBottom={1} className={theme.resultsBorder}>
       <Box mr={1}>
         {hitCount} result{hitCount !== 1 ? `s` : ``}
       </Box>
     </Box>
   ) : (
-    <Box className={classes.resultsBorder} mr={1}>
+    <Box className={theme.resultsBorder} mr={1}>
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </Box>
   );
@@ -78,13 +78,13 @@ const PageHit = ({ hit }) => (
 );
 
 function HitsInIndex({ index }) {
-  const classes = useStyles();
+  const theme = useStyles();
   return (
     <Index indexName={index.name}>
       <Paragraph>
         <HitCount />
       </Paragraph>
-      <Hits className={classes.hits} hitComponent={PageHit} />
+      <Hits className={theme.hits} hitComponent={PageHit} />
     </Index>
   );
 }
