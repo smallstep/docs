@@ -12,8 +12,11 @@ import {
 import { Box, ListItem, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  border:{
+  resultsBorder:{
     borderColor: '#eee',
+    marginTop: -2,
+    marginBottom: 2,
+    textAlign: 'right',
   },
   hits: {
     marginLeft: -30,
@@ -33,12 +36,14 @@ const useStyles = makeStyles({
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
-
-  return hitCount >= 0 ? (
-    <div className="HitCount">
+  const classes = useStyles();
+  return hitCount > 0 ? (
+    <Box borderBottom={1} className={classes.resultsBorder}>
       {hitCount} result{hitCount !== 1 ? `s` : ``}
-    </div>
-  ) : null;
+    </Box>
+  ) : <Box className={classes.resultsBorder}>
+         {hitCount} result{hitCount !== 1 ? `s` : ``}
+      </Box>;
 });
 
 
@@ -73,13 +78,9 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-      <Box borderBottom={1} className={classes.border}>
-        <Box ml={28} mt={-2} mb={-2} >
-          <h4>
+        <Box>
             <HitCount />
-          </h4>
         </Box>
-      </Box>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
   );
