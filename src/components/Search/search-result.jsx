@@ -12,10 +12,10 @@ import {
 import { Box, ListItem, ListItemText } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  resultsBorder:{
-    borderColor: '#eee',
-    marginTop: -2,
-    marginBottom: 2,
+  resultsBorder: {
+    borderColor: '#D3D3D3',
+    marginBottom: -22,
+    marginTop: -22,
     textAlign: 'right',
   },
   hits: {
@@ -39,38 +39,41 @@ const HitCount = connectStateResults(({ searchResults }) => {
   const classes = useStyles();
   return hitCount > 0 ? (
     <Box borderBottom={1} className={classes.resultsBorder}>
+      <Box mr={1}>
+        {hitCount} result{hitCount !== 1 ? `s` : ``}
+      </Box>
+    </Box>
+  ) : (
+    <Box className={classes.resultsBorder} mr={1}>
       {hitCount} result{hitCount !== 1 ? `s` : ``}
     </Box>
-  ) : <Box className={classes.resultsBorder}>
-         {hitCount} result{hitCount !== 1 ? `s` : ``}
-      </Box>;
+  );
 });
-
 
 const PageHit = ({ hit }) => (
   <Box mx={-2}>
     <Link
-        to={
-          hit.title[0] === hit.title[0].toUpperCase()
-            ? `/docs/${hit.slug}`
-            : `/docs/step-cli/reference/${hit.slug}`
-        }
-      >
-        <ListItem button attribute="slug" hit={hit} tagName="mark" >
-          <ListItemText
-          primary= {
+      to={
+        hit.title[0] === hit.title[0].toUpperCase()
+          ? `/docs/${hit.slug}`
+          : `/docs/step-cli/reference/${hit.slug}`
+      }
+    >
+      <ListItem button attribute="slug" hit={hit} tagName="mark">
+        <ListItemText
+          primary={
             <h4>
               <Highlight attribute="title" hit={hit} tagName="mark" />
             </h4>
           }
-          secondary = {
+          secondary={
             <Paragraph>
               <Snippet attribute="excerpt" hit={hit} tagName="mark" />
             </Paragraph>
           }
         />
       </ListItem>
-    </Link>  
+    </Link>
   </Box>
 );
 
@@ -78,16 +81,16 @@ function HitsInIndex({ index }) {
   const classes = useStyles();
   return (
     <Index indexName={index.name}>
-        <Box>
-            <HitCount />
-        </Box>
+      <h4>
+        <HitCount />
+      </h4>
       <Hits className={classes.hits} hitComponent={PageHit} />
     </Index>
   );
 }
 
 const SearchResult = ({ indices, className }) => (
-  <Box className={className} >
+  <Box className={className}>
     {indices.map((index) => (
       <Paragraph>
         <HitsInIndex index={index} key={index.name} />
