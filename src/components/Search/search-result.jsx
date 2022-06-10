@@ -16,7 +16,6 @@ const useStyles = makeStyles({
     borderColor: '#D3D3D3',
     marginBottom: -16,
     marginTop: -2,
-    textAlign: 'right',
   },
   hits: {
     marginLeft: -30,
@@ -38,14 +37,14 @@ const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
   const theme = useStyles();
   return hitCount > 0 ? (
-    <Box borderBottom={1} className={theme.resultsBorder} >
+    <Box borderBottom={1} textAlign={'right'} className={theme.resultsBorder} >
       <Box mr={2}>
         {hitCount} result{hitCount !== 1 ? `s` : ``}
       </Box> 
     </Box>
   ) : (
-    <Box className={theme.resultsBorder} mr={2} >
-      {hitCount} result{hitCount !== 1 ? `s` : ``}
+    <Box className={theme.resultsBorder} minWidth={295} textAlign={'left'} ml={0.5} >
+      There are no results found
     </Box>
   );
 });
