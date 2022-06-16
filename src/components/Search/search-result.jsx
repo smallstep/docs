@@ -37,13 +37,18 @@ const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
   const theme = useStyles();
   return hitCount > 0 ? (
-    <Box borderBottom={1} textAlign={'right'} className={theme.resultsBorder} >
+    <Box borderBottom={1} textAlign={'right'} className={theme.resultsBorder}>
       <Box mr={2}>
         {hitCount} result{hitCount !== 1 ? `s` : ``}
-      </Box> 
+      </Box>
     </Box>
   ) : (
-    <Box className={theme.resultsBorder} minWidth={295} textAlign={'left'} ml={0.5} >
+    <Box
+      className={theme.resultsBorder}
+      minWidth={295}
+      textAlign={'left'}
+      ml={0.5}
+    >
       There are no results found
     </Box>
   );

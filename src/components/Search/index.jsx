@@ -26,7 +26,7 @@ const useStyles = makeStyles({
     borderRadius: 3,
     borderColor: '#D3D3D3',
   },
-  search:{
+  search: {
     maxHeight: 750,
     width: 'auto',
     height: 'auto',
@@ -65,20 +65,20 @@ export default function Search({ indices }) {
           >
             <SearchBox onInput={handleClick} />
             {open ? (
-              <Box position={'relative'} zIndex={2} mr={1} >
-                  <List
-                    className={theme.popover}
-                    disableAutoFocus={true}
-                    disableEnforceFocus={true}
-                  >
-                    <Box border={1} className={theme.resultsBorder}>
-                      <SearchResult
-                        className={theme.search}
-                        show={query && query.length > 0 && open}
-                        indices={indices}
-                      />
-                    </Box>
-                  </List>
+              <Box position={'relative'} zIndex={2} mr={1}>
+                <List
+                  className={theme.popover}
+                  disableAutoFocus={true}
+                  disableEnforceFocus={true}
+                >
+                  <Box border={1} className={theme.resultsBorder}>
+                    <SearchResult
+                      className={theme.search}
+                      show={query && query.length > 0 && open}
+                      indices={indices}
+                    />
+                  </Box>
+                </List>
               </Box>
             ) : null}
           </InstantSearch>
