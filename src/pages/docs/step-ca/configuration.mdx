@@ -98,6 +98,19 @@ CA's keys.
       "minUserSSHCertDuration": "5m",
       "maxUserSSHCertDuration": "24h",
       "defaultUserSSHCertDuration": "16h",
+      "policy": {
+        "x509": {
+          "allow": ["*.local"]
+        },
+        "ssh": {
+          "user": {
+            "allow": ["@local"]
+          },
+          "host": {
+            "allow": ["*.local"]
+          }
+        }
+      }
     },
   	"provisioners": [
   		{
