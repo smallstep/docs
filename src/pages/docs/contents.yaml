@@ -37,6 +37,8 @@ certificate_manager:
     path: certificate-manager/custom-certs
   - title: How It Works
     path: certificate-manager/how-it-works
+  - title: ACME in the Enterprise
+    path: certificate-manager/acme-enterprise/acme-enterprise
   - title: ACME Server
     path: certificate-manager/acme
   - title: Certs For Humans
