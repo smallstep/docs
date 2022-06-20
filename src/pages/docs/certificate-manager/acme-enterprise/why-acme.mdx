@@ -3,3 +3,54 @@ title: Why ACME for Enterprise Networks?
 html_title: Why ACME for Enterprise Networks?
 description: Why should you use the ACME protocol to issue and renew certificates in enterprise networks.
 ---
+
+The Automated Certificate Management Environment (ACME) protocol is used to automate certificate issuance, renewal and revocation of X.509 certificates.
+The first version of the protocol was released by the Internet Security Research Group (ISRG) in 2016.
+It was designed to be used with their new, public Web PKI certificate authority, Let's Encrypt, which was created to provide X.509 certificates at no charge, but including domain validation.
+Adoption of their CA and the ACME protocol quickly gained traction and in 2018 the ISRG launched v2 of the ACME protocol, gaining support for wildcard certificates and improving security of the protocol.
+Since then, other Web PKI certificate authorities have also implemented support for ACME, further strenghtening the ACME ecosystem.
+
+While the ACME protocol was initially conceived to be used on the internet and is currently also mostly used in that capacity, it has several properties that make it well-suited to be used in internal networks too.
+These properties are described in the sections below.
+
+### Standardized
+
+The ACME protocol is standardized in [RFC8555](https://datatracker.ietf.org/doc/html/rfc8555).
+Using a standarized protocol for certificate management has many benefits for enterprises, including better interoperability with internal and third party systems, a more efficient integration process, less costs due to reducing operational complexity and a more competitive market, and avoiding vendor lock-in through proprietary protocols.
+Support for the ACME protocol has been implemented in various ACME clients, client libraries and programming languages, all of which can be used to request and renew certificates.
+
+ACME wasn't the first protocol for certificate management to be standardized, but it was the first for certificate management for use on the internet.
+Examples of older standards include Certificate Management over CMS (CMC, [RFC 5272](https://datatracker.ietf.org/doc/html/rfc5272)), Simple Certificate Enrolment Protocol (SCEP, [RFC 8894](https://datatracker.ietf.org/doc/html/rfc8894)), and Enrollment over Secure Transport (EST, [RFC 7030](https://datatracker.ietf.org/doc/html/rfc7030)).
+These standards were originally designed for certificate management in internal networks and can be found in many deployments and new deployments using these protocols still happen.
+Some issues with these standards include the fact that they're getting older, them offering too many configuration options, and not being specified strictly enough.
+These result in the older standards being harder to implement and to be less aligned with current operational practices.
+
+### Automated
+
+With ACME, certificate issuane, renewal and revocation can be automated.
+ACME clients can enroll automatically with the ACME server, provided they can successfully solve a challenge served by the server.
+This means certificate operations become more efficient, become more scalable and there's less room for human errors.
+These combined result in reduced operational costs for deploying and maintaining an internal PKI. 
+
+### Secure 
+
+The ACME protocol was designed to be secure from the start.
+The main security goal of the protocol is to prevent unauthorized parties from obtaining certificates.
+
+So-called ACME challenges are the core security feature of the protocol.
+When a client requests a certificate for a domain or IP address, an identifier in ACME parlance, an ACME server will challenge the client for that specific domain or IP.
+The client needs to solve the challenge by proofing it has control over the identifier and that it did request the certificate.
+When the client responds to the challenge successfully, the ACME server considers the certificate request authorized and a certificate will be issued to the client.
+No certificate will be issued if the ACME server can't complete the challenge, for whatever reason.
+
+The protocol makes use of industry standard security protocols and components.
+ACME clients are required to always connect to the ACME server using HTTPS, itself built on top of TLS, resulting in a secure communication channel that provides server authentication and confidentiality being in use for every client-server interaction.
+All non-empty requests performed by the ACME client are required to be formatted as a JSON Web Signature (JWS) object and to be signed by an ACME account private key.
+This provides the server with a means to authenticate the request and to verify that it came from the expected ACME client.
+To prevent a malicious client from replaying a valid request, the protocol requires ACME clients to embed a nonce in the request message, so that the ACME server can verify that a specific request wasn't processed before.
+
+A lesser known and used feature of the ACME protocol is External Account Binding (EAB).
+As the name implies, EAB allows (new) ACME accounts to be bound (or linked) to an account in another (external) system.
+This allows configuration of which accounts, including users and automated systems, can interact with the ACME server.
+
+TODO: include some text on threat model, what attacks are (still) possible?
