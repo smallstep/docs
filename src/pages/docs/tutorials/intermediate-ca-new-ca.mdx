@@ -67,7 +67,7 @@ When you run [`step ca init`](/docs/step-cli/reference/ca/init) we create a coup
 `step-ca` does not actually need the root CA signing key. So you can remove that file:
 
 ```shell
-rm ~/.step/secrets/root_ca_key
+shred -u ~/.step/secrets/root_ca_key
 ```
 
 ### 2. Replace `step-ca`'s root CA cert and intermediate CA cert/key  with your existing PKI.
