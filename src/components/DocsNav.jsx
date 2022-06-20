@@ -80,9 +80,7 @@ const DocsNav = ({ pathname, submenusRef }) => {
         />
       ));
   };
-  const searchIndices = [
-    { name: `IndexOfPages_Replica`, title: `IndexOfPages_Replica` },
-  ];
+  const searchIndices = [{ name: `Pages`, title: `Pages` }];
   return (
     <>
       <Search indices={searchIndices} />
