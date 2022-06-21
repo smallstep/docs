@@ -128,8 +128,8 @@ Use [`step ca provisioner update`](/docs/step-cli/reference/ca/provisioner/updat
 
 ```bash
 step ca provisioner update acme \
-   --x509-min-dir=20m \
-   --x509-max-dir=72h \
+   --x509-min-dur=20m \
+   --x509-max-dur=72h \
    --x509-default-dur=36h
 ```
 
@@ -820,18 +820,32 @@ for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 ### SCEP
 
-The SCEP provisioner can sign and renew certificates using the SCEP protocol ([RFC8894](https://datatracker.ietf.org/doc/html/rfc8894)). SCEP is very popular for use in network equipment and mobile device management (MDM). It runs over HTTP using POSTed binary data or base64-encoded GET parameters, using CMS (PKCS#7) and CSR (PKCS#10) data formats. A shared secret authenticates clients to the CA.
+The SCEP provisioner can sign and renew certificates using the SCEP protocol ([RFC8894](https://datatracker.ietf.org/doc/html/rfc8894)). 
+SCEP is very popular for use in network equipment and mobile device management (MDM). 
+It runs over HTTP using POSTed binary data or base64-encoded GET parameters, 
+using CMS (PKCS#7) and CSR (PKCS#10) data formats. 
+A shared secret authenticates clients to the CA.
 
 #### Requirements
 
 Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
-We use the RSA intermediate to encrypt/decrypt data, and you cannot do that with an ECDSA key.
+The RSA intermediate is used to decrypt the contents of the SCEP `pkcsPKIEnvelope` containing the certificate request. 
+This operation cannot be performed using an ECDSA key.
 
 Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
 
+<Alert severity="info">
+  <div>
+	  <p>
+      <strong>Note:</strong> Some SCEP clients may fail if the intermediate CA certificate does not contain the right key usage extensions or does contain otherwise unexpected content. 
+      Consult the documentation of your SCEP client for specific configuration required or ask us on <Link href="https://u.step.sm/discord">Discord</Link> or in <Link href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</Link> if you hit a blocker.
+    </p>
+  </div>
+</Alert>
+
 #### Configure the Provisioner
 
-Add a SCEP provisoiner:
+In this example, we will add a SCEP provisioner using challenge secret `secret1234` and `AES-256-CBC` as the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63):
 
 ```shell
 step ca provisioner add my_scep_provisioner \
@@ -848,15 +862,25 @@ Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
     "type": "SCEP",
     "name": "scepca",
     "forceCN": true,
-    "challenge": "secret1234"
+    "challenge": "secret1234",
+    "minimumPublicKeyLength": 2048,
+    "includeRoot": true,
+    "encryptionAlgorithmIdentifier": 2,
 }
 ```
 
-- The `forceCN` parameter is optional. It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
+- The `forceCN` parameter is optional. 
+It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
+- `challenge` is the secret shared between the provisioner and SCEP clients. By default no secret is used.
+- The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
+- When `includeRoot` is set to true, the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
+- The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
 
 #### Enable the HTTP Server
 
-Most SCEP clients use HTTP. So, you will most likely need your CA to listen using HTTP, which it does not do by default. Enable this by filling in the `"insecureAddress"` property to your top-level CA configuration:
+By default SCEP will only be served via HTTPS.
+Most SCEP clients use HTTP, so you will most likely need your CA to listen using HTTP too, which it does not do by default. 
+Enable this by filling in the `"insecureAddress"` property to your top-level CA configuration:
 
 ```json
         ...

@@ -224,18 +224,27 @@ For more on this topic, read [All About Certificate Revocation](/docs/step-ca/ce
 
 In this section we'll go over the basics of issuing and renewing SSH certificates for users and hosts.
 
+### Background
+
+SSH certificates are not X.509 certificates.
+Instead, they follow an [SSH-specific certificate format](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys).
+
+Mercifully, they are a lot simpler than X.509:
+- SSH supports only User certificates and Host certificates.
+- There are no certificate chains in SSH.
+- Instead of a root CA certificate, an SSH CA is represented as a trusted public key.
+- An SSH CA is just like any other SSH public key, except it's prepended with a special `@cert-authority` annotation when used in a `known_hosts` file.
+
+When both the user and the host use certificates in a connection, you will have mutual authentication:
+- **The host authenticates the user**: When configured to trust the User CA key, a host delegates user identity to the SSH CA. When a user presents their certificate to a host during the SSH handshake, the host will trust it if it's signed by the User CA key, and it will alow any listed certificate principals (usernames) to sign in.
+- **The user authenticates the host**: When configured to trust the Host CA key, clients delegate host identity to the CA. When a host presents its certificate to a user during the SSH handshake, the user will trust it if it's signed by the host CA key.
+
+When [`step ca init`](/docs/step-cli/reference/ca/init) is run with `--ssh`, it creates two SSH CA key pairs: one for the host CA, and one for the user CA. The user CA key signs SSH user certificates, and the host CA key signs SSH host certificates.
+
 ### Requirements
 
 * You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
 * To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](/docs/step-ca/getting-started#accessing-step-ca-remotely).
-
-### Establishing trust
-
-When the CA is initialized with `--ssh`, it creates two SSH CA key pairs: one for the host CA, and one for the user CA. The user CA key signs SSH user certificates, and the host CA key signs SSH host certificates.
-
-In this section, we will delegate SSH authentication on both ends of the SSH connection:
-* **Hosts authenticating users**: Hosts will trust the user CA key, thereby delegating the authentication of users to the CA. When a user presents their certificate to a host during the SSH handshake, the host will trust it when it's signed by the user CA key.
-* **Users trusting hosts**: Users will trust the host CA key, thereby delegating the authentication of hosts to the CA. When a host presents its host certificate to a user during the SSH handshake, the user will trust it when it's signed by the host CA key.
 
 ### Getting a host to authenticate users
 

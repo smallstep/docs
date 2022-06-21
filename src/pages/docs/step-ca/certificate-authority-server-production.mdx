@@ -313,13 +313,6 @@ Note: _This section requires a Linux OS running `systemd` version 229 or greater
 
   You'll also need to edit the file `/etc/step-ca/config/defaults.json` to reflect the new path.
 
-  If you've initialized the CA but have never run it,
-  you may also need to create an empty `/etc/step-ca/db` directory:
-
-  <CodeBlock language="shell-session" copytext="sudo mkdir -p /etc/step-ca/db">
-  {`$ sudo mkdir -p /etc/step-ca/db`}
-  </CodeBlock>
-
   Set the `step` user as the owner of your CA configuration directory:
 
   <CodeBlock language="shell-session" copytext="sudo chown -R step:step /etc/step-ca">
@@ -494,7 +487,7 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
 
 - Nginx has a [stream module](https://nginx.org/en/docs/stream/ngx_stream_core_module.html) that allows it to pass TLS traffic directly to `step-ca`.
   But it comes with a price: Unlike typical reverse proxy configurations, source IPs are not visible to `step-ca` (there is no `X-Forwarded-For` header), and traffic is also not logged to the nginx access log.
-  See [this blog post](https://gerco.dev/NGINX-Reverse-Proxy-with-TLS-Passthrough/) for an example of TLS passthrough.
+  See [this blog post](https://fedingo.com/how-to-configure-ssl-tls-passthrough-in-nginx/) for an example of TLS passthrough.
 - Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
 
 ## Automate X.509 Certificate Lifecycle Management
