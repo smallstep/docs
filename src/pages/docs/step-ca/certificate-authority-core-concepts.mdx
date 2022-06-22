@@ -18,6 +18,8 @@ certificate management may want to check out...
 
 - [Online X.509 Certificate Authority](#online-and-offline-x509-certificate-authority)
 - [Provisioners](#provisioners)
+- [Certificate Issuance Policies](#policies)
+- [Certificate Templates](#templates)
 - [Active vs. Passive Revocation](#active-vs-passive-revocation)
 - [Other Operational Modes](#other-operational-modes)
 
@@ -59,6 +61,29 @@ Unlike active revocation, certificates cannot be immedietely revoked.
 Therefore, certificates should have a shorter lifetime to reduce the value of a key that has been exfiltrated.
 
 ![passive revocation diagram](/graphics/passive-revocation.png)
+
+## Policies
+
+With certificate issuance policies administrators can configure what Subjects, SANs and Principals the CA is allowed to sign.
+An example of a policy is to only allow (strict) subdomains of `internal.example.com`, which would be encoded as `*.internal.example.com`.
+
+Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
+
+## Templates
+
+People use private CAs for all sorts of things, in many different contexts:
+web apps, mobile apps, code signing, cloud VM instances, SSH, IoT devices, etc.
+So `step-ca` must be flexible enough to handle a wide variety of flows.
+
+X.509 and SSH certificate templates open up these possibilities.
+With certificate templates, you can do things like:
+
+- Add custom SANs or extensions to X.509 certificates
+- Make longer certificate chains, with multiple intermediate CAs
+- Use SSH `force-command` or `source-address` extensions
+- Add conditionals around a certificate's parameters, and fail if they are not met
+
+Visit the [`step-ca` templates](/docs/step-ca/templates) page to learn how to use templates.
 
 ## Other operational modes
 

@@ -83,6 +83,8 @@ step_ca:
     path: step-ca/acme-basics
   - title: Configuration
     path: step-ca/configuration
+  - title: Policies
+    path: step-ca/policies
   - title: Provisioners
     path: step-ca/provisioners
   - title: Templates
