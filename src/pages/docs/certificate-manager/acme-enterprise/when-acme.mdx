@@ -33,9 +33,10 @@ The below listing is an overview of exemplary scenarios in which the ACME protoc
     The ACME protocol is primarily well-suited for use cases that are similar as to how the Web PKI is used.
     This means it can be used for issuing certificates to internal workloads, including databases, proxies and queues.
     With the Smallstep platform, certificates issued using ACME are not recorded in a Certificate Transparency log, keeping your internal infrastructure confidential.
+    It is also possible to deploy ACME with an on-premise deployment of the Smallstep platform, to be in full control over the system or to be used in airgapped networks, for example.
 - An environment requiring certificates for Mutual TLS, such as a service mesh.
     This use case is similar as the one above, but this time also includes client side authentication using a certificate.
-    Considering the clients in those environments are often primarily concerned with infrastructural concerns, they can be issued a certificate using ACME if then can solve challenges.
+    Considering the clients in those environments are often primarily concerned with infrastructural concerns, they can be issued a client certificate using ACME if they can solve challenges.
 - An internal development, staging or CI/CD environment with high certificate issuance rates and requiring high degree of equivalence to production environment.
     While the Let's Encrypt staging environment has quite generous rate limits, it's not a very suitable solution for integration with development, staging or CI/CD 
 - Kubernetes, with [cert-manager](https://cert-manager.io/) and the [ACME issuer](https://cert-manager.io/docs/configuration/acme/) enabled.
