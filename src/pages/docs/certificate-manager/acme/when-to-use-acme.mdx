@@ -1,7 +1,7 @@
 ---
-title: When to Use ACME in Enterprise Networks
-html_title: When to Use ACME in Enterprise Networks
-description: When can the ACME protocol be used to issue and renew certificates in enterprise networks.
+title: When to Use ACME in Internal Networks
+html_title: When to Use ACME in Internal Networks
+description: When can the ACME protocol be used to issue and renew certificates in internal networks.
 ---
 
 At Smallstep we love the ACME protocol.
@@ -12,7 +12,7 @@ We also describe some use cases for which ACME is less or not suitable, accompan
 
 ### At a High Level
 
-As described in ["why you should use ACME"](/docs/certificate-manager/acme-enterprise/why-use-acme), the ACME protocol requires ACME clients to request certificates via HTTPS.
+As described in ["why you should use ACME"](/docs/certificate-manager/acme/why-use-acme), the ACME protocol requires ACME clients to request certificates via HTTPS.
 They must also be able to respond to challenges from an ACME server.
 Requesting a certificate and responding to challenges involves multiple requests and responses, each of which can fail.
 A certificate cannot be issued if one of the requests or responses fails to be sent or received in time.
