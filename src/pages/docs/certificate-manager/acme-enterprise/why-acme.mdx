@@ -38,7 +38,6 @@ For new PKI deployments, it's good to consider whether long certificate expiry p
 The potential for abuse increases the longer a certificate and its corresponding private key are valid, so it's good to reduce their lifetimes.
 Automated certificate renewal becomes more important the shorter certificate lifetimes become.
 
-
 ### Secure 
 
 The ACME protocol was designed to be secure from the start.
@@ -56,6 +55,13 @@ All non-empty requests performed by the ACME client are required to be formatted
 This provides the server with a means to authenticate the request and to verify that it came from the expected ACME client.
 To prevent a malicious client from replaying a valid request, the protocol requires ACME clients to embed a nonce in the request message, so that the ACME server can verify that a specific request wasn't processed before.
 
+### Integration
+
 A lesser known and used feature of the ACME protocol is External Account Binding (EAB).
-As the name implies, EAB allows (new) ACME accounts to be bound (or linked) to an account in another (external) system.
-This allows configuration of which accounts, including users and automated systems, can interact with the ACME server.
+As the name implies, EAB allows (new) ACME accounts to be bound (or linked) to an entity in another system.
+This can be used to control which systems can interact with the ACME server, because every ACME client is required to provide a client-specific, one-time secret when registering a new ACME account with the CA.
+After an ACME account is bound to a key, it's possible to build custom integrations that link the ID of the key to entities in other systems, such as host or machine inventories and configuration management systems.
+
+In the Smallstep platform, we use the EAB mechanism to provide configuration of certificate issuance policies per ACME account, resulting in granular control over which hostnames and IP addresses a specific ACME client is allowed to request a certificate for.
+You can read more about how certificate issuance policies work and how they can be configured [here](/docs/step-ca/policies).
+
