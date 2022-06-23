@@ -4,5 +4,64 @@ html_title: How to Use ACME in Enterprise Networks
 description: How to use the ACME protocol in enterprise networks.
 ---
 
-TODO: describe how to deploy ACME (partially based on some existing docs?); what considerations to take, additional controls, etc
-TODO: reusing/replacing contents of https://smallstep.com/docs/certificate-manager/acme here? 
+With Smallstep Certificate Manager you can deploy ACME on your internal network with ease.
+Before deploying, it's important to consider what deployment options works best for your organization, which include our hosted as well as our on-premise solutions.
+For each of those, it may be necessary to also deploy a Registration Authority (RA), which ensures ACME clients can be challenged on the internal network without opening additional ports and securely relays certificate requests to the CA.
+The deployment options, and whether or not an RA is required, are explained in [Deployment Options](#deployment-options).
+
+The Smallstep platform supports some additional functionalities for ACME, including certificate issuance policies and External Account Binding (EAB).
+These two functionalities provide more control over which ACME clients can request a certificate.
+They are described in [Additional Control](#additional-control).
+
+## Deployment Options
+
+With Smallstep Certificate Manager you can deploy ACME on your internal network with ease.
+It is possible to use our hosted solution, or you can deploy the Smallstep platform to your own infrastructure using our on-premise solution.
+These options are described below.
+
+### Hosted
+
+Our hosted solution provides the quickest way to get started issuing certificates using ACME.
+Most of the infrastructure maintenance burden will be our responsibility.
+We say most, because we advise our customers to deploy and maintain a so-called Registration Authority (RA) on their own infrastructure.
+An RA is responsible for authenticating certificate requests and securely relaying these requests to the CA, hosted in Certificate Manager.
+
+Deploying the RA on the internal network allows ACME clients to solve challenges on the internal network, instead of having to be accessible from outside by the Smallstep hosted infrastructure.
+This will cooperate nicely with DNS servers on the internal network, since these will resolve internal hostnames within the company network.
+The RA will be able to resolve the internal hostnames to internal IPs and can then challenge ACME clients.
+
+It is possible to deploy ACME using our hosted solution without deploying an RA, but there's a caveat to that: anyone who knows the public endpoint for the ACME directory, will be able to request a certificate from it by default.
+This is generally problematic, because unknown third party clients could influence operation of your CA by requesting a high volume of certificates.
+It is possible to (largely) prevent abuse by configuring a certificate issuance policy, providing control over what domains are allowed to request a certificate, or by requiring External Account Binding (EAB) to be used, so that only known ACME clients can request a certificate.
+
+### On-Premise
+
+It is also possible to deploy the Smallstep platform to your own infrastructure.
+If your infrastructure is not publicly available and the CA can reach all ACME clients on the internal network, then it's not necessary to deploy an RA.
+In case your infrastructure doesn't allow all ACME clients to be challenged successfully by the CA, adding an RA to the deployment is an option.
+
+
+## Additional Control
+
+When deploying ACME, it's possible to configure the platform with some additional controls for certificate issuance.
+These are [Certificate Issuance Policies](#certificate-issuance-policies) and [External Account Binding](#external-account-binding).
+
+
+### Certificate Issuance Policies
+
+Certificate issuance policies can be used to configure which certificate names the CA is allowed to sign.
+A policy consists of one or more rules that are evaluated when a new certificate is going to be signed.
+More information about how certificate issuance policies work and how they can be configured, can be found [here](/docs/step-ca/policies).
+
+Certificate issuance policies apply to all authorities and provisioners, and is thus not specific to the ACME functionalities.
+Combining ACME and an authority or provisioner policy can result in a simpler deployment, however, if the policy only allows hostnames for specific domains to be signed.
+Unknown third party ACME clients try to request a certificate, but if they're not requesting certificates for the allowed (sub)domains, no certificate will be issued.
+
+### External Account Binding
+
+ACME EAB can be used to bind an ACME account to another (external) system.
+Only ACME clients that were provided with a shared secret will be able to register an account with the CA.
+This allows an administrator to link the (future) ACME account to an existing entity in a different system, such as an inventory of machines.
+
+When EAB is in use, it's possible to configure a certificate issuance policy on the ACME account level, resulting in more granular control over certificate issuance.
+

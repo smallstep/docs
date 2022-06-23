@@ -27,10 +27,17 @@ These result in the older standards being harder to implement and to be less ali
 
 ### Automated
 
-With ACME, certificate issuane, renewal and revocation can be automated.
+With ACME, certificate issuance, renewal and revocation can be automated.
 ACME clients can enroll automatically with the ACME server, provided they can successfully solve a challenge served by the server.
 This means certificate operations become more efficient, become more scalable and there's less room for human errors.
 These combined result in reduced operational costs for deploying and maintaining an internal PKI. 
+
+Over the past couple of years, certificates in the Web PKI have been given shorter and shorter maximum lifetimes.
+This trend will likely continue for a while and will probably result in even more organisations deploying ACME for its automation capabilities.
+For new PKI deployments, it's good to consider whether long certificate expiry periods are required.
+The potential for abuse increases the longer a certificate and its corresponding private key are valid, so it's good to reduce their lifetimes.
+Automated certificate renewal becomes more important the shorter certificate lifetimes become.
+
 
 ### Secure 
 
@@ -52,5 +59,3 @@ To prevent a malicious client from replaying a valid request, the protocol requi
 A lesser known and used feature of the ACME protocol is External Account Binding (EAB).
 As the name implies, EAB allows (new) ACME accounts to be bound (or linked) to an account in another (external) system.
 This allows configuration of which accounts, including users and automated systems, can interact with the ACME server.
-
-TODO: include some text on threat model, what attacks are (still) possible?
