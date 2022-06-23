@@ -43,25 +43,27 @@ In case your infrastructure doesn't allow all ACME clients to be challenged succ
 
 ## Additional Control
 
-When deploying ACME, it's possible to configure the platform with some additional controls for certificate issuance.
+When deploying ACME, it's possible to configure your CA with some additional controls for certificate issuance.
 These are [Certificate Issuance Policies](#certificate-issuance-policies) and [External Account Binding](#external-account-binding).
-
+They're explained in the following subsections.
 
 ### Certificate Issuance Policies
 
 Certificate issuance policies can be used to configure which certificate names the CA is allowed to sign.
 A policy consists of one or more rules that are evaluated when a new certificate is going to be signed.
+An example of a policy is to only allow certificates for subdomains of `internal.corp.com`, ensuring your CA won't ever sign a certificate for e.g. `public.corp.com`.
 More information about how certificate issuance policies work and how they can be configured, can be found [here](/docs/step-ca/policies).
 
-Certificate issuance policies apply to all authorities and provisioners, and is thus not specific to the ACME functionalities.
-Combining ACME and an authority or provisioner policy can result in a simpler deployment, however, if the policy only allows hostnames for specific domains to be signed.
-Unknown third party ACME clients try to request a certificate, but if they're not requesting certificates for the allowed (sub)domains, no certificate will be issued.
+Certificate issuance policies can be applied to authorities as well as all provisioners, and is thus not specific to the ACME functionalities.
+Combining ACME and an authority or provisioner policy can result in a simpler deployment, however, if the policy only allows hostnames for specific, internal (sub)domains to be signed.
+Unknown third party ACME clients can still try to request a certificate, but if they're requesting certificates that are not part of the policy, they won't be authorized by the RA or CA.
 
 ### External Account Binding
 
-ACME EAB can be used to bind an ACME account to another (external) system.
-Only ACME clients that were provided with a shared secret will be able to register an account with the CA.
-This allows an administrator to link the (future) ACME account to an existing entity in a different system, such as an inventory of machines.
+ACME EAB can be used to bind an ACME account to an existing entity in another (external) system, such as an inventory of machines.
+Only ACME clients that were provided with a client-specific, shared secret will be able to register an account with the CA.
+After the ACME client registers a new account, the EAB key is marked as bound and can't be (re)used by other ACME clients.
+The client will authenticate itself using its private key in future interactions with the RA or CA.
 
-When EAB is in use, it's possible to configure a certificate issuance policy on the ACME account level, resulting in more granular control over certificate issuance.
-
+The Smallstep platform also supports configuring a certificate issuance policy per ACME account when EAB is in use.
+By configuring a policy for an ACME account, issuance of specific hostnames or IP addresses can be limited to specific ACME clients.
