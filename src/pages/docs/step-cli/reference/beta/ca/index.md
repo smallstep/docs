@@ -5,8 +5,6 @@ menu:
   docs:
     parent: step beta
     children:
-      - admin
-      - provisioner
       - acme
 ---
 
@@ -29,7 +27,5 @@ commands may change, disappear, or be promoted to a different subcommand in the 
 
 | Name | Usage |
 |---|---|
-| **[admin](admin/)** | create and manage the certificate authority admins |
-| **[provisioner](provisioner/)** | create and manage the certificate authority provisioners |
 | **[acme](acme/)** | manage ACME settings |
 

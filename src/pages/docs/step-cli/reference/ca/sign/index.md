@@ -18,9 +18,9 @@ step ca sign <csr-file> <crt-file>
 [--set=<key=value>] [--set-file=<file>]
 [--acme=<uri>] [--standalone] [--webroot=<file>]
 [--contact=<email>] [--http-listen=<address>] [--console]
-[--x5c-cert=<file>] [--x5c-key=<file>]
-[--k8ssa-token-path=<file>]
-[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--x5c-cert=<file>] [--x5c-key=<file>] [--k8ssa-token-path=<file>]
+[--offline] [--password-file=<file>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -76,6 +76,9 @@ Force the overwrite of files without asking.
 Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
 but can accept a different configuration file using **--ca-config** flag.
+
+**--password-file**=`file`
+The path to the `file` containing the password to encrypt or decrypt the private key.
 
 **--console**
 Complete the flow while remaining inside the terminal
@@ -156,6 +159,12 @@ Sign a new certificate using the offline mode, requires the configuration
 files, certificates, and keys created with **step ca init**:
 ```shell
 $ step ca sign --offline internal internal.csr internal.crt
+```
+
+Sign a new certificate using the offline mode with additional flag to avoid
+console prompts:
+```shell
+$ step ca sign --offline --password-file ./pass.txt internal internal.csr internal.crt
 ```
 
 Sign a new certificate using an X5C provisioner:

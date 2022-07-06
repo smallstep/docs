@@ -162,10 +162,9 @@ The `email` of an admin user in an OpenID Connect provisioner, this user
 will not have restrictions in the certificates to sign. Use the
 '--admin' flag multiple times to configure multiple administrators.
 
-**--remove-admin**=`email`
-Remove the `email` of an admin user in an OpenID Connect provisioner, this user
-will not have restrictions in the certificates to sign. Use the
-'--admin' flag multiple times to configure multiple administrators.
+**--domain**=`domain`
+The `domain` used to validate the email claim in an OpenID Connect provisioner.
+Use the '--domain' flag multiple times to configure multiple domains.
 
 **--group**=`group`
 The `group` list used to validate the groups extenstion in an OpenID Connect token.

@@ -13,13 +13,15 @@ menu:
 
 ```raw
 step ca certificate <subject> <crt-file> <key-file>
-[--token=<token>]  [--issuer=<name>] [--not-before=<time|duration>]
-[--not-after=<time|duration>] [--san=<SAN>] [--set=<key=value>]
-[--set-file=<file>] [--acme=<file>] [--standalone] [--webroot=<file>]
+[--token=<token>]  [--issuer=<name>] [--provisioner-password-file=<file>]
+[--not-before=<time|duration>] [--not-after=<time|duration>]
+[--san=<SAN>] [--set=<key=value>] [--set-file=<file>]
+[--acme=<file>] [--standalone] [--webroot=<file>]
 [--contact=<email>] [--http-listen=<address>] [--bundle]
 [--kty=<type>] [--curve=<curve>] [--size=<size>] [--console]
 [--x5c-cert=<file>] [--x5c-key=<file>] [--k8ssa-token-path=<file>]
-[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--offline] [--password-file] [--ca-url=<uri>] [--root=<file>]
+[--context=<name>]
 ```
 
 ## Description
@@ -130,6 +132,9 @@ Creates a certificate without contacting the certificate authority. Offline mode
 uses the configuration, certificates, and keys created with **step ca init**,
 but can accept a different configuration file using **--ca-config** flag.
 
+**--password-file**=`file`
+The path to the `file` containing the password to encrypt or decrypt the private key.
+
 **--console**
 Complete the flow while remaining inside the terminal
 
@@ -207,6 +212,16 @@ Request a new certificate using the offline mode, requires the configuration
 files, certificates, and keys created with **step ca init**:
 ```shell
 $ step ca certificate --offline internal.example.com internal.crt internal.key
+```
+
+Request a new certificate using the offline mode with additional flags to avoid
+console prompts:
+```shell
+$ step ca certificate --offline \
+  --password-file ./pass.txt \
+  --provisioner foo \
+  --provisioner-password-file ./provisioner-pass.txt \
+  internal.example.com internal.crt internal.key
 ```
 
 Request a new certificate using an OIDC provisioner:
