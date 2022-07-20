@@ -5,7 +5,7 @@ import { makeStyles, Box, List, Popover } from '@material-ui/core';
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) => ({
   root: {
     background: 'white',
   },

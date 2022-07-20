@@ -24,7 +24,6 @@ const useStyles = makeStyles((theme) => ({
       backgroundColor: theme.palette.accent.yellow,
     },
   },
-}));
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
@@ -81,6 +80,7 @@ function HitsInIndex({ index }) {
     <Index indexName={index.name}>
       <HitCount />
       <Hits hitComponent={PageHit} />
+
     </Index>
   );
 }
