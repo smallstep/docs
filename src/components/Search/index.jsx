@@ -24,14 +24,6 @@ const useStyles = makeStyles((theme) =>({
     border: `1px solid ${theme.palette.divider}`,
     borderRadius: 3,
   },
-  search: {
-    maxHeight: 750,
-    width: 'auto',
-    height: 'auto',
-    boxShadow: 5,
-    overflow: 'auto',
-    overflowX: 'hidden',
-  },
 }));
 
 export default function Search({ indices }) {
@@ -71,7 +63,6 @@ export default function Search({ indices }) {
                 >
                   <Box className={theme.resultsBorder}>
                     <SearchResult
-                      className={theme.search}
                       show={query && query.length > 0 && open}
                       indices={indices}
                     />
