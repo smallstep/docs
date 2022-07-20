@@ -11,7 +11,7 @@ import {
 } from 'react-instantsearch-dom';
 import { Box, ListItem, ListItemText } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) =>({
+const useStyles = makeStyles((theme) => ({
   resultsBorder: {
     borderBottom: `1px solid ${theme.palette.divider}`,
     marginBottom: -16,

@@ -11,7 +11,7 @@ import {
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
-const useStyles = makeStyles((theme) =>({
+const useStyles = makeStyles((theme) => ({
   root: {
     background: 'white',
   },
