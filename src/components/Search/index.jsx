@@ -11,8 +11,6 @@ import {
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
-//{window.addEventListener('resize', handleClose)}
-
 const useStyles = makeStyles({
   root: {
     background: 'white',
