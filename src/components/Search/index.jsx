@@ -11,7 +11,7 @@ import {
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) =>({
   root: {
     background: 'white',
   },
@@ -21,8 +21,8 @@ const useStyles = makeStyles({
     zIndex: 2,
   },
   resultsBorder: {
+    border: `1px solid ${theme.palette.divider}`,
     borderRadius: 3,
-    borderColor: '#D3D3D3',
   },
   search: {
     maxHeight: 750,
@@ -32,7 +32,7 @@ const useStyles = makeStyles({
     overflow: 'auto',
     overflowX: 'hidden',
   },
-});
+}));
 
 export default function Search({ indices }) {
   const [query, setQuery] = useState();
@@ -69,7 +69,7 @@ export default function Search({ indices }) {
                   disableAutoFocus={true}
                   disableEnforceFocus={true}
                 >
-                  <Box border={1} className={theme.resultsBorder}>
+                  <Box className={theme.resultsBorder}>
                     <SearchResult
                       className={theme.search}
                       show={query && query.length > 0 && open}

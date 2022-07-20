@@ -11,9 +11,9 @@ import {
 } from 'react-instantsearch-dom';
 import { Box, ListItem, ListItemText } from '@material-ui/core';
 
-const useStyles = makeStyles({
+const useStyles = makeStyles((theme) =>({
   resultsBorder: {
-    borderColor: '#D3D3D3',
+    borderBottom: `1px solid ${theme.palette.divider}`,
     marginBottom: -16,
     marginTop: -2,
   },
@@ -31,13 +31,21 @@ const useStyles = makeStyles({
       color: 'inherit',
     },
   },
-});
+  search: {
+    maxHeight: 750,
+    width: 'auto',
+    height: 'auto',
+    boxShadow: 5,
+    overflow: 'auto',
+    overflowX: 'hidden',
+  },
+}));
 
 const HitCount = connectStateResults(({ searchResults }) => {
   const hitCount = searchResults && searchResults.nbHits;
   const theme = useStyles();
   return hitCount > 0 ? (
-    <Box borderBottom={1} textAlign={'right'} className={theme.resultsBorder}>
+    <Box textAlign={'right'} className={theme.resultsBorder}>
       <Box mr={2}>
         {hitCount} result{hitCount !== 1 ? `s` : ``}
       </Box>
@@ -63,7 +71,7 @@ const PageHit = ({ hit }) => (
           : `/docs/step-cli/reference/${hit.slug}`
       }
     >
-      <ListItem button attribute="slug" hit={hit} tagName="mark">
+      <ListItem button attribute="slug">
         <ListItemText
           primary={
             <h4>
@@ -84,7 +92,7 @@ const PageHit = ({ hit }) => (
 function HitsInIndex({ index }) {
   const theme = useStyles();
   return (
-    <Index indexName={index.name}>
+    <Index indexName={index.name} className={theme.search}>
       <Paragraph>
         <HitCount />
       </Paragraph>
