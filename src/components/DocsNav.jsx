@@ -85,7 +85,7 @@ const DocsNav = ({ pathname, submenusRef }) => {
   return (
     <>
       <Search indices={searchIndices} changeOpen={setOpen} />
-      {searchOpen == false ? (
+      {searchOpen === false ? (
         <Box>
           <Box mb={2}>
             <Heading variant="h5">Platform</Heading>
