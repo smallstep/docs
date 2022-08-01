@@ -81,11 +81,11 @@ const DocsNav = ({ pathname, submenusRef }) => {
       ));
   };
   const searchIndices = [{ name: `Pages`, title: `Pages` }];
-  const [searchOpen, setOpen] = React.useState(false);
+  const [openSearch, setOpenSearch] = React.useState(false);
   return (
     <>
-      <Search indices={searchIndices} changeOpen={setOpen} />
-      {searchOpen === false ? (
+      <Search indices={searchIndices} changeOpenSearch={setOpenSearch} />
+      {!openSearch ? (
         <Box>
           <Box mb={2}>
             <Heading variant="h5">Platform</Heading>
@@ -208,9 +208,7 @@ const DocsNav = ({ pathname, submenusRef }) => {
             </NavItem>
           </NavMenu>
         </Box>
-      ) : (
-        <Box></Box>
-      )}
+      ) : null}
     </>
   );
 };

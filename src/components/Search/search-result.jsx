@@ -77,7 +77,6 @@ const Hits = connectHits(({ hits }) =>
 );
 
 function HitsInIndex({ index }) {
-  const classes = useStyles();
   return (
     <Index indexName={index.name}>
       <HitCount />

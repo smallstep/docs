@@ -5,20 +5,20 @@ import { makeStyles, Box, List, ClickAwayListener } from '@material-ui/core';
 import SearchBox from './search-box';
 import SearchResult from './search-result';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((classes) => ({
   resultsOpen: {
     background: 'white',
     position: 'relative',
   },
   resultsBorder: {
-    border: `1px solid ${theme.palette.divider}`,
+    border: `1px solid ${classes.palette.divider}`,
     maxHeight: 580,
     overflow: 'auto',
     overflowX: 'hidden',
   },
 }));
 
-export default function Search({ indices, changeOpen }) {
+export default function Search({ indices, changeOpenSearch }) {
   const [query, setQuery] = useState();
   const searchClient = useMemo(
     () =>
@@ -29,14 +29,14 @@ export default function Search({ indices, changeOpen }) {
     []
   );
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
-  const handleClick = (event) => {
-    changeOpen(true);
-    setOpen(true);
+  const [openResults, setOpenResults] = React.useState(false);
+  const handleClick = () => {
+    changeOpenSearch(true);
+    setOpenResults(true);
   };
   const handleClose = () => {
-    setOpen(false);
-    changeOpen(false);
+    setOpenResults(false);
+    changeOpenSearch(false);
   };
   return (
     <Box mb={2}>
@@ -47,7 +47,7 @@ export default function Search({ indices, changeOpen }) {
           onSearchStateChange={({ query }) => setQuery(query)}
         >
           <SearchBox onInput={handleClick} mt={2} />
-          {open ? (
+          {openResults ? (
             <Box position={'relative'} mr={1}>
               <List
                 className={classes.resultsOpen}
@@ -56,7 +56,7 @@ export default function Search({ indices, changeOpen }) {
               >
                 <Box className={classes.resultsBorder}>
                   <SearchResult
-                    show={query && query.length > 0 && open}
+                    show={query && query.length > 0 && openResults}
                     indices={indices}
                   />
                 </Box>
