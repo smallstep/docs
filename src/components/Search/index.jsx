@@ -6,11 +6,9 @@ import SearchBox from './search-box';
 import SearchResult from './search-result';
 
 const useStyles = makeStyles((theme) => ({
-  popover: {
+  resultsOpen: {
     background: 'white',
-    position: 'absolute',
-    boxShadow: 15,
-    zIndex: 2,
+    position: 'relative',
   },
   resultsBorder: {
     border: `1px solid ${theme.palette.divider}`,
@@ -30,7 +28,7 @@ export default function Search({ indices }) {
       ),
     []
   );
-  const theme = useStyles();
+  const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const handleClick = (event) => {
     setOpen(true);
@@ -48,13 +46,13 @@ export default function Search({ indices }) {
         >
           <SearchBox onInput={handleClick} mt={2} />
           {open ? (
-            <Box position={'relative'} mr={1} zIndex={2}>
+            <Box position={'relative'} mr={1} >
               <List
-                className={theme.popover}
+                className={classes.resultsOpen}
                 disableAutoFocus={true}
                 disableEnforceFocus={true}
               >
-                <Box className={theme.resultsBorder}>
+                <Box className={classes.resultsBorder}>
                   <SearchResult
                     show={query && query.length > 0 && open}
                     indices={indices}
