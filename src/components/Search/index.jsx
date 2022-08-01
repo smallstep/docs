@@ -46,7 +46,7 @@ export default function Search({ indices }) {
         >
           <SearchBox onInput={handleClick} mt={2} />
           {open ? (
-            <Box position={'relative'} mr={1} >
+            <Box position={'relative'} mr={1}>
               <List
                 className={classes.resultsOpen}
                 disableAutoFocus={true}
