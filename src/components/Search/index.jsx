@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Search({ indices }) {
+export default function Search({ indices, changeOpen }) {
   const [query, setQuery] = useState();
   const searchClient = useMemo(
     () =>
@@ -31,10 +31,12 @@ export default function Search({ indices }) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const handleClick = (event) => {
+    changeOpen(true);
     setOpen(true);
   };
   const handleClose = () => {
     setOpen(false);
+    changeOpen(false);
   };
   return (
     <Box mb={2}>

@@ -37,7 +37,7 @@ const HitCount = connectStateResults(({ searchResults }) => {
     </Box>
   ) : (
     <Box minWidth={295}>
-      <Typography variant="body2">There are no results found.</Typography>
+      <Typography variant="body2"> There are no results found.</Typography>
     </Box>
   );
 });
