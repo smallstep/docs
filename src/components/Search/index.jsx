@@ -10,12 +10,6 @@ const useStyles = makeStyles((classes) => ({
     background: 'white',
     position: 'relative',
   },
-  resultsBorder: {
-    border: `1px solid ${classes.palette.divider}`,
-    maxHeight: 580,
-    overflow: 'auto',
-    overflowX: 'hidden',
-  },
 }));
 
 export default function Search({ indices, changeOpenSearch }) {
