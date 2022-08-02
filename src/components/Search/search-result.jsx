@@ -31,7 +31,7 @@ const HitCount = connectStateResults(({ searchResults }) => {
   const classes = useStyles();
   return hitCount > 0 ? (
     <Box textAlign={'right'} className={classes.resultsBorder} mb={2} mr={1}>
-      <Typography variant="body1">
+      <Typography variant="body2">
         {hitCount} result{hitCount !== 1 ? `s` : ``}
       </Typography>
     </Box>
