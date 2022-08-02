@@ -11,9 +11,9 @@ import {
 } from 'react-instantsearch-dom';
 import { Box, Typography, ListItem, ListItemText } from '@material-ui/core';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles((classes) => ({
   resultsBorder: {
-    borderBottom: `1px solid ${theme.palette.accent.grey3}`,
+    borderBottom: `1px solid ${classes.palette.accent.grey3}`,
   },
   link: {
     textDecoration: 'none',
@@ -21,7 +21,7 @@ const useStyles = makeStyles((theme) => ({
   },
   hits: {
     '& mark ': {
-      backgroundColor: theme.palette.accent.yellow,
+      backgroundColor: classes.palette.accent.yellow,
     },
   },
 }));
