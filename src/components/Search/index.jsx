@@ -48,12 +48,10 @@ export default function Search({ indices, changeOpenSearch }) {
                 disableAutoFocus={true}
                 disableEnforceFocus={true}
               >
-                <Box className={classes.resultsBorder}>
-                  <SearchResult
-                    show={query && query.length > 0 && openResults}
-                    indices={indices}
-                  />
-                </Box>
+                <SearchResult
+                  show={query && query.length > 0 && openResults}
+                  indices={indices}
+                />
               </List>
             </Box>
           ) : null}
