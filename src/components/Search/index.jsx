@@ -29,8 +29,8 @@ export default function Search({ indices, changeOpenSearch }) {
     setOpenResults(true);
   };
   const handleClose = () => {
-    setOpenResults(false);
     changeOpenSearch(false);
+    setOpenResults(false);
   };
   return (
     <Box mb={2}>
