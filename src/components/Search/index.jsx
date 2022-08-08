@@ -8,7 +8,7 @@ import SearchResult from './search-result';
 const useStyles = makeStyles((classes) => ({
   resultsOpen: {
     background: 'white',
-    position: 'absolute',
+    position: 'sticky',
   },
 }));
 
