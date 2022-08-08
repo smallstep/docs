@@ -8,7 +8,7 @@ import SearchResult from './search-result';
 const useStyles = makeStyles((classes) => ({
   resultsOpen: {
     background: 'white',
-    position: 'sticky',
+    position: 'relative',
   },
 }));
 
@@ -29,8 +29,10 @@ export default function Search({ indices, changeOpenSearch }) {
     setOpenResults(true);
   };
   const handleClose = () => {
-    changeOpenSearch(false);
-    setOpenResults(false);
+    setTimeout(() => {
+      changeOpenSearch(false);
+      setOpenResults(false);
+    }, 1);
   };
   return (
     <Box mb={2}>
