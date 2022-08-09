@@ -678,6 +678,30 @@ see the [claims](#claims) section for all the options.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
 
+<Alert severity="warning">
+  <div> 
+    By default every valid certificate can issue through `X5C` provisioner new certificates
+    for <strong>any</strong> Subject or Principal. You can force allowed subject to
+    signing certificate's one within templates by accessing the `.AuthorizationCrt` variable.
+    
+    For example, given a certificate issued by the OIDC provider to `foo@bar.com`, set the
+    `X5C` ssh template as follow to allow SSH certificates only for `foo@bar.com` and `foo`:
+    
+    ```json
+    {
+        "type": {{ toJson .Type }},
+        "keyId": {{ toJson .AuthorizationCrt.Subject.CommonName }},
+        "principals": [
+            {{ replace "@bar.com" "" .AuthorizationCrt.Subject.CommonName | toJson }},
+            {{ toJson .AuthorizationCrt.Subject.CommonName }}
+        ],
+        "extensions": {{ toJson .Extensions }},
+        "criticalOptions": {{ toJson .CriticalOptions }}
+    }
+    ```
+  </div>
+</Alert>
+
 ### Nebula
 
 **This is an experimental feature.**
