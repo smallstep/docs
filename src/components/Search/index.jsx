@@ -36,7 +36,7 @@ export default function Search({ indices, changeOpenSearch }) {
   const handleClose = () => {
     changeOpenSearch(false);
     setOpenResults(false);
-    setValue("");
+    setValue('');
   };
   return (
     <Box mb={2}>
@@ -45,19 +45,19 @@ export default function Search({ indices, changeOpenSearch }) {
         indexName={indices[0].name}
         onSearchStateChange={({ query }) => setQuery(query)}
       >
-        <SearchBox mt={2} 
-          onInput={handleClick} 
+        <SearchBox
+          mt={2}
+          onInput={handleClick}
           value={value}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end" >
-                <IconButton onClick={handleClose} edge="end" >
+              <InputAdornment position="end">
+                <IconButton onClick={handleClose} edge="end">
                   <ClearIcon style={{ fontSize: 30 }} />
                 </IconButton>
               </InputAdornment>
-            )
+            ),
           }}
-          
         />
         {openResults ? (
           <Box position={'relative'} mr={1}>
@@ -66,7 +66,6 @@ export default function Search({ indices, changeOpenSearch }) {
               disableAutoFocus={true}
               disableEnforceFocus={true}
             >
-              
               <SearchResult
                 show={query && query.length > 0 && openResults}
                 indices={indices}
