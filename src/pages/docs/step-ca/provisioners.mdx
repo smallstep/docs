@@ -589,7 +589,7 @@ see the [claims](#claims) section for all the options.
     <b>Why is the OAuth client secret unprotected?</b>
 
 When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
-Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
 And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
 So, what makes it secure?
@@ -608,6 +608,38 @@ Functionally, however, it is equivalent to having a public secret.
 Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted and considered secure.
   </div>
 </Alert>
+
+#### Device Authorization Grant Flow
+
+The Device Authorization Grant flow is an OAuth 2.0 extension that enables OAuth for devices with no browser 
+or limited input capability to obtain an access token.
+The OIDC provisioner supports the Device Authorization Grant flow, however,
+it is not always the default flow for a given OIDC provider.
+
+The Google OIDC provider initially defaulted to a different flow - the Out Of Band (OOB) flow which has since been deprecated. 
+`step-ca` OIDC provisioners configured to use Google OIDC will still default to the OOB flow (until October 3rd, 2022).
+Users can specify the proper OAuth 2.0 flow by supplying flags and environment variables.
+
+To use the the default OAuth 2.0 flow for input constrained devices (for your OIDC provider) use:
+
+```shell-session
+$ step ca certificate foo foo.crt foo.key --console
+```
+
+For `step oauth`, specify a non-default OAuth 2.0 input constrained flow with the `--console-flow device` flag and value:
+
+```shell-session
+$ step oauth --client-id <my-client-id> --client-secret <my-client-secret> --console-flow device
+```
+
+For any other `step` command, specify a non-default OAuth 2.0 input constrained flow with the `STEP_CONSOLE_FLOW=device` environment variable ahead of the command:
+
+```shell-session
+$ STEP_CONSOLE_FLOW=device step ca certificate foo foo.crt foo.key
+```
+
+After October 3rd, 2022 Google will deprecate the OOB flow for existing clients and 
+the Device Authorization Grant flow will become the default flow for all input constrained devices.
 
 #### Further reading
 
