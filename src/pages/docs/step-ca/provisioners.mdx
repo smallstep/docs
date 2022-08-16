@@ -609,37 +609,35 @@ Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted
   </div>
 </Alert>
 
-#### Device Authorization Grant Flow
+#### Browserless Console Mode
 
-The Device Authorization Grant flow is an OAuth 2.0 extension that enables OAuth for devices with no browser 
-or limited input capability to obtain an access token.
-The OIDC provisioner supports the Device Authorization Grant flow, however,
-it is not always the default flow for a given OIDC provider.
+Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
+The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
+The OIDC provisioner supports the Device Authorization Grant flow.
+However, it is not always the default flow for a given OIDC provider.
 
-The Google OIDC provider initially defaulted to a different flow - the Out Of Band (OOB) flow which has since been deprecated. 
-`step-ca` OIDC provisioners configured to use Google OIDC will still default to the OOB flow (until October 3rd, 2022).
-Users can specify the proper OAuth 2.0 flow by supplying flags and environment variables.
+<Alert severity="warning">
+  <div>
+    <p>The Google OIDC provider initially defaulted to a different flow - the Out Of Band (OOB) flow which has since been deprecated. 
+    `step-ca` OIDC provisioners configured to use Google OIDC will still default to the OOB flow (until October 3rd, 2022).
+    Users can specify the proper OAuth 2.0 flow by supplying flags and environment variables.</p>
 
-To use the the default OAuth 2.0 flow for input constrained devices (for your OIDC provider) use:
+    <p>After October 3rd, 2022 Google will deprecate the OOB flow for existing clients and 
+    the Device Authorization Grant flow will become the default flow for all input constrained devices.<p>
+  </div>
+</Alert>
+
+To use the default flow for input-constrained devices (for your OIDC provider), run:
 
 ```shell-session
 $ step ca certificate foo foo.crt foo.key --console
 ```
 
-For `step oauth`, specify a non-default OAuth 2.0 input constrained flow with the `--console-flow device` flag and value:
+To specify the browserless flow you would like to use, run: 
 
 ```shell-session
-$ step oauth --client-id <my-client-id> --client-secret <my-client-secret> --console-flow device
+$ STEP_CONSOLE_FLOW=device step ca certificate foo foo.crt foo.key --console
 ```
-
-For any other `step` command, specify a non-default OAuth 2.0 input constrained flow with the `STEP_CONSOLE_FLOW=device` environment variable ahead of the command:
-
-```shell-session
-$ STEP_CONSOLE_FLOW=device step ca certificate foo foo.crt foo.key
-```
-
-After October 3rd, 2022 Google will deprecate the OOB flow for existing clients and 
-the Device Authorization Grant flow will become the default flow for all input constrained devices.
 
 #### Further reading
 
