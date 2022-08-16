@@ -587,9 +587,8 @@ see the [claims](#claims) section for all the options.
 Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
 The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
 The `step-ca` OIDC provisioner supports the Device Authorization Grant flow.
-However, it is not always the default flow for a given OIDC provider.
 
-To use the default flow for input-constrained devices, run:
+To use the Device Authorization Grant flow for input-constrained devices, run:
 
 ```shell-session
 $ step ca certificate foo foo.crt foo.key --console
