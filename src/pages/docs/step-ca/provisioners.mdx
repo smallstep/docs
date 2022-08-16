@@ -586,30 +586,19 @@ see the [claims](#claims) section for all the options.
 
 Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
 The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
-The OIDC provisioner supports the Device Authorization Grant flow.
+The `step-ca` OIDC provisioner supports the Device Authorization Grant flow.
 However, it is not always the default flow for a given OIDC provider.
 
-<Alert severity="warning">
-  <div>
-    <p>The Google OIDC provider initially defaulted to a different flow - the Out Of Band (OOB) flow which has since been deprecated. 
-    `step-ca` OIDC provisioners configured to use Google OIDC will still default to the OOB flow (until October 3rd, 2022).
-    Users can specify the proper OAuth 2.0 flow by supplying flags and environment variables.</p>
-
-    <p>After October 3rd, 2022 Google will deprecate the OOB flow for existing clients and 
-    the Device Authorization Grant flow will become the default flow for all input constrained devices.<p>
-  </div>
-</Alert>
-
-To use the default flow for input-constrained devices (for your OIDC provider), run:
+To use the default flow for input-constrained devices, run:
 
 ```shell-session
 $ step ca certificate foo foo.crt foo.key --console
 ```
 
-To specify the browserless flow you would like to use, run: 
+To specify a flow other than the default (for example Google's deprecated Out of Band flow) as follows:
 
 ```shell-session
-$ STEP_CONSOLE_FLOW=device step ca certificate foo foo.crt foo.key --console
+$ STEP_CONSOLE_FLOW=oob step ca certificate foo foo.crt foo.key --console
 ```
 
 #### Notes
