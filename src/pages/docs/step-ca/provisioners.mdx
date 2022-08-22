@@ -680,19 +680,21 @@ see the [claims](#claims) section for all the options.
 
 <Alert severity="warning">
   <div> 
-    By default every valid certificate can issue through `X5C` provisioner new certificates
-    for <strong>any</strong> Subject or Principal. You can force allowed subject to
-    signing certificate's one within templates by accessing the `.AuthorizationCrt` variable.
+    By default, the `X5C` provisioner will issue a certificates for <strong>any</strong> Subject names.
+    If you want to limit or modify the subject names this provisioner will issue,
+    you can use a <a href="/docs/step-ca/templates">certificate template</a>.
     
-    For example, given a certificate issued by the OIDC provider to `foo@bar.com`, set the
-    `X5C` ssh template as follow to allow SSH certificates only for `foo@bar.com` and `foo`:
+    For example, say your users will use the X5C provisioner to exchange an X.509 client certificate for an SSH user certificate.
+    The X.509 client certificate has `alice@example.com` as its subject,
+    and you want to ensure the SSH certificate has both `alice` and `alice@example.com` as principals.
+    The following template will make that scenario possible:
     
     ```json
     {
         "type": {{ toJson .Type }},
         "keyId": {{ toJson .AuthorizationCrt.Subject.CommonName }},
         "principals": [
-            {{ replace "@bar.com" "" .AuthorizationCrt.Subject.CommonName | toJson }},
+            {{ replace "@example.com" "" .AuthorizationCrt.Subject.CommonName | toJson }},
             {{ toJson .AuthorizationCrt.Subject.CommonName }}
         ],
         "extensions": {{ toJson .Extensions }},
