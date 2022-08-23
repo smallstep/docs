@@ -90,6 +90,10 @@ There is no support for automatically migrating a single-profile `$STEPPATH` con
 Enabling contexts will preserve any previously existing configuration or state data in `$STEPPATH`,
 but it will not migrate your existing configuration tree into its own new context.
 
+## Extending `step`
+
+The `step` command supports plugins. A plugin is an executable file called `step-COMMANDNAME` located in `$PATH` or `$STEPPATH/plugins`. For example, a plugin named `$STEPPATH/plugins/step-dns` will execute when `step dns` is run. If you're writing a plugin, please follow our convention for CLI help by implementing eg. `step dns help`.
+
 ## Next Steps
 
 * [Basic Crypto Operations](/docs/step-cli/basic-crypto-operations)
