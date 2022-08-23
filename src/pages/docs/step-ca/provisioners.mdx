@@ -707,8 +707,8 @@ see the [claims](#claims) section for all the options.
     and you want to ensure the SSH certificate has both `alice` and `alice@example.com` as principals.
     The following template will make that scenario possible:
     
-    ```json
-    {
+    <CodeBlock language="json">
+	{`{
         "type": {{ toJson .Type }},
         "keyId": {{ toJson .AuthorizationCrt.Subject.CommonName }},
         "principals": [
@@ -717,8 +717,8 @@ see the [claims](#claims) section for all the options.
         ],
         "extensions": {{ toJson .Extensions }},
         "criticalOptions": {{ toJson .CriticalOptions }}
-    }
-    ```
+    }`}
+    </CodeBlock>
   </div>
 </Alert>
 
