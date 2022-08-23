@@ -11,7 +11,6 @@ description: The `step` Command
 `step` ships with extensive built-in help. To list available options and command groups, run `step` by itself. For help, use `step help <command>` or `step help <command> <subcommand>`.
 
 ## Environment variables
-
 - `STEPPATH` The path where `step` stores configuration and state. This directory also holds `step-ca` state created with [`step ca init`](/docs/step-cli/reference/ca/init), including CA configuration, keys, certificates, and templates. Defaults to `$HOME/.step`.
 - `STEPDEBUG` When set to `1`, `step` will provide extra diagnostic information for debugging. This variable can also be used with `step-ca`.
 - `HTTPS_PROXY` and `NO_PROXY` Configure proxies for outbound HTTPS traffic. See [net/http.ProxyFromEnvironment](https://golang.org/pkg/net/http/#ProxyFromEnvironment) documentation for details. Note that the system trust store is _not_ trusted by `step` for the TLS handshake with the proxy server.
@@ -92,7 +91,10 @@ but it will not migrate your existing configuration tree into its own new contex
 
 ## Extending `step`
 
-The `step` command supports plugins. A plugin is an executable file called `step-COMMANDNAME` located in `$PATH` or `$STEPPATH/plugins`. For example, a plugin named `$STEPPATH/plugins/step-dns` will execute when `step dns` is run. If you're writing a plugin, please follow our convention for CLI help by implementing eg. `step dns help`.
+The `step` command supports plugins for adding command groups.
+A plugin is an executable file called `step-COMMANDNAME` located in `$PATH` or `$STEPPATH/plugins`.
+For example, a plugin named `$STEPPATH/plugins/step-dns` will execute when `step dns` is run.
+If you're writing a plugin, please follow our convention for CLI help by implementing eg. `step dns help`.
 
 ## Next Steps
 
