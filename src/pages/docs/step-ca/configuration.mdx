@@ -584,7 +584,8 @@ Run the `step-cloudkms-init --help` command for more options.
 When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure.
 Authentication to Azure is handled via environment variables;
 we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable,
-or [using a managed identity](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication-managed-identity?tabs=azure-cli) and setting the  `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` variables when starting `step-ca`. Alternatively, a [service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli) and setting the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables can also be used.
+or [using a managed identity](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication-managed-identity?tabs=azure-cli) and setting the  `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` variables when starting `step-ca`.
+Alternatively, you can create a [service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli) and set the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables.
 See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
 
 For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
