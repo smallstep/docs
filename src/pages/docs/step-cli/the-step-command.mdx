@@ -92,8 +92,8 @@ but it will not migrate your existing configuration tree into its own new contex
 ## Extending `step`
 
 The `step` command supports plugins for adding subcommands.
-A plugin is an executable file called `step-COMMANDNAME` located in `$PATH` or `$STEPPATH/plugins`.
-For example, a plugin named `$STEPPATH/plugins/step-dns` will execute when `step dns` is run.
+A plugin is an executable file called `step-COMMANDNAME-plugin` located in `$PATH` or `$STEPPATH/plugins`.
+For example, a plugin named `$STEPPATH/plugins/step-dns-plugin` will execute when `step dns` is run.
 If you're writing a plugin, please follow our convention for CLI help by implementing eg. `step dns help`.
 
 ## Next Steps
