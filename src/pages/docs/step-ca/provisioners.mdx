@@ -582,6 +582,24 @@ see the [claims](#claims) section for all the options.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
+#### Browserless Console Mode
+
+Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
+The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
+The `step-ca` OIDC provisioner supports the Device Authorization Grant flow.
+
+To use the Device Authorization Grant flow for input-constrained devices, run:
+
+```shell-session
+$ step ca certificate foo foo.crt foo.key --console
+```
+
+To specify a flow other than the default (for example Google's deprecated Out of Band flow), run:
+
+```shell-session
+$ STEP_CONSOLE_FLOW=oob step ca certificate foo foo.crt foo.key --console
+```
+
 #### Notes
 
 <Alert severity="info">
@@ -589,7 +607,7 @@ see the [claims](#claims) section for all the options.
     <b>Why is the OAuth client secret unprotected?</b>
 
 When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
-Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
 And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
 So, what makes it secure?
@@ -677,6 +695,32 @@ see the [claims](#claims) section for all the options.
 - **options**<Reference id="star4" marker="*" />: see the [options](#options) section for more details.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
+
+<Alert severity="warning">
+  <div> 
+    By default, the `X5C` provisioner will issue a certificates for <strong>any</strong> Subject names.
+    If you want to limit or modify the subject names this provisioner will issue,
+    you can use a <a href="/docs/step-ca/templates">certificate template</a>.
+    
+    For example, say your users will use the X5C provisioner to exchange an X.509 client certificate for an SSH user certificate.
+    The X.509 client certificate has `alice@example.com` as its subject,
+    and you want to ensure the SSH certificate has both `alice` and `alice@example.com` as principals.
+    The following template will make that scenario possible:
+    
+    ```json
+    {
+        "type": {{ toJson .Type }},
+        "keyId": {{ toJson .AuthorizationCrt.Subject.CommonName }},
+        "principals": [
+            {{ replace "@example.com" "" .AuthorizationCrt.Subject.CommonName | toJson }},
+            {{ toJson .AuthorizationCrt.Subject.CommonName }}
+        ],
+        "extensions": {{ toJson .Extensions }},
+        "criticalOptions": {{ toJson .CriticalOptions }}
+    }
+    ```
+  </div>
+</Alert>
 
 ### Nebula
 

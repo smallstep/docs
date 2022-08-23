@@ -1,6 +1,4 @@
-require('dotenv').config({
-  path: `.env.${process.env.NODE_ENV}`,
-});
+require("dotenv").config()
 
 module.exports = {
   siteMetadata: {
@@ -42,6 +40,14 @@ module.exports = {
       },
     },
     {
+      resolve: `gatsby-plugin-algolia`,
+      options: {
+        appId: process.env.GATSBY_ALGOLIA_APP_ID,
+        apiKey: process.env.ALGOLIA_ADMIN_KEY,
+        queries: require("./src/algolia-queries")
+      },
+    },
+    {
       resolve: `gatsby-source-filesystem`,
       options: {
         name: `reference`,
@@ -65,6 +71,7 @@ module.exports = {
         },
       },
     },
+    
     `gatsby-transformer-yaml`,
     {
       resolve: `gatsby-plugin-next-seo`,

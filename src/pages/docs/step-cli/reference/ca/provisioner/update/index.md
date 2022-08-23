@@ -120,7 +120,15 @@ will not have restrictions in the certificates to sign. Use the
 **--remove-admin**=`email`
 Remove the `email` of an admin user in an OpenID Connect provisioner, this user
 will not have restrictions in the certificates to sign. Use the
-'--admin' flag multiple times to configure multiple administrators.
+'--remove-admin' flag multiple times to remove multiple administrators.
+
+**--domain**=`domain`
+The `domain` used to validate the email claim in an OpenID Connect provisioner.
+Use the '--domain' flag multiple times to configure multiple domains.
+
+**--remove-domain**=`domain`
+Remove the `domain` used to validate the email claim in an OpenID Connect provisioner.
+Use the '--remove-domain' flag multiple times to remove multiple domains.
 
 **--group**=`group`
 The `group` list used to validate the groups extenstion in an OpenID Connect token.
@@ -202,7 +210,7 @@ Use the flag multiple times to configure multiple object IDs
 
 **--remove-azure-object-id**=`id`
 Remove a Microsoft Azure AD object `id` used to validate the identity tokens.
-Use the flag multiple times to configure multiple object IDs
+Use the flag multiple times to remove multiple object IDs
 
 **--gcp-service-account**=`email`
 The Google service account `email` or `id` used to validate the identity tokens.
@@ -210,7 +218,7 @@ Use the flag multiple times to configure multiple service accounts.
 
 **--remove-gcp-service-account**=`email`
 Remove a Google service account `email` or `id` used to validate the identity tokens.
-Use the flag multiple times to configure multiple service accounts.
+Use the flag multiple times to remove multiple service accounts.
 
 **--gcp-project**=`id`
 The Google project `id` used to validate the identity tokens.
@@ -218,7 +226,7 @@ Use the flag multiple times to configure multiple projects
 
 **--remove-gcp-project**=`id`
 Remove a Google project `id` used to validate the identity tokens.
-Use the flag multiple times to configure multiple projects
+Use the flag multiple times to remove multiple projects
 
 **--instance-age**=`duration`
 The maximum `duration` to grant a certificate in AWS and GCP provisioners.

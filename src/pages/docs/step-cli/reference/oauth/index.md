@@ -46,7 +46,7 @@ companies such as Amazon, Google, Facebook, Microsoft and Twitter to permit the
 users to share information about their accounts with third party applications or
 websites. Learn more at https://en.wikipedia.org/wiki/OAuth.
 
-This command by default performs he authorization flow with a preconfigured
+This command by default performs the authorization flow with a preconfigured
 Google application, but a custom one can be set combining the flags
 **--client-id**, **--client-secret**, and **--provider**. The provider value
 must be set to the OIDC discovery document (.well-known/openid-configuration)
@@ -64,7 +64,22 @@ OAuth provider for authentication
 Email to authenticate
 
 **--console**, **-c**
-Complete the flow while remaining only inside the terminal
+Complete the flow while remaining only inside the terminal.
+
+NOTE: This flag will continue to use the Out of Band (OOB) flow for Google OAuth clients
+until Oct 3, 2022 when the OOB flow will be shut off. All other OAuth clients
+will default to using the Device Authorization Grant flow
+(https://datatracker.ietf.org/doc/html/rfc8628#section-3.2).
+
+**--console-flow**=`flow`
+The alternative OAuth `flow` to use for input constrained devices.
+
+    : `console-flow` is a case-insensitive string and must be one of:
+
+- **device**: Use the Device Authorization Grant
+(https://datatracker.ietf.org/doc/html/rfc8628#section-3.2) flow
+
+- **oob**: Use the Out of Band (OOB) flow
 
 **--client-id**=`value`
 OAuth Client ID
@@ -77,6 +92,9 @@ JSON file containing account details
 
 **--authorization-endpoint**=`value`
 OAuth Authorization Endpoint
+
+**--device-authorization-endpoint**=`value`
+OAuth Device Authorization Endpoint
 
 **--token-endpoint**=`value`
 OAuth Token Endpoint
@@ -167,6 +185,21 @@ Use a custom OAuth2.0 server:
 ```shell
 $ step oauth --client-id my-client-id --client-secret my-client-secret \
   --provider https://example.org
+```
+
+Use the Device Authorization Grant flow for input constrained clients:
+```shell
+$ step oauth --client-id my-client-id --client-secret my-client-secret --console-flow device
+```
+
+Use the Out Of Band flow for input constrained clients:
+```shell
+$ step oauth --client-id my-client-id --client-secret my-client-secret --console-flow oob
+```
+
+Use the default OAuth flow for input constrained clients:
+```shell
+$ step oauth --client-id my-client-id --client-secret my-client-secret --console
 ```
 
 Use additional authentication parameters:
