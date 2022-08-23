@@ -125,7 +125,7 @@ you can create a new key for your RA by decrypting the CA's JWK provisioner key 
 1. On the CA, create a new private key that the RA will use:
 
   ```bash
-  $ jq -r '.authority.provisioners[] | select(.type == "JWK") | .encryptedKey' < $(step path)/config/ca.json | step crypto key format --pkcs8 > ra.key.pem
+  $ step ca provisioner list | jq -r '.[] | select(.type == "JWK") | .encryptedKey' | step crypto key format --pkcs8 > ra.key.pem
   ```
 
   You will be asked for the JWK password to decrypt the provisioner key,
