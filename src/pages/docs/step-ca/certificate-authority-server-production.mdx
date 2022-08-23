@@ -621,6 +621,7 @@ Description=Certificate renewer for %I
 After=network-online.target
 Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
 StartLimitIntervalSec=0
+; PartOf=cert-renewer.target
 
 [Service]
 Type=oneshot
@@ -632,7 +633,7 @@ Environment=STEPPATH=/etc/step-ca \
 
 ; ExecCondition checks if the certificate is ready for renewal,
 ; based on the exit status of the command.
-; (In systemd 242 or below, you can use ExecStartPre= here.)
+; (In systemd <242, you can use ExecStartPre= here.)
 ExecCondition=/usr/bin/step certificate needs-renewal ${CERT_LOCATION}
 
 ; ExecStart renews the certificate, if ExecStartPre was successful.
@@ -738,14 +739,15 @@ Add the following configuration to the file:
 
 ```ini
 [Unit]
-Description=Certificate renewal timer for %I
+Description=Timer for certificate renewal of %I
 Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+; PartOf=cert-renewer.target
 
 [Timer]
 Persistent=true
 
-; Run the timer unit every 5 minutes.
-OnCalendar=*:1/5
+; Run the timer unit every 15 minutes.
+OnCalendar=*:1/15
 
 ; Always run the timer on time.
 AccuracySec=1us
