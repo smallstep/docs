@@ -6,7 +6,7 @@ description: Learn how to renew certificates and set up automated renewals
 
 By default, `step-ca` issues short-lived certificates that expire after 24
 hours. Short-lived certificates are excellent security hygiene because they
-offer regular key rotation and [passive revocation](/docs/step-ca/certificate-authority-server-production#x509-certificate-revocation)
+offer regular key rotation and [passive revocation](/docs/step-ca/revocation)
 
 Short-lived certificates create a problem though: For any long-lived workloads,
 you will need to renew your certificates each day before they expire. This
