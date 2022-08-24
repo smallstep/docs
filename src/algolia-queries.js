@@ -16,7 +16,7 @@ const pageQuery = `{
         frontmatter {
           title
 		  description
-		  layout
+		  category
         }
         excerpt(pruneLength: 8000)
         slug
