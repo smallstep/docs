@@ -634,15 +634,18 @@ Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted
 
 ### X5C - X.509 Certificate
 
-An X5C provisioner allows a client to get an x509 or SSH certificate using
-an existing X509 certificate that is trusted by the provisioner.
+With the X5C provisioner, a client can authenticate a certificate request
+using an existing X.509 certificate. Configure this provisioner with a root
+CA certificate, and any certificate bundle that chains up to that root can
+be used in a certificate request.
 
-An X5C provisioner is configured with a root certificate, supplied by the user,
-at the time the provisioner is created. The X5C provisioner can authenticate
-X5C tokens.
+- Clients may request an X.509 or SSH certificate
+- Clients must provide an X.509 certificate bundle whose root is trusted by the provisioner
+- Clients sign their request with the certificate private key
+- The validity period of the new certificate must fall within the validity period
+of the certificate used to authenticate the request
 
-What's an X5C token? It's a JWT, signed by the certificate private key, with an `x5c`
-header that contains the chain.
+The X5C provisioner uses X5C tokens for authentication. An X5C token is a JWT, signed by the certificate private key, with an `x5c` header that contains the certificate bundle.
 
 #### Example
 
@@ -686,7 +689,7 @@ Below is an example of an X5C provisioner in the `ca.json`:
 
 * **name**: a string used to identify the provider when the CLI is used.
 
-* **roots**: a base64 encoded list of root certificates used for validating X5C
+* **roots**: a base64 encoded list of root certificate PEM blocks used for validating X5C
 tokens.
 
 - **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
