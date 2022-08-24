@@ -25,6 +25,8 @@ should know about when running `step-ca` as a certificate authority server.
 - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
 - [High Availability](#high-availability)
 - [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
+- [Automate X.509 Certificate Lifecycle Management](#automate-x509-certificate-lifecycle-management)
+- [X.509 Certificate Revocation](#x509-certificate-revocation)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
   - [Key Types and Ciphers](#key-types-and-ciphers)
@@ -487,6 +489,18 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
   But it comes with a price: Unlike typical reverse proxy configurations, source IPs are not visible to `step-ca` (there is no `X-Forwarded-For` header), and traffic is also not logged to the nginx access log.
   See [this blog post](https://fedingo.com/how-to-configure-ssl-tls-passthrough-in-nginx/) for an example of TLS passthrough.
 - Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
+
+## Automate X.509 Certificate Lifecycle Management
+
+We recommend automating certificate renewal when possible.
+Renewal can be easily automated in many environments.
+See our [Renewal](/docs/step-ca/renewal) documentation for details.
+
+## X.509 Certificate Revocation
+
+By default, `step-ca` uses passive revocation.
+Certificates can be revoked using the `step ca revoke` subcommand.
+See our [Revocation](/docs/step-ca/revocation) documentation for details.
 
 ## Sane Cryptographic Defaults
 
