@@ -1,0 +1,189 @@
+---
+title: Certificate Revocation
+---
+
+The hardware, software and policies for managing and distributing public keys and certificates is called Public Key Infrastructure (PKI). 
+
+The beauty of certificate-based PKI is that once certificates are issued, the infrastructure itself can be completely decentralized.
+You can independently validate any certificate you receive without communicating with any central authority.
+
+Certificate-based is PKI inherently fault-tolerant, and trivial to scale.
+
+With simplicity comes an inherent trade-off:
+Once a certificate is issued, the certificate authority (CA) can't un-issue it.
+It's valid until it expires.
+Certificates do eventually expire,
+but until they do, a bad actor can use a compromised private key to impersonate the certificate owner.
+
+This is one reason `step-ca` is designed to issue short-lived certificates.
+When you revoke a certificate in `step-ca`, the CA will block the certificate's future renewal.
+This is called _passive revocation_.
+Passive revocation is a good option for internal PKI,
+because it avoids the complexity of relying on centralized third parties to check the real-time revocation status of a certificate.
+
+A certificate that has been passively revoked will still be valid for the remainder of it's validity period.
+
+Contrast this with _active revocation_ techniques used on the public internet.
+Web TLS certificates are valid for up to a year.
+Web browsers have to check CRLs (Certificate Revocation Lists) or use OCSP (Online Certificate Status Protocol) to verify that every certificate they receive has not been revoked.
+Active revocation requires clients to take an active role in certificate validation for the benefit of real-time certificate status.
+
+<Alert severity="info">
+  <div>
+    <Code>step-ca</Code> does not currently support active revocation mechanisms like a Certificate Revocation List (CRL) or Online Certificate Status Protocol (OCSP).
+  </div>
+</Alert>
+
+This section will walk through a few examples for revoking X.509 certificates using `step-ca`.
+
+<Alert severity="info">
+  <div>
+    This section assumes you have initialized and started up a
+    <Code>step-ca</Code> instance using the steps in <Link
+    href="/docs/step-ca/getting-started">Getting Started</Link>.  As an
+    alternative, you can use our hosted CA, <Link
+    href="/certificate-manager">Smallstep Certificate Manager</Link>.
+  </div>
+</Alert>
+
+### 1. Create a certificate for localhost
+
+Let's create a certificate that we'll revoke in a minute.
+
+```shell-session nocopy
+$ step ca certificate localhost localhost.crt localhost.key
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://ca.smallstep.com
+✔ Certificate: localhost.crt
+✔ Private Key: localhost.key
+
+$ step certificate inspect --short localhost.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2400...2409]
+Subject:     localhost
+Issuer:      Smallstep Intermediate CA
+Provisioner: sebastian@smallstep.com [ID: n2kq...Viy8]
+Valid from:  2019-04-23T22:55:54Z
+        to:  2019-04-24T22:55:54Z
+```
+
+### 2. Renew the certificate
+
+Before revoking the certificate, note that it can be renewed with [`step ca renew`](/docs/step-cli/reference/ca/renew).
+
+```shell-session nocopy
+$ step ca renew localhost.crt localhost.key
+✔ Would you like to overwrite localhost.crt [y/n]: y
+Your certificate has been saved in localhost.crt.
+# Make sure the from timestamp is "newer"
+
+$ step certificate inspect --short localhost.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 5963...8406]
+Subject:     localhost
+Issuer:      Smallstep Intermediate CA
+Provisioner: sebastian@smallstep.com [ID: n2kq...Viy8]
+Valid from:  2019-04-23T22:57:50Z
+        to:  2019-04-24T22:57:50Z
+```
+
+### 3. Revoke the certificate
+
+There's two methods for revoking a certificate:
+- Pass the certificate's unique serial number to the CA
+- Pass the certificate and private key to the CA
+
+<Alert severity="info">
+  You can only revoke a certificate once. Any repeated attempts to revoke the same serial number will fail.
+</Alert>
+
+#### Revoke the certificate using its serial number
+
+Using the serial number method, you have to authenticate your request (in this case, with the CA's provisioner password):
+
+```shell-session nocopy
+$ step certificate inspect --format=json localhost.crt | jq .serial_number
+"59636004850364466675608080466579278406"
+
+$ step ca revoke 59636004850364466675608080466579278406
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://ca.smallstep.com
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+#### Revoke the certificate using the certificate and private key
+
+In this case, the certificate and key authenticate the request, so you don't need a password:
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca revoke --cert localhost.crt --key localhost.key"
+  >{`$ step ca revoke --cert localhost.crt --key localhost.key
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.`}</CodeBlock>
+
+### 4. Check that the certificate has been revoked
+
+You'll get an HTTP 401 error when you try to renew it.
+
+<CodeBlock
+    language="shell-session"
+    copyText="step ca renew localhost.crt localhost.key"
+  >{`$ step ca renew localhost.crt localhost.key
+error renewing certificate: The request lacked necessary authorization to be completed. Please
+see the certificate authority logs for more info.
+ 
+# log trace from CA:
+[...]
+WARN[0569] duration="615.812µs" duration-ns=615812 error="cahandler.Renew: authority.Rekey:
+authority.authorizeRenew: certificate has been revoked" fields.time="2020-09-15T12:15:51-07:00"
+method=POST name=ca path=/renew protocol=HTTP/1.1 referer= remote-address="::1"
+request-id=btgh5prpc98hnsk1lc80 size=144 status=401 user-agent=Go-http-client/1.1 user-id=
+[...]`}</CodeBlock>
+
+### Using a revocation token
+
+You can also revoke a certificate in two steps by first creating a revocation token and then exchanging that token in a revocation request.
+
+```shell-session nocopy
+$ TOKEN=$(step ca token --revoke 59636004850364466675608080466579278406)
+✔ Key ID: n2kqNhicCCqVxJidspCQrjXWBtGwsa9zk3eBObrViy8 (sebastian@smallstep.com)
+✔ Please enter the password to decrypt the provisioner key:
+
+$ echo $TOKEN | step crypto jwt inspect --insecure
+{
+"header": {
+    "alg": "ES256",
+    "kid": "uxEunU9UhUo96lRvKgpEtRevkzbN5Yq88AFFtb1nSGg",
+    "typ": "JWT"
+},
+"payload": {
+    "aud": "https://localhost:443/1.0/revoke",
+    "exp": 1556395590,
+    "iat": 1556395290,
+    "iss": "sebastian@smallstep.com",
+    "jti": "1f222fc1a22530b7bcd2a40d7308c566c8e49f90413bc350e07bfabc8002b79b",
+    "nbf": 1556395290,
+    "sha": "fef4c75a050e1f3a31175ca4f4fdb711cbef1efcd374fcae4700596604eb8e5a",
+    "sub": "59636004850364466675608080466579278406"
+},
+"signature": "M1wX0ea3VXwS5rIim0TgtcCXHDtvP1GWD15cJSvVkrHNO6XMYl6m3ZmnWdwMi976msv-n2GTG3h6dJ3j2ImdfQ"
+}
+
+$ step ca revoke --token $TOKEN 59636004850364466675608080466579278406
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+You can also revoke certificates in _offline_ mode:
+
+```shell-session nocopy
+$ step ca revoke --offline 59636004850364466675608080466579278406
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+
+$ step ca revoke --offline --cert localhost.crt --key localhost.key
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+### Further Reading
+
+- [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
+- [Enable active revocation on your intermediate CA](/docs/step-ca/certificate-authority-server-production/#enable-active-revocation-on-your-intermediate-ca)

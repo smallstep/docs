@@ -89,6 +89,10 @@ step_ca:
     path: step-ca/templates
   - title: Production Considerations
     path: step-ca/certificate-authority-server-production
+  - title: Renewal
+    path: step-ca/renewal
+  - title: Revocation
+    path: step-ca/revocation
   - title: Registration Authority Mode
     path: step-ca/registration-authority-ra-mode
   - title: Integrations
