@@ -25,7 +25,7 @@ should know about when running `step-ca` as a certificate authority server.
 - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
 - [High Availability](#high-availability)
 - [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
-- [Automate X.509 Certificate Lifecycle Management](#automate-x509-certificate-lifecycle-management)
+- [Automating X.509 Certificate Renewal](#automating-x509-certificate-renewal)
 - [X.509 Certificate Revocation](#x509-certificate-revocation)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
@@ -490,7 +490,7 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
   See [this blog post](https://fedingo.com/how-to-configure-ssl-tls-passthrough-in-nginx/) for an example of TLS passthrough.
 - Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
 
-## Automate X.509 Certificate Lifecycle Management
+## Automating X.509 Certificate Renewal
 
 By default, `step-ca` issues short-lived certificates that expire after 24
 hours. Short-lived certificates are excellent security hygiene because they
