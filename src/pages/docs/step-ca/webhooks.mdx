@@ -1,0 +1,89 @@
+---
+title: Webhooks
+html_title: Webhooks
+description: Webhooks augment the data available to certificate templates
+---
+
+Administrators can attach webhooks to provisioners to retrieve additional data that will be available when rendering [certificate templates](/docs/step-ca/templates).
+
+```
+step ca provisioner webhook add my_webhook --provisioner my_provisioner --url https://example.com
+```
+
+## Webhook Response
+
+step-ca will augment the template data context with whatever is returned from the webhook server in the `data` field of the response body.
+For example, a webhook could send the following json response:
+```
+{
+  "data": {
+    "role": "eng"
+  }
+}
+```
+
+A template on the provisioner will then be able to reference the response under the path `.Webhooks.webhook_name`.
+If the webhook was named `people`, the role in the webhook response could be accessed in a template under the field `.Webhooks.people.role`.
+
+## Requests
+
+For x509 certificates step-ca will send a POST request with a body containing a `timestamp` field and a `csr` field containing the raw bytes of the certificate request.
+
+For ssh certificates step-ca will send a POST request with a `timestamp` field and an `ssh_cr` field containing the public key bytes, key type, key ID, and principals.
+
+Refer to the [webhooks server example repository](https://github.com/smallstep/webhooks) for an implementation in Go of parsing the request body.
+
+### Authentication
+
+The webhook server must authenticate step-ca before responding with data.
+
+#### Signature
+
+Every webhook has a unique signing secret that will be displayed when the webhook is created with `step ca provisioner webhook add`.
+Step-ca will include a signature of the payload in the X-Smallstep-Signature header.
+The webhook ID will also be included in the X-Smallstep-Webhook-ID header to help associate the correct signing secret with the webhook request.
+Webhook servers must compute an HMAC with the SHA256 hash function using the webhook signing secret as the key and the request body as the message.
+See [webhook server example repository](https://github.com/smallstep/webhooks) for an example of verifying the signature.
+
+#### Authorization Header
+
+For an additional layer of security, step-ca may be configured to send either a bearer token or a username:password in the Authorization header.
+
+```
+step ca provisioner webhook update my_webhook --provisioner my_provisioner --bearer-token=abc123xyz
+```
+
+or for basic authentication:
+
+```
+step ca provisioner webhook update my_webhook --provisioner my_provisioner --basic-auth-username user --basic-auth-password pass
+```
+
+#### TLS Client Certificate Authentication
+
+By default step-ca will send the authority's leaf certificate when the webhook requests a client certificate.
+This behavior can be disabled:
+
+```
+step ca provisioner webhook update my_webhook --provisioner my_provision --disable-tls-client-auth
+```
+
+## Webhook Server Policy
+
+By default step-ca will make requests to all hostnames and IPs.
+The authority may be configured with a policy to only allow step-ca to make requests to certain IPs and hostnames.
+
+The following policy would allow requests to be made to any public IP, plus to the hostname `example.com`, even if that hostname resolves to a private IP.
+
+```
+{
+  "authority":
+    "webhookClient": {
+      "allow": {
+        "public": true,
+	"hostnames": ["example.com"]
+      }
+    }
+  }
+}
+```
