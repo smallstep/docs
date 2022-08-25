@@ -13,7 +13,8 @@ menu:
 
 ```raw
 step certificate create <subject> <crt-file> <key-file>
-[--csr] [--profile=<profile>] [--template=<file>]
+[--kms=<uri>] [--csr] [--profile=<profile>]
+[--template=<file>] [--set=<key=value>] [--set-file=<file>]
 [--not-before=<duration>] [--not-after=<duration>]
 [--password-file=<file>] [--ca=<issuer-cert>]
 [--ca-key=<issuer-key>] [--ca-password-file=<file>]
@@ -45,6 +46,9 @@ File to write private key to (PEM format). This argument is optional if **--key*
 ## Options
 
 
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
 **--csr**
 Generate a certificate signing request (CSR) instead of a certificate.
 
@@ -67,6 +71,12 @@ The certificate profile sets various certificate details such as
 
 **--template**=`file`
 The certificate template `file`, a JSON representation of the certificate to create.
+
+**--set**=`key=value`
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
+
+**--set-file**=`file`
+The JSON `file` with the template data variables.
 
 **--password-file**=`file`
 The `file` to the file containing the password to
@@ -345,13 +355,18 @@ $ step certificate create --template root.tpl \
   "Acme Corporation Root CA" root_ca.crt root_ca_key
 ```
 
-Create an intermediate certificate using the previous root. This intermediate
-will be able to sign also new intermediate certificates:
+Create an intermediate certificate using the previous root. By extending the
+maxPathLen we are enabling this intermediate sign leaf and intermediate
+certificates. We will also make the subject configurable using the **--set** and
+**--set-file** flags.
 ```shell
 $ cat intermediate.tpl
 {
   "subject": {
-    "commonName": "Acme Corporation Intermediate CA"
+    "country": {{ toJson .Insecure.User.country }},
+    "organization": {{ toJson .Insecure.User.organization }},
+    "organizationalUnit": {{ toJson .Insecure.User.organizationUnit }},
+    "commonName": {{toJson .Subject.CommonName }}
   },
   "keyUsage": ["certSign", "crlSign"],
   "basicConstraints": {
@@ -359,8 +374,15 @@ $ cat intermediate.tpl
     "maxPathLen": 1
   }
 }
+$ cat organization.json
+{
+  "country": "US",
+  "organization": "Acme Corporation",
+  "organizationUnit": "HQ"
+}
 $ step certificate create --template intermediate.tpl \
   --ca root_ca.crt --ca-key root_ca_key \
+  --set-file organization.json --set organizationUnit=Engineering \
   "Acme Corporation Intermediate CA" intermediate_ca.crt intermediate_ca_key
 ```
 
@@ -395,4 +417,30 @@ $ cat csr.tpl
 $ step certificate create --csr --template csr.tpl --san coyote@acme.corp \
   "Wile E. Coyote" coyote.csr coyote.key
 ```
+
+Create a root certificate using `step-kms-plugin`:
+```shell
+$ step kms create \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  'pkcs11:id=4000;object=root-key'
+$ step certificate create \
+  --profile root-ca \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  --key 'pkcs11:id=4000' \
+  'KMS Root' root_ca.crt
+```
+
+Create an intermediate certificate using `step-kms-plugin`:
+```shell
+$ step kms create \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  'pkcs11:id=4001;object=intermediate-key'
+$ step certificate create \
+  --profile intermediate-ca \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  --ca root_ca.crt --ca-key 'pkcs11:id=4000' \
+  --key 'pkcs11:id=4001' \
+  'My KMS Intermediate' intermediate_ca.crt
+```
+
 

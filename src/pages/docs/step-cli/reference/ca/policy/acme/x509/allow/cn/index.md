@@ -23,7 +23,7 @@ step ca policy acme x509 allow cn <name> [--remove]
 ## Description
 
 **step ca policy acme x509 allow cn** command manages common names in policies
-    
+
 
 ## Options
 
@@ -32,10 +32,10 @@ step ca policy acme x509 allow cn <name> [--remove]
 The provisioner `name`
 
 **--eab-key-id**=`value`
-An ACME EAB Key ID
+An ACME EAB Key ID.
 
 **--eab-key-reference**=`value`
-An ACME EAB Key Reference
+An ACME EAB Key Reference.
 
 **--remove**
 removes the provided Common Names from the policy instead of adding them
@@ -65,15 +65,15 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
-## Examples  
+## Examples
 
 Allow "My CA Name" as Common Name in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 allow cn "My CA Name"
-```  
+```
 
 Allow www.example.com as Common Name in X.509 certificates on authority level.
-This can be used in case www.example.com is not allowed as a DNS SAN, but is 
+This can be used in case www.example.com is not allowed as a DNS SAN, but is
 allowed to be used in the Common Name.
 ```shell
 $ step ca policy authority x509 allow cn www.example.com
@@ -87,7 +87,7 @@ $ step ca policy authority x509 allow cn www.example.com --remove
 Deny "My Bad CA Name" as Common Name in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 deny cn "My Bad CA Name"
-```  
+```
 
 
 

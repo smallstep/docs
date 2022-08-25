@@ -31,10 +31,10 @@ step ca policy acme x509 allow ip <ip address> [--remove]
 The provisioner `name`
 
 **--eab-key-id**=`value`
-An ACME EAB Key ID
+An ACME EAB Key ID.
 
 **--eab-key-reference**=`value`
-An ACME EAB Key Reference
+An ACME EAB Key Reference.
 
 **--remove**
 removes the provided IPs from the policy instead of adding them
@@ -64,67 +64,67 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
-## Examples  
+## Examples
 
 Allow IP address 127.0.0.1 in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 allow ip 127.0.0.1
-```    
+```
 
 Allow IP address range 10.0.0.0/24 in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 allow ip 10.0.0.0/24
-```    
+```
 
 Deny IP address 10.0.0.30 in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 deny ip 10.0.0.30
-```    
+```
 
 Remove IP address range 10.0.0.0/24 from being allowed in X.509 certificates on authority level
 ```shell
 $ step ca policy authority x509 allow ip 10.0.0.0/24 --remove
-```    
+```
 
 Allow IP address range 10.10.0.0/24 in X.509 certificates on provisioner level
 ```shell
 $ step ca policy provisioner x509 allow ip 10.10.0.0/24 --provisioner my_provisioner
-```    
+```
 
 Deny IP address 10.10.0.50 in X.509 certificates on provisioner level
 ```shell
 $ step ca policy provisioner x509 deny ip 10.10.0.50 --provisioner my_provisioner
-```    
+```
 
 Remove IP address 10.10.0.50 from being denied in X.509 certificates on provisioner level
 ```shell
 $ step ca policy provisioner x509 deny ip 10.10.0.50 --provisioner my_provisioner --remove
-```    
+```
 
 Allow IP address range 10.20.0.0/24 in X.509 certificates on ACME account level by EAB key reference
 ```shell
 $ step ca policy provisioner x509 allow ip 10.10.0.0/24 --provisioner my_acme_provisioner --eab-key-reference my_ref
-```    
+```
 
 Deny IP address 10.20.0.70 in X.509 certificates on ACME account level by EAB key reference
 ```shell
 $ step ca policy provisioner x509 deny ip 10.20.0.70 --provisioner my_acme_provisioner --eab-key-reference my_ref
-```    
+```
 
 Remove IP address 10.20.0.70 from being denied in X.509 certificates on ACME account level by EAB key reference
 ```shell
 $ step ca policy provisioner x509 deny ip 10.20.0.70 --provisioner my_acme_provisioner --eab-key-reference my_ref --remove
-```    
+```
 
 Allow IP address range 192.168.0.0/24 in SSH host certificates on authority level
 ```shell
 $ step ca policy authority ssh host allow ip 192.168.0.0/24
-```    
+```
 
 Deny IP address 192.168.0.40 in SSH host certificates on authority level
 ```shell
 $ step ca policy authority ssh host deny ip 192.168.0.40
-```    
+```
 
 
 

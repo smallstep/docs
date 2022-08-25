@@ -13,7 +13,8 @@ menu:
 
 ```raw
 step certificate sign <csr-file> <crt-file> <key-file>
-[--profile=<profile>] [--template=<file>]
+[--profile=<profile>] [--template=<file>] 
+[--set=<key=value>] [--set-file=<file>]
 [--password-file=<file>] [--path-len=<maximum>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--bundle]
@@ -38,6 +39,9 @@ The path to a private key for signing the CSR.
 ## Options
 
 
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
 **--profile**=`profile`
 The certificate profile sets various certificate details such as
   certificate use and expiration. The default profile is 'leaf' which is suitable
@@ -53,6 +57,12 @@ The certificate profile sets various certificate details such as
 
 **--template**=`file`
 The certificate template `file`, a JSON representation of the certificate to create.
+
+**--set**=`key=value`
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
+
+**--set-file**=`file`
+The JSON `file` with the template data variables.
 
 **--password-file**=`file`
 The path to the `file` containing the password to encrypt or decrypt the private key.
@@ -134,4 +144,43 @@ $ cat coyote.tpl
 $ step certificate create --csr coyote@acme.corp coyote.csr coyote.key
 $ step certificate sign --template coyote.tpl coyote.csr issuer.crt issuer.key
 ```
+
+Sign a CSR using a template and allow configuring the subject using the
+**--set** and **--set-file** flags.
+```shell
+$ cat rocket.tpl
+{
+  "subject": {
+    "country": {{ toJson .Insecure.User.country }},
+    "organization": {{ toJson .Insecure.User.organization }},
+    "organizationalUnit": {{ toJson .Insecure.User.organizationUnit }},
+    "commonName": {{toJson .Subject.CommonName }}
+  },
+  "sans": {{ toJson .SANs }},
+{{- if typeIs "*sa.PublicKey" .Insecure.CR.PublicKey }}
+  "keyUsage": ["keyEncipherment", "digitalSignature"],
+{{- else }}
+  "keyUsage": ["digitalSignature"],
+{{- end }}
+  "extKeyUsage": ["serverAuth", "clientAuth"]
+}
+$ cat organization.json
+{
+  "country": "US",
+  "organization": "Acme Corporation",
+  "organizationUnit": "HQ"
+}
+$ step certificate create --csr rocket.acme.corp rocket.csr rocket.key
+$ step certificate sign --template rocket.tpl \
+  --set-file organization.json --set organizationUnit=Engineering \
+  rocket.csr issuer.crt issuer.key
+```
+
+Sign a CSR using `step-kms-plugin`:
+```shell
+$ step certificate sign \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  leaf.csr issuer.crt 'pkcs11:id=4001'
+```
+
 

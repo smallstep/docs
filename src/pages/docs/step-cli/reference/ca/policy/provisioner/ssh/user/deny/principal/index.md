@@ -22,7 +22,7 @@ step ca policy provisioner ssh user deny principal <principal> [--remove]
 ## Description
 
 **step ca policy provisioner ssh user deny principal** command manages principals in SSH policies
-               
+
 ## Options
 
 
@@ -57,7 +57,7 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
-## Examples  
+## Examples
 
 Allow all principals in SSH host certificates on authority level
 ```shell

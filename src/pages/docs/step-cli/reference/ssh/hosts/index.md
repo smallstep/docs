@@ -28,10 +28,10 @@ otherwise.
 
 
 **--set**=`key=value`
-The `key=value` pair with template data variables to send to the CA. Use the **--set** flag multiple times to add multiple variables.
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
 
 **--set-file**=`file`
-The JSON `file` with the template data to send to the CA.
+The JSON `file` with the template data variables.
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode

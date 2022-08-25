@@ -19,7 +19,7 @@ step certificate uninstall <crt-file>
 
 ## Description
 
-**step certificate install** uninstalls a root certificate from the system
+**step certificate uninstall** uninstalls a root certificate from the system
 truststore.
 
 Java and Firefox truststores are also supported via the respective flags.

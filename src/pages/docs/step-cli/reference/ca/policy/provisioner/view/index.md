@@ -23,7 +23,7 @@ step ca policy authority view
 ## Description
 
 **step ca policy provisioner view** shows the currently configured policy.
-    
+
 ## Options
 
 
@@ -31,10 +31,10 @@ step ca policy authority view
 The provisioner `name`
 
 **--eab-key-id**=`value`
-An ACME EAB Key ID
+An ACME EAB Key ID.
 
 **--eab-key-reference**=`value`
-An ACME EAB Key Reference
+An ACME EAB Key Reference.
 
 **--admin-cert**=`chain`
 Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.

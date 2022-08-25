@@ -109,10 +109,10 @@ The one-time `token` used to authenticate with the CA in order to create the
 certificate.
 
 **--set**=`key=value`
-The `key=value` pair with template data variables to send to the CA. Use the **--set** flag multiple times to add multiple variables.
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
 
 **--set-file**=`file`
-The JSON `file` with the template data to send to the CA.
+The JSON `file` with the template data variables.
 
 **--add-user**
 Create a user provisioner certificate used to create a new user.

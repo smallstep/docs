@@ -50,10 +50,10 @@ that should be authorized. Use the '--san' flag multiple times to configure
 multiple SANs. The '--san' flag and the '--token' flag are mutually exclusive.
 
 **--set**=`key=value`
-The `key=value` pair with template data variables to send to the CA. Use the **--set** flag multiple times to add multiple variables.
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
 
 **--set-file**=`file`
-The JSON `file` with the template data to send to the CA.
+The JSON `file` with the template data variables.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to

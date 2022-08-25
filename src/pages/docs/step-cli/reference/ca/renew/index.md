@@ -13,7 +13,7 @@ menu:
 
 ```raw
 step ca renew <crt-file> <key-file>
-[--password-file=<file>] [--out=<file>] [--expires-in=<duration>]
+[--mtls] [--password-file=<file>] [--out=<file>] [--expires-in=<duration>]
 [--force] [--pid=<int>] [--pid-file=<file>] [--signal=<int>]
 [--exec=<string>] [--daemon] [--renew-period=<duration>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
@@ -36,6 +36,12 @@ fixed period can be set with the **--renew-period** flag.
 The **--daemon** flag can be combined with **--pid**, **--signal**, or **--exec**
 to provide certificate reloads on your services.
 
+The renew command uses mTLS (by default) to authenticate to the step-ca API.
+However, there are scenarios where mTLS is not an option - step-ca is behind a
+proxy or the leaf certificate is not configured to do client authentication. To
+circumvent the default mTLS authentication use **--mtls=false** to force a flow that
+uses X5C token based authentication.
+
 ## Positional arguments
 
 `crt-file`
@@ -46,6 +52,10 @@ They key file of the certificate.
 
 ## Options
 
+
+**--mtls**
+Use mTLS to renew a certificate. Use --mtls=false to force the token
+authorization flow instead.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
@@ -128,6 +138,11 @@ $ step ca renew --out renewed.crt internal.crt internal.key
 Renew a certificate forcing the overwrite of the previous certificate:
 ```shell
 $ step ca renew --force internal.crt internal.key
+```
+
+Renew a certificate using the token flow instead of mTLS:
+```shell
+$ step ca renew --mtls=false --force internal.crt internal.key
 ```
 
 Renew a certificate providing the `--ca-url` and `--root` flags:

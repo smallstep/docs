@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step ssh needs-renewal <crt-file or hostname> [--expires-in=<percent|duration>]
+step ssh needs-renewal <crt-file> [--expires-in=<percent|duration>]
 ```
 
 ## Description
@@ -26,7 +26,7 @@ adjusted using the '--expires-in' flag.
 
 ## Positional arguments
 
-`cert-file or hostname`
+`cert-file`
 The path to an SSH certificate.
 
 ## Options
