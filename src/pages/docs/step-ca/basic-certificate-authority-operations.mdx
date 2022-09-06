@@ -56,7 +56,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 7720...1576]
         Why does the certificate only last for ONE DAY!?
     </AlertTitle>
     <div>
-        When it comes to certificate lifetimes, <a href="/docs/step-ca/certificate-authority-server-production#automate-x509-certificate-lifecycle-management">more is not always more</a>. A shorter validity period limits the downside risk of the private key being stolen. And since all certificates need to be renewed eventually, you may as well automate it and do it often. However, the 24 hour default TLS certificate lifetime is rather arbitrary. To change the default, see <a href="#adjust-certificate-lifetimes">Adjust Certificate Lifetimes</a> below.
+        When it comes to certificate lifetimes, <a href="/docs/step-ca/renewal">more is not always more</a>. A shorter validity period limits the downside risk of the private key being stolen. And since all certificates need to be renewed eventually, you may as well automate it and do it often. However, the 24 hour default TLS certificate lifetime is rather arbitrary. To change the default, see <a href="#adjust-certificate-lifetimes">Adjust Certificate Lifetimes</a> below.
     </div>
 </Alert>
 
@@ -169,7 +169,7 @@ $ step ca renew foo.crt foo.key
 Your certificate has been saved in foo.crt.
 ```
 
-When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](/docs/step-ca/certificate-authority-server-production#automate-x509-certificate-lifecycle-management) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
+When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](/docs/step-ca/renewal) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
 Note that because [`step ca renew`](/docs/step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
@@ -218,7 +218,7 @@ $ step ca revoke --cert svc.crt --key svc.key
 Certificate with Serial Number 30671613121311574910895916201205874495 has been revoked.
 ```
 
-For more on this topic, read [All About Certificate Revocation](/docs/step-ca/certificate-authority-server-production#x509-certificate-revocation).
+For more on this topic, read [All About Certificate Revocation](/docs/step-ca/revocation).
 
 ## Working With SSH Certificates
 
