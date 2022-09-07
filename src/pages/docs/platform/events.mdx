@@ -10,7 +10,8 @@ Events can be generated and surfaced via standard mechanisms.
 Events are a feature of the commercial [Smallstep Certificate Manager](https://smallstep.com/certificate-manager/) offering.
 
 # Webhook Events
-The Webhook Events allow for real-time logging of SSH sessions, 
+Webhook Events allow for real-time logging of SSH sessions, 
+
 certificate creation, and certificate expirations events.
 You can use Webhook Events to:
 
@@ -22,22 +23,23 @@ You can use Webhook Events to:
 We currently have four webhook event types, namely:
 
 - **SSH**: Sends a webhook event for SSH start and stop sessions and user change events.
-- **Expiration**: Sends a webhook event for Certificate Manager when a certificate is within the last 25% of its lifetime and when it expires.
-- **Certificate**: Sends a webhook event for Certificate Manager with basic cert details whenever a certificate is created or expires.
-- **All**: Send events for everything above for both SSH and Certificate Manager
+- **Expiration**: Sends a webhook event for Certificate Manager when a certificate is within the last 25% of its lifetime, and again when it expires.
+
+- **Certificate**: Sends a webhook event for Certificate Manager with basic certificate details whenever a certificate is created or expires.
+
+- **All**: Sends events for everything above, for both SSH and Certificate Manager.
+
 
 **Note**: <em>We do not send certificate expiration events for OIDC certificates, to minimize noise, since they're usually short-lived. However, certificate creation events for such certificates will always be sent.</em>
 
 ## Using Webhook Events
-To register a webhook event:
-
-1. Go to Settings > webhooks
-2. Provide necessary information as shown below:
+To register a webhook, go to Settings > Webhooks and fill out the form as shown below:
 
     ![image](/graphics/webhook-events-demo.png 'Webhook Events Requirements')
 
 ## Webhook Events Response Formats
-For the different webhook events, here are examples and details of the response data you should expect to receive:  
+Here are examples of the response data you should expect to receive for each webhook event type:
+
 
 **SSH 'session start' event**
 ```json
