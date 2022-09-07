@@ -93,22 +93,6 @@ The key manager service `type` to use to manage keys. Options are:
 - **azurekms**: Use Azure Key Vault to manage X.509 and SSH keys. The key URIs have
   the following format `azurekms:name=key-name;vault=vault-name`.
 
-**--kms-root**=`URI`
-The kms `URI` used to generate the root certificate key. Examples are:
-- **azurekms**: azurekms:name=my-root-key;vault=my-vault
-
-**--kms-intermediate**=`URI`
-The kms `URI` used to generate the intermediate certificate key. Examples are:
-- **azurekms**: azurekms:name=my-intermediate-key;vault=my-vault
-
-**--kms-ssh-host**=`URI`
-The kms `URI` used to generate the key used to sign SSH host certificates. Examples are:
-- **azurekms**: azurekms:name=my-host-key;vault=my-vault
-
-**--kms-ssh-user**=`URI`
-The kms `URI` used to generate the key used to sign SSH user certificates. Examples are:
-- **azurekms**: azurekms:name=my-user-key;vault=my-vault
-
 **--issuer**=`url`
 The registration authority issuer `url` to use.
 

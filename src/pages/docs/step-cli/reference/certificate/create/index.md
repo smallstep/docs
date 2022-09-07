@@ -13,8 +13,7 @@ menu:
 
 ```raw
 step certificate create <subject> <crt-file> <key-file>
-[--kms=<uri>] [--csr] [--profile=<profile>]
-[--template=<file>] [--set=<key=value>] [--set-file=<file>]
+[--kms=<uri>] [--csr] [--profile=<profile>] [--template=<file>]
 [--not-before=<duration>] [--not-after=<duration>]
 [--password-file=<file>] [--ca=<issuer-cert>]
 [--ca-key=<issuer-key>] [--ca-password-file=<file>]
@@ -71,12 +70,6 @@ The certificate profile sets various certificate details such as
 
 **--template**=`file`
 The certificate template `file`, a JSON representation of the certificate to create.
-
-**--set**=`key=value`
-The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
-
-**--set-file**=`file`
-The JSON `file` with the template data variables.
 
 **--password-file**=`file`
 The `file` to the file containing the password to
@@ -355,18 +348,13 @@ $ step certificate create --template root.tpl \
   "Acme Corporation Root CA" root_ca.crt root_ca_key
 ```
 
-Create an intermediate certificate using the previous root. By extending the
-maxPathLen we are enabling this intermediate sign leaf and intermediate
-certificates. We will also make the subject configurable using the **--set** and
-**--set-file** flags.
+Create an intermediate certificate using the previous root. This intermediate
+will be able to sign also new intermediate certificates:
 ```shell
 $ cat intermediate.tpl
 {
   "subject": {
-    "country": {{ toJson .Insecure.User.country }},
-    "organization": {{ toJson .Insecure.User.organization }},
-    "organizationalUnit": {{ toJson .Insecure.User.organizationUnit }},
-    "commonName": {{toJson .Subject.CommonName }}
+    "commonName": "Acme Corporation Intermediate CA"
   },
   "keyUsage": ["certSign", "crlSign"],
   "basicConstraints": {
@@ -374,15 +362,8 @@ $ cat intermediate.tpl
     "maxPathLen": 1
   }
 }
-$ cat organization.json
-{
-  "country": "US",
-  "organization": "Acme Corporation",
-  "organizationUnit": "HQ"
-}
 $ step certificate create --template intermediate.tpl \
   --ca root_ca.crt --ca-key root_ca_key \
-  --set-file organization.json --set organizationUnit=Engineering \
   "Acme Corporation Intermediate CA" intermediate_ca.crt intermediate_ca_key
 ```
 

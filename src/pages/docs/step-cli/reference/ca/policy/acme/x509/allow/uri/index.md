@@ -22,7 +22,7 @@ step ca policy acme x509 allow uri <uri domain> [--remove]
 ## Description
 
 **step ca policy acme x509 allow uri** command manages URI domains in policies
-
+               
 ## Options
 
 
@@ -57,7 +57,7 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
-## Examples
+## Examples  
 
 Allow all URI subdomains of "local" in X.509 certificates on authority level
 ```shell
@@ -78,6 +78,6 @@ Allow all URI subdomains of "example.com" in X.509 certificates on provisioner l
 ```shell
 $ step ca policy provisioner x509 allow uri "*example.com" --provisioner my_provisioner
 ```
-
+    
 
 

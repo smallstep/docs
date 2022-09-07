@@ -23,7 +23,7 @@ step ca policy authority view
 ## Description
 
 **step ca policy authority view** shows the currently configured policy.
-
+    
 ## Options
 
 

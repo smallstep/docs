@@ -12,7 +12,7 @@ menu:
 ## Usage
 
 ```raw
-step ca policy authority remove
+step ca policy authority remove 
 [--provisioner=<name>] [--eab-key-id=<eab-ey-id>] [--eab-key-reference=<eab-key-reference>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-provisioner=<string>] [--admin-subject=<string>]

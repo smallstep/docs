@@ -58,7 +58,7 @@ The `key=value` used as a variable in the templates. Use the flag multiple
 times to set multiple variables.
 
 **--set-file**=`file`
-The JSON `file` with the template data variables.
+The JSON `file` with the template data to send to the CA.
 
 **--dry-run**
 Executes the command without changing any file.
