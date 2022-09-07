@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step crypto kdf hash
 menu:
   docs:

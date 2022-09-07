@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step crypto jwk keyset remove
 menu:
   docs:

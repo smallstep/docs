@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step ca acme eab
 menu:
   docs:

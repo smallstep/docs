@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step ca policy acme x509 deny cn
 menu:
   docs:

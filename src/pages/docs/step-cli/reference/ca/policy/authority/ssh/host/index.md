@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step ca policy authority ssh host
 menu:
   docs:

@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step ca policy provisioner ssh user deny principal
 menu:
   docs:

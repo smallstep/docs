@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step certificate install
 menu:
   docs:
