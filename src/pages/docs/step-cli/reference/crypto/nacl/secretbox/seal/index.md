@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step crypto nacl secretbox seal
 menu:
   docs:

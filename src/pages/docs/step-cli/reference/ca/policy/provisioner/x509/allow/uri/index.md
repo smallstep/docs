@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step ca policy provisioner x509 allow uri
 menu:
   docs:

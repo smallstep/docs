@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step version
 menu:
   docs:

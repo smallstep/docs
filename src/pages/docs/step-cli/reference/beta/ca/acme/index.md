@@ -1,5 +1,6 @@
 ---
 layout: auto-doc
+category: reference
 title: step beta ca acme
 menu:
   docs:
