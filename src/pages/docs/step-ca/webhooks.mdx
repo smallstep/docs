@@ -12,10 +12,13 @@ step ca provisioner webhook add my_webhook --provisioner my_provisioner --url ht
 
 ## Webhook Response
 
+The webhook must include `"allow": true` in the response body or step-ca will refuse to sign the certificate request.
+
 step-ca will augment the template data context with whatever is returned from the webhook server in the `data` field of the response body.
 For example, a webhook could send the following json response:
 ```
 {
+  "allow": true,
   "data": {
     "role": "eng"
   }
@@ -43,7 +46,7 @@ Every webhook has a unique signing secret that will be displayed when the webhoo
 Step-ca will include a signature of the payload in the X-Smallstep-Signature header.
 The webhook ID will also be included in the X-Smallstep-Webhook-ID header to help associate the correct signing secret with the webhook request.
 Webhook servers must compute an HMAC with the SHA256 hash function using the webhook signing secret as the key and the request body as the message.
-See [webhook server example repository](https://github.com/smallstep/webhooks) for an example of verifying the signature.
+See the [webhook server example repository](https://github.com/smallstep/webhooks) for an example of verifying the signature.
 
 #### Authorization Header
 
