@@ -17,6 +17,7 @@ const pageQuery = `{
           title
 		  description
 		  category
+		  boosted
         }
         excerpt(pruneLength: 8000)
         slug
