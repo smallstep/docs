@@ -8,7 +8,7 @@ menu:
 ---
 
 ## Name
-**step ca sign** -- generate a new certificate signing a certificate request
+**step ca sign** -- sign a new certificate from a certificate request
 
 ## Usage
 
