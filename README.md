@@ -45,6 +45,10 @@ $ yarn format
 
 Check formatting with `yarn lint`.
 
+## Updating the `step` CLI reference docs
+
+Everything under `src/pages/docs/step-cli/reference` is auto-generated whenever we release a new version of `step`. To make a change to the CLI reference, you'll have to make the edit in [smallstep/cli](https://github.com/smallstep/cli) and make a PR over there. The reference docs are embedded in the source files under the `command` folder in that repo.
+
 ## Practical Zero Trust
 
 The Practical Zero Trust articles are a bit different.
