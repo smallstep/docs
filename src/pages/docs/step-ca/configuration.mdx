@@ -510,23 +510,67 @@ At this time `step-ca` does not have any API or interface for easily exporting d
 
 ## Cryptographic Protection
 
-By default, `step-ca` stores its signing keys encrypted on disk, on the CA.
-Some use cases may require more advanced cryptographic protection.
-For protection of you signing keys,
-`step-ca` integrates with [Google Cloud KMS](#google-cloud-kms),
-[AWS KMS](#aws-kms),
-[Azure Key Vault](#azure-key-vault), 
-[YubiKey PIV](#yubikey-piv),
-and [PKCS #11 hardware security modules (HSMs)](#pkcs-11).
+By default, `step-ca` stores its signing keys encrypted on disk.
+Some use cases may require more advanced cryptographic protection (or hardware protection)
+of CA's signing keys.
+For these scenarios, `step-ca` integrates with the following key management systems:
 
-For a complete, end-to-end tutorial using YubiKeys,
+- [Google Cloud KMS](#google-cloud-kms)
+- [AWS KMS](#aws-kms)
+- [Azure Key Vault](#azure-key-vault)
+- [YubiKey PIV](#yubikey-piv)
+- [PKCS #11 hardware security modules (HSMs)](#pkcs-11)
+- ssh-agent
+
+For a complete, end-to-end example using a YubiKey,
 see our blog post [Build a Tiny Certificate Authority For Your Homelab](https://smallstep.com/blog/build-a-tiny-ca-with-raspberry-pi-yubikey/).
+
+### Before You Begin
+
+The `step ca init` command does not have KMS support; it only supports creating keys on disk.
+
+We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) for managing the keys and certificates on cloud KMSs and on hardware devices. You'll need to install this plugin before continuing with any of the examples below.
 
 ### Google Cloud KMS
 
 [Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two different protection levels: `SOFTWARE` and `HSM`.
 
-To configure Cloud KMS in your certificate authority, add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS key name of your intermediate key:
+First, let's create your X.509 CA keys inside Google Cloud KMS. Run:
+
+```shell nocopy
+$ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
+$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=root'
+$ step certificate create --profile root-ca \
+   --kms 'cloudkms:credentials-file=/path/to/kms-credentials.json' \
+   --key 'cloudkms:object=root' \
+   "Smallstep Root CA" root_ca.crt
+$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=intermediate'
+$ step certificate create --profile intermediate-ca \
+   --kms 'cloudkms:credentials-file=/path/to/kms-credentials.json' \
+   --ca root_ca.crt \
+   --ca-key 'cloudkms:object=root' \
+   --key 'cloudkms:object=intermediate' \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Outputs:
+- When you generate a private key with `step kms create`, the public key will be printed.
+- Both `root_ca.crt` and `intermediate_ca.crt` certificate files are created.
+You'll need these files for your CA configuration, below.
+
+By default, private keys are generated using the `SOFTWARE` protection level. Add the flag `---protection-level HSM` to use a Hardware Security Module (HSM). Run `step kms create --help` for more options.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=ssh-user-key'
+$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=ssh-host-key'
+```
+
+Output:
+A public key will be output for each private key generated.
+
+Next, to configure Cloud KMS in your certificate authority, add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS key name of your intermediate key:
 
 ```json nocopy
 {
@@ -550,30 +594,6 @@ In a similar way for SSH certificates, the SSH keys must be Cloud KMS names:
     }
 }
 ```
-
-Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using Cloud KMS. Still, an experimental tool named `step-cloudkms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
-
-To use `step-cloudkms-init`, install it from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), enable Cloud KMS in your project, and run:
-
-```shell nocopy
-$ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
-$ step-cloudkms-init --project your-project-id --ssh
-Creating PKI ...
-✔ Root Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/root/cryptoKeyVersions/1
-✔ Root Certificate: root_ca.crt
-✔ Intermediate Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/intermediate/cryptoKeyVersions/1
-✔ Intermediate Certificate: intermediate_ca.crt
-
-Creating SSH Keys ...
-✔ SSH User Public Key: ssh_user_ca_key.pub
-✔ SSH User Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-user-key/cryptoKeyVersions/1
-✔ SSH Host Public Key: ssh_host_ca_key.pub
-✔ SSH Host Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-host-key/cryptoKeyVersions/1
-```
-
-By default, the keys are generated using the `SOFTWARE` protection level. Add the flag `---protection-level HSM` to use a Hardware Security Module (HSM).
-
-Run the `step-cloudkms-init --help` command for more options.
 
 ### Azure Key Vault
 
