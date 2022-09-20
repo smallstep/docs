@@ -533,66 +533,120 @@ We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plug
 
 ### Google Cloud KMS
 
-[Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two different protection levels: `SOFTWARE` and `HSM`.
+[Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two key protection levels: `SOFTWARE` and `HSM`.
 
-First, let's create your X.509 CA keys inside Google Cloud KMS. Run:
+First, make sure you have installed [the `gcloud` CLI](https://cloud.google.com/sdk/docs/install) and have [configured Google Cloud application default credentials](https://developers.google.com/accounts/docs/application-default-credentials) in your local environment, eg. by running `gcloud auth application-default login`.
+
+Next, let's generate a private key for your root CA inside Google Cloud KMS. Run:
 
 ```shell nocopy
-$ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
-$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=root'
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root'
+```
+
+To constructe the key name parameter, use the resource name of the [CryptoKey](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKey) object you want to create, following the format:
+
+```
+projects/<project-id>/locations/<location>/keyRings/<key-ring-id>/cryptoKeys/<key-id>
+```
+
+Once the key is generated, `step` will output the key's name (including a version number), and the public key PEM:
+
+```
+{
+  "name": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERcTjeMNjBs29ReA1nf6Odyn2l4Yt\nXPo4CUOcCrn6yw7LJmzaDiqIErhuS9r6BNg92kJvFUiuiU8+w+WZOyhZdw==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
 $ step certificate create --profile root-ca \
-   --kms 'cloudkms:credentials-file=/path/to/kms-credentials.json' \
-   --key 'cloudkms:object=root' \
+   --kms 'cloudkms:' \
+   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
    "Smallstep Root CA" root_ca.crt
-$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=intermediate'
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate'
 $ step certificate create --profile intermediate-ca \
-   --kms 'cloudkms:credentials-file=/path/to/kms-credentials.json' \
+   --kms 'cloudkms:' \
    --ca root_ca.crt \
-   --ca-key 'cloudkms:object=root' \
-   --key 'cloudkms:object=intermediate' \
+   --ca-key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
+   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1' \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
-Outputs:
-- When you generate a private key with `step kms create`, the public key will be printed.
-- Both `root_ca.crt` and `intermediate_ca.crt` certificate files are created.
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate files.
 You'll need these files for your CA configuration, below.
-
-By default, private keys are generated using the `SOFTWARE` protection level. Add the flag `---protection-level HSM` to use a Hardware Security Module (HSM). Run `step kms create --help` for more options.
 
 If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
 
 ```shell nocopy
-$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=ssh-user-key'
-$ step kms create 'cloudkms:credentials-file=/path/to/kms-credentials.json;object=ssh-host-key'
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-user'
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-host'
 ```
 
-Output:
-A public key will be output for each private key generated.
-
-Next, to configure Cloud KMS in your certificate authority, add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS key name of your intermediate key:
+Next, to configure Cloud KMS signing in `step-ca`, start with a basic CA configuration created using `step ca init`. Add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS resource name of your intermediate key:
 
 ```json nocopy
 {
     "root": "/etc/step-ca/certs/root_ca.crt",
     "crt": "/etc/step-ca/certs/intermediate_ca.crt",
-    "key": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
+    "key": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1",
     "kms": {
         "type": "cloudkms",
-        "uri": "cloudkms:credentials-file=/path/to/kms-credentials.json"
+        "uri": "cloudkms:credentials-file=/path/to/gcloud-kms-credentials.json"
     }
 }
 ```
 
-In a similar way for SSH certificates, the SSH keys must be Cloud KMS names:
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
+
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To add SSH support, change the SSH key locations to Cloud KMS resource names for the SSH host and user CA keys:
 
 ```json nocopy
 {
     "ssh": {
-        "hostKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
-        "userKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>"
+        "hostKey": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-host/cryptoKeyVersions/1",
+        "userKey": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-user/cryptoKeyVersions/1"
     }
 }
+```
+
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
 ### Azure Key Vault
