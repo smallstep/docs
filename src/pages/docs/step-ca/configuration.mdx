@@ -527,13 +527,13 @@ see our blog post [Build a Tiny Certificate Authority For Your Homelab](https://
 
 ### Before You Begin
 
-The `step ca init` command does not have KMS support; it only supports creating keys on disk.
-
-We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) for managing the keys and certificates on cloud KMSs and on hardware devices. You'll need to install this plugin before continuing with any of the examples below.
+For now, the `step ca init` command has very limited KMS support. We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) for managing the keys and certificates on cloud KMSs and on hardware devices. Please install this plugin before continuing with any of the examples below.
 
 ### Google Cloud KMS
 
 [Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two key protection levels: `SOFTWARE` and `HSM`.
+
+#### Creating your PKI in Google Cloud KMS
 
 First, make sure you have installed [the `gcloud` CLI](https://cloud.google.com/sdk/docs/install) and have [configured Google Cloud application default credentials](https://developers.google.com/accounts/docs/application-default-credentials) in your local environment, eg. by running `gcloud auth application-default login`.
 
@@ -559,6 +559,8 @@ Once the key is generated, `step` will output the key's name (including a versio
 }
 ```
 
+You'll need this key name for the next step.
+
 <Alert severity="info">
   <div>
 	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
@@ -580,7 +582,7 @@ Output:
 Your certificate has been saved in root_ca.crt.
 ```
 
-Next, we'll repeat the process for the Intermediate CA:
+Great. Next, we'll repeat the process for the Intermediate CA:
 
 ```shell nocopy
 $ step kms create --json --kms 'cloudkms:' \
@@ -593,7 +595,13 @@ $ step certificate create --profile intermediate-ca \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
-Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate files.
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
 You'll need these files for your CA configuration, below.
 
 If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
@@ -604,6 +612,8 @@ $ step kms create --json --kms 'cloudkms:' \
 $ step kms create --json --kms 'cloudkms:' \
     'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-host'
 ```
+
+#### Configuring `step-ca` to use Google Cloud KMS
 
 Next, to configure Cloud KMS signing in `step-ca`, start with a basic CA configuration created using `step ca init`. Add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS resource name of your intermediate key:
 
@@ -648,6 +658,117 @@ When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH 
 2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
 2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
+
+### AWS KMS
+
+[AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
+
+#### Creating your PKI in AWS KMS
+
+First, make sure you have installed [the `aws` CLI](https://aws.amazon.com/cli/) and have [configured your AWS credentials](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-quickstart.html) in your local environment, eg. by running `aws configure`.
+
+Next, let's generate a private key for your root CA inside AWS KMS. Run:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' root-ca
+```
+
+Once the key is generated, `step` will output the key ID and the public key PEM:
+
+```
+{
+  "name": "awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH2ls6h1y2jsXV+IeuhDVkb68zkMe\nKPtI7L6vBIa5ThxOyFaZFnUrGWU6B+KQjProAntgKyNTqOnAh7Eyr3RmgQ==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+You'll need this key name for the next step.
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms 'awskms:region=us-east-2' \
+   --key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' intermediate-ca
+$ step certificate create --profile intermediate-ca \
+   --kms 'awskms:region=us-east-2' \
+   --ca root_ca.crt \
+   --ca-key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
+   --key 'awskms:key-id=9432458d-1e67-4a74-9a23-8f94708b45fe' \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Here, the `--ca-key` is the root CA key id; the `--key` is the intermediate CA key id.
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' ssh-user-ca
+$ step kms create --json --kms 'awskms:region=us-east-2' ssh-host-ca
+```
+
+Hold onto the key IDs from these commands; you'll need them below.
+
+#### Configuring `step-ca` to use AWS KMS
+
+To use `step-ca` with AWS KMS, create a scoped IAM role that has `kms:GetPublicKey` permissions on all of your CA keys, and `kms:Sign` permission on your intermediate CA key.
+
+To configure AWS KMS in your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the AWS KMS key ID of your intermediate CA key:
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe",
+    "kms": {
+        "type": "awskms",
+        "uri": "awskms:region=us-east-2;profile=foo;credentials-file=/path/to/credentials"
+    }
+}
+```
+
+By default, `step-ca` uses the credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
+
+To configure an SSH CA, replace the SSH keys with the keys from AWS KMS:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "awskms:key-id=d48e502a-09bc-4bf7-9af8-ae1bccedc931",
+        "userKey": "awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12"
+    }
+}
+```
+
+You could also use a plain AWS Key ID or ARN as values for any key property, but using the `awskms:` URI format based on [RFC7512](https://tools.ietf.org/html/rfc7512) will allow more flexibility for future `step` releases.
 
 ### Azure Key Vault
 
@@ -697,61 +818,6 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 * In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version will be used.
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
-
-### AWS KMS
-
-[AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
-
-To configure AWS KMS in your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the AWS KMS key name of your intermediate key:
-
-```json nocopy
-{
-    "root": "/etc/step-ca/certs/root_ca.crt",
-    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
-    "key": "awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe",
-    "kms": {
-        "type": "awskms",
-        "uri": "awskms:region=us-west-2;profile=foo;credentials-file=/path/to/credentials"
-    }
-}
-```
-
-By default, `step-ca` uses the credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
-
-In similar manner, to configure SSH certificate signing, replace the SSH keys with the keys from AWS KMS:
-
-```json nocopy
-{
-    "ssh": {
-        "hostKey": "awskms:key-id=d48e502a-09bc-4bf7-9af8-ae1bccedc931",
-        "userKey": "awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12"
-    }
-}
-```
-
-`step-ca` can also accept just the Amazon Key ID or the ARN as key options, but using the format based on the [RFC7512](https://tools.ietf.org/html/rfc7512) will allow more flexibility for future `step` releases.
-
-Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using AWS KMS, but an experimental tool named `step-awskms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
-
-To use `step-awskms-init`, make sure to [configure your environment using `aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html), install `step-awskms-init` from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), and run:
-
-<CodeBlock language="shell-session" copyText="step-awskms-init --ssh --region us-east-1">{`$ step-awskms-init --ssh --region us-east-1
- 
-Creating PKI ...
-✔ Root Key: awskms:key-id=f53fb767-4029-40ff-b650-0dd35fb661df
-✔ Root Certificate: root_ca.crt
-✔ Intermediate Key: awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe
-✔ Intermediate Certificate: intermediate_ca.crt
- 
-Creating SSH Keys ...
-✔ SSH User Public Key: ssh_user_ca_key.pub
-✔ SSH User Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12
-✔ SSH Host Public Key: ssh_host_ca_key.pub
-✔ SSH Host Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12`}</CodeBlock>
-
-The `--region` parameter is only required if your AWS configuration does not define a region.
-
-Run the `step-awskms-init --help` command for more options.
 
 ### YubiKey PIV
 
