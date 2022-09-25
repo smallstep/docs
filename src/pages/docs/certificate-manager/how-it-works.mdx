@@ -73,7 +73,7 @@ A **root CA** is *directly* trusted by relying parties. The root CA's certificat
 
 An **intermediate CA** (also called a **subordinate CA**) is issued a special certificate that authorizes it to sign other certificates. Endpoint certificates can be signed directly by the root or, more typically, by an intermediate CA that recursively *chains up* to the root CA. An intermediate CA allows you to keep your root signing keys offline, which improves security.
 
-For most scenarios, this is a nuance you won't have to worry about. By default, Certificate Manager will create a non-issuing root CA and a separate issuing authority for you automatically. For advanced scenarios, you can use your own offline root CA, provision multiple issuing authorities from a signle root, configure multiple levels of intermediates, and revoke and re-issue intermediate authority certificates as necessary.
+For most scenarios, this is a nuance you won't have to worry about. By default, Certificate Manager will create a non-issuing root CA and a separate issuing authority for you automatically. For advanced scenarios, you can use your own offline root CA, provision multiple issuing authorities from a single root, configure multiple levels of intermediates, and revoke and re-issue intermediate authority certificates as necessary.
 
 ### Registration Authorities
 
