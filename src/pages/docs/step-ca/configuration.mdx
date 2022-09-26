@@ -1052,7 +1052,7 @@ First, please install the [`step kms` plugin](https://github.com/smallstep/step-
 Next, let's ask the device to generate a private key for your root CA. Run:
 
 ```shell nocopy
-$ step kms create --json --kms "$PKCS_URI" root-ca
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7331;object=root-ca"
 ```
 
 Once the key is generated, `step` will output the key ID and the public key PEM:
@@ -1090,7 +1090,7 @@ Your certificate has been saved in root_ca.crt.
 Great. Next, we'll repeat the process for the Intermediate CA:
 
 ```shell nocopy
-$ step kms create --json --kms "$PKCS_URI" intermediate-ca
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7332;object=intermediate-ca"
 $ step certificate create --profile intermediate-ca \
    --kms "$PKCS_URI" \
    --ca root_ca.crt \
@@ -1113,8 +1113,8 @@ You'll need these files for your CA configuration, below.
 If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
 
 ```shell nocopy
-$ step kms create --json --kms "$PKCS_URI" ssh-user-ca
-$ step kms create --json --kms "$PKCS_URI" ssh-host-ca
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7333;object=ssh-host-ca"
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7334;object=ssh-user-ca"
 ```
 
 Hold onto the key IDs from these commands; you'll need them below.
@@ -1150,8 +1150,8 @@ To configure an SSH CA, replace the SSH key locations with the SSH CA keys you c
 ```json nocopy
 {
     "ssh": {
-        "hostKey": "pkcs11:id=7334;object=ssh-host-ca",
-        "userKey": "pkcs11:id=7333;object=ssh-user-ca"
+        "hostKey": "pkcs11:id=7333;object=ssh-host-ca",
+        "userKey": "pkcs11:id=7334;object=ssh-user-ca"
     }
 }
 ```
