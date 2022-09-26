@@ -772,7 +772,7 @@ $ cp root_ca.crt intermediate_ca.crt $(step path)/certs
 
 Your X.509 CA is ready.
 
-To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created in AWS KMS:
+To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created above:
 
 ```json nocopy
 {
@@ -1016,20 +1016,18 @@ For example,
 
 You'll also want to consider how you will backup and restore your CA keys, for offline storage.
 
-#### 1. Initialize your PKI using the `step-pkcs11-init` tool.
-
-The `step-pkcs11-init` tool will create or import CA keys and/or certificates onto your HSM, for use with `step-ca`.
-It is configured to work with the YubiHSM2 by default, but you can provide a different PKCS #11 URI by using the `--kms` flag.
+The `step kms` plugin will create CA keys and sign certificates on your device.
+You'll need to provide a PKCS #11 URI for accessing the device, using the `--kms` flag.
 
 Here are some examples of PKCS #11 URIs for accessing various devices in Linux:
 
-HSM              | URI format
----------------- | -------------------------------------------------------------------------------------
-YubiHSM2         | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
-AWS CloudHSM     | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
-SoftHSM          | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
-nCipher nShield  | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
-TPM2             | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
+HSM                        | URI format
+-------------------------- | -------------------------------------------------------------------------------------
+YubiHSM2                   | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
+AWS CloudHSM               | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
+SoftHSM                    | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
+nCipher nShield            | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
+TPM2 (via libtpm2_pkcs11)  | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
 
 You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
 
@@ -1039,43 +1037,126 @@ In this URI,
 * `pin-value` contains hardcoded HSM credentials. It may be a PIN, username and password, password, or a filename. The YubiHSM2 is special in that the PIN value is the concatenation of the four-digit authorization key ID (eg. `0001`) and the PIN.
 * Or, `pin-source` is a filename containing HSM credentials.
 
-Once the utility creates your PKI, it will output a few paths for your keys and certificates before exiting.
-You'll need these for step 2.
+#### 1. Create your PKI
 
-#### 2. Configure the CA to use PKCS #11
+Once you've constructed the right URI for accessing your device, use it in place of `$PKCS_URI` in the commands below.
+
+
+Next, let's ask the device to generate a private key for your root CA. Run:
+
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" root-ca
+```
+
+Once the key is generated, `step` will output the key ID and the public key PEM:
+
+```
+{
+  "name": "pkcs11:id=7331;object=root-ca",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH2ls6h1y2jsXV+IeuhDVkb68zkMe\nKPtI7L6vBIa5ThxOyFaZFnUrGWU6B+KQjProAntgKyNTqOnAh7Eyr3RmgQ==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+You'll need this key name for the next step.
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms "$PKCS_URI"
+   --key "pkcs11:id=7331;object=root-ca" \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" intermediate-ca
+$ step certificate create --profile intermediate-ca \
+   --kms "$PKCS_URI" \
+   --ca root_ca.crt \
+   --ca-key "pkcs11:id=7331;object=root-ca" \
+   --key "pkcs11:id=7332;object=intermediate-ca" \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Here, the `--ca-key` is the root CA key id; the `--key` is the intermediate CA key id.
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" ssh-user-ca
+$ step kms create --json --kms "$PKCS_URI" ssh-host-ca
+```
+
+Hold onto the key IDs from these commands; you'll need them below.
+
+#### Configuring `step-ca` to use PKCS #11
 
 One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
 
-Start with a standard CA configuration, created using [`step ca init`](/docs/step-cli/reference/ca/init) or [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
+To configure your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the object ID of your intermediate CA key:
 
-Now open up `.step/config/ca.json` in an editor.
-You'll want the top of the file to reference the HSM key paths provided by the `step-pkcs11-init` utility.
-
-For this, you'll need to change the `key` and `ssh` values to match the `pkcs11:` URIs above. These are the values you need to change:
-
-```json
+```json nocopy
 {
-        ...
-        "key": "pkcs11:id=7331;object=intermediate-key",
-        "ssh": {
-                "hostKey": "pkcs11:id=7332;object=ssh-host-key",
-                "userKey": "pkcs11:id=7333;object=ssh-user-key"
-        },
-        ...
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "pkcs11:id=7332;object=intermediate-ca",
+    "kms": {
+        "type": "pkcs11",
+        "uri": "$PKCS_URI"
+    }
 }
 ```
 
-You'll also need to add a `kms` top-level object that contains your `pkcs11` module URI:
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
 
-```json
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created above:
+
+```json nocopy
 {
-  ...
-  "kms": {
-    "type": "pkcs11",
-    "uri": "pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=step_ca:RiFJrg93Tn_EXAMPLE"
-  },
-  ...
+    "ssh": {
+        "hostKey": "pkcs11:id=7334;object=ssh-host-ca",
+        "userKey": "pkcs11:id=7333;object=ssh-user-ca"
+    }
 }
 ```
 
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
+```
 
