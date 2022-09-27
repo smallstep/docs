@@ -224,6 +224,23 @@ principal   |johndoe            |johndoe                                |janedoe
 
 ## Policy Configuration
 
+<Alert severity="warning">
+  <div>
+    You must first enable <Link
+      external
+      href="https://smallstep.com/docs/step-ca/provisioners/#remote-provisioner-management"
+    >
+	Remote Provisioner Management
+    </Link> in order to configure policies using the <Code>step</Code> CLI tool.
+    Alternatively, you can hand-edit <Code>ca.json</Code> to add policies.
+	See <Link
+	  external
+	  href="https://smallstep.com/docs/step-ca/policies#policy-in-configuration-file">
+	Policy in Configuration File
+	</Link>, below.
+  </div>
+</Alert>
+
 Policies can be administered using the `step` CLI application.
 The commands are part of the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
 In a self-hosted `step-ca`, policies can be configured on the authority level.
