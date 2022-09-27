@@ -36,8 +36,8 @@ learn how to configure your CA to:
   - [Google Cloud KMS](#google-cloud-kms)
   - [AWS KMS](#aws-kms)
   - [Azure Key Vault](#azure-key-vault)
-  - [YubiKey PIV](#yubikey-piv)
   - [PKCS #11](#pkcs-11)
+  - [YubiKey PIV](#yubikey-piv)
 
 ## Specifying a Configuration File
 
@@ -510,70 +510,293 @@ At this time `step-ca` does not have any API or interface for easily exporting d
 
 ## Cryptographic Protection
 
-By default, `step-ca` stores its signing keys encrypted on disk, on the CA.
-Some use cases may require more advanced cryptographic protection.
-For protection of you signing keys,
-`step-ca` integrates with [Google Cloud KMS](#google-cloud-kms),
-[AWS KMS](#aws-kms),
-[Azure Key Vault](#azure-key-vault), 
-[YubiKey PIV](#yubikey-piv),
-and [PKCS #11 hardware security modules (HSMs)](#pkcs-11).
+By default, `step-ca` stores its signing keys encrypted on disk.
+Some use cases may require more advanced cryptographic protection (or hardware protection)
+of CA's signing keys.
+For these scenarios, `step-ca` integrates with the following key management systems:
 
-For a complete, end-to-end tutorial using YubiKeys,
+- [Google Cloud KMS](#google-cloud-kms)
+- [AWS KMS](#aws-kms)
+- [Azure Key Vault](#azure-key-vault)
+- [PKCS #11 hardware security modules (HSMs)](#pkcs-11)
+- [YubiKey PIV](#yubikey-piv)
+- ssh-agent
+
+For a complete, end-to-end example using a YubiKey,
 see our blog post [Build a Tiny Certificate Authority For Your Homelab](https://smallstep.com/blog/build-a-tiny-ca-with-raspberry-pi-yubikey/).
+
+### Before You Begin
+
+For now, the `step ca init` command has very limited KMS support. We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) for managing the keys and certificates on cloud KMSs and on hardware devices. Please install this plugin before continuing with any of the examples below.
 
 ### Google Cloud KMS
 
-[Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two different protection levels: `SOFTWARE` and `HSM`.
+[Cloud KMS](https://cloud.google.com/kms/docs) is Google's cloud-hosted KMS that allows you to store the cryptographic keys and sign certificates using their infrastructure. Cloud KMS supports two key protection levels: `SOFTWARE` and `HSM`.
 
-To configure Cloud KMS in your certificate authority, add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS key name of your intermediate key:
+#### Creating your PKI in Google Cloud KMS
+
+Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) before you begin. You'll need it to create your PKI.
+
+Also, make sure you have installed [the `gcloud` CLI](https://cloud.google.com/sdk/docs/install) and have [configured Google Cloud application default credentials](https://developers.google.com/accounts/docs/application-default-credentials) in your local environment, eg. by running `gcloud auth application-default login`.
+
+Next, let's generate a private key for your root CA inside Google Cloud KMS. Run:
+
+```shell nocopy
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root'
+```
+
+To constructe the key name parameter, use the resource name of the [CryptoKey](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKey) object you want to create, following the format:
+
+```
+projects/<project-id>/locations/<location>/keyRings/<key-ring-id>/cryptoKeys/<key-id>
+```
+
+Once the key is generated, `step` will output the key's name (including a version number), and the public key PEM:
+
+```
+{
+  "name": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAERcTjeMNjBs29ReA1nf6Odyn2l4Yt\nXPo4CUOcCrn6yw7LJmzaDiqIErhuS9r6BNg92kJvFUiuiU8+w+WZOyhZdw==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+You'll need this key name for the next step.
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms 'cloudkms:' \
+   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate'
+$ step certificate create --profile intermediate-ca \
+   --kms 'cloudkms:' \
+   --ca root_ca.crt \
+   --ca-key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
+   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1' \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-user'
+$ step kms create --json --kms 'cloudkms:' \
+    'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-host'
+```
+
+#### Configuring `step-ca` to use Google Cloud KMS
+
+Next, to configure Cloud KMS signing in `step-ca`, start with a basic CA configuration created using `step ca init`. Add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS resource name of your intermediate key:
 
 ```json nocopy
 {
     "root": "/etc/step-ca/certs/root_ca.crt",
     "crt": "/etc/step-ca/certs/intermediate_ca.crt",
-    "key": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
+    "key": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1",
     "kms": {
         "type": "cloudkms",
-        "uri": "cloudkms:credentials-file=/path/to/kms-credentials.json"
+        "uri": "cloudkms:credentials-file=/path/to/gcloud-kms-credentials.json"
     }
 }
 ```
 
-In a similar way for SSH certificates, the SSH keys must be Cloud KMS names:
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
+
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To add SSH support, change the SSH key locations to Cloud KMS resource names for the SSH host and user CA keys:
 
 ```json nocopy
 {
     "ssh": {
-        "hostKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>",
-        "userKey": "projects/<project-id>/locations/global/keyRings/<ring-id>/cryptoKeys/<key-id>/cryptoKeyVersions/<version-number>"
+        "hostKey": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-host/cryptoKeyVersions/1",
+        "userKey": "projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/ssh-user/cryptoKeyVersions/1"
     }
 }
 ```
 
-Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using Cloud KMS. Still, an experimental tool named `step-cloudkms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
 
-To use `step-cloudkms-init`, install it from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), enable Cloud KMS in your project, and run:
-
-```shell nocopy
-$ export GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
-$ step-cloudkms-init --project your-project-id --ssh
-Creating PKI ...
-✔ Root Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/root/cryptoKeyVersions/1
-✔ Root Certificate: root_ca.crt
-✔ Intermediate Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/intermediate/cryptoKeyVersions/1
-✔ Intermediate Certificate: intermediate_ca.crt
-
-Creating SSH Keys ...
-✔ SSH User Public Key: ssh_user_ca_key.pub
-✔ SSH User Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-user-key/cryptoKeyVersions/1
-✔ SSH Host Public Key: ssh_host_ca_key.pub
-✔ SSH Host Private Key: projects/your-project-id/locations/global/keyRings/pki/cryptoKeys/ssh-host-key/cryptoKeyVersions/1
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
-By default, the keys are generated using the `SOFTWARE` protection level. Add the flag `---protection-level HSM` to use a Hardware Security Module (HSM).
+### AWS KMS
 
-Run the `step-cloudkms-init --help` command for more options.
+[AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
+
+#### Creating your PKI in AWS KMS
+
+Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) before you begin. You'll need it to create your PKI.
+
+Also, make sure you have installed [the `aws` CLI](https://aws.amazon.com/cli/) and have configured AWS credentials in your local environment.
+
+<Alert severity="info">
+  <div>
+	Avoid storing local AWS credentials in plaintext, if you can. We prefer either <a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/step1.html">AWS Identity Center</a> or <a href="https://github.com/99designs/aws-vault">aws-vault</a> for securing local credentials.
+  </div>
+</Alert>
+
+
+Next, let's generate a private key for your root CA inside AWS KMS. Run:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' root-ca
+```
+
+Once the key is generated, `step` will output the key ID and the public key PEM:
+
+```
+{
+  "name": "awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH2ls6h1y2jsXV+IeuhDVkb68zkMe\nKPtI7L6vBIa5ThxOyFaZFnUrGWU6B+KQjProAntgKyNTqOnAh7Eyr3RmgQ==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+You'll need this key name for the next step.
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms 'awskms:region=us-east-2' \
+   --key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' intermediate-ca
+$ step certificate create --profile intermediate-ca \
+   --kms 'awskms:region=us-east-2' \
+   --ca root_ca.crt \
+   --ca-key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
+   --key 'awskms:key-id=9432458d-1e67-4a74-9a23-8f94708b45fe' \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Here, the `--ca-key` is the root CA key id; the `--key` is the intermediate CA key id.
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create --json --kms 'awskms:region=us-east-2' ssh-user-ca
+$ step kms create --json --kms 'awskms:region=us-east-2' ssh-host-ca
+```
+
+Hold onto the key IDs from these commands; you'll need them below.
+
+#### Configuring `step-ca` to use AWS KMS
+
+To use `step-ca` with AWS KMS, create a scoped IAM role that has `kms:GetPublicKey` permissions on all of your CA keys, and `kms:Sign` permission on your intermediate CA key.
+
+To configure AWS KMS in your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the AWS KMS key ID of your intermediate CA key:
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe",
+    "kms": {
+        "type": "awskms",
+        "uri": "awskms:region=us-east-2;profile=foo;credentials-file=/path/to/credentials"
+    }
+}
+```
+
+By default, `step-ca` (and, more broadly, AWS's SDK) will look for credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
+
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
+
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created above:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "awskms:key-id=d48e502a-09bc-4bf7-9af8-ae1bccedc931",
+        "userKey": "awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12"
+    }
+}
+```
+
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
+```
 
 ### Azure Key Vault
 
@@ -624,111 +847,6 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
 
-### AWS KMS
-
-[AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
-
-To configure AWS KMS in your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the AWS KMS key name of your intermediate key:
-
-```json nocopy
-{
-    "root": "/etc/step-ca/certs/root_ca.crt",
-    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
-    "key": "awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe",
-    "kms": {
-        "type": "awskms",
-        "uri": "awskms:region=us-west-2;profile=foo;credentials-file=/path/to/credentials"
-    }
-}
-```
-
-By default, `step-ca` uses the credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
-
-In similar manner, to configure SSH certificate signing, replace the SSH keys with the keys from AWS KMS:
-
-```json nocopy
-{
-    "ssh": {
-        "hostKey": "awskms:key-id=d48e502a-09bc-4bf7-9af8-ae1bccedc931",
-        "userKey": "awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12"
-    }
-}
-```
-
-`step-ca` can also accept just the Amazon Key ID or the ARN as key options, but using the format based on the [RFC7512](https://tools.ietf.org/html/rfc7512) will allow more flexibility for future `step` releases.
-
-Currently, `step` does not provide an automatic way to initialize the public key infrastructure (PKI) using AWS KMS, but an experimental tool named `step-awskms-init` addresses this use case. This tool generates the public certificates `root_ca.crt` and `intermediate_ca.crt` for inclusion in `ca.json` and prints the intermediate key name for use in the `key` property. In a future release, this tool will be integrated into `step`.
-
-To use `step-awskms-init`, make sure to [configure your environment using `aws configure`](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html), install `step-awskms-init` from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases), and run:
-
-<CodeBlock language="shell-session" copyText="step-awskms-init --ssh --region us-east-1">{`$ step-awskms-init --ssh --region us-east-1
- 
-Creating PKI ...
-✔ Root Key: awskms:key-id=f53fb767-4029-40ff-b650-0dd35fb661df
-✔ Root Certificate: root_ca.crt
-✔ Intermediate Key: awskms:key-id=f879f239-feb6-4596-9ed2-b1606277c7fe
-✔ Intermediate Certificate: intermediate_ca.crt
- 
-Creating SSH Keys ...
-✔ SSH User Public Key: ssh_user_ca_key.pub
-✔ SSH User Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12
-✔ SSH Host Public Key: ssh_host_ca_key.pub
-✔ SSH Host Private Key: awskms:key-id=cf28e942-1e10-4a08-b84c-5359af1b5f12`}</CodeBlock>
-
-The `--region` parameter is only required if your AWS configuration does not define a region.
-
-Run the `step-awskms-init --help` command for more options.
-
-### YubiKey PIV
-
-<Alert severity="info">
-  <div>
-    <strong>This feature is not enabled by default</strong><br />
-    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.<br />
-    See <a href="https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
-  </div>
-</Alert>
-
-You can leverage a hardware [YubiKey](https://www.yubico.com/)—and the [YubiKey PIV application](https://www.yubico.com/authentication-standards/smart-card/)—to store your CA keys and sign TLS certificates.
-
-#### Prerequisites and Caveats
-* To enable YubiKey support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo)
-* You will need a YubiKey that supports the PIV application: YubiKey 5 NFC, YubiKey 5 Nano, YubiKey 5C, or YubiKey 5C Nano
-* [Certificate slots](https://developers.yubico.com/PIV/Introduction/Certificate_slots.html) 9a, 9c, 9d, 9e, and 82-95 are supported
-* You can use the YubiKey for X.509 and SSH CAs; however, the `step-yubikey-init` utility only supports X.509 at this time. For SSH support, you must manually generate and configure SSH CA keys on the YubiKey.
-
-The initialization of the public key infrastructure (PKI) for YubiKeys is not currently integrated into `step`, but an experimental tool named `step-yubikey-init` addresses this use case. In a future release, this tool will be integrated into `step`.
-
-To configure your YubiKey, install `step-yubikey-init` from the [latest `step-ca` release tarball](https://github.com/smallstep/certificates/releases) and run:
-
-<CodeBlock
-    language="shell-session"
-    copyText="step-yubikey-init"
-  >{`$ step-yubikey-init
- 
-What is the YubiKey PIN?:
-Creating PKI ...
-✔ Root Key: yubikey:slot-id=9a
-✔ Root Certificate: root_ca.crt
-✔ Intermediate Key: yubikey:slot-id=9c
-✔ Intermediate Certificate: intermediate_ca.crt`}</CodeBlock>
-
-Run the `step-yubikey-init --help` command for more options.
-
-Finally, to enable it in `ca.json`, point the `root` and `crt` options to the generated certificates, replace the `key` option with the YubiKey URI generated in the previous part, and configure the `kms` option with the appropriate `type` and `pin`.
-
-```json nocopy
-{
-    "root": "/path/to/root_ca.crt",
-    "crt": "/path/to/intermediate_ca.crt",
-    "key": "yubikey:slot-id=9c",
-    "kms": {
-        "type": "yubikey",
-        "uri": "yubikey:management-key=01020304...?pin-value=123456"
-    }
-}
-```
-
 ### PKCS #11
 
 <Alert severity="info">
@@ -761,20 +879,18 @@ For example,
 
 You'll also want to consider how you will backup and restore your CA keys, for offline storage.
 
-#### 1. Initialize your PKI using the `step-pkcs11-init` tool.
-
-The `step-pkcs11-init` tool will create or import CA keys and/or certificates onto your HSM, for use with `step-ca`.
-It is configured to work with the YubiHSM2 by default, but you can provide a different PKCS #11 URI by using the `--kms` flag.
+The `step kms` plugin will create CA keys and sign certificates on your device.
+You'll need to provide a PKCS #11 URI for accessing the device, using the `--kms` flag.
 
 Here are some examples of PKCS #11 URIs for accessing various devices in Linux:
 
-HSM              | URI format
----------------- | -------------------------------------------------------------------------------------
-YubiHSM2         | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
-AWS CloudHSM     | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
-SoftHSM          | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
-nCipher nShield  | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
-TPM2             | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
+HSM                        | URI format
+-------------------------- | -------------------------------------------------------------------------------------
+YubiHSM2                   | `pkcs11:module-path=/usr/lib/x86_64-linux-gnu/pkcs11/yubihsm_pkcs11.so;token=YubiHSM`
+AWS CloudHSM               | `pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=$HSM_USER:$HSM_PASSWORD`
+SoftHSM                    | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=token1?pin-value=$HSM_PASSWORD`
+nCipher nShield            | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
+TPM2 (via libtpm2_pkcs11)  | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
 
 You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
 
@@ -784,43 +900,271 @@ In this URI,
 * `pin-value` contains hardcoded HSM credentials. It may be a PIN, username and password, password, or a filename. The YubiHSM2 is special in that the PIN value is the concatenation of the four-digit authorization key ID (eg. `0001`) and the PIN.
 * Or, `pin-source` is a filename containing HSM credentials.
 
-Once the utility creates your PKI, it will output a few paths for your keys and certificates before exiting.
-You'll need these for step 2.
+#### 1. Create your PKI
 
-#### 2. Configure the CA to use PKCS #11
+Once you've constructed the right URI for accessing your device, use it in place of `$PKCS_URI` in the commands below.
 
-One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
+First, please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) before you begin. You'll need it to create your PKI.
 
-Start with a standard CA configuration, created using [`step ca init`](/docs/step-cli/reference/ca/init) or [`step ca init --ssh`](/docs/step-cli/reference/ca/init).
+Next, let's ask the device to generate a private key for your root CA. Run:
 
-Now open up `.step/config/ca.json` in an editor.
-You'll want the top of the file to reference the HSM key paths provided by the `step-pkcs11-init` utility.
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7331;object=root-ca"
+```
 
-For this, you'll need to change the `key` and `ssh` values to match the `pkcs11:` URIs above. These are the values you need to change:
+Once the key is generated, `step` will output the key ID and the public key PEM:
 
-```json
+```
 {
-        ...
-        "key": "pkcs11:id=7331;object=intermediate-key",
-        "ssh": {
-                "hostKey": "pkcs11:id=7332;object=ssh-host-key",
-                "userKey": "pkcs11:id=7333;object=ssh-user-key"
-        },
-        ...
+  "name": "pkcs11:id=7331;object=root-ca",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH2ls6h1y2jsXV+IeuhDVkb68zkMe\nKPtI7L6vBIa5ThxOyFaZFnUrGWU6B+KQjProAntgKyNTqOnAh7Eyr3RmgQ==\n-----END PUBLIC KEY-----\n"
 }
 ```
 
-You'll also need to add a `kms` top-level object that contains your `pkcs11` module URI:
+You'll need this key name for the next step.
 
-```json
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms "$PKCS_URI"
+   --key "pkcs11:id=7331;object=root-ca" \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7332;object=intermediate-ca"
+$ step certificate create --profile intermediate-ca \
+   --kms "$PKCS_URI" \
+   --ca root_ca.crt \
+   --ca-key "pkcs11:id=7331;object=root-ca" \
+   --key "pkcs11:id=7332;object=intermediate-ca" \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Here, the `--ca-key` is the root CA key id; the `--key` is the intermediate CA key id.
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+
+```shell nocopy
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7333;object=ssh-host-ca"
+$ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7334;object=ssh-user-ca"
+```
+
+Hold onto the key IDs from these commands; you'll need them below.
+
+#### Configuring `step-ca` to use PKCS #11
+
+One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
+
+To configure your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the object ID of your intermediate CA key:
+
+```json nocopy
 {
-  ...
-  "kms": {
-    "type": "pkcs11",
-    "uri": "pkcs11:module-path=/opt/cloudhsm/lib/libcloudhsm_pkcs11.so;token=cavium?pin-value=step_ca:RiFJrg93Tn_EXAMPLE"
-  },
-  ...
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "pkcs11:id=7332;object=intermediate-ca",
+    "kms": {
+        "type": "pkcs11",
+        "uri": "$PKCS_URI"
+    }
 }
+```
+
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
+
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created above:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "pkcs11:id=7333;object=ssh-host-ca",
+        "userKey": "pkcs11:id=7334;object=ssh-user-ca"
+    }
+}
+```
+
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
+```
+
+### YubiKey PIV
+
+<Alert severity="info">
+  <div>
+    <strong>This feature is not enabled in <code>step-ca</code> by default</strong><br />
+    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support. See <a href="https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
+  </div>
+</Alert>
+
+You can leverage a hardware [YubiKey](https://www.yubico.com/)—and the [YubiKey PIV application](https://www.yubico.com/authentication-standards/smart-card/)—to store your CA keys and sign TLS and SSH certificates.
+
+#### Prerequisites and Caveats
+
+* To enable YubiKey support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/docs/CONTRIBUTING.md#build-step-ca-using-cgo)
+* You will need a YubiKey 5 series device that [supports the PIV application](https://www.yubico.com/store/compare/)
+* [Certificate slots](https://developers.yubico.com/PIV/Introduction/Certificate_slots.html) 9a, 9c, 9d, 9e, and 82-95 are supported
+* You can use the YubiKey for X.509 and SSH CAs
+
+Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) before you begin. You'll need it to create your PKI.
+
+Now, insert your YubiKey.
+Let's generate a private key for your root CA in slot 9c on the YubiKey.
+Run:
+
+```shell nocopy
+$ step kms create --json 'yubikey:slot-id=82'
+```
+
+Once the key is generated, `step` will output the key name and public key PEM:
+
+```
+{
+  "name": "yubikey:slot-id=82",
+  "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAED3T/7q+p+6239Ri35TBVoChM6VNq\n1buLfql1acRl7F2qf/L96x9XHY5GHoqYNCAm/ocL9hTl8ytWJao+JSNE+Q==\n-----END PUBLIC KEY-----\n"
+}
+```
+
+<Alert severity="info">
+  <div>
+	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, or other options for your environment. See <Code>step kms help create</Code> for details.
+  </div>
+</Alert>
+
+Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+
+```shell nocopy
+$ step certificate create --profile root-ca \
+   --kms 'yubikey:pin-value=123456' \
+   --key 'yubikey:slot-id=82' \
+   "Smallstep Root CA" root_ca.crt
+```
+
+Here we're using the default PIN code of 123456 to access the YubiKey.
+
+Output:
+
+```
+Your certificate has been saved in root_ca.crt.
+```
+
+Great. Next, we'll repeat the process for the Intermediate CA:
+
+```shell nocopy
+$ step kms create --json 'yubikey:slot-id=83'
+$ step certificate create --profile intermediate-ca \
+   --kms 'yubikey:pin-value=123456' \
+   --ca root_ca.crt \
+   --ca-key 'yubikey:slot-id=82' \
+   --key 'yubikey:slot-id=83' \
+   "Smallstep Intermediate CA" intermediate_ca.crt
+```
+
+Here, the `--ca-key` is the root CA key id; the `--key` is the intermediate CA key id.
+
+Output:
+
+```
+Your certificate has been saved in intermediate_ca.crt.
+```
+
+Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
+You'll need these files for your CA configuration, below.
+
+for safekeeping, you may wish to import the certificates into the YubiKey. To do this, you'll need Yubico's [`ykman` CLI utility](https://developers.yubico.com/yubikey-manager/). Run:
+
+```shell nocopy
+$ ykman piv certificates import 82 root_ca.crt
+$ ykman piv certificates import 83 intermediate_ca.crt
+```
+
+(While `step-ca` won't use these copies of the certificates, you can always use `ykman piv certificates export` to download the certificates later.)
+
+Next, if you want to run an SSH CA, you'll also need to create two SSH CA keys:
+
+```shell nocopy
+$ step kms create --json 'yubikey:slot-id=84'
+$ step kms create --json 'yubikey:slot-id=85'
+```
+
+Finally, to enable your CA in `ca.json`, point the `root` and `crt` options to the generated certificates, replace the `key` option with the YubiKey URI generated in the previous part, and configure the `kms` option with the appropriate `type` and `pin`.
+
+```json nocopy
+{
+    "root": "/etc/step-ca/certs/root_ca.crt",
+    "crt": "/etc/step-ca/certs/intermediate_ca.crt",
+    "key": "yubikey:slot-id=83",
+    "kms": {
+        "type": "yubikey",
+        "uri": "yubikey:management-key=01020304...?pin-value=123456"
+    }
+}
+```
+
+Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
+
+```shell nocopy
+$ cp root_ca.crt intermediate_ca.crt $(step path)/certs
+```
+
+Your X.509 CA is ready.
+
+To configure an SSH CA, replace the SSH key locations with the SSH CA keys you created in AWS KMS:
+
+```json nocopy
+{
+    "ssh": {
+        "hostKey": "yubikey:slot-id=84",
+        "userKey": "yubikey:slot-id=85"
+    }
+}
+```
+
+When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH host and user CA keys in SSH key format:
+
+```
+2022/09/20 16:28:45 The primary server URL is https://localhost:443
+2022/09/20 16:28:45 Root certificates are available at https://localhost:443/roots.pem
+2022/09/20 16:28:45 X.509 Root Fingerprint: b061dfca1013c074244b0f376e5be70b6eb0bd7f21d5438aa3af71fe62b0acf5
+2022/09/20 16:28:45 SSH Host CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBIwmL7aDOJId/9UOVJGhVux6Rlvea+q2017aLsfze+/EwGQ5BdZ4k2Qh+5VekebBKZYLNO0LkSf9bZb4o9GSxIs=
+2022/09/20 16:28:45 SSH User CA Key: ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFE0VY9eLxkoHrXoWk5VxeOQTUt53U5xIo89pfsgYHh450cdE4c3mYw5YeOueESyu/lFUHfJoNS6twVR1wuCOdc=
+2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
 
