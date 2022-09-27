@@ -942,8 +942,8 @@ $ ykman piv certificates import 9c intermediate_ca.crt
 Next, if you want to run an SSH CA, you'll also need to create two SSH CA keys:
 
 ```shell nocopy
-$ step kms create --json --kms 'yubikey:' 'yubikey:slot-id=82'
-$ step kms create --json --kms 'yubikey:' 'yubikey:slot-id=83'
+$ step kms create --json 'yubikey:slot-id=82'
+$ step kms create --json 'yubikey:slot-id=83'
 ```
 
 Finally, to enable your CA in `ca.json`, point the `root` and `crt` options to the generated certificates, replace the `key` option with the YubiKey URI generated in the previous part, and configure the `kms` option with the appropriate `type` and `pin`.
