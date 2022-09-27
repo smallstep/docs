@@ -1049,14 +1049,14 @@ Let's generate a private key for your root CA in slot 9c on the YubiKey.
 Run:
 
 ```shell nocopy
-$ step kms create --json 'yubikey:slot-id=9a'
+$ step kms create --json 'yubikey:slot-id=82'
 ```
 
 Once the key is generated, `step` will output the key name and public key PEM:
 
 ```
 {
-  "name": "yubikey:slot-id=9a",
+  "name": "yubikey:slot-id=82",
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAED3T/7q+p+6239Ri35TBVoChM6VNq\n1buLfql1acRl7F2qf/L96x9XHY5GHoqYNCAm/ocL9hTl8ytWJao+JSNE+Q==\n-----END PUBLIC KEY-----\n"
 }
 ```
@@ -1072,7 +1072,7 @@ Now, let's sign a root CA certificate based on the the key you just created. Sub
 ```shell nocopy
 $ step certificate create --profile root-ca \
    --kms 'yubikey:pin-value=123456' \
-   --key 'yubikey:slot-id=9a' \
+   --key 'yubikey:slot-id=82' \
    "Smallstep Root CA" root_ca.crt
 ```
 
@@ -1087,12 +1087,12 @@ Your certificate has been saved in root_ca.crt.
 Great. Next, we'll repeat the process for the Intermediate CA:
 
 ```shell nocopy
-$ step kms create --json 'yubikey:slot-id=9c'
+$ step kms create --json 'yubikey:slot-id=83'
 $ step certificate create --profile intermediate-ca \
    --kms 'yubikey:pin-value=123456' \
    --ca root_ca.crt \
-   --ca-key 'yubikey:slot-id=9a' \
-   --key 'yubikey:slot-id=9c' \
+   --ca-key 'yubikey:slot-id=82' \
+   --key 'yubikey:slot-id=83' \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
@@ -1107,11 +1107,11 @@ Your certificate has been saved in intermediate_ca.crt.
 Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
 You'll need these files for your CA configuration, below.
 
-Optionally, for safekeeping, you may wish to import the certificates into the YubiKey. To do this, you'll need Yubico's [`ykman` CLI utility](https://developers.yubico.com/yubikey-manager/). Run:
+for safekeeping, you may wish to import the certificates into the YubiKey. To do this, you'll need Yubico's [`ykman` CLI utility](https://developers.yubico.com/yubikey-manager/). Run:
 
 ```shell nocopy
-$ ykman piv certificates import 9a root_ca.crt
-$ ykman piv certificates import 9c intermediate_ca.crt
+$ ykman piv certificates import 82 root_ca.crt
+$ ykman piv certificates import 83 intermediate_ca.crt
 ```
 
 (While `step-ca` won't use these copies of the certificates, you can always use `ykman piv certificates export` to download the certificates later.)
@@ -1119,8 +1119,8 @@ $ ykman piv certificates import 9c intermediate_ca.crt
 Next, if you want to run an SSH CA, you'll also need to create two SSH CA keys:
 
 ```shell nocopy
-$ step kms create --json 'yubikey:slot-id=82'
-$ step kms create --json 'yubikey:slot-id=83'
+$ step kms create --json 'yubikey:slot-id=84'
+$ step kms create --json 'yubikey:slot-id=85'
 ```
 
 Finally, to enable your CA in `ca.json`, point the `root` and `crt` options to the generated certificates, replace the `key` option with the YubiKey URI generated in the previous part, and configure the `kms` option with the appropriate `type` and `pin`.
@@ -1129,7 +1129,7 @@ Finally, to enable your CA in `ca.json`, point the `root` and `crt` options to t
 {
     "root": "/etc/step-ca/certs/root_ca.crt",
     "crt": "/etc/step-ca/certs/intermediate_ca.crt",
-    "key": "yubikey:slot-id=9c",
+    "key": "yubikey:slot-id=83",
     "kms": {
         "type": "yubikey",
         "uri": "yubikey:management-key=01020304...?pin-value=123456"
@@ -1150,8 +1150,8 @@ To configure an SSH CA, replace the SSH key locations with the SSH CA keys you c
 ```json nocopy
 {
     "ssh": {
-        "hostKey": "yubikey:slot-id=82",
-        "userKey": "yubikey:slot-id=83"
+        "hostKey": "yubikey:slot-id=84",
+        "userKey": "yubikey:slot-id=85"
     }
 }
 ```
