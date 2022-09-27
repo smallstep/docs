@@ -910,7 +910,7 @@ Your certificate has been saved in root_ca.crt.
 Great. Next, we'll repeat the process for the Intermediate CA:
 
 ```shell nocopy
-$ step kms create --json --kms 'yubikey:' 'yubikey:slot-id=9c'
+$ step kms create --json 'yubikey:slot-id=9c'
 $ step certificate create --profile intermediate-ca \
    --kms 'yubikey:pin-value=123456' \
    --ca root_ca.crt \
