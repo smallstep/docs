@@ -872,7 +872,7 @@ Let's generate a private key for your root CA in slot 9c on the YubiKey.
 Run:
 
 ```shell nocopy
-$ step kms create --json --kms 'yubikey:' 'yubikey:slot-id=9a'
+$ step kms create --json 'yubikey:slot-id=9a'
 ```
 
 Once the key is generated, `step` will output the key name and public key PEM:
