@@ -164,11 +164,11 @@ The `"provisioners"` list must be empty, and `"enableAdmin"` must be set to `tru
 ### Bootstrap Remote Provisioner Management
 
 During this step:
-- An initial [JWK](#jwk) provisioner called Admin JWK will be added to the database.
-- An initial Super Admin user, with username `step`, will be created and linked to the Admin JWK provisioner.
+* An initial [JWK](#jwk) provisioner called Admin JWK will be added to the database.
+* An initial Super Admin user, with username `step`, will be created and linked to the Admin JWK provisioner.
 
 "Admins" can remotely manage provisioners.
-"Super Admin" are Admins that can also manage the list of Admins for the CA.
+"Super Admins" are Admins that can also manage the list of Admins for the CA.
 
 1. Stop `step-ca` if it is running.
 2. Start `step-ca` from the command line.
@@ -177,10 +177,10 @@ During this step:
 <Alert severity="info">
   <div>
 	<p><b>Who can manage provisioner configurations remotely?</b></p>
-	<p>Only Admin users can manage CA provisioners remotely.
+	<p>Only Admins (or Super Admins) can manage CA provisioners remotely.
 	Admin users are disabled by default,
 	and are enabled when <Code>enableAdmin</Code> is set to <Code>true</Code> for an <Code>authority</Code>.
-	The default Admin user is a Super Admin called `step`.
+	The default Admin user is a Super Admin called <Code>step</Code>.
 	Super Admins are special because they can manage Admins, using <a href="/step-cli/reference/ca/admin"><Code>step ca admin</Code></a>.
 	</p>
   </div>
@@ -203,10 +203,21 @@ SUBJECT    PROVISIONER        TYPE
 carl       Admin JWK (JWK)    ADMIN
 ```
 
-An Admin (or Super Admin) user is a combination of a username (aka a subject) and a provisioner.
+### Authenticating as an admin
+
+An Admin (or a Super Admin) is a combination of a username (a subject name) and a provisioner.
+There are no passwords associated with administrators.
+An administrator is just a subject name and a provisioner name.
+
+You can authenticate as an administrator via the authentication scheme of the provisioner.
+For the default JWK provisioner, the `step` command will prompt for the provisioner password. Behind the scenes, it creates and signs a CA authentication token (a JWT) with the administrator's username in it.
+
+**Tip: Single Sign-On can be used for Admin users.** 
+To enable SSO CA administration, first add an [OIDC provisioner](#oauthoidc-single-sign-on) linked to your identity provider.
+Then, add an Admin user associated with that provisioner, using your email address as the Admin's subject name.
 
 The Admin and Super Admin privileges **are not scoped to a provisioner**:
-Admins can modify any provisioner configuration.
+Admins can modify any provisioner configurations.
 Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
 ### Use Remote Provisioner Management
