@@ -54,14 +54,14 @@ These are summarized below:
     Another example may be that an ACME server can't reach out to an ACME client, because it exists on a different network segment that is not routable.
     *   Some cases that involve a technical issue or compliance requirement may still be supported when deploying an instance of the CA in Registration Authority (RA) mode.
         Our [RA documentation page](https://smallstep.com/docs/step-ca/registration-authority-ra-mode) describes this configuration in more detail.
-        Or [contact us](mailto:cs@smallstep.com) to see if we can support your use case.
+        Or [contact us](mailto:support@smallstep.com) to see if we can support your use case.
     *   A [draft RFC for an ACME extension](https://www.ietf.org/id/draft-bweeks-acme-device-attest-00.html) is in the making, describing how the ACME protocol can be used with challenges "solved" by a secure hardware component, like a Trusted Platform Module (TPM) or Secure Enclave (SE).
         This protocol extension, optionally combined with ACME External Account Binding, could obviate the need for a separate channel for solving challenges.
         At Smallstep we're closely monitoring progress of the RFC and may support this functionality in the future.
 - When a certificate requires email addresses to be signed, email signing certificates, for example. 
     There is an informational extension to the ACME RFC that adds [support for S/MIME](https://datatracker.ietf.org/doc/rfc8823/) certificates.
     The Smallstep platform doesn't currently support the extension, but we might do so in the future.
-    [Let us know](mailto:cs@smallstep.com) if your use case involves certificates for humans to see if we can help, either by implementing support for the extension or using different means.
+    [Let us know](mailto:support@smallstep.com) if your use case involves certificates for humans to see if we can help, either by implementing support for the extension or using different means.
 - Use cases that involve URIs in certificates are not supported, because the ACME protocol currently doesn't support URI identifiers.
 - Use cases that involve customization of the certificate contents, like a custom Subject, additional key usages and additional (custom) extensions.
     The ACME protocol is fairly limited in terms of certificate contents.
