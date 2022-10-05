@@ -25,13 +25,11 @@ The certificate authority is what you’ll be using to issue and sign certificat
 
 Run the command [`step ca init`](/docs/step-cli/reference/ca/init) in a terminal to configure your CA. You'll be asked about your project, DNS setup, etc.
 
-<Alert severity="info">
-    <AlertTitle>Want to run an SSH PKI?</AlertTitle>
-    <div>
-        By default, SSH CA features are disabled.<br />
-		Create an SSH PKI by running <Code>step ca init --ssh</Code>.
-    </div>
-</Alert>
+The [`step ca init`](/docs/step-cli/reference/ca/init) command has a lot of flags.
+Here are some of the most popular options:
+* Pass `--ssh` if you want to use SSH certificates (in addition to X.509)
+* Pass separate `--password-file` and `--provisioner-password-file` flags to set different signing CA and provisioner passwords.
+* Pass `--helm` to generate Helm YAML for use with [our Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates)
 
 <Alert severity="success">
   <AlertTitle>Don&apos;t want to run your own CA?</AlertTitle>
