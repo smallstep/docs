@@ -173,7 +173,7 @@ Type    | Rule              | Matches           | Non-Matches
 dns     |*.local            |ca.local           |ca.example.com
 ip      |192.168.0.0/24     |192.168.0.1        |10.0.0.1
 email   |@local             |ca@local           |ca@example.com
-uri     |https://*.local    |https://ca.local   |https://ca.example.com
+uri     |*.local            |https://ca.local   |https://ca.example.com
 
 Not every Common Name is a valid DNS domain, IP, email address or URI, however, so that's why it's also possible to provide rules specifically for Common Names.
 Rules for Common Names are evaluated using a strict string comparison.
