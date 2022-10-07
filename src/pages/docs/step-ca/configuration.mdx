@@ -310,7 +310,7 @@ Some examples of policies you can configure are:
 - A `dns` rule for `*.internal.example.com`, matching all subdomains of `internal.example.com`.
 - An `ip` rule for the `192.168.0.0/24` CIDR, matching all IPs in the range from `192.168.0.0`-`192.168.0.255`.
 - An `email` rule for `@devops`, matching all SSH user principals in the `@devops` domain.
-- A `uri` rule for `*.example.com`, matching all URIs for subdomains of `example.com`, ignoring the URI scheme.
+- A `uri` rule for `*.example.com`, matching all URIs for subdomains of `example.com`, ignoring the URI scheme, path, query and fragment parts.
 
 Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
 

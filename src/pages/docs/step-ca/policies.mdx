@@ -152,16 +152,14 @@ Rules for evaluating URIs are evaluated as follows:
 Wildcards in URI rules are evaluated similar to wildcards for domain names.
 URIs cannot contain literal wildcards, unlike DNS domains.
 
-☠️ URI schemes are (currently) not matched. When configuring an URI rule, the scheme is ignored. This could lead to certificates being signed with URI schemes you didn't anticipate, so please take note of this if your application or environment relies on the URI scheme.
+☠️ URI schemes, paths, queries and fragments are (currently) not matched. When configuring an URI rule, these parts are ignored. This could lead to certificates being signed with URI schemes you didn't anticipate, so please take note of this if your application or environment relies on these parts of the URI.
 
 #### Examples
 
 Type        | Rule                      | Matches                                           | Non-Matches
 ------------|:-:                        |:-:                                                |:-:
-uri         |https://host.example.com   |https://host.example.com,sftps://host.example.com  |https://www.example.com
-uri         |https://*.example.com      |https://host.example.com,https://www.example.com   |https://example.com, https://somehost.com
+uri         |host.example.com           |https://host.example.com,sftps://host.example.com  |https://www.example.com
 uri         |*.example.com              |https://host.example.com,https://www.example.com   |https://example.com, https://somehost.com
-
 
 
 ### Subject Common Name
@@ -175,7 +173,7 @@ Type    | Rule              | Matches           | Non-Matches
 dns     |*.local            |ca.local           |ca.example.com
 ip      |192.168.0.0/24     |192.168.0.1        |10.0.0.1
 email   |@local             |ca@local           |ca@example.com
-uri     |https://*.local    |https://ca.local   |https://ca.example.com
+uri     |*.local            |https://ca.local   |https://ca.example.com
 
 Not every Common Name is a valid DNS domain, IP, email address or URI, however, so that's why it's also possible to provide rules specifically for Common Names.
 Rules for Common Names are evaluated using a strict string comparison.
