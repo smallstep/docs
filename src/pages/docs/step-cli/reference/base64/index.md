@@ -59,7 +59,7 @@ VGhpcyBpcyB0aGUgc3RyaW5nIHRvIGVuY29kZQ
 
 Encode to base64 using the url encoding:
 ```shell
-$ echo 'abc123$%^&*)_+-=~' | step base64 -u
+$ echo 'abc123$%^&*()_+-=~' | step base64 -u
 YWJjMTIzJCVeJiooKV8rLT1-Cg==
 ```
 
@@ -68,8 +68,8 @@ using the '-u' or '-r' flags, but it will be autodetected if they are not
 passed:
 ```shell
 $ echo YWJjMTIzJCVeJiooKV8rLT1-Cg== | step base64 -d
-abc123$%^&*)_+-=~
+abc123$%^&*()_+-=~
 $ echo YWJjMTIzJCVeJiooKV8rLT1-Cg== | step base64 -d -u
-abc123$%^&*)_+-=~
+abc123$%^&*()_+-=~
 ```
 
