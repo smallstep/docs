@@ -978,7 +978,7 @@ Hold onto the key IDs from these commands; you'll need them below.
 
 #### Configuring `step-ca` to use PKCS #11
 
-One you've created your PKI on the HSM using `step-pkcs11-init`, you'll need to configure `step-ca` to use the HSM.
+One you've created your PKI on the HSM using `step-kms-plugin`, you'll need to configure `step-ca` to use the HSM.
 
 To configure your certificate authority, add the `kms` object to `ca.json` and replace the `key` property with the object ID of your intermediate CA key:
 
