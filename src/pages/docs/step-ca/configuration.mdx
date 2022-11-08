@@ -85,6 +85,9 @@ CA's keys.
     "type": "badger",
     "dataSource": "./.step/db"
   },
+  "crl": {
+    "enable": false
+  }, 
   "authority": {
     "claims": {
       "minTLSCertDuration": "5m",
@@ -237,6 +240,17 @@ CA's keys.
   - **database**: name of the database. Used for back-ends that may have multiple databases. e.g. MySQL and PostgreSQL
 
   - **valueDir**: directory to store the value log in (Badger specific).
+
+- **crl**: Certificate Revocation List(CRL) settings. (experimental)
+
+  - **enable**: enables CRL generation (`true` to generate, `false` to disable). Default is false.
+
+  - **generateOnRevoke**: a revoke will generate a new CRL if the `crl` is enabled. Default is false.
+
+  - **cacheDuration**: the duration until next update of the CRL. Defaults to 24h.
+
+  - **renewPeriod**: the time between CRL regeneration. Defaults to ~2/3 of the
+    cacheDuration.
 
 - **tls**: settings for negotiating communication with the CA; includes acceptable ciphersuites, min/max TLS version, etc.
 
