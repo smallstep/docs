@@ -238,6 +238,17 @@ CA's keys.
 
   - **valueDir**: directory to store the value log in (Badger specific).
 
+- **crl**: Certificate Revocation List(CRL) settings.
+
+  - **enable**: enables CRL generation (`true` to generate, `false` to disable)
+
+  - **generateOnRevoke**: a revoke will generate a new CRL if the `crl` is enabled.
+
+  - **cacheDuration**: the duration until next update of the CRL. Defaults to 24h.
+
+  - **renewPeriod**: the time between CRL regeneration. Defaults to ~2/3 of the
+    cacheDuration.
+
 - **tls**: settings for negotiating communication with the CA; includes acceptable ciphersuites, min/max TLS version, etc.
 
 - **authority**: controls the request authorization and signature processes.
