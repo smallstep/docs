@@ -174,12 +174,7 @@ CA's keys.
   			"type": "ACME",
   			"name": "my-acme-provisioner"
   		}
-  	],
-	"webhookClient": {
-	  "allow": {
-	    "public": true
-	  }
-	}
+  	]
   },
   "tls": {
   	"cipherSuites": [
@@ -297,22 +292,6 @@ CA's keys.
         avoided in production.
       </div>
     </Alert>
-
-  - **webhookClient**: Policy to manage which servers step-ca can make webhook requests to. If unset, step-ca will allow requests to any webhook server configured on a provisioner.
-    - **allow**: Permit requests to these webhook server hostnames and IPs.
-      - **public**: Allow requests to all public IPs and hostnames that resolve to public IPs.
-      - **private**: Allow requests to all private IPs and hostnames that resolve to private IPs.
-      - **loopback**: Allow requests to all loopback IPs and hostnames that resolve to loopback IPs.
-      - **linkLocal**: Allow requests to all link-local IPs and hostnames that resolve to link-local IPs.
-      - **ips**: List of IPs to explicitly allow. Also allows requests to hostnames that resolve to these IPs.
-      - **hostnames**: List of hostnames to explicitly allow.
-    - **deny**: Block requests to these webhook server hostnames and IPs.
-      - **public**: Block requests to all public IPs and hostnames that resolve to public IPs.
-      - **private**: Block requests to all private IPs and hostnames that resolve to private IPs.
-      - **loopback**: Block requests to all loopback IPs and hostnames that resolve to loopback IPs.
-      - **linkLocal**: Block requests to all link-local IPs and hostnames that resolve to link-local IPs.
-      - **ips**: List of IPs to explicitly block. Also blocks requests to hostnames that resolve to these IPs.
-      - **hostnames**: List of hostnames to explicitly block.
 
 ## Provisioners
 
