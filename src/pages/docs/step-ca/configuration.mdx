@@ -85,6 +85,9 @@ CA's keys.
     "type": "badger",
     "dataSource": "./.step/db"
   },
+  "crl": {
+    "enable": false
+  }, 
   "authority": {
     "claims": {
       "minTLSCertDuration": "5m",
@@ -238,11 +241,11 @@ CA's keys.
 
   - **valueDir**: directory to store the value log in (Badger specific).
 
-- **crl**: Certificate Revocation List(CRL) settings.
+- **crl**: Certificate Revocation List(CRL) settings. (experimental)
 
-  - **enable**: enables CRL generation (`true` to generate, `false` to disable)
+  - **enable**: enables CRL generation (`true` to generate, `false` to disable). Default is false.
 
-  - **generateOnRevoke**: a revoke will generate a new CRL if the `crl` is enabled.
+  - **generateOnRevoke**: a revoke will generate a new CRL if the `crl` is enabled. Default is false.
 
   - **cacheDuration**: the duration until next update of the CRL. Defaults to 24h.
 
