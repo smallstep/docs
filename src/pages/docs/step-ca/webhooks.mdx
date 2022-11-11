@@ -4,15 +4,21 @@ html_title: Webhooks
 description: Webhooks augment the data available to certificate templates
 ---
 
+<Alert severity="info">
+  <AlertTitle>Remote Management Required</AlertTitle>
+  <div>
+    Check out our guide to{' '}
+    <Link href="/docs/step-ca/provisioners/#remote-provisioner-management">
+    enabling remote management</Link>.
+  </div>
+</Alert>
+
 Administrators can attach webhooks to provisioners to retrieve additional data that will be available when rendering [certificate templates](/docs/step-ca/templates).
 
-```bash
-step ca provisioner webhook add my_provisioner my_webhook --url https://example.com
-```
 
 ## Webhook Response
 
-The webhook must include `"allow": true` in the response body or step-ca will refuse to sign the certificate request.
+The webhook server must include `"allow": true` in the response body or step-ca will refuse to sign the certificate request.
 
 step-ca will augment the template data context with whatever is returned from the webhook server in the `data` field of the response body.
 For example, a webhook could send the following json response:
@@ -77,4 +83,75 @@ This behavior can be disabled:
 
 ```
 step ca provisioner webhook update my_webhook --provisioner my_provision --disable-tls-client-auth
+```
+
+## Tutorial
+
+1. Initialize a new Certificate Authority with remote management enabled.
+
+```bash
+step ca init --remote-management --context webhooks
+```
+
+2. Clone the [example webhook repository](https://github.com/smallstep/webhooks).
+```bash
+git clone git@github.com:smallstep/webhooks.git
+cd webhooks
+```
+
+3. Generate a certificate for your webhook server.
+
+```bash
+step ca certificate localhost webhook.crt webhook.key
+```
+
+4. Save the root CA for you authority to the path where the example webhook server expects to find it.
+```bash
+step ca root > root_ca.crt
+```
+
+5. Add a new provisioner. With remote management enabled the default JWK provisioner has a super admin named `step` for managing CA provisioners. If a webhook is added to the default provisioner and fails, it will be impossible to authenticate successfully as the admin user.
+
+```bash
+step ca provisioner add my_provisioner --create
+```
+
+6. Add a webhook to your provisioner for a webhook server that will be listening on localhost:9443.
+```bash
+step ca provisioner webhook add my_provisioner people --url 'https://localhost:9443/{{ .Token.sub }}'
+```
+This command will print out the webhook ID and webhook secret.
+
+7. Update the [webhookIDsToSecrets map](https://github.com/smallstep/webhooks/blob/f6a74c2e30dcb19b15d9903fdb6271a8358d26cd/main.go#L31) in the example webhook's main.go file with the ID and secret printed above.
+
+8. Update the [db map](https://github.com/smallstep/webhooks/blob/f6a74c2e30dcb19b15d9903fdb6271a8358d26cd/main.go#L26) in the example webhook's main.go file with the Common Name you will be issuing test certificates for.
+
+9. Start the webhook server
+
+```bash
+go run main.go
+```
+
+10. Get a certificate with the provisioner that has a webhook:
+
+```bash
+step ca certificate andrew@smallstep.com my.crt my.key --provisioner my_provisioner
+```
+
+11. Add a template to the provisioner to incorporate the data returned from the webhook.
+
+```bash
+cat <<EOF > prov.tmpl
+{
+  "subject": {
+    "organizationalUnit": {{ toJson .Webhooks.people.role }}
+  }
+}
+EOF
+step ca provisioner update my_provisioner --x509-template prov.tmpl
+```
+
+12. Inspect the certificate to see that the role returned from the webhook server appears in the OU.
+```
+step certificate inspect my.crt --format json | jq .subject
 ```
