@@ -11,6 +11,7 @@ menu:
       - add
       - update
       - remove
+      - webhook
 ---
 
 ## Name
@@ -91,4 +92,5 @@ $ step ca provisioner remove max@smallstep.com --kid 1234 --ca-config ca.json
 | **[add](add/)** | add a provisioner |
 | **[update](update/)** | update a provisioner |
 | **[remove](remove/)** | remove a provisioner from the CA configuration |
+| **[webhook](webhook/)** | create and manage webhooks for a provisioner |
 

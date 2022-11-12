@@ -8,7 +8,7 @@ menu:
 ---
 
 ## Name
-**step ssh certificate** -- sign a SSH certificate using the the SSH CA
+**step ssh certificate** -- sign a SSH certificate using the SSH CA
 
 ## Usage
 
@@ -146,12 +146,18 @@ The path to the `file` containing the password to decrypt the one-time token
 **--sign**
 Sign the public key passed as an argument instead of creating one.
 
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
 **--x5c-cert**=`chain`
 Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 
 **--x5c-key**=`file`
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'x5c' header.
+
+**--x5c-chain**=`file`
+Certificate `file`, in PEM format
 
 **--nebula-cert**=`file`
 Certificate `file` in PEM format to store in the 'nebula' header of a JWT.

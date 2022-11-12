@@ -34,7 +34,7 @@ All flags are optional. Defaults are suitable for most use cases.
 ## Positional arguments
 
 `public-jwk-file`
-Path to which the the public JWK should be written
+Path to which the public JWK should be written
 
 `private-jwk-file`
 Path to which the (JWE encrypted) private JWK should be written

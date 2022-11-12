@@ -13,12 +13,11 @@ menu:
 ## Usage
 
 ```raw
-step ca policy authority view
+step ca policy provisioner view
 [--provisioner=<name>] [--eab-key-id=<eab-key-id>] [--eab-key-reference=<eab-key-reference>]
-[--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<string>] [--admin-subject=<string>]
-[--password-file=<file>] [--ca-url=<uri>] [--root=<file>]
-[--context=<name>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
+[--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -44,14 +43,15 @@ Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 Private key `file`, used to sign a JWT, corresponding to the admin certificate that will
 be stored in the 'x5c' header.
 
-**--admin-provisioner**=`name`, **--admin-issuer**=`name`
-The provisioner `name` to use for generating admin credentials.
-
 **--admin-subject**=`subject`, **--admin-name**=`subject`
 The admin `subject` to use for generating admin credentials.
 
-**--password-file**=`file`
-The path to the `file` containing the password to encrypt or decrypt the private key.
+**--admin-provisioner**=`name`, **--admin-issuer**=`name`
+The provisioner `name` to use for generating admin credentials.
+
+**--admin-password-file**=`file`, **--password-file**=`file`
+The path to the `file` containing the password to decrypt the one-time token
+generating key.
 
 **--ca-url**=`URI`
 `URI` of the targeted Step Certificate Authority.
@@ -83,6 +83,4 @@ View an ACME EAB certificate issuance policy by EAB Key ID
 ```shell
 $ step ca policy acme view --provisioner my_acme_provisioner --eab-key-id "lUOTGwvFQADjk8nxsVufbhyTOwrFmvO2"
 ```
-
-
 

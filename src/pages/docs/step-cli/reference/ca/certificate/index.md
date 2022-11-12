@@ -125,6 +125,9 @@ sequence of decimal numbers, each with optional fraction and a unit suffix, such
 as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
 "s", "m", "h".
 
+**--attestation-uri**=`uri`
+The KMS `uri` used for attestation.
+
 **-f**, **--force**
 Force the overwrite of files without asking.
 
@@ -139,12 +142,18 @@ The path to the `file` containing the password to encrypt or decrypt the private
 **--console**
 Complete the flow while remaining inside the terminal
 
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
 **--x5c-cert**=`chain`
 Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 
 **--x5c-key**=`file`
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'x5c' header.
+
+**--x5c-chain**=`file`
+Certificate `file`, in PEM format
 
 **--nebula-cert**=`file`
 Certificate `file` in PEM format to store in the 'nebula' header of a JWT.

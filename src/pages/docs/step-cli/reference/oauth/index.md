@@ -66,11 +66,7 @@ Email to authenticate
 
 **--console**, **-c**
 Complete the flow while remaining only inside the terminal.
-
-NOTE: This flag will continue to use the Out of Band (OOB) flow for Google OAuth clients
-until Oct 3, 2022 when the OOB flow will be shut off. All other OAuth clients
-will default to using the Device Authorization Grant flow
-(https://datatracker.ietf.org/doc/html/rfc8628#section-3.2).
+This flag defaults to use the Device Authorization Grant flow.
 
 **--console-flow**=`flow`
 The alternative OAuth `flow` to use for input constrained devices.

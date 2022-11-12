@@ -15,16 +15,18 @@ menu:
 ```raw
 step ca provisioner update <name> [--public-key=<file>]
 [--private-key=<file>] [--create] [--password-file=<file>]
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
+[--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 ACME
 
 step ca provisioner update <name> [--force-cn] [--require-eab]
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--challenge=<challenge>] [--remove-challenge=<challenge>]
+[--attestation-format=<format>] [--remove-attestation-format=<format>]
+[--attestation-roots=<file>] [--admin-cert=<file>] [--admin-key=<file>]
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 OIDC
 
@@ -34,23 +36,23 @@ step ca provisioner update <name>
 [--domain=<domain>] [--remove-domain=<domain>]
 [--group=<group>] [--remove-group=<group>]
 [--admin=<email>]... [--remove-admin=<email>]...
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 X5C
 
-step ca provisioner update <name> --x5c-root=<file>
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+step ca provisioner update <name> --x5c-roots=<file>
+[--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 K8SSA (Kubernetes Service Account)
 
 step ca provisioner update <name> [--public-key=<file>]
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 IID (AWS/GCP/Azure)
 
@@ -62,18 +64,17 @@ step ca provisioner update <name>
 [--azure-audience=<name>] [--azure-subscription-id=<id>]
 [--azure-object-id=<id>] [--instance-age=<duration>]
 [--disable-custom-sans] [--disable-trust-on-first-use]
-[--admin-cert=<file>] [--admin-key=<file>] [--admin-provisioner=<name>]
-[--admin-subject=<subject>] [--password-file=<file>] [--ca-url=<uri>]
-[--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
 SCEP
 
 step ca provisioner update <name> [--force-cn] [--challenge=<challenge>]
 [--capabilities=<capabilities>] [--include-root] [--minimum-public-key-length=<length>]
-[--encryption-algorithm-identifier=<id>] [--admin-cert=<file>] [--admin-key=<file>]
-[--admin-provisioner=<name>] [--admin-subject=<subject>] [--password-file=<file>]
+[--encryption-algorithm-identifier=<id>][--admin-cert=<file>] [--admin-key=<file>] 
+[--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
-
 ```
 
 ## Description
@@ -132,29 +133,89 @@ Remove the `domain` used to validate the email claim in an OpenID Connect provis
 Use the '--remove-domain' flag multiple times to remove multiple domains.
 
 **--group**=`group`
-The `group` list used to validate the groups extenstion in an OpenID Connect token.
+The `group` list used to validate the groups extension in an OpenID Connect token.
 Use the '--group' flag multiple times to configure multiple groups.
 
 **--tenant-id**=`tenant-id`
 The `tenant-id` used to replace the templatized {tenantid} in the OpenID Configuration.
 
-**--x5c-root**=`file`
-Root certificate (chain) `file` used to validate the signature on X5C
+**--x5c-roots**=`file`, **--x5c-root**=`file`
+PEM-formatted root certificate(s) `file` used to validate the signature on X5C
 provisioning tokens.
 
 **--nebula-root**=`file`
 Root certificate (chain) `file` used to validate the signature on Nebula
 provisioning tokens.
 
-**--force-cn**
-Always set the common name in provisioned certificates.
-
 **--require-eab**
 Require (and enable) External Account Binding (EAB) for Account creation.
 If this flag is set to false, then disable EAB.
 
+**--force-cn**
+Always set the common name in provisioned certificates.
+
 **--challenge**=`challenge`
-The SCEP `challenge` to use as a shared secret between a client and the CA
+With a SCEP provisioner the `challenge` is a shared secret between a
+client and the CA.
+
+With an ACME provisioner, this flag specifies the `challenge` or challenges to
+enable. Use the flag multiple times to configure multiple challenges.
+
+The supported ACME challenges are:
+
+**http-01**
+With the HTTP challenge, the client in an ACME transaction proves its control
+over a domain name by proving that it can provision HTTP resources on a server
+accessible under that domain name.
+
+**dns-01**
+With the DNS challenge, the client can prove control of a domain by
+provisioning a TXT resource record containing a designated value for a specific
+validation domain name.
+
+**tls-alpn-01**
+With the TLS with Application-Layer Protocol Negotiation (TLS ALPN) challenge,
+the client can prove control over a domain name by configuring a TLS server to
+respond to specific connection attempts using the ALPN extension with
+identifying information.
+
+**device-attest-01**
+With the device attestation challenge, the client can prove control over a
+permanent identifier of a device by providing an attestation statement
+containing the identifier of the device.
+
+If the provisioner has no challenges configured, http-01, dns-01 and tls-alpn-01
+will be automatically enabled.
+
+**--remove-challenge**=`challenge`
+Remove an ACME `challenge` from the list configured in the provisioner.
+Use the flag multiple times to remove multiple challenges.
+
+**--attestation-format**=`format`
+Enable an ACME attestation statement `format` in the provisioner. Use the flag
+multiple times to configure multiple challenges.
+
+The supported ACME attestation formats are:
+
+**apple**
+With the apple format, Apple devices can use the device-attest-01 challenge to
+get a new certificate.
+
+**step**
+With the step format, devices like YubiKeys that can generate an attestation
+certificate can use the device-attest-01 challenge to get a new certificate.
+
+**tpm**
+With the tpm format, devices with TPMs can use the device-attest-01 challenge
+to get a new certificate.
+
+**--remove-attestation-format**=`format`
+Remove an ACME attestation statement `format` from the list configured in the provisioner.
+Use the flag multiple times to remove multiple formats.
+
+**--attestation-roots**=`file`
+PEM-formatted root certificate(s) `file` used to validate the attestation
+certificates. Use the flag multiple times to read from multiple files.
 
 **--capabilities**=`capabilities`
 The SCEP `capabilities` to advertise
@@ -327,11 +388,15 @@ Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
 Private key `file`, used to sign a JWT, corresponding to the admin certificate that will
 be stored in the 'x5c' header.
 
+**--admin-subject**=`subject`, **--admin-name**=`subject`
+The admin `subject` to use for generating admin credentials.
+
 **--admin-provisioner**=`name`, **--admin-issuer**=`name`
 The provisioner `name` to use for generating admin credentials.
 
-**--admin-subject**=`subject`, **--admin-name**=`subject`
-The admin `subject` to use for generating admin credentials.
+**--admin-password-file**=`file`
+The path to the `file` containing the password to decrypt the one-time token
+generating key.
 
 **--password-file**=`file`
 The path to the `file` containing the password to encrypt or decrypt the private key.
@@ -394,7 +459,7 @@ step ca provisioner update Google \
 
 Update an X5C provisioner:
 ```shell
-step ca provisioner update x5c --x5c-root x5c_ca.crt
+step ca provisioner update x5c --x5c-roots x5c_ca.crt
 ```
 
 Update an ACME provisioner:

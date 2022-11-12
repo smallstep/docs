@@ -21,7 +21,7 @@ step crypto key format <key-file> [--out=<file>]
 **step crypto key format** prints or writes the key in
 a different format.
 
-By default PEM formated keys will be converted to DER with the following rules:
+By default PEM formatted keys will be converted to DER with the following rules:
 
  * ECDSA, RSA, AND Ed25519 public keys will use the DER-encoded PKIX format.
  * ECDSA, AND RSA private keys will use the ASN.1, DER format.

@@ -61,17 +61,17 @@ Install a certificate in all the supported truststores:
 $ step certificate install --all root-ca.pem
 ```
 
-Install a certificate in Firefox and the system trustore:
+Install a certificate in Firefox and the system truststore:
 ```shell
 $ step certificate install --firefox root--ca.pem
 ```
 
-Install a certificate in Java and the system trustore:
+Install a certificate in Java and the system truststore:
 ```shell
 $ step certificate install --java root-ca.pem
 ```
 
-Install a certificate in Firefox, Java, but not in the system trustore:
+Install a certificate in Firefox, Java, but not in the system truststore:
 ```shell
 $ step certificate install --firefox --java --no-system root-ca.pem
 ```

@@ -92,7 +92,7 @@ $ ssh internal.example.com
 
 | Name | Usage |
 |---|---|
-| **[certificate](certificate/)** | sign a SSH certificate using the the SSH CA |
+| **[certificate](certificate/)** | sign a SSH certificate using the SSH CA |
 | **[check-host](check-host/)** | checks if a certificate has been issued for a host |
 | **[config](config/)** | configures ssh to be used with certificates |
 | **[fingerprint](fingerprint/)** | print the fingerprint of an SSH public key or certificate |

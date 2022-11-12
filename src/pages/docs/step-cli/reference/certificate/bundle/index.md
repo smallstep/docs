@@ -27,7 +27,7 @@ step certificate bundle <crt-file> <ca> <bundle-file>
 The path to a leaf certificate to bundle with issuing certificate(s).
 
 `ca`
-The path to the Certificate Authority issusing certificate.
+The path to the Certificate Authority issuing certificate.
 
 `bundle-file`
 The path to write the bundle.

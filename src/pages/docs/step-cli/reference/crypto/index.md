@@ -86,7 +86,7 @@ Elliptic curve cryptography has the additional advantages of much smaller key
    compared to RSA. The strength of these keys is generally considered sufficient
    for the predictable and foreseeable future.
 
-Note that for cryptographic protocols that have perfect forward secrecry and
+Note that for cryptographic protocols that have perfect forward secrecy and
    only use asymmetric keys for symmetric key negotiation your system will remain
    secure against future threats as long as the keys are large enough that they
    cannot be cracked today. In other words, sizing your keys to protect against
@@ -123,7 +123,7 @@ While we take these concerns seriously, these curves are widely used in
    opted not to gate non-safe curves**. We've further elected to make **P-256**
    the default curve for EC keys.
 
-Still, it is important to be aware of the security risks assocated with their
+Still, it is important to be aware of the security risks associated with their
    risk. You should consider using "safe curves" if possible. We may change our
    mind as support for safe curves improves.
 

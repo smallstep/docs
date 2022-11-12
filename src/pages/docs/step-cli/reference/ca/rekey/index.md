@@ -80,7 +80,7 @@ flag.
 
 **--pid-file**=`file`
 The `file` from which to read the process id that will be signaled after the certificate
-has been rekeyed. By default the the SIGHUP (1) signal will be used, but this can be configured with the **--signal**
+has been rekeyed. By default the SIGHUP (1) signal will be used, but this can be configured with the **--signal**
 flag.
 
 **--signal**=`number`

@@ -23,7 +23,7 @@ step ssh revoke <serial-number>
 
 ## Description
 
-**step ssh revoke** command revokes an SSH Cerfificate
+**step ssh revoke** command revokes an SSH Certificate
 using [step certificates](https://github.com/smallstep/certificates).
 
 ## Positional arguments

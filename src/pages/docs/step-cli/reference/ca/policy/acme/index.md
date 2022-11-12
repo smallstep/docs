@@ -24,6 +24,10 @@ step ca policy acme <subcommand> [arguments] [global-flags] [subcommand-flags]
 
 **step ca policy acme** command group provides facilities for managing certificate issuance policies for ACME accounts.
 
+Please note that certificate issuance policies for ACME accounts are currently only supported in Certificate Manager: https://u.step.sm/cm.        
+
+
+
 ## Commands
 
 

@@ -67,7 +67,7 @@ eyJhdWQiOiJodHRwczovL2V4YW1wbGUuY29tIiwiZXhwIjoxNTM1MjQyNDcyLCJpYXQiOjE1MzI1NjQw
 DlSkxICjk2h1LarwJgXPbXQe7DwpLMOCvWp3I4GMcBP_5_QYPhVNBPQEeTKAUuQjYwlxZ5zVQnyp8ujvyf1Lqw
 ```
 
-Verify the the previous token:
+Verify the previous token:
 ```shell
 $ echo $TOKEN | step crypto jwt verify --key p256.pub.json --iss "joe@example.com" --aud "https://example.com"
 {

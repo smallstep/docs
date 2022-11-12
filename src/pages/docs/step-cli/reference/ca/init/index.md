@@ -16,10 +16,11 @@ menu:
 step ca init
 [--root=<file>] [--key=<file>] [--pki] [--ssh]
 [--helm] [--deployment-type=<name>] [--name=<name>]
-[--dns=<dns>] [--address=<address>] [--provisioner=<name>]
-[--provisioner-password-file=<file>] [--password-file=<file>]
-[--ra=<type>] [--kms=<type>] [--with-ca-url=<url>] [--no-db]
-[--context=<name>] [--profile=<name>] [--authority=<name>]
+[--dns=<dns>] [--address=<address>] [--provisioner=<name>] 
+[--admin-subject=<string>] [--provisioner-password-file=<file>] 
+[--password-file=<file>] [--ra=<type>] [--kms=<type>] 
+[--with-ca-url=<url>] [--no-db] [--remote-management] 
+[--acme] [--context=<name>] [--profile=<name>] [--authority=<name>]
 ```
 
 ## Description
@@ -145,6 +146,15 @@ Generate a CA configuration without the DB stanza. No persistence layer.
 
 **--context**=`name`
 The `name` of the context for the new authority.
+
+**--remote-management**
+Enable Remote Management. Defaults to false.
+
+**--acme**
+Create a default ACME provisioner. Defaults to false.
+
+**--admin-subject**=`subject`, **--admin-name**=`subject`
+The admin `subject` to use for generating admin credentials.
 
 **--profile**=`name`
 The `name` that will serve as the profile name for the context.

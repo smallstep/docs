@@ -25,6 +25,10 @@ step ca policy provisioner <subcommand> [arguments] [global-flags] [subcommand-f
 
 **step ca policy provisioner** command group provides facilities for managing certificate issuance policies for provisioners.
 
+Please note that certificate issuance policies on the provisioner level are currently only supported in Certificate Manager: https://u.step.sm/cm.    
+
+
+
 ## Commands
 
 
