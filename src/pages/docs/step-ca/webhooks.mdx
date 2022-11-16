@@ -50,7 +50,7 @@ or as the basis of your own custom webhook integration.
   step ca certificate localhost webhook.crt webhook.key
   ```
 
-4. Export the your root CA certificate for the webhook server.
+4. Export your root CA certificate for the webhook server.
 
   ```bash
   step ca root > root_ca.crt
@@ -193,7 +193,7 @@ step ca provisioner webhook update my_provisioner my_webhook --bearer-token abc1
 Or, to use basic authentication, run:
 
 ```
-step ca provisioner webhook update my_provisioner my_webhook --basic-auth-username user --basic-auth-password pass
+step ca provisioner webhook update my_provisioner my_webhook --basic-auth-username user --basic-auth-password-file pass.txt
 ```
 
 #### Mutual TLS (optional)
@@ -203,6 +203,6 @@ You can also use mutual TLS to authenticate `step-ca` as a client of your webhoo
 By default, `step-ca` will send the CA's self-generated leaf certificate
 when asked for a client certificate as part of the TLS handshake.
 To enable mutual TLS,
-configure your webhook server should to request and verify a client certificate
+configure your webhook server to request and verify a client certificate
 that chains up to your root CA certificate.
 
