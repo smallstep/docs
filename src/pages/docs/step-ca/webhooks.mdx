@@ -116,17 +116,6 @@ or as the basis of your own custom webhook integration.
 The webhook server must include `"allow": true` in the response body,
 or `step-ca` will refuse to sign the certificate request.
 
-<Alert severity="warning">
-  <AlertTitle>Webhooks Aren't For Authorization</AlertTitle>
-  <div>
-    Webhooks enrich certificates.
-    They should not be used to delegate CSR authorization to an external server.
-    Webhooks are run early in the CA request processing cycle,
-    and if policy decisions are made at this point
-    it can create confusing interactions with other policy features of the CA.
-  </div>
-</Alert>
-
 The `step-ca` template engine augments the template data with the `data` object in the response body.
 
 For example, a webhook server could send the following JSON response:
