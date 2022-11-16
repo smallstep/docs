@@ -162,7 +162,7 @@ and the webhook server must confirm this signature.
 The signature also tells the webhook server which webhook is currently being executed.
 
 In addition the the signature header, you can optionally enable two other authentication schemes:
-- **Authentication Header**  
+- **Authorization Header**  
   The CA can send a bearer token or username and password in an `Authentication` header.
 - **Mutual TLS**  
   The webhook server can require and verify the connection using mutual TLS. The CA will provide a client certificate when requested.
