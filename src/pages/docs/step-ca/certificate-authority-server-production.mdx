@@ -472,10 +472,12 @@ load balancing or proxying (aka "TLS passthrough").
 We also recommend enabling [remote provisioner management](/docs/step-ca/provisioners/#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
 
 Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
-- `step` expects to be able to establish a TLS connection directly with `step-ca` using the CA's root certificate.
-- Certificate renewal requires authenticated encryption (mutual TLS).
+- `step` expects to be able to perform a TLS handshake with `step-ca`, using the CA's root certificate
+  to complete the trust chain.
+- Certificate renewal uses mutual TLS by default.
   `step-ca` authenticates the client using the expiring certificate, in order to issue a new one.
-  This requires a direct, end-to-end TLS connection between `step` and `step-ca`.
+  Mutual TLS requires a direct, end-to-end TLS handshake between `step` and `step-ca`.
+  (See `step ca renew --help` for more details.)
 - By design, `step-ca` does not have an option to run in HTTP only.
   Philosophically, we value perimeterless security and we believe people should use authenticated encryption (e.g. mutual TLS) everywhere.
   Making mTLS easy, and helping people get away from the "perimeter security" anti-pattern, are motivating goals behind the project.
