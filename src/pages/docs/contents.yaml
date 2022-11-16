@@ -87,6 +87,8 @@ step_ca:
     path: step-ca/provisioners
   - title: Templates
     path: step-ca/templates
+  - title: Webhooks
+    path: step-ca/webhooks
   - title: Production Considerations
     path: step-ca/certificate-authority-server-production
   - title: Renewal
