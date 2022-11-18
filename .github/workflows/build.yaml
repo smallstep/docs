@@ -10,12 +10,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
       -
         name: Setup NodeJS
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: '14'
           cache: 'yarn'
@@ -27,21 +27,39 @@ jobs:
         run: yarn lint
 
   deploy:
-    if: github.ref == 'refs/heads/main'
-    name: Trigger private build
+    if: github.ref_name == 'main'
+    name: Commit to smallstep/prof
     needs: lint
     runs-on: ubuntu-latest
     steps:
       -
-        # This step is for master builds only
-        name: Trigger Docs Deploy to Staging
-        id: trigger_staging_deploy
-        uses: convictional/trigger-workflow-and-wait@v1.3.0
+        name: Checkout smallstep/prof
+        uses: actions/checkout@master
         with:
-          owner: smallstep
-          repo:  prof
-          github_token: ${{ secrets.PAT }}
-          workflow_file_name: deploy.yml
-          ref: master
-          wait_interval: 30
+          repository: smallstep/prof
+          token: ${{ secrets.PAT }}
+          path: './prof'
+      -
+        name: Setup bot SSH signing key
+        uses: webfactory/ssh-agent@v0.7.0
+        env:
+          HAS_SSH_PRIVATE_KEY: ${{ secrets.STEP_TRAVIS_CI_GH_PRIVATE_SIGNING_KEY != '' }}
+        if: ${{ env.HAS_SSH_PRIVATE_KEY == 'true' }}
+        with:
+          ssh-private-key: |
+            ${{ secrets.STEP_TRAVIS_CI_GH_PRIVATE_SIGNING_KEY }}
+      -
+        name: Update Reference
+        id: update_reference
+        run: |
+          cd ./prof
+          git config user.email "eng+ci@smallstep.com"
+          git config user.name "step-travis-ci"
 
+          # Configure GH commit signing key.
+          git config --global commit.gpgsign true
+          git config --global gpg.format ssh
+          git config --global user.signingkey "${{ secrets.STEP_TRAVIS_CI_GH_PUBLIC_SIGNING_KEY }}"
+
+          git commit --allow-empty -m "Empty commit triggered by docs ${{ github.sha }}"
+          git push origin master
