@@ -284,6 +284,16 @@ Allow all DNS subdomains of `"local"` in SSH host certificates on authority leve
 
 You can find more examples in the `step` CLI command reference for the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
 
+<Alert severity="info">
+  <AlertTitle>Policies and Remote Management authentication</AlertTitle>
+  <div>
+    The authentication scheme for Remote Management uses short-lived X.509 certificates to authenticate (super) admin users.
+    When an admin requests access when an X.509 policy is active, the policy must allow the subject of the admin, or else the admin won't be able to sign in.
+    To protect users from locking themselves out, a new or updated policy will be checked to not lock out users, indicating issues to the user, resulting in an error like <Code>the provided policy would lock out [step] from the CA</Code>.
+    The policy can then be adjusted to include the (super) admin subject(s), e.g. <Code>step ca policy authority x509 allow dns step</Code>.
+  </div>
+</Alert>
+
 ### Policy in Configuration File
 
 When running a self-hosted `step-ca` it is also possible to configure the authority policy in the `ca.json` CA configuration file.
