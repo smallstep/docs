@@ -166,10 +166,10 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
 
   ```json
   "authority": {
-  		"enableAdmin": true,
-          "provisioners": [
-            ...
-          ]
+    "enableAdmin": true,
+    "provisioners": [
+      ...
+    ]
   },
   ```
  
@@ -178,9 +178,8 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
    When `step-ca` starts up, it will:
    
    * Migrate the provisioners from your `ca.json` to the database
-   * Add an initial [JWK](#jwk) provisioner called Admin JWK to the database.
-   You will be prompted for a password that will encrypt the Admin JWK provisioner.
-   * Create an initial Super Admin user, with username `step`, and link it to the Admin JWK provisioner.
+   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner.
+   * Create an initial Super Admin user, with username `step`, and link it to the administrative provisioner.
   
 4. Remove old provisioner configurations from `ca.json`.
    Once your provisioners are migrated to the database, the provisioners in `ca.json` are ignored and you can remove them from that file:
