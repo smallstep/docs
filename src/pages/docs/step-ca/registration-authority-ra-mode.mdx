@@ -176,17 +176,8 @@ Finally, use `--issuer-password-file` to provide a private key password file whe
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
-* [`step ca renew`](/docs/step-cli/reference/ca/renew) (mTLS renewals) and [`step ca rekey`](/docs/step-cli/reference/ca/rekey) are not yet supported between `step` clients and a StepCAS RA. As an alternative, you can create a CSR using the same private key, and have the RA sign it. For example, if you have a JWK provisioner on the RA, you could run the following:
-  
-  ```bash
-  # 1. Create a CSR
-  # (Add --insecure --no-password if you don't use a password on the private key.)
-  $ step certificate create --csr db.example.com db.csr db.key 
-
-  # 2. Sign the CSR using the ACME provisioner
-  $ step ca sign db.csr db.crt
-  ```
-  
+* [`step ca renew`](/docs/step-cli/reference/ca/renew) typically uses mutual TLS authentication, but with a StepCAS RA it must use X5C authentication. Pass `--mtls=false` to [`step ca renew`](/docs/step-cli/reference/ca/renew) when working with RAs.
+* [`step ca rekey`](/docs/step-cli/reference/ca/rekey) is not supported.
 * SSH is not supported.
 * ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` or `postgresql` database for your RAs.
 * StepCAS RA keys cannot be stored in KMS or HSMs; only files are supported. This is because all the keys are kept in memory.
