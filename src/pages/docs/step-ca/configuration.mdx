@@ -103,14 +103,20 @@ CA's keys.
       "defaultUserSSHCertDuration": "16h",
       "policy": {
         "x509": {
-          "allow": ["*.local"]
+          "allow": {
+            "dns": ["*.local"]
+          }
         },
         "ssh": {
           "user": {
-            "allow": ["@local"]
+            "allow": {
+              "email": ["@local"]
+            }
           },
           "host": {
-            "allow": ["*.local"]
+            "allow": {
+              "dns": ["*.local"]
+            }
           }
         }
       }
