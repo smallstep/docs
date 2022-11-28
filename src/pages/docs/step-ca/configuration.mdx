@@ -531,8 +531,11 @@ At this time `step-ca` does not have any API or interface for easily exporting d
 ## Cryptographic Protection
 
 By default, `step-ca` stores its signing keys encrypted on disk.
-Some use cases may require more advanced cryptographic protection (or hardware protection)
-of CA's signing keys.
+
+For security hardening,
+you may desire more advanced cryptographic protection (or hardware protection)
+of your CA's signing keys.
+
 For these scenarios, `step-ca` integrates with the following key management systems:
 
 - [Google Cloud KMS](#google-cloud-kms)

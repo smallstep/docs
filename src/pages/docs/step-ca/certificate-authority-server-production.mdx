@@ -83,9 +83,9 @@ You'll use this new intermediate key password to start `step-ca`.
 <Alert severity="info">
   <AlertTitle>Never use your password in a command line argument.</AlertTitle>
   <div>
-    To keep sensitive values from leaking into `.bash_history` and system state, put
+    To keep sensitive values from leaking into <Code>.bash_history</Code> and system state, put
     your intermediate key password into a file by itself. Then use the
-    `--password-file` flag when calling `step-ca`.
+    <Code>--password-file</Code> flag when calling <Code>step-ca</Code>.
   </div>
 </Alert>
 
@@ -129,13 +129,19 @@ This method is known as [Bash Process Subsitution](https://www.gnu.org/software/
 and on most systems the password will not appear in `ps` output.
 However, **this approach is not recommended** simply because it's so difficult to ensure security with environment variables.
 
-### Delete Your Default Provisioner
+See our blog <a href="/blog/command-line-secrets/">How to Handle Secrets on the Command Line</a> for an in-depth exploration of this topic.
+
+### Replace Your Default Provisioner
 
 When you [initialize your PKI](/docs/step-ca/getting-started/#initialize-your-certificate-authority),
-a default `JWK` provisioner will be created
-and it's private key will be encrypted using the same password used to encrypt
-the root CA private key. Before deploying `step-ca` you should remove this
-provisioner and add new provisioners that are encrypted with secure, random passwords.
+a default `JWK` provisioner will be created.
+If you're not going to use this provisioner,
+we recommend deleting it.
+
+If you _are_ going to use this provisioner,
+secure it with a different password than your CA's signing keys.
+You can do this by passing separate `--password-file` and `--provisioner-password-file` files when running `step ca init`.
+
 See the section on [managing provisioners](/docs/step-ca/provisioners#provisioner-management).
 
 ### Use Short-Lived Certificates
@@ -153,13 +159,13 @@ You can [configure certificate lifetimes](/docs/step-ca/configuration#basic-conf
 <Alert severity="info">
   <div>
     Short-lived certificates are not a replacement for active revocation using certificate revocation lists (CRL) or Online Certificate Status Protocol (OCSP).
-	Active revocation is not yet available in `step-ca`, but you can manually manage a CRL for your CA certificates. See below.
+	Automatic active revocation is not available in <Code>step-ca</Code>, but you can manually manage a CRL for your CA certificates. See below.
   </div>
 </Alert>
 
 
 <Footnote id="fn-1" marker="1">
-Insects of the mayfly species <i>dolania americana</i> live for five minutes or less.
+One mayfly species, <i>dolania americana</i>, lives for five minutes or less!
 So do some certificates.
 But it can be difficult to operationalize such short-lived certificates.
 </Footnote>
