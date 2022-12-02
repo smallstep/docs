@@ -350,7 +350,7 @@ Without the `encryptedKey` attribute, the private key must be provided by the cl
 - **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
 See [claims](#claims) for details.
 
-- **options**<Reference id="star2" marker="**" />: see [options](#options) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star1" marker="*">Recommended</Footnote>
 <Footnote id="star2" marker="**">Optional</Footnote>
@@ -599,7 +599,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 - **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star3" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
@@ -716,7 +716,7 @@ tokens.
 - **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star4" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star4" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
 
@@ -828,7 +828,7 @@ An example SSHPOP provisioner in the `ca.json`:
 - **claims**<Reference id="star5" marker="*" />: overwrites the default `claims` set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star5" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star5" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star5" marker="*">Optional</Footnote>
 
@@ -877,7 +877,7 @@ An example of an ACME provisioner in the `ca.json`:
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star6" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star6" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
@@ -1022,7 +1022,7 @@ K8sSA tokens.
 - **claims**<Reference id="star7" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star7" marker="*">Optional</Footnote>
 
@@ -1172,6 +1172,8 @@ Limits certificate issuance to new instances to mitigate the risk of credential-
 - **claims**<Reference id="star8" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
+- **options**<Reference id="star8" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+
 <Footnote id="star8" marker="*">Optional</Footnote>
 
 ### GCP
@@ -1241,7 +1243,7 @@ Limits certificate issuance to new instances to mitigate the risk of credential-
 - **claims**<Reference id="star9" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star9" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star9" marker="*">Optional</Footnote>
 
@@ -1309,6 +1311,6 @@ In the `ca.json`, an Azure provisioner looks like:
 - **claims**<Reference id="star10" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](#claims) section for all the options.
 
-- **options**<Reference id="star10" marker="*" />: see the [options](#options) section for more details.
+- **options**<Reference id="star10" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star10" marker="*">Optional</Footnote>
