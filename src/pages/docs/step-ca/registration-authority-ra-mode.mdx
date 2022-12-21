@@ -143,7 +143,25 @@ you can create a new key for your RA by decrypting the CA's JWK provisioner key 
   }
   ```
 
-Finally, use `--issuer-password-file` to provide a password file when starting up the CA.
+Finally, use `--issuer-password-file` to provide a password file when starting up the RA. Note that, if using the open source Certificate Manager docker image, you will have to override the default `entrypoint.sh` to pass the appropriate flags. An example using docker compose, assuming the password file is located at `secrets/password`:
+
+```yaml
+services:
+  step-ra:
+    image: smallstep/step-ca
+    command:
+      - "/usr/local/bin/step-ca"
+      - "--issuer-password-file=/home/step/secrets/password"
+      - "/home/step/config/ca.json"
+    depends_on:
+      - ca
+    volumes:
+      - ./:/home/step
+    environment:
+      - STEPDEBUG=1
+    ports:
+      - "8484:8484/tcp"  
+```
 
 ### Using the X5C provisioner
 
@@ -170,7 +188,7 @@ Next, change the `"certificateIssuer"` object in the RA configuration as follows
 
 These files will are read by `step-ca` upon every certificate request made to the RA.
 
-Finally, use `--issuer-password-file` to provide a private key password file when starting up the CA.
+Finally, use `--issuer-password-file` to provide a private key password file when starting up the RA.
 
 ### StepCAS Limitations
 
