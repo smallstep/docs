@@ -178,7 +178,7 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
    When `step-ca` starts up, it will:
    
    * Migrate the provisioners from your `ca.json` to the database
-   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner.
+   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner key.
    * Create an initial Super Admin user, with username `step`, and link it to the administrative provisioner.
   
 4. Remove old provisioner configurations from `ca.json`.
@@ -834,10 +834,15 @@ see the [claims](#claims) section for all the options.
 
 ### ACME
 
-An ACME provisioner allows a client to request a certificate from the server using the [ACME Protocol](https://tools.ietf.org/html/rfc8555).
-This provisioner supports issuing X.509 certificates with IP or hostname identifiers.
-It supports the `http-01`, `dns-01`, and `tls-alpn-01` ACME challenge types,
-All authentication of the CSR is managed by the ACME protocol.
+The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certificate Signing Requests (CSRs) in a way that enables automation.
+
+ACME clients must answer challenges presented by the ACME server to prove to the that they control the identifiers listed in the CSR.
+ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
+See [ACME Basics](/docs/step-ca/acme-basics#acme-challenges) for a description of each challenge type and their tradeoffs.
+
+In a typical setup, an ACME server might issue server certificates via the `http-01`, `dns-01`, `tls-alpn-01` challenge types, and client certificates via the `device-attest-01` challenge type.
+
+The ACME provisioner in `step-ca` supports issuing X.509 certificates using IP, hostname, and device identifiers.
 
 #### Example
 
@@ -885,6 +890,12 @@ see the [claims](#claims) section for all the options.
 
 See [ACME Basics](/docs/step-ca/acme-basics)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
+
+#### ACME for Client Certificates
+
+The `device-attest-01` challenge supports attestations from iOS, iPadOS, tvOS, and YubiKey.
+The CSR may include a device ID in a `permanentIdentifier` SAN, depending on the application.
+
 
 ### SCEP
 
