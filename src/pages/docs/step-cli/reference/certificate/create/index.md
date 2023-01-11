@@ -80,7 +80,7 @@ The `key=value` pair with template data variables. Use the **--set** flag multip
 The JSON `file` with the template data variables.
 
 **--password-file**=`file`
-The `file` to the file containing the password to
+The path to the `file` containing the password to
 encrypt the new private key or decrypt the user submitted private key.
 
 **--ca**=`value`
@@ -90,7 +90,7 @@ The certificate authority used to issue the new certificate (PEM file).
 The certificate authority private key used to sign the new certificate (PEM file).
 
 **--ca-password-file**=`file`
-The `file` to the file containing the password to
+The path to the `file` containing the password to
 decrypt the CA private key.
 
 **--key**=`file`

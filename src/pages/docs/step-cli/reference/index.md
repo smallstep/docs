@@ -64,9 +64,9 @@ print the version
 
 ## Version
 
-Smallstep CLI/0.23.0 (linux/amd64)
+Smallstep CLI/0.23.1 (linux/amd64)
 
 ## Copyright
 
-(c) 2018-2022 Smallstep Labs, Inc.
+(c) 2018-2023 Smallstep Labs, Inc.
 
