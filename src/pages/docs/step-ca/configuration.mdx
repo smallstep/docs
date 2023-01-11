@@ -100,23 +100,23 @@ CA's keys.
       "defaultHostSSHCertDuration": "720h",
       "minUserSSHCertDuration": "5m",
       "maxUserSSHCertDuration": "24h",
-      "defaultUserSSHCertDuration": "16h",
-      "policy": {
-        "x509": {
+      "defaultUserSSHCertDuration": "16h"
+    },
+    "policy": {
+      "x509": {
+        "allow": {
+          "dns": ["*.local"]
+        }
+      },
+      "ssh": {
+        "user": {
           "allow": {
-            "dns": ["*.local"]
+            "email": ["@local"]
           }
         },
-        "ssh": {
-          "user": {
-            "allow": {
-              "email": ["@local"]
-            }
-          },
-          "host": {
-            "allow": {
-              "dns": ["*.local"]
-            }
+        "host": {
+          "allow": {
+            "dns": ["*.local"]
           }
         }
       }
