@@ -57,17 +57,14 @@ On your Smallstep Dasbhoard.
   * Enter the tag values from Step 1
   * If Sudo access is permitted for this user group, select the "Allow Sudo" checkbox
   * Click the checkbox to enable access control
-* **Optional**. Assign Posix Groups. Smallstep now supports posix group support on hosts running step-ssh version 0.22.0 and greater so SSH Pro users can have more granular access to Hosts. 
-**Managed Groups** are posix groups that you want smallstep to create or delete on your Hosts.
-**Unmanaged Groups** are posix groups such as  ***fax*** or  ***floppy*** that are default or already exist on the Host. Groups members will have permissions assigned to these groups.
-  * In the example below we are adding the group to one unmanaged group ***floppy*** and and managed group ***sre-team***
+* **Optional**. Assign POSIX Groups. Smallstep now supports POSIX groups on hosts running `step-ssh` version 0.22.0 or greater.
+**Managed Groups** are POSIX groups that you want Smallstep to create or delete on your Hosts.
+**Unmanaged Groups** are the default POSIX groups such as  ***fax*** or  ***floppy*** that already exist on the Host. Groups members will have permissions assigned to these groups.
+  * In the example below, we are adding users in the Smallstep group **okta-isvtest-ssh** to one unmanaged POSIX group (***floppy***) and one managed POSIX group (***sre-team***)
 * **Optional**. Assign Certificate Principals. Smallstep now supports adding additional prinicals to user certificates. A **Principal** is a string that allows access to a host, or even a specific user on a host.
-Users in the assigned group will be able to access smallstep managed hosts as that user.
-  * In the example below we are adding the principal ***craig*** to the Group.
+Users in the assigned group will be able to access Smallstep-managed hosts as that user, whether or not the user is managed by Smallstep. Adding a user as a certificate principal does not enable full lifecycle management for that user.
+  * In the example below we are adding the principal ***craig*** to certificates issued for the Group **okta-isvtest-ssh**.
 
 ![](/graphics/quickstart/acl-grant-access.png)
 
 * All users in the group now have access to all hosts with the specified tag combination.
-
-
-**Posix Groups** Smallstep now gives SSH professional accounts the ability to map  Groups to Posix Groups on Hosts. 
