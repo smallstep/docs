@@ -7,7 +7,7 @@ description: SSH Access Control | Smallstep Documentation
 
 You will need:
 
-* An account on the smallstep platform. Need one → [Register here](https://smallstep.com/signup?product=ssh)
+* A Smallstep [SSH Professional account](https://smallstep.com/sso-ssh/#overview). Need one → [Register here](https://smallstep.com/signup?product=ssh)
 * SSO and User Sync configured and functioning
 * Hosts Registered with Tags
 
@@ -36,8 +36,8 @@ Of course, hosts and groups can have as many tag combinations as you like.  Take
 ### Step 1: Determine Host Tag Combination
 
 Sign in at `https://smallstep.com/app/[Team ID]`
-
-* Choose "Hosts"
+* Choose "SSH Professional" from the top navigation bar
+* Choose "Hosts" on the right hand navigation bar
 * Find and select a Host that includes the Host Tags you wish to use for access grants.
   * In the example below that combination is `database` : `production`.
 * Make a note of the tag combination, you will need this in Step 2
@@ -46,18 +46,28 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 
 ### Step 2: Grant User Group Access to Host(s)
 
-You should see two Directories. The "Smallstep" directory contains Administrators who can manage the application. The other directory contains users and groups synchronized from your identity provider.
-
-* Select your identity provider directory
-* Choose the "GROUPS" tab.
+On your Smallstep Dasbhoard.
+* Select the "Users" tab on the right hand navigation bar.
+* Choose the "GROUPS" tab
 
 ![](/graphics/quickstart/acl-select-idp-group.png)
 
 * Select the User Group that you want to configure for access control. You will see the user group detail page with a list of existing Host Grants and a form to add additional grants.
+* Select "Edit" from the kebab menu to the right of the Group's name.
   * Enter the tag values from Step 1
   * If Sudo access is permitted for this user group, select the "Allow Sudo" checkbox
   * Click the checkbox to enable access control
+* **Optional**. Assign Posix Groups. Smallstep now supports posix group support on hosts running step-ssh version 0.22.0 and greater so SSH Pro users can have more granular access to Hosts. 
+**Managed Groups** are posix groups that you want smallstep to create or delete on your Hosts.
+**Unmanaged Groups** are posix groups such as  ***fax*** or  ***floppy*** that are default or already exist on the Host. Groups members will have permissions assigned to these groups.
+  * In the example below we are adding the group to one unmanaged group ***floppy*** and and managed group ***sre-team***
+* **Optional**. Assign Certificate Principals. Smallstep now supports adding additional prinicals to user certificates. A **Principal** is a string that allows access to a host, or even a specific user on a host.
+Users in the assigned group will be able to access smallstep managed hosts as that user.
+  * In the example below we are adding the principal ***craig*** to the Group.
 
 ![](/graphics/quickstart/acl-grant-access.png)
 
 * All users in the group now have access to all hosts with the specified tag combination.
+
+
+**Posix Groups** Smallstep now gives SSH professional accounts the ability to map  Groups to Posix Groups on Hosts. 
