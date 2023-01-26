@@ -99,7 +99,7 @@ To uninstall, run `pacman -R step-ca step-cli` and remove the configuration dire
     
     ```shell
     wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step-cli_0.23.1_amd64.rpm
-    sudo rpm -i step-cli_0.23.1_amd64.rpm
+    sudo dnf install step-cli_0.23.1_amd64.rpm
     ```
 
 2. Install `step-ca`
@@ -107,9 +107,10 @@ To uninstall, run `pacman -R step-ca step-cli` and remove the configuration dire
     Download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.1/step-ca_0.23.1_amd64.deb
-    sudo rpm -i step-ca_0.23.1_amd64.deb
+    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.1/step-ca_0.23.1_amd64.rpm
+    sudo dnf install step-ca_0.23.1_amd64.rpm
     ```
+
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
 
 To uninstall, run `dnf remove step-cli step-ca` and remove the configuration directory `$HOME/.step`.
