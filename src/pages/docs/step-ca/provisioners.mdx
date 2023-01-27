@@ -852,7 +852,7 @@ see the [claims](#claims) section for all the options.
 
 The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certificate Signing Requests (CSRs) in a way that enables automation.
 
-ACME clients must answer challenges presented by the ACME server to prove to the that they control the identifiers listed in the CSR.
+ACME clients must answer challenges presented by the ACME server to prove to the CA that they control the identifiers listed in the CSR.
 ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
 See [ACME Basics](/docs/step-ca/acme-basics#acme-challenges) for a description of each challenge type and their tradeoffs.
 
