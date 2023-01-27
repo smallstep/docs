@@ -11,6 +11,7 @@ In this section we'll discuss the different provisioners, their target use cases
 
 ## Overview
 
+- [Choosing a Provisioner](#choosing-a-provisioner)
 - [Authorization Scope by Provisioner](#authorization-scope-by-provisioner)
 - [Provisioner Management](#provisioner-management)
 - [Remote Provisioner Management](#remote-provisioner-management)
@@ -24,6 +25,21 @@ In this section we'll discuss the different provisioners, their target use cases
   - [SCEP](#scep)
   - [K8sSA - Kubernetes Service Account](#k8ssa-kubernetes-service-account)
   - [Cloud Provisioners](#cloud-provisioners)
+
+## Choosing a Provisioner
+
+When choosing a provisioner for your use case,
+you can narrow your options by starting from the types of
+identifiers you need on a certificate. 
+
+Identifier Type | JWK | OAuth | X5C | ACME `dns-01` | ACME `http-01` | ACME `tls-alpn-01` | ACME `device-attest-01` | Nebula | SCEP | K8sSA | Cloud Provisioners
+--------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+Hostname        | ✔️   | 𝗫   | ✔️   | ✔️   | ✔️   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️   
+IP address      | ✔️   | 𝗫   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️ 
+Hardware ID     | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫   | 𝗫   | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫  
+Virtual Machine | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | ✔️   | 𝗫   | ✔️  
+Service Account | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | ✔️   | ✔️   | 𝗫 
+Human           | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫
 
 ## Authorization Scope by Provisioner
 
@@ -893,22 +909,81 @@ for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 #### ACME for Device Attestation
 
-The `device-attest-01` challenge supports device attestations from iOS, iPadOS, tvOS, and YubiKeys.
+<Alert severity="warning">
+  <div> 
+    This challenge type must be explicitly enabled in an ACME provisioner.
+  </div>
+</Alert>
 
-The CSR may include a device ID in a `permanentIdentifier` SAN, depending on the application.
+The `device-attest-01` challenge supports device attestations from iOS, iPadOS, tvOS, and YubiKeys. An attestation certificate is used to satisfy the ACME challenge. The CSR may include a device ID in a `permanentIdentifier` SAN, depending on the application. 
 
-**This challenge type is not enabled by default.**
-Enable it in a new ACME provisioner by running:
+##### Managed Device Attestation for Apple Devices
+
+To add a `device-attest-01` provisioner for use with [Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) on Apple devices, run:
 
 ```bash
-step ca provisioner add <name> --type ACME --challenge device-attest-01
+step ca provisioner add acme-da \
+   --type ACME \
+   --challenge device-attest-01 \
+   --attestation-format apple
 ```
 
-Apple's device attestation CA is trusted by the ACME provisioner by default.
+<Alert severity="warning">
+  <div>
+    Apple's device attestation CA will be trusted by the provisioner.
+    For a production environment, you must add policies to restrict this provisioner.
+    Without policy restrictions, the provisioner may issue certificates **for any Apple device**.
+  </div>
+</Alert>
 
 In your Apple MDM profile, you will need:
 * A [`CertificateRoot`](https://developer.apple.com/documentation/devicemanagement/certificateroot) payload, containing your root CA certificate PEM block, so that it's trusted by the device. 
 * An [`ACMECertificate`](https://developer.apple.com/documentation/devicemanagement/acmecertificate) payload. For this one, set the `ClientIdentifier` to the UDID of the device. 
+
+##### Device Attestation for Yubikeys
+
+To add a `device-attest-01` provisioner for Yubikey devices, run:
+
+```bash
+step ca provisioner add acme-da \
+      --type ACME \
+      --challenge device-attest-01 \
+      --attestation-format step
+```
+
+<Alert severity="warning">
+  <div>
+    Yubico's attestation CA will be trusted by the new provisioner.
+    For a production environment, you must add policies to restrict this provisioner.
+    Without policy restrictions, the provisioner may issue certificates **for any Yubikey**.
+  </div>
+</Alert>
+
+To get a client certificate for a hardware-bound private key on your Yubikey:
+ 
+0. Create a `device-attest-01` provisioner as described above.
+1. Install [`step-kms-plugin`](https://github.com/smallstep/step-kms-plugin/)
+2. Insert the Yubikey.
+3. Generate a private key in one of the Yubikey's slots, if you haven't already.
+   In this example, we'll use slot `9a`.
+   Run:
+
+   ```bash
+   step kms create 'yubikey:slot-id=9a' \
+       --kms 'yubikey:?pin-value=123456'
+   ```
+4. Get a certificate for the Yubikey from `step-ca`.
+   Substitute the serial number of your Yubikey here:
+
+   ```bash
+   {
+     YUBIKEY_SERIAL_NO=18295924
+     step ca certificate 
+      --attestation-uri 'yubikey:slot-id=9a' \
+      --kms 'yubikey:?pin-value=123456' \
+      --provisioner acme-da $YUBIKEY_SERIAL_NO yubikey.crt
+   }
+   ```
 
 
 ### SCEP
