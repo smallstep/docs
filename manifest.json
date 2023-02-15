@@ -1,0 +1,301 @@
+{
+  "routes": [
+    {
+      "title": "Smallstep Documentation",
+      "routes": [
+        { "title": "Documentation", "path": "/README.mdx" },
+        {
+          "heading": true,
+          "title": "Platform"
+        },
+        {
+          "title": "Platform",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/platform/README.mdx"
+            },
+            {
+              "title": "Authorities",
+              "path": "/platform/authorities.mdx"
+            },
+            {
+              "title": "Provisioners",
+              "path": "/platform/provisioners.mdx"
+            },
+            {
+              "title": "Inventories",
+              "path": "/platform/inventories.mdx"
+            },
+            {
+              "title": "Templates",
+              "path": "/platform/templates.mdx"
+            },
+            {
+              "title": "Events",
+              "path": "/platform/events.mdx"
+            }
+          ]
+        },
+        {
+          "heading": true,
+          "title": "Products"
+        },
+        {
+          "title": "Smallstep SSH",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/ssh/README.mdx"
+            },
+            {
+              "title": "How It Works",
+              "path": "/ssh/how-it-works.mdx"
+            },
+            {
+              "title": "Client Quickstart Guide",
+              "path": "/ssh/client.mdx"
+            },
+            {
+              "title": "Host Quickstart Guide",
+              "path": "/ssh/hosts.mdx"
+            },
+            {
+              "title": "Azure AD Quickstart Guide",
+              "path": "/ssh/azure-ad.mdx"
+            },
+            {
+              "title": "G Suite Quickstart Guide",
+              "path": "/ssh/g-suite.mdx"
+            },
+            {
+              "title": "Okta Quickstart Guide",
+              "path": "/ssh/okta.mdx"
+            },
+            {
+              "title": "Access Control Guide",
+              "path": "/ssh/acls.mdx"
+            },
+            {
+              "title": "Okta UID GID Sync Guide",
+              "path": "/ssh/okta-gid-uid.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Certificate Manager",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/certificate-manager/README.mdx"
+            },
+            {
+              "title": "Getting Started",
+              "path": "/certificate-manager/getting-started.mdx"
+            },
+            {
+              "title": "Basic Cert Operations",
+              "path": "/certificate-manager/basic-ops.mdx"
+            },
+            {
+              "title": "Customizing Certificates",
+              "path": "/certificate-manager/custom-certs.mdx"
+            },
+            {
+              "title": "How It Works",
+              "path": "/certificate-manager/how-it-works.mdx"
+            },
+            {
+              "title": "ACME Server",
+              "path": "/certificate-manager/acme.mdx"
+            },
+            {
+              "title": "Certs For Humans",
+              "path": "/certificate-manager/oidc.mdx"
+            },
+            {
+              "title": "Kubernetes TLS",
+              "path": "/certificate-manager/kubernetes-tls.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Registration Authorities",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/registration-authorities/README.mdx"
+            },
+            {
+              "title": "ACME for Smallstep Certificate Manager",
+              "path": "/registration-authorities/acme-for-certificate-manager.mdx"
+            },
+            {
+              "title": "ACME for Google Certificate Authority Service",
+              "path": "/registration-authorities/acme-for-cas.mdx"
+            }
+          ]
+        },
+        {
+          "heading": true,
+          "title": "Open Source"
+        },
+        {
+          "title": "Step CLI",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/step-cli/README.mdx"
+            },
+            {
+              "title": "Installation",
+              "path": "/step-cli/installation.mdx"
+            },
+            {
+              "title": "The `step` Command",
+              "path": "/step-cli/the-step-command.mdx"
+            },
+            {
+              "title": "Basic Crypto Operations",
+              "path": "/step-cli/basic-crypto-operations.mdx"
+            },
+            {
+              "title": "Command Reference",
+              "path": "/step-cli/reference/README.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Step CA",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/step-ca/README.mdx"
+            },
+            {
+              "title": "Installation",
+              "path": "/step-ca/installation.mdx"
+            },
+            {
+              "title": "Core Concepts",
+              "path": "/step-ca/certificate-authority-core-concepts.mdx"
+            },
+            {
+              "title": "Getting Started",
+              "path": "/step-ca/getting-started.mdx"
+            },
+            {
+              "title": "Basic CA Operations",
+              "path": "/step-ca/basic-certificate-authority-operations.mdx"
+            },
+            {
+              "title": "ACME Basics",
+              "path": "/step-ca/acme-basics.mdx"
+            },
+            {
+              "title": "Configuration",
+              "path": "/step-ca/configuration.mdx"
+            },
+            {
+              "title": "Policies",
+              "path": "/step-ca/policies.mdx"
+            },
+            {
+              "title": "Provisioners",
+              "path": "/step-ca/provisioners.mdx"
+            },
+            {
+              "title": "Templates",
+              "path": "/step-ca/templates.mdx"
+            },
+            {
+              "title": "Webhooks",
+              "path": "/step-ca/webhooks.mdx"
+            },
+            {
+              "title": "Production Considerations",
+              "path": "/step-ca/certificate-authority-server-production.mdx"
+            },
+            {
+              "title": "Renewal",
+              "path": "/step-ca/renewal.mdx"
+            },
+            {
+              "title": "Revocation",
+              "path": "/step-ca/revocation.mdx"
+            },
+            {
+              "title": "Registration Authority Mode",
+              "path": "/step-ca/registration-authority-ra-mode.mdx"
+            },
+            {
+              "title": "Integrations",
+              "path": "/step-ca/integrations.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Practical Zero Trust",
+          "path": "/practical-zero-trust/README.mdx"
+        },
+        {
+          "title": "Mutual TLS",
+          "path": "/mtls/README.mdx"
+        },
+        {
+          "title": "Tutorials",
+          "routes": [
+            {
+              "title": "Introduction",
+              "path": "/tutorials/README.mdx"
+            },
+            {
+              "title": "Configure popular ACME clients to use a private CA",
+              "path": "/tutorials/acme-protocol-acme-clients.mdx"
+            },
+            {
+              "title": "Use Kubernetes cert-manager with `step-ca`",
+              "path": "/tutorials/kubernetes-acme-ca.mdx"
+            },
+            {
+              "title": "Issue X.509 host certificates to cloud VMs",
+              "path": "/tutorials/cloud-vm-certificate.mdx"
+            },
+            {
+              "title": "Issue X.509 user certificates via your identity provider",
+              "path": "/tutorials/user-authentication.mdx"
+            },
+            {
+              "title": "Create a CA that uses RSA keys",
+              "path": "/tutorials/rsa-chain.mdx"
+            },
+            {
+              "title": "Import an existing root or intermediate CA into `step-ca`",
+              "path": "/tutorials/intermediate-ca-new-ca.mdx"
+            },
+            {
+              "title": "Use Keycloak to issue SSH certificates with step-ca",
+              "path": "/tutorials/keycloak-oidc-provisioner.mdx"
+            },
+            {
+              "title": "Run an SSH CA and connect to VMs using SSH certificates",
+              "path": "/tutorials/ssh-certificate-login.mdx"
+            },
+            {
+              "title": "Use AWS to deploy a certificate authority and secure microservices",
+              "path": "/tutorials/mutual-tls-aws.mdx"
+            },
+            {
+              "title": "Run `step-ca` in a Docker container",
+              "path": "/tutorials/docker-tls-certificate-authority.mdx"
+            },
+            {
+              "title": "Federate multiple autonomous certificate authorities",
+              "path": "/tutorials/pki-trust-model-federation.mdx"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

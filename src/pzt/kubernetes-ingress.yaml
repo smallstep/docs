@@ -1,6 +1,0 @@
-slug: kubernetes-ingress
-name: Kubernetes Ingress
-template: ingress
-written: September 21, 2021
-updated: ''
-protocol: https

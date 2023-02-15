@@ -1,0 +1,345 @@
+---
+title: Certificate Issuance Policies
+html_title: Certificate Issuance Policies
+description: Certificate issuance policies can be used to allow or deny certificates to be signed based on the requested names.
+---
+
+Administrators can create a certificate issuance policy to configure which certificate names the CA is allowed to sign.
+A policy consists of one or more rules that are all evaluated just before a new certificate is signed.
+Upon evaluation of the rules all names in a certificate request are checked to be allowed.
+If one of the names is not allowed, the certificate will not be signed.
+An error will be reported to the client indicating why the certificate wasn't created.
+
+You can configure a policy for X.509 certificates, SSH user certificates and SSH host certificates.
+The CA will evaluate only the policy corresponding to the type of certificate that is requested.
+This means that rules for X.509 certificates will not be evaluated when an SSH user or host certificate is requested.
+
+<Alert severity="info">
+  <AlertTitle>Need more control?</AlertTitle>
+  <div>
+    A self-hosted <Code>step-ca</Code> instance can only be configured with a policy on the authority level.
+    In a <Link
+      external
+      href="https://smallstep.com/signup?product=cm">
+      free hosted smallstep Certificate Manager authority
+    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account, providing more granular control.
+  </div>
+</Alert>
+
+## Policy Evaluation
+
+Policies consist of one or more rules, each resulting in a (range of) names to be allowed or denied.
+A rule is applied to a single name type, like X.509 DNS domains or IP addresses.
+You'll need to configure multiple rules if you want the policy to apply to multiple types of names.
+
+If a rule is configured to allow a certain type of name, all other types of names are automatically denied.
+If a rule is configured to deny a certain type of name, all other types of names are still allowed.
+Generally a policy will contain a set of allowed names and can contain a number of exclusions.
+
+A rule can be configured to allow a range of names using a wildcard notation corresponding to the type of name.
+Another rule can be configured that denies a subset of the allowed range of names.
+Creating the opposite set of rules, denying a certain range and allowing a subset of that range, however, will not result in the names to be allowed. 
+
+The semantics used for evaluating rules and matching requested certificate names is described in the following sections.
+
+<Alert severity="info">
+  <AlertTitle>Certificate Issuance Policy vs. Name Constraints</AlertTitle>
+  <div>
+    This page describes how certificate issuance policies work in the smallstep platform.
+    These policies must not be confused with <Link
+        external
+        href="https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10">
+      X.509 Name Constraints (RFC 5280)
+    </Link>, which work slightly different.
+  </div>
+  <br/>
+  <div>
+      When Name Constraints are in use, clients must verify that a leaf certificate was allowed to be signed by the CA.
+    A certificate issuance policy is evaluated by the CA before a certificate is signed instead, shifting control and responsibility to the CA.
+    Certificate issuance policies and Name Constraints are not mutually exclusive: they can be combined and used simultaneously.
+  </div>
+</Alert>
+
+
+## X.509 Policies
+
+A policy for X.509 certificates can have rules for the following types of names:
+
+- Domain Names
+- IP Addresses
+- Email Addresses
+- URIs
+- Subject Common Names
+
+The following subsections describe the specifics for each of those.
+
+### Domain Names
+
+Rules for DNS domains are evaluated to match largely according to how [Name Constraints (RFC 5280)](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10)
+are evaluated, but applied to leaf certificates instead of CA certificates:
+
+- Requested domain names as well as the rules for domain names are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
+- The domain to be evaluated must have the same number of labels, demarcated by periods, as the rule has.
+- Each domain label is compared using a string comparison.
+
+The rules for domain names allow a wildcard (`*`) to be specified as the first label.
+This allows (strictly) the first label to be filled freely.
+For example, the rule `*.example.com` allows any subdomain of `example.com`, such as `www.example.com`.
+It doesn't allow the domain `example.com` itself, though.
+
+A rule for `*.éxàmplê.com` will internally be represented using its internationalized form: `*.xn–xmpl-0na6cm.com`. 
+This rule will match `www.éxàmplê.com` as well as its internationalized representation `www.xn–xmpl-0na6cm.com` (and other subdomains).
+
+By default it is not possible to request a certificate with a literal wildcard character in the domain, like `*.example.com`.
+It is possible to configure the policy to allow this.
+
+#### Examples
+
+Type    | Rule              | Matches                               | Non-Matches
+--------|:-:                |:-:                                    |:-:
+dns     |host.example.com   |host.example.com                       |differenthost.example.com, sub.host.example.com
+dns     |*.example.com      |host.example.com, www.example.com      |example.com, sub.host.example.com
+
+
+### IP Addresses 
+
+Rules for evaluating IP addresses are evaluated as follows:
+
+- A single IP rule (e.g. `192.168.0.30`, `::1`) will match exactly that IP address.
+- A CIDR rule (e.g. `192.168.0.0/24`, `2001:0db8:85a3::8a2e:0370:7334/120`) matches all IP addresses included in the range.
+- So-called `IPv4-in-IPv6` addresses will be matched using rules for either IPv6 or IPv4. This is because Go doesn't distinguish these.
+
+#### Examples
+
+Type    | Rule                              | Matches                       | Non-Matches
+--------|:-:                                |:-:                            |:-:
+ip      |192.168.0.1                        |192.168.0.1                    |192.168.0.30, 10.0.0.1
+ip      |192.168.0.0/24                     |192.168.0.1, 192.168.0.10      |192.168.20.1, 10.0.0.1
+ip      |::1                                |::1                            |::2
+ip      |2001:0db8:85a3::8a2e:0370:7334/120 |2001:0db8:85a3::8a2e:0370:7334 |3001:0db8:85a3::8a2e:0370:7334
+
+
+### Email Addresses 
+
+Rules for evaluating email addresses are evaluated as follows:
+
+- Email domain names are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
+- A specific email address (e.g. `jdoe@example.com`) will match exactly that email address.
+- A rule without a specific local part (e.g. `@example.com`) will match any email address ending in `@example.com`.
+
+It is not possible to configure a wildcard subdomain.
+You'll need to configure multiple email rules in case you need to match email addresses using different subdomains.
+
+#### Examples
+
+Type        | Rule                      | Matches                                   | Non-Matches
+------------|:-:                        |:-:                                        |:-:
+email       |jdoe@example.com           |jdoe@example.com                           |janedoe@example.com
+email       |@example.com               |jdoe@example.com, janedoe@example.com      |jdoe@www.example.com, jdoe@somehost.com
+
+
+
+### URIs
+
+Rules for evaluating URIs are evaluated as follows:
+
+- URI domains are normalized into their [internationalized representation (RFC 5890)](https://datatracker.ietf.org/doc/html/rfc5890).
+- URI rules must contain an authority part and cannot contain IP addresses, in correspondence with [RFC 5280](https://datatracker.ietf.org/doc/html/rfc5280#section-4.2.1.10).
+- Matching URI domains is performed by matching URI domain labels, similar as what's done for DNS domains.
+
+Wildcards in URI rules are evaluated similar to wildcards for domain names.
+URIs cannot contain literal wildcards, unlike DNS domains.
+
+☠️ URI schemes, paths, queries and fragments are (currently) not matched. When configuring an URI rule, these parts are ignored. This could lead to certificates being signed with URI schemes you didn't anticipate, so please take note of this if your application or environment relies on these parts of the URI.
+
+#### Examples
+
+Type        | Rule                      | Matches                                           | Non-Matches
+------------|:-:                        |:-:                                                |:-:
+uri         |host.example.com           |https://host.example.com,sftps://host.example.com  |https://www.example.com
+uri         |*.example.com              |https://host.example.com,https://www.example.com   |https://example.com, https://somehost.com
+
+
+### Subject Common Name
+
+The Subject Common Name is a bit of a special case.
+When no rules are configured specifically for the Common Name, the Common Name in an X.509 certificate will be evaluated against the rules and evaluation logic for the other name types, according to what type it is.
+For example, if the Common Name has a value of `www.example.com`, it will be evaluated against the rules for DNS domains.
+
+Type    | Rule              | Matches           | Non-Matches
+--------|:-:                |:-:                |:-:
+dns     |*.local            |ca.local           |ca.example.com
+ip      |192.168.0.0/24     |192.168.0.1        |10.0.0.1
+email   |@local             |ca@local           |ca@example.com
+uri     |*.local            |https://ca.local   |https://ca.example.com
+
+Not every Common Name is a valid DNS domain, IP, email address or URI, however, so that's why it's also possible to provide rules specifically for Common Names.
+Rules for Common Names are evaluated using a strict string comparison.
+
+Type    | Rule              | Matches                               | Non-Matches
+--------|:-:                |:-:                                    |:-:
+cn      |Custom CA Name     |Custom CA Name                         |Different CA Name
+
+
+## SSH Policies
+
+Policies for SSH certificates consist of rules for user and host certificates.
+A policy for SSH user certificates can have rules for the following:
+
+- Email address domains
+- Principals
+
+A policy for SSH host certificates can have rules for the following:
+
+- DNS domains
+- IP ranges and addresses
+
+When an SSH certificate is requested the policy to be evaluated will be based on the certificate type.
+Then the appropriate policy is evaluated for every principal in the certificate.
+
+For SSH host certificates, every principal is matched against `dns` or `ip` rules.
+Evaluation of the `dns` and `ip` rules is the same as for X.509 certificates.
+
+For SSH user certificates, every principal is parsed to check if it's a valid email address and will then be matched against `email` rules.
+Evaluation of `email` rules is performed like those for X.509 certificates.
+If a principal is not a valid email address, it will be matched against `principal` rules.
+Principals are matched using a strict string comparison and it is possible to configure a wildcard to allow any principal name.
+
+If a policy has rules for user certificates and no rule for host certificates, host certificates will be denied.
+The same is true in case there are rules for host certificates and none for user certificates: a user certificate will then always be denied.
+
+
+Type        | Rule              | Matches                               | Non-Matches
+------------|:-:                |:-:                                    |:-:
+dns         |*.local            |host.local                             |host.example.com
+ip          |192.168.0.0/24     |192.168.0.1                            |10.0.0.1
+email       |@devops            |jane@devops                            |john@finance  
+principal   |*                  |johndoe, john, janedoe, jane           |
+principal   |johndoe            |johndoe                                |janedoe                
+
+
+## Policy Configuration
+
+<Alert severity="warning">
+  <div>
+    You must first enable <Link
+      external
+      href="https://smallstep.com/docs/step-ca/provisioners/#remote-provisioner-management">
+	Remote Provisioner Management
+    </Link> in order to configure policies using the <Code>step</Code> CLI tool.
+    Alternatively, you can hand-edit <Code>ca.json</Code> to add policies.
+	See <Link
+	  external
+	  href="https://smallstep.com/docs/step-ca/policies#policy-in-configuration-file">
+	Policy in Configuration File
+	</Link>, below.
+  </div>
+</Alert>
+
+Policies can be administered using the `step` CLI application.
+The commands are part of the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
+In a self-hosted `step-ca`, policies can be configured on the authority level.
+
+<Alert severity="info">
+  <AlertTitle>Need more control?</AlertTitle>
+  <div>
+    A self-hosted <Code>step-ca</Code> instance can only be configured with a policy on the authority level.
+    In a <Link
+      external
+      href="https://smallstep.com/signup?product=cm">
+      free hosted smallstep Certificate Manager authority
+    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account, providing more granular control.
+  </div>
+</Alert>
+
+### Examples
+
+Allow all DNS subdomains of `"local"` in X.509 certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority x509 allow dns '*.local'">
+  {`$ step ca policy authority x509 allow dns "*.local"`}
+</CodeBlock>
+
+Allow IP range `10.0.0.0/24` in X.509 certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority x509 allow ip 10.0.0.0/24">
+  {`$ step ca policy authority x509 allow ip 10.0.0.0/24`}
+</CodeBlock>
+
+Allow all `devops` principals in SSH user certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority ssh host allow principal '@devops'">
+  {`$ step ca policy authority ssh user allow email "@devops"`}
+</CodeBlock>
+
+Allow all DNS subdomains of `"local"` in SSH host certificates on authority level:
+
+<CodeBlock language="shell-session" copyText="step ca policy authority ssh host allow dns '*.local'">
+  {`$ step ca policy authority ssh host allow dns "*.local"`}
+</CodeBlock>
+
+You can find more examples in the `step` CLI command reference for the [`step ca policy`](https://smallstep.com/docs/step-cli/reference/ca/policy) namespace.
+
+<Alert severity="info">
+  <AlertTitle>Policies and Remote Management authentication</AlertTitle>
+  <div>
+    The authentication scheme for Remote Management uses short-lived X.509 certificates to authenticate Admin and Super Admin users.
+    When an Admin requests access when an X.509 policy is active, the policy must allow the subject of the Admin, or else the Admin won't be able to sign in.
+    To protect users from locking themselves out, a new or updated policy will be checked to not lock out users, indicating issues to the user, resulting in an error like <Code>the provided policy would lock out [step] from the CA</Code>.
+    The policy can then be adjusted to include the Admin subject(s), e.g. <Code>step ca policy authority x509 allow dns step</Code>.
+  </div>
+</Alert>
+
+### Policy in Configuration File
+
+When running a self-hosted `step-ca` it is also possible to configure the authority policy in the `ca.json` CA configuration file.
+It has to be embedded in the `"authority"` object.
+An example is shown below:
+
+```json
+"policy": {
+    "x509":
+        "allow": {
+            "dns": ["*.local"],
+            "ip": ["192.168.0.0/24"]
+        },
+        "deny": {
+            "dns": ["forbidden.local"],
+            "ip": ["192.168.0.1"]
+        },
+        "allowWildcardNames": false,
+    },
+    "ssh": {
+        "user": {
+            "allow": {
+                "email": ["@local"]
+            },
+            "deny": {
+                "email": ["root@local"]
+            }
+        },
+        "host": {
+            "allow": {
+                "dns": ["*.local"],
+                "ip": ["192.168.0.0/24"]
+            },
+            "deny": {
+                "dns": ["forbidden.local"],
+                "ip": ["192.168.0.1"]
+            }
+        }
+    }
+}
+```
+
+Make `step-ca` reload its configuration by sending it a `SIGHUP`:
+
+```shell
+killall -i -s SIGHUP step-ca
+```
+
+Alternatively, you can restart `step-ca` manually.
+
+It is not required to add rules for every type of certificate.
+If you run a CA intended just for X.509 certificates, you don't need to provide rules for SSH certificates and can omit the corresponding keys.
+

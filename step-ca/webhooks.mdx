@@ -1,0 +1,207 @@
+---
+title: Webhooks
+html_title: Webhooks
+description: Webhooks augment the data available to certificate templates
+---
+
+<Alert severity="info">
+  <AlertTitle>Remote Management Required</AlertTitle>
+  <div>
+    To use webhooks, your CA must be configured for{` `}
+    <Link href="/docs/step-ca/provisioners/#remote-provisioner-management">remote management</Link>.
+  </div>
+</Alert>
+
+Webhooks let you enrich X.509 or SSH certificates with data requested from an external endpoint.
+The CA fetches key/value pairs from a configured webhook when a CSR is being processed,
+and the webhook data is passed along to the provisioner's [certificate template](/docs/step-ca/templates).
+
+Attach webhooks to [provisioners](/docs/step-ca/provisioners) via the `step ca provisioner webhook` command group.
+
+## Quickstart
+
+We've created an [example webhook server](https://github.com/smallstep/webhooks).
+You can use it to try out webhooks locally,
+or as the basis of your own custom webhook integration.
+
+1. Initialize a new Certificate Authority with remote management enabled.
+
+  ```bash
+  step ca init --remote-management --context webhooks
+  ```
+
+  Then, in another window, start `step-ca`:
+
+  ```bash
+  step-ca --context webhooks
+  ```
+
+2. Clone the [example webhook repository](https://github.com/smallstep/webhooks).
+
+  ```bash
+  git clone https://github.com/smallstep/webhooks.git
+  cd webhooks
+  ```
+
+3. Generate a server certificate for your webhook server.
+
+  ```bash
+  step ca certificate localhost webhook.crt webhook.key
+  ```
+
+4. Export your root CA certificate for the webhook server.
+
+  ```bash
+  step ca root > root_ca.crt
+  ```
+
+5. Add a new provisioner to associate with your webhook.
+  When asked, the default admin username is `step`.
+
+  ```bash
+  step ca provisioner add my_provisioner --create
+  ```
+
+6. Add a webhook to your provisioner for a webhook server that will be listening on `localhost:9443`.
+  
+  ☠️ Don't add your webhook to the default (administrative) CA provisioner!
+  You may lock yourself out of your CA.
+
+  ```bash
+  step ca provisioner webhook add my_provisioner people --url 'https://localhost:9443/{{ .Token.sub }}'
+  ```
+
+  This command will print out the ID and secret for the `people` webhook.
+
+7. Update the [`webhookIDsToSecrets` map](https://github.com/smallstep/webhooks/blob/f6a74c2e30dcb19b15d9903fdb6271a8358d26cd/main.go#L31) in the webhook server's `main.go` file with the ID and secret printed above.
+
+8. Update the [`db` map](https://github.com/smallstep/webhooks/blob/f6a74c2e30dcb19b15d9903fdb6271a8358d26cd/main.go#L26) in the webhook server's `main.go` file with the Common Name (CN) you will be issuing test certificates for.
+
+9. Start the webhook server:
+
+  ```bash
+  go run main.go
+  ```
+
+10. Add a template to the provisioner to incorporate the data returned from the `people` webhook:
+
+  ```bash
+  cat <<EOF > external_ou.tmpl
+  {
+    "subject": {
+      "organizationalUnit": {{ toJson .Webhooks.people.role }}
+    }
+  }
+  EOF
+  step ca provisioner update my_provisioner --x509-template external_ou.tmpl
+  ```
+
+11. Get a certificate with the provisioner you configured earlier:
+
+  ```bash
+  step ca certificate andrew@smallstep.com my.crt my.key --provisioner my_provisioner
+  ```
+
+12. Inspect the certificate. Notice that the user's role returned from the webhook server appears in the OU.
+
+  ```bash
+  step certificate inspect my.crt --format json | jq .subject
+  ```
+
+## Implementation Details
+
+### Webhook Server Response
+
+The webhook server must include `"allow": true` in the response body,
+or `step-ca` will refuse to sign the certificate request.
+
+The `step-ca` template engine augments the template data with the `data` object in the response body.
+
+For example, a webhook server could send the following JSON response:
+```json
+{
+  "allow": true,
+  "data": {
+    "role": "eng"
+  }
+}
+```
+
+A template on the provisioner will then be able to reference the response under the path `.Webhooks.webhook_name`.
+If the webhook was named `people`, the role in the webhook response could be accessed in a template under the field `.Webhooks.people.role`.
+
+### Requests
+
+All requests will use the `POST` method to send a JSON body to the webhook server containing a `timestamp` field.
+Additional data will vary based on the type of the certificate being signed.
+The [webhooks server example repository](https://github.com/smallstep/webhooks) contains examples in Go of parsing webhook request bodies for both X.509 and SSH certificate requests.
+
+#### X.509 Request Body
+
+For X.509 certificates, `step-ca` will include an `x509CertificateRequest` field
+that will hold a [JSON representation of the request](https://pkg.go.dev/go.step.sm/crypto@v0.23.1/x509util#CertificateRequest)
+using the same schema as [x509 template functions](https://smallstep.com/docs/step-ca/templates/#x509-templates)
+with a [few extra fields](https://github.com/smallstep/certificates/blob/c169defc73db6ba4b83e1acd5bd31feafb4df050/webhook/types.go#L19-L22).
+
+You can use webhooks to enrich device certificates issued via an ACME `device-attest-01` challenge.
+When used with the [ACME provisioner](https://smallstep.com/docs/step-ca/provisioners#acme)
+and the ACME `device-attest-01` challenge,
+the request body will also contain the verified device ID in the `attestationData.permanentIdentifier` field.
+
+#### SSH Request Body
+
+For SSH certificates `step-ca` will include an `sshCertificateRequest` field with [data from the request](https://github.com/smallstep/certificates/blob/c169defc73db6ba4b83e1acd5bd31feafb4df050/webhook/types.go#L37).
+
+
+### Authentication
+
+Your webhook server must authenticate each request from the CA.
+To achieve this, the CA sends a signature of its payload in the webhook request header,
+and the webhook server must confirm this signature.
+The signature also tells the webhook server which webhook is currently being executed.
+
+In addition the the signature header, you can optionally enable two other authentication schemes:
+- **Authorization Header**  
+  The CA can send a bearer token or username and password in an `Authentication` header.
+- **Mutual TLS**  
+  The webhook server can require and verify the connection using mutual TLS. The CA will provide a client certificate when requested.
+
+#### Signature
+
+Every webhook has a unique secret that will be displayed when the webhook is created
+via `step ca provisioner webhook add`.
+`step-ca` will include a signature of the payload in the `X-Smallstep-Signature` header.
+The webhook ID will also be included in the `X-Smallstep-Webhook-ID` header
+to help associate the correct signing secret with the webhook request.
+Webhook servers must compute an HMAC with the SHA256 hash function,
+using the webhook signing secret as the key and the request body as the message.
+See the [webhook server example repository](https://github.com/smallstep/webhooks) for an example of verifying the signature.
+
+#### Authorization Header (optional)
+
+For an additional layer of security, `step-ca` may be configured to send
+either a bearer token
+or a `username:password` in the `Authorization` header.
+
+To use a bearer token, run:
+
+```
+step ca provisioner webhook update my_provisioner my_webhook --bearer-token abc123xyz
+```
+
+Or, to use basic authentication, run:
+
+```
+step ca provisioner webhook update my_provisioner my_webhook --basic-auth-username user --basic-auth-password-file pass.txt
+```
+
+#### Mutual TLS (optional)
+
+You can also use mutual TLS to authenticate `step-ca` as a client of your webhook server.
+
+By default, `step-ca` will send the CA's self-generated leaf certificate
+when asked for a client certificate as part of the TLS handshake.
+To enable mutual TLS,
+configure your webhook server to request and verify a client certificate
+that chains up to your root CA certificate.
+
