@@ -7,6 +7,7 @@ menu:
     children:
       - help
       - version
+      - api
       - base64
       - ca
       - beta
@@ -64,7 +65,7 @@ print the version
 
 ## Version
 
-Smallstep CLI/0.23.2 (linux/amd64)
+Smallstep CLI/0.23.3 (linux/amd64)
 
 ## Copyright
 
