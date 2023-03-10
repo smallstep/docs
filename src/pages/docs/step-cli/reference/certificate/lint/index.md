@@ -19,8 +19,7 @@ step certificate lint <crt-file> [--roots=<root-bundle>]
 
 ## Description
 
-**step certificate lint** checks a certificate for common
-errors and outputs the result in JSON format.
+**step certificate lint** checks a certificate for common errors and outputs the result in JSON format. It is intended for evaluating Web PKI certificates, and may not be appropriate for internal PKIs.
 
 ## Positional arguments
 

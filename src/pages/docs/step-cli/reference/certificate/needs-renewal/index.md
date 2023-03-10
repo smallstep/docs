@@ -14,17 +14,20 @@ menu:
 
 ```raw
 step certificate needs-renewal <cert-file or hostname>
-[--expires-in=<percent|duration>] [--roots=<root-bundle>] [--servername=<servername>]
+[--expires-in=<percent|duration>] [--bundle] [--verbose]
+[--roots=<root-bundle>] [--servername=<servername>]
 ```
 
 ## Description
 
 **step certificate needs-renewal** returns '0' if the certificate needs
-to be renewed based on it's remaining lifetime. Returns '1' the certificate is
-within it's validity lifetime bounds and does not need to be renewed. Returns
-'255' for any other error. By default, a certificate "needs renewal" when it has
-passed 66% (default threshold) of it's allotted lifetime. This threshold can be
-adjusted using the '--expires-in' flag.
+to be renewed based on its remaining lifetime. Returns '1' the certificate is
+within its validity lifetime bounds and does not need to be renewed.
+By default, a certificate "needs renewal" when it has passed 66% (default
+threshold) of its allotted lifetime. This threshold can be adjusted using the
+'--expires-in' flag. Additionally, by default only the leaf certificate will
+be checked by the command; to check each certificate in the chain use the
+'--bundle' flag.
 
 ## Positional arguments
 
@@ -53,6 +56,12 @@ authenticity of the remote server.
 
 - **directory**: Relative or full path to a directory. Every PEM encoded certificate from each file in the directory will be used for path validation.
 
+**--bundle**
+Check all certificates in the order in which they appear in the bundle.
+
+**--verbose**, **-v**
+Print human readable affirmation if certificate requires renewal.
+
 **--servername**=`value`
 TLS Server Name Indication that should be sent to request a specific certificate from the server.
 
@@ -64,14 +73,26 @@ exist, and '255' for any other error.
 
 ## Examples
 
-Check if certificate.crt has passed 66 percent of its validity period:
+Check if the leaf certificate in the file certificate.crt has passed 66 percent of its validity period:
 ```shell
 $ step certificate needs-renewal ./certificate.crt
 ```
 
-Perform the same check for the TLS server certificate at smallstep.com:
+Check if any certificate in the bundle has passed 66 percent of its validity period:
+```shell
+$ step certificate needs-renewal ./certificate.crt --bundle
+```
+
+Check if the leaf certificate provided by smallstep.com has passed 66 percent
+of its vlaidity period:
 ```shell
 $ step certificate needs-renewal https://smallstep.com
+```
+
+Check if any certificate in the bundle for smallstep.com has has passed 66 percent
+of its validity period:
+```shell
+$ step certificate needs-renewal https://smallstep.com --bundle
 ```
 
 Check if certificate.crt expires within 1 hour 15 minutes from now:

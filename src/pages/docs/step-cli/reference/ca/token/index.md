@@ -18,7 +18,7 @@ step ca token <subject>
 [--cert-not-before=<time|duration>] [--cert-not-after=<time|duration>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--password-file=<file>] [--provisioner-password-file=<file>]
-[--output-file=<file>] [--key=<file>] [--san=<SAN>] [--offline]
+[--output-file=<file>] [--kms=uri] [--key=<file>] [--san=<SAN>] [--offline]
 [--revoke] [--x5c-cert=<file>] [--x5c-key=<file>] [--x5c-insecure]
 [--sshpop-cert=<file>] [--sshpop-key=<file>]
 [--ssh] [--host] [--principal=<name>] [--k8ssa-token-path=<file>]
@@ -40,20 +40,6 @@ on the token.
 
 ## Options
 
-
-**--cert-not-after**=`time|duration`
-The `time|duration` when the certificate validity period ends. If a `time` is
-used it is expected to be in RFC 3339 format. If a `duration` is used, it is a
-sequence of decimal numbers, each with optional fraction and a unit suffix, such
-as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
-"s", "m", "h".
-
-**--cert-not-before**=`time|duration`
-The `time|duration` when the certificate validity period starts. If a `time` is
-used it is expected to be in RFC 3339 format. If a `duration` is used, it is a
-sequence of decimal numbers, each with optional fraction and a unit suffix, such
-as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
-"s", "m", "h".
 
 **--kid**=`kid`
 The provisioner `kid` to use.
@@ -94,6 +80,20 @@ sequence of decimal numbers, each with optional fraction and a unit suffix, such
 as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
 "s", "m", "h".
 
+**--cert-not-after**=`time|duration`
+The `time|duration` when the certificate validity period ends. If a `time` is
+used it is expected to be in RFC 3339 format. If a `duration` is used, it is a
+sequence of decimal numbers, each with optional fraction and a unit suffix, such
+as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
+"s", "m", "h". This flag is only supported on SSH certificates.
+
+**--cert-not-before**=`time|duration`
+The `time|duration` when the certificate validity period starts. If a `time` is
+used it is expected to be in RFC 3339 format. If a `duration` is used, it is a
+sequence of decimal numbers, each with optional fraction and a unit suffix, such
+as "300ms", "-1.5h" or "2h45m". Valid time units are "ns", "us" (or "µs"), "ms",
+"s", "m", "h". This flag is only supported on SSH certificates.
+
 **--provisioner**=`name`, **--issuer**=`name`
 The provisioner `name` to use.
 
@@ -103,6 +103,9 @@ The path to the `file` containing the password to encrypt or decrypt the private
 **--provisioner-password-file**=`file`
 The path to the `file` containing the password to decrypt the one-time token
 generating key.
+
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
 
 **--x5c-cert**=`chain`
 Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
@@ -264,5 +267,19 @@ Generate a renew token and use it in a renew after expiry request:
 ```shell
 $ TOKEN=$(step ca token --x5c-cert internal.crt --x5c-key internal.key --renew internal.example.com)
 $ curl -X POST -H "Authorization: Bearer $TOKEN" https://ca.example.com/1.0/renew
+```
+
+Generate a JWK provisioner token using a key in a YubiKey:
+```shell
+$ step ca token --kms yubikey:pin-value=123456 --key yubikey:slot-id=82 internal.example.com
+```
+
+Generate an X5C provisioner token using a certificate in a YubiKey. Note that a
+YubiKey does not support storing a certificate bundle. To make it work, you must
+add the intermediate and the root in the provisioner configuration:
+```shell
+$ step ca token --kms yubikey:pin-value=123456 \
+  --x5c-cert yubikey:slot-id=82 --x5c-key yubikey:slot-id=82 \
+  internal.example.com
 ```
 
