@@ -21,9 +21,10 @@ Our step tool works alongside OpenSSH—we don't replace OpenSSH. Each workday, 
 
 The certificate is valid for 16 hours by default, and it includes a list of Principals that Alice identifies as for SSH (for example, `alice`, and `alice@mycompany.com`). If Alice is using our GitHub integration, her GitHub username is also attached to the certificate, and she can use it to push code there. ([GitHub Enterprise](https://github.com/enterprise) required)
 
-Finally, `step`stores Alice's certificate in her laptop's SSH agent. It's never stored on disk.
+Finally, `step` stores Alice's certificate in her laptop's SSH agent.
+It's never stored on disk.
 
-From here, the `ssh handshake` continues seamlessly. <br />
+From here, the ssh handshake continues seamlessly. <br />
 
 ![image](/graphics/ssh-hiw-alice1.png 'SSH Certificate Issued')
 
