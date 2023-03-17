@@ -45,12 +45,12 @@ Human           | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | �
 Every provisioner has a slightly different scope of authorization. Below is a
 table detailing the authorization capabilities of each provisioner.
 
-Provisioner Capabilities| x509-sign | x509-renew | x509-revoke | ssh-user-cert-sign | ssh-host-cert-sign | ssh-user-cert-renew | ssh-host-cert-renew | ssh-revoke | ssh-rekey
+Provisioner Capabilities| x509-sign | x509-renew | x509-revoke | ssh-user-cert-sign | ssh-host-cert-sign | ssh-user-cert-renew<Reference id="f1" marker="1"/>  | ssh-host-cert-renew | ssh-revoke | ssh-rekey
 ----------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:
 JWK    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫
-OIDC   | ✔️  | ✔️  | ✔️  | ✔️  | ✔️ <Reference id="f1" marker="1"/> | 𝗫 | 𝗫 | ✔️  | 𝗫
+OIDC   | ✔️  | ✔️  | ✔️  | ✔️  | ✔️ <Reference id="f2" marker="2"/> | 𝗫 | 𝗫 | ✔️  | 𝗫
 X5C    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
-Nebula | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫  | ✔️ | 𝗫 | ✔️ | 𝗫
+Nebula | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫  | 𝗫 | 𝗫 | ✔️ | 𝗫
 K8sSA  | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
 ACME   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
 SCEP   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
@@ -60,7 +60,8 @@ Azure  | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
 GCP    | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
 
 <br></br>
-<Footnote id="f1" marker="1"> Admin OIDC users can generate Host SSH Certificates.  Admins can be configured in the <Link href="#oauthoidc-single-sign-on">OIDC provisioner</Link>.</Footnote>
+<Footnote id="f1" marker="1"> By design, SSH user certificates cannot be renewed by any provisioner. You can re-use the same key to get a new certificate, however. See [smallstep/discussions#1296](https://github.com/smallstep/certificates/discussions/1296).</Footnote>
+<Footnote id="f2" marker="2"> Privileged OIDC subject names can generate Host SSH Certificates. These can be configured in the <Link href="#oauthoidc-single-sign-on">OIDC provisioner</Link>.</Footnote>
 
 For an example of how to interpret this table, let's take the `JWK` provisioner.
 The `JWK` provisioner is capable of signing, renewing, and revoking X.509
@@ -605,7 +606,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 
 - **configurationEndpoint**: is the HTTP address used by the CA to get the OpenID Connect configuration and public keys used to validate the tokens.
 
-- **admins**<Reference id="star3" marker="*" />: These users will be allowed to request certificates with any name (custom SANs). Non-admins can only get certificates bound to their own ID and email address.
+- **admins**<Reference id="star3" marker="*" />: These privileged users may request certificates with arbitrary subject names (custom SANs). Non-privileged users may only request certificates for their email address.
 
 - **domains**<Reference id="star3" marker="*" />: is the list of domains valid. If provided only the emails with the provided domains will be able to authenticate.
 
