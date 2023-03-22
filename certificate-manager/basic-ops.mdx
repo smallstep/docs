@@ -92,10 +92,9 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
 
 
 ### step 4 - revoke a certificate
-
 Certificate Manager uses passive revocation by default. 
 To passively revoke a certificate means to block its renewal at the CA. 
-This eliminates the additional network requests when using active revocation, because the certificate expires by itself. 
+This eliminates the additional network request that occurs when using active revocation because the certificate expires by itself. 
 With passive revocation, certificates cannot be immediately revoked. 
 Therefore, certificates should have a shorter life to reduce the value of a key that has been exfiltrated.
 To revoke a certificate, run the following operation.
