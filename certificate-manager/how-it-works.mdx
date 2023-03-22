@@ -227,9 +227,39 @@ While sometimes necessary, this feature comes with risks and is disabled by defa
 Certificates should be revoked if they're compromised or no longer needed. Smallstep Certificate Manager supports both _passive_ and _active_ revocation.
 
   * **Passive revocation** disables renewal for a particular certificate. The certificate will be trusted until it expires.
-  * **Active revocation** explicitly invalidates a certificate ahead of expiry. CRL and OCSP are used to distribute revocation status to relying parties.
+  * **Active revocation** explicitly invalidates a certificate ahead of expiry. CRL and OCSP are used to distribute revocation status to relying parties. Active revocation is often necessary for incident response. However, caching, availability, and configuration challenges can make active revocation unreliable. For systems that support it, we've found that revoking authorization can be easier to implement and more reliable than active certificate revocation. We've covered this topic in more detail [on our blog](https://smallstep.com/blog/passive-revocation/).
 
-Passive revocation is on by default and works well in conjunction with short-lived certificates. Active revocation is often necessary for incident response. However, caching, availability, and configuration challenges can make active revocation unreliable. For systems that support it, we've found that revoking authorization can be easier to implement and more reliable than active certificate revocation. We've covered this topic in more detail [on our blog](https://smallstep.com/blog/passive-revocation/).
+#### Using Passive Revocation
+
+Passive revocation is on by default and works well in conjunction with short-lived certificates.
+To revoke a certificate, run `step ca revoke` and pass the certificate's serial number.
+
+```bash
+$ step ca revoke 31952909121245729293840904958100006722
+```
+
+Once revoked, the certificate is no longer renewable.
+
+#### Using Active Revocation
+
+Active revocation (CRL and OCSP) is available if you're using an Advanced Authority.
+It can be enabled when you create the authority.
+To revoke a certificate, you will need either the certificate and its private key (for mutual TLS), or a JWK provisioner (for JWT authentication).
+You cannot revoke a certificate using the default administrative OIDC provisioner.
+
+To revoke a certificate using mutual TLS, run:
+
+```bash
+$ step ca revoke --cert example.crt --key example.key
+```
+
+With a JWK provisioner, to revoke a certificate using JWT authentication, run:
+
+```bash
+$ SERIAL=31952909121245729293840904958100006722
+$ TOKEN=$(step ca token --provisioner jwk-provisioner --revoke $SERIAL)
+$ step ca revoke --token $TOKEN $SERIAL
+```
 
 ### Observability & Alerting
 
