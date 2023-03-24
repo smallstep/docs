@@ -3,7 +3,15 @@
     {
       "title": "Smallstep Documentation",
       "routes": [
-        { "title": "Documentation", "path": "/README.mdx" },
+        {
+          "title": "Documentation",
+          "path": "/README.mdx"
+        },
+        {
+          "hideFromSidebar": true,
+          "title": "Design Document",
+          "path": "/design-document.mdx"
+        },
         {
           "heading": true,
           "title": "Platform"
@@ -79,6 +87,11 @@
             {
               "title": "Okta UID GID Sync Guide",
               "path": "/ssh/okta-gid-uid.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Step by Step Guid",
+              "path": "/ssh/hosts-step-by-step.mdx"
             }
           ]
         },
@@ -110,8 +123,48 @@
               "path": "/certificate-manager/acme.mdx"
             },
             {
+              "hideFromSidebar": true,
+              "title": "ACME How",
+              "path": "/certificate-manager/acme/how-to-use-acme.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "ACME When",
+              "path": "/certificate-manager/acme/when-to-use-acme.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "ACME Why",
+              "path": "/certificate-manager/acme/why-use-acme.mdx"
+            },
+            {
               "title": "Certs For Humans",
               "path": "/certificate-manager/oidc.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Kubernetes autocert",
+              "path": "/certificate-manager/kubernetes-autocert.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Kubernetes container tls",
+              "path": "/certificate-manager/kubernetes-container-tls.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Kubernetes ingress tls",
+              "path": "/certificate-manager/kubernetes-ingress-tls.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Kubernetes install",
+              "path": "/certificate-manager/kubernetes-install.mdx"
+            },
+            {
+              "hideFromSidebar": true,
+              "title": "Kubernetes step issuer",
+              "path": "/certificate-manager/kubernetes-step-issuer.mdx"
             },
             {
               "title": "Kubernetes TLS",
