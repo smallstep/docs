@@ -102,7 +102,7 @@ To revoke a certificate, run the following operation.
 
 <CodeBlock language="shell-session" copyText="step ca revoke --cert=myservice.crt --key=myservice.key">
 {`$ step ca revoke --cert=myservice.crt --key=myservice.key
-  ✔ CA: https://your.authority.ca.smallstep.com
+✔ CA: https://your.authority.ca.smallstep.com
 Certificate with Serial Number 215963883671773554731824269659406308792 has been revoked.`}
 </CodeBlock>
 
@@ -111,7 +111,7 @@ If you try to renew the certificate, it will fail.
 
 <CodeBlock language="shell-session" copyText="step ca renew myservice.crt myservice.key">
 {`$ step ca renew myservice.crt myservice.key
-  error renewing certificate: The request lacked necessary authorization to be completed. Please see the certificate authority logs for more info.`}
+error renewing certificate: The request lacked necessary authorization to be completed. Please see the certificate authority logs for more info.`}
 </CodeBlock>
 
 Passive revocation doesn't use Certificate Revocation List (CRL) and Online Certificate Signing Protocol (OCSP) like Web PKI.
