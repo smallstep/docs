@@ -368,12 +368,25 @@ is what we recommend for production deploys. For more details see our
 It's also common to trigger renewal from configuration management or from a
 container sidecar. Regardless, `step` makes renewal simple and secure.
 
+#### Disabling Renewal
+
 Finally, sometimes you _don't_ want certificates to be renewed. For example, if
 you're issuing certificates using single sign-on (the `OIDC` provisioner), you
 probably want your users to re-authenticate with your identity provider
 periodically to get a new certificate instead of renewing. Renewal can be
 enabled and disabled per-provisioner to accommodate this (it's disabled by
 default for the `OIDC` provisioner).
+
+#### Renewal After Expiry
+
+* This is an Advanced Authority feature
+
+Some use cases demand an option to renew expired certificates.
+For example, intermittently-connected devices may not be able to reach the CA in time for a renewal.
+The ability to renew expired certificates can be enabled on a per-provisioner basis.
+Enable it in the Smallstep dashboard when you create a new provisioner,
+or on the command line for an existing provisioner.
+While sometimes necessary, this feature comes with risks and is disabled by default.
 
 ### Revocation
 
