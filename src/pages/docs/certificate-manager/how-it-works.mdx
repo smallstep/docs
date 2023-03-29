@@ -4,7 +4,6 @@ html_title: Smallstep Certificate Manager How It Works
 description: Understand how Smallstep Certificate Manager works and if it’s appropriate to your use case. 
 ---
 
-
 Certificates power modern software. Kubernetes, service meshes, containers, microservices, distributed databases & queues, configuration management & orchestration systems, BeyondCorp proxies, and secure software supply chains all use certificates. Organizations running modern infrastructure make extensive use of certificates, whether they're aware of it or not.
 
 For many organizations, this is a blind spot, with long-lived certificates issued manually or from poorly secured deploy pipelines. Secure, reliable certificate management requires automation. Smallstep Certificate Manager is a flexible, extensible toolchain with all of the server and client-side components you'll need to solve this problem, carefully designed to be operationally simple, easy to use, and hard to misuse.
@@ -26,7 +25,7 @@ An **Endpoint** is an entity (person, device, workload) that is issued a certifi
 
 Certificate Manager can be configured to alert you when an Endpoint’s last certificate is approaching expiry and has not been renewed.
 
-The Certificate Manager dashboard provides an Endpoint detail view (coming soon) that makes it easy for administrators to view the historical certificate lineage for an Endpoint. This aggregated view simplifies operations, auditing, reporting, and compliance inquiries.
+The Certificate Manager dashboard provides an Endpoint detail view that makes it easy for administrators to view the historical certificate lineage for an Endpoint. This aggregated view simplifies operations, auditing, reporting, and compliance inquiries.
 
 Certificate Manager billing is also metered on Endpoint-months.
 
@@ -36,14 +35,16 @@ Certificate Manager billing is also metered on Endpoint-months.
 Billing per-certificate would penalize deployments that use short-lived certificates and automated renewal. Endpoint billing is designed to encourage this best practice.
 
 Two Endpoint examples:
+
 1. A single device with **one 30-day certificate** would be billed at the same rate as,
-2. A single device with **60 one-day certificates** renewed every 12-hours. 
+2. A single device with **60 one-day certificates** renewed every 12-hours.
 
 **Endpoint** grouping is automatic and intuitive for most use cases:
 
 - For provisioners with renewal enabled:
-    - Certificates issued using  `step ca certificate` (or any other method that uses the `/sign` API) create a new Endpoint
-    - Certificates issued using `step ca renew` (or any other method that uses the `/renew` API) are associated with the existing Endpoint of the certificate that’s being renewed
+   - Certificates issued using  `step ca certificate` (or any other method that uses the `/sign` API) create a new Endpoint
+   - Certificates issued using `step ca renew` (or any other method that uses the `/renew` API) are associated with the existing Endpoint of the certificate that’s being renewed
+
 - For provisioners with renewal disabled, common with ACME and OIDC, certificates with identical subjects (common name and SANs), ignoring order and capitalization, belong to the same Endpoint
 
 For billing purposes, there is a limit of three active certificates per Endpoint. Each active certificate above three is billed as an additional Endpoint. To avoid being charged for multiple Endpoints you can revoke unused certificates after they’ve been renewed.
@@ -62,8 +63,8 @@ An **issuing authority** is an online certificate authority that authenticates a
 
 There are two types of issuing authority:
 
-  1. **Hosted**: run by smallstep on your behalf as part of your Certificate Manager account.
-  2. **Linked**: an instance of `step-ca` you run that connects to your Certificate Manager account for reporting, alerting, revocation, and other managed services.
+1. **Hosted**: run by smallstep on your behalf as part of your Certificate Manager account.
+2. **Linked**: an instance of `step-ca` you run that connects to your Certificate Manager account for reporting, alerting, revocation, and other managed services.
 
 If an issuing authority's private key is compromised, it can be used to maliciously issue certificates that will be trusted by the rest of your infrastructure. To protect these keys, `step-ca` integrates with hardware and software key managers, including PKCS#11 Hardware Security Modules (HSMs), YubiKeys, and cloud key management systems (KMSs) from AWS, GCP, and Azure. For hosted authorities, smallstep secures these keys for you in GCP's CloudKMS, with options for software or FIPS 140-2 Level 3 hardware protection levels.
 
@@ -85,8 +86,8 @@ Like an issuing authority, a **registration authority** is an online service tha
 
 A **validation authority** distributes certificate revocation status. Validation authorities implement two open standards to support active revocation:
 
-  * **Certificate Revocation List (CRL)**: a signed, immutable ledger that lists the serial number of all revoked certificates. CRLs are signed by trusted infrastructure and served from cloud storage for high performance and availability.
-  * **Online Certificate Status Protocol (OCSP)**: a standard API for requesting the revocation status of a particular certificate. The Certificate Manager OCSP responder is a shared-nothing service that uses CRLs as a data source.
+* **Certificate Revocation List (CRL)**: a signed, immutable ledger that lists the serial number of all revoked certificates. CRLs are signed by trusted infrastructure and served from cloud storage for high performance and availability.
+* **Online Certificate Status Protocol (OCSP)**: a standard API for requesting the revocation status of a particular certificate. The Certificate Manager OCSP responder is a shared-nothing service that uses CRLs as a data source.
 
 ### Provisioners
 
@@ -96,18 +97,20 @@ Certificate lifetimes, access control policies, renewal, templates, and many oth
 
 Some of the more popular workflows provisioners enable include:
 
-  * **Passwords**: in its simplest form, the `JWK` provisioner can be used to get a certificate using a password. We'll see an example of this below.
-  * **One-time tokens**: the `JWK` provisioner also supports one-time tokens using [`step ca token`](https://smallstep.com/docs/step-cli/reference/ca/token), which can be generated by orchestration or configuration management and passed to a container or host to obtain a certificate.
-  * **ACME**: the `ACME` provisioner implements the [ACME standard](https://datatracker.ietf.org/doc/html/rfc8555) created by Let's Encrypt. It can be used to automatically get a certificate for a domain name or IP address. A rich client ecosystem and built-in support in many tools makes ACME easy to integrate. See the [ACME documentation](/docs/certificate-manager/acme) to learn more.
-  * **Single Sign-on**: The `OIDC` provisioner uses [OAuth](https://datatracker.ietf.org/doc/html/rfc6749) and [OpenID Connect (OIDC)](https://openid.net/specs/openid-connect-core-1_0.html) to get a certificate using single sign-on via Google, Okta, Azure AD, or any other compatible identity provider. See the [OIDC documentation](/docs/certificate-manager/oidc) to learn more. There are two common scenarios where this is useful:
-    1. **Authenticating users** (engineers, operators, etc.) who need a certificate for code signing or to authenticate to databases, services, or other infrastructure using mutual TLS.
-    2. **Self-serve / semi-automated** workflows for administrators to obtain certificates for workloads, devices, and other infrastructure, where automation is not possible.
-  * **Cloud VMs**: the `IID` provisioner can be used to get certificates to your VMs running on AWS, GCP, or Azure.
-  * **Kubernetes**:
-    * [cert-manager](https://github.com/jetstack/cert-manager) is a popular ACME client for Kubernetes. It creates [certificate secret resources](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets) that can be used by containers and ingresses. [`step-issuer`](https://github.com/smallstep/step-issuer) lets you connect `cert-manager` to an issuing authority.
-    * [autocert](https://github.com/smallstep/autocert) lets you use pod annotations to automatically inject certificates into containers using volume mounts.
-    * The `k8ssa` provisioner lets you get certificates using Kubernetes service accounts.
-  * **Devices**: The `X5C` and `SSHPOP` provisioners let you get a certificate using an existing x509 or SSH certificate issued from another authority. This can be used by devices to exchange long-lived *birth certificates* issued at manufacture time for short-lived *workload certificates* and for other *derived credential* workflows where a certificate from a canonical CA is used to automatically obtain certificates from one or more special-purpose CA(s).
+* **Passwords**: in its simplest form, the `JWK` provisioner can be used to get a certificate using a password. We'll see an example of this below.
+* **One-time tokens**: the `JWK` provisioner also supports one-time tokens using [`step ca token`](https://smallstep.com/docs/step-cli/reference/ca/token), which can be generated by orchestration or configuration management and passed to a container or host to obtain a certificate.
+* **ACME**: the `ACME` provisioner implements the [ACME standard](https://datatracker.ietf.org/doc/html/rfc8555) created by Let's Encrypt. It can be used to automatically get a certificate for a domain name or IP address. A rich client ecosystem and built-in support in many tools makes ACME easy to integrate. See the [ACME documentation](/docs/certificate-manager/acme) to learn more.
+* **Single Sign-on**: The `OIDC` provisioner uses [OAuth](https://datatracker.ietf.org/doc/html/rfc6749) and [OpenID Connect (OIDC)](https://openid.net/specs/openid-connect-core-1_0.html) to get a certificate using single sign-on via Google, Okta, Azure AD, or any other compatible identity provider. See the [OIDC documentation](/docs/certificate-manager/oidc) to learn more. There are two common scenarios where this is useful:
+   1. **Authenticating users** (engineers, operators, etc.) who need a certificate for code signing or to authenticate to databases, services, or other infrastructure using mutual TLS.
+   2. **Self-serve / semi-automated** workflows for administrators to obtain certificates for workloads, devices, and other infrastructure, where automation is not possible.
+
+* **Cloud VMs**: the `IID` provisioner can be used to get certificates to your VMs running on AWS, GCP, or Azure.
+* **Kubernetes**:
+   * [cert-manager](https://github.com/jetstack/cert-manager) is a popular ACME client for Kubernetes. It creates [certificate secret resources](https://kubernetes.io/docs/concepts/configuration/secret/#tls-secrets) that can be used by containers and ingresses. [`step-issuer`](https://github.com/smallstep/step-issuer) lets you connect `cert-manager` to an issuing authority.
+   * [autocert](https://github.com/smallstep/autocert) lets you use pod annotations to automatically inject certificates into containers using volume mounts.
+   * The `k8ssa` provisioner lets you get certificates using Kubernetes service accounts.
+
+* **Devices**: The `X5C` and `SSHPOP` provisioners let you get a certificate using an existing x509 or SSH certificate issued from another authority. This can be used by devices to exchange long-lived *birth certificates* issued at manufacture time for short-lived *workload certificates* and for other *derived credential* workflows where a certificate from a canonical CA is used to automatically obtain certificates from one or more special-purpose CA(s).
 
 ## Certificate Lifecycle Management
 
@@ -115,9 +118,9 @@ Some of the more popular workflows provisioners enable include:
 
 Before issuing a certificate, your software and systems must be configured to trust your authorities. More precisely, you need to configure everything to trust your *root certificate* (i.e., the certificate that belongs to your root CA). You can include your root certificate in base images, distribute it using configuration management, or use [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap) or [`step ca root`](https://smallstep.com/docs/step-cli/reference/ca/root) to securely download your root certificate from an issuing authority. You can also download the root certificate for your authorities from the Certificate Manager dashboard.
 
-  * [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap) configures `step` to trust your root CA and use a particular issuing authority.
-  * [`step ca root`](https://smallstep.com/docs/step-cli/reference/ca/root) securely downloads your root certificate.
-  
+* [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap) configures `step` to trust your root CA and use a particular issuing authority.
+* [`step ca root`](https://smallstep.com/docs/step-cli/reference/ca/root) securely downloads your root certificate.
+
 Once you've downloaded your root certificate, you can  add it to your system trust store using [`step certificate install`](https://smallstep.com/docs/step-cli/reference/certificate/install):
 
 ```shell-session nocopy
@@ -176,7 +179,6 @@ What provisioner key do you want to use?
 
 Concretely, a template is a JSON representation of a certificate that's materialized using Go's [`text/template`](https://golang.org/pkg/text/template/) module and [sprig functions](http://masterminds.github.io/sprig/). They look like this:
 
-
 ![Certificate Templates](/graphics/templates-screenshot.svg "Certificate Templates")
 
 Context from certificate requests and authentication credentials are made available as template variables, so you can adjust certificate details based on who's requesting the certificate.
@@ -209,14 +211,14 @@ The `--daemon` flag starts a long-running process that will continuously renew `
 
 It's also common to trigger renewal from configuration management or from a container sidecar. Regardless, `step` makes renewal simple and secure.
 
-Finally, sometimes you _don't_ want certificates to be renewed. For example, if you're issuing certificates using single sign-on (the `OIDC` provisioner), you probably want your users to re-authenticate with your identity provider periodically to get a new certificate instead of renewing. Renewal can be enabled and disabled per-provisioner to accommodate this (it's disabled by default for the `OIDC` provisioner).
+Finally, sometimes you *don't* want certificates to be renewed. For example, if you're issuing certificates using single sign-on (the `OIDC` provisioner), you probably want your users to re-authenticate with your identity provider periodically to get a new certificate instead of renewing. Renewal can be enabled and disabled per-provisioner to accommodate this (it's disabled by default for the `OIDC` provisioner).
 
 ### Revocation
 
-Certificates should be revoked if they're compromised or no longer needed. Smallstep Certificate Manager supports both _passive_ and _active_ revocation.
+Certificates should be revoked if they're compromised or no longer needed. Smallstep Certificate Manager supports both *passive* and *active* revocation.
 
-  * **Passive revocation** disables renewal for a particular certificate. The certificate will be trusted until it expires.
-  * **Active revocation** explicitly invalidates a certificate ahead of expiry. CRL and OCSP are used to distribute revocation status to relying parties.
+* **Passive revocation** disables renewal for a particular certificate. The certificate will be trusted until it expires.
+* **Active revocation** explicitly invalidates a certificate ahead of expiry. CRL and OCSP are used to distribute revocation status to relying parties.
 
 Passive revocation is on by default and works well in conjunction with short-lived certificates. Active revocation is often necessary for incident response. However, caching, availability, and configuration challenges can make active revocation unreliable. For systems that support it, we've found that revoking authorization can be easier to implement and more reliable than active certificate revocation. We've covered this topic in more detail [on our blog](https://smallstep.com/blog/passive-revocation/).
 
@@ -311,7 +313,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2676...4589]
 
 The `ACME` provisioner implements the [ACME standard](https://datatracker.ietf.org/doc/html/rfc8555), created and used by Let's Encrypt to secure over 260 million public websites. ACME lets you automatically get a certificate for a domain name or IP address. ACME's rich client ecosystem makes it especially easy to integrate.
 
-ACME is a simple challenge-response protocol. A client _orders_ a certificate and the authority responds with a set of _challenges_ for the client to complete to prove control over the _identifier(s)_ in the order. For example, if a client orders a certificate for a DNS identifier, the authority may challenge the client to serve a random number over HTTP from a random path to prove control over the domain name.
+ACME is a simple challenge-response protocol. A client *orders* a certificate and the authority responds with a set of *challenges* for the client to complete to prove control over the *identifier(s)* in the order. For example, if a client orders a certificate for a DNS identifier, the authority may challenge the client to serve a random number over HTTP from a random path to prove control over the domain name.
 
 You can use any standards-compliant ACME client to get a certificate from your Certificate Manager authorities. Here's an example workflow using Certbot, an open source ACME client maintained by the EFF:
 
@@ -321,7 +323,7 @@ sudo REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt \
   --server https://ca.internal/acme/acme/directory
 ```
 
-ACME works almost anywhere and is especially useful for issuing certificates to web servers for use with TLS. To issue certificates for internal names that aren't in public DNS the ACME server does need access to local DNS. It's common to use a linked CA or a network-local RA. Reference the [Certificate Manager docs](/docs/certificate-manager/acme) for more details. 
+ACME works almost anywhere and is especially useful for issuing certificates to web servers for use with TLS. To issue certificates for internal names that aren't in public DNS the ACME server does need access to local DNS. It's common to use a linked CA or a network-local RA. Reference the [Certificate Manager docs](/docs/certificate-manager/acme) for more details.
 
 ## Next steps
 
