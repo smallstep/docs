@@ -291,13 +291,13 @@ to be able to bind to that port. See [Running `step-ca` as a Daemon](#running-st
 
 ## Running `step-ca` as a Daemon
 
-Note: _This section requires a Linux OS running `systemd` version 245 or greater._
+This section makes the following assumptions:
+- GNU/Linux OS is running systemd version 245 or greater.
+- [CA has been initialized](/docs/step-ca/getting-started#initialize-your-certificate-authority).
 
 1. Add a service user for the CA.
 
-  The service user will only be used by `systemd` to manage the CA. Run:
-
-  <CodeBlock language="shell-session" copytext="sudo useradd --system --home /etc/step-ca --shell /bin/false step">
+  <CodeBlock language="shell-session" copyText="sudo useradd --system --home /etc/step-ca --shell /bin/false step">
   {`$ sudo useradd --system --home /etc/step-ca --shell /bin/false step`}
   </CodeBlock>
 
@@ -308,7 +308,7 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   {`$ sudo setcap CAP_NET_BIND_SERVICE=+eip $(which step-ca)`}
   </CodeBlock>
 
-2. Move your CA configuration into a system-wide location. Run:
+2. Move your CA configuration into a system-wide location.
 
   <CodeBlock language="shell-session" copyText="sudo mv $(step path) /etc/step-ca">
   {`$ sudo mv $(step path) /etc/step-ca`}
@@ -317,80 +317,21 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   Make sure your CA password is located in `/etc/step-ca/password.txt`,
   so that it can be read upon server startup.
 
-  You'll also need to edit the file `/etc/step-ca/config/defaults.json` to reflect the new path.
+  You'll also need to edit the following files to reflect the new path:
+  - `/etc/step-ca/config/defaults.json`
+  - `/etc/step-ca/config/ca.json`
 
   Set the `step` user as the owner of your CA configuration directory:
 
-  <CodeBlock language="shell-session" copytext="sudo chown -R step:step /etc/step-ca">
+  <CodeBlock language="shell-session" copyText="sudo chown -R step:step /etc/step-ca">
   {`$ sudo chown -R step:step /etc/step-ca`}
   </CodeBlock>
 
 3. Create a `systemd` unit file.
 
   ```shell-session
-  $ sudo touch /etc/systemd/system/step-ca.service
+  $ sudo wget https://github.com/smallstep/certificates/blob/master/systemd/step-ca.service -O /etc/systemd/system/step-ca.service
   ```
-
-  Add the following contents:
-
-  ```ini
-  [Unit]
-  Description=step-ca service
-  Documentation=https://smallstep.com/docs/step-ca
-  Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
-  After=network-online.target
-  Wants=network-online.target
-  StartLimitIntervalSec=30
-  StartLimitBurst=3
-  ConditionFileNotEmpty=/etc/step-ca/config/ca.json
-  ConditionFileNotEmpty=/etc/step-ca/password.txt
-  
-  [Service]
-  Type=simple
-  User=step
-  Group=step
-  Environment=STEPPATH=/etc/step-ca
-  WorkingDirectory=/etc/step-ca
-  ExecStart=/usr/bin/step-ca config/ca.json --password-file password.txt
-  ExecReload=/bin/kill --signal HUP $MAINPID
-  Restart=on-failure
-  RestartSec=5
-  TimeoutStopSec=30
-  StartLimitInterval=30
-  StartLimitBurst=3
-  
-  ; Process capabilities & privileges
-  AmbientCapabilities=CAP_NET_BIND_SERVICE
-  CapabilityBoundingSet=CAP_NET_BIND_SERVICE
-  SecureBits=keep-caps
-  NoNewPrivileges=yes
-  
-  ; Sandboxing
-  ProtectSystem=full
-  ProtectHome=true
-  RestrictNamespaces=true
-  RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
-  PrivateTmp=true
-  PrivateDevices=true
-  ProtectClock=true
-  ProtectControlGroups=true
-  ProtectKernelTunables=true
-  ProtectKernelLogs=true
-  ProtectKernelModules=true
-  LockPersonality=true
-  RestrictSUIDSGID=true
-  RemoveIPC=true
-  RestrictRealtime=true
-  SystemCallFilter=@system-service
-  SystemCallArchitectures=native
-  MemoryDenyWriteExecute=true
-  ReadWriteDirectories=/etc/step-ca/db
-  
-  [Install]
-  WantedBy=multi-user.target
-  ```
-
-  (This file is also hosted [on GitHub](https://github.com/smallstep/certificates/blob/master/systemd/step-ca.service))
 
    Here are some notes on the security properties in this file:
    * `User` and `Group` cause `step-ca` to run as a non-privileged user.
