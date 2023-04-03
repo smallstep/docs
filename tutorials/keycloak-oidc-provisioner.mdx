@@ -138,7 +138,7 @@ detailing how to set up an SSH CA for your users and hosts.
 
 ### OIDC token issues
 
-If `step-ca` raises an OIDC token validation error, you can examine the token you receive from Keycloak using the [`step oauth`](../step-cli/reference/oauth/.mdx) command. For example:
+If `step-ca` raises an OIDC token validation error, you can examine the token you receive from Keycloak using the [`step oauth`](../step-cli/reference/oauth/) command. For example:
 
 ```shell-session
 $ step oauth --oidc --bare --provider https://keycloak.internal:8443/auth/realms/myRealm/.well-known/openid-configuration \

@@ -10,7 +10,7 @@ For readers who are less familiar check out...
 
 - [Everything you should know about certificates and PKI but are too afraid to ask](https://smallstep.com/blog/everything-pki.html)
 - [The case for TLS everywhere](https://smallstep.com/blog/use-tls.html)
-- [Getting started guide](/step-ca/getting-started.mdx)
+- [Getting started guide](step-ca/getting-started.mdx)
 
 ## About the `step` toolchain
 
@@ -249,7 +249,7 @@ For cloud VMs running on AWS, GCP, or Azure `step-ca` can be configured to use _
 
 ![IID Provisioner Architecture](https://i.imgur.com/pdeFC1g.png 'IID Provisioner Architecture')
 
-Once you've configured `step-ca` [to use IIDs for authentication](/step-ca/provisioners.mdx#cloud-provisioners), `step` will detect the provisioner type, obtain an IID token from your cloud provider, and use it to obtain a certificate from `step-ca` automatically.
+Once you've configured `step-ca` [to use IIDs for authentication](provisioners.mdx#cloud-provisioners), `step` will detect the provisioner type, obtain an IID token from your cloud provider, and use it to obtain a certificate from `step-ca` automatically.
 
 First, bootstrap `foo.internal` if you haven't already:
 
@@ -271,7 +271,7 @@ foo$ step ca certificate foo.internal foo.crt foo.key --issuer "Google Cloud"
 
 #### OAuth/OIDC Single Sign-on Provisioner
 
-Occasionally it's useful to issue certificates to people (e.g., for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](/step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
+Occasionally it's useful to issue certificates to people (e.g., for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
 
 ![SSO Provisioner Architecture](https://i.imgur.com/OIX5Wav.png 'SSO Provisioner Architecture')
 

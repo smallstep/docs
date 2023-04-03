@@ -25,7 +25,7 @@ Here's a few common uses of the `step` command:
 
 ## Create and work with X.509 certificates
 
-Let's take a look at the [`step certificate`](../step-cli/reference/certificate/.mdx) command group.
+Let's take a look at the [`step certificate`](../step-cli/reference/certificate/) command group.
 This command group is a Swiss Army knife for working with certificates.
 You can use it to create certificate signing requests (CSRs),
 sign CSRs,
@@ -177,7 +177,7 @@ We can then verify the JWT and return the payload:
 
 ## Obtain and Work With OAuth Tokens
 
-The [`step oauth`](../step-cli/reference/oauth/.mdx) command group supports API authorization and single sign on with OAuth and OIDC.
+The [`step oauth`](../step-cli/reference/oauth/) command group supports API authorization and single sign on with OAuth and OIDC.
 
 This command group requires that you supply your own OAuth provider URL, client ID, and client secret.
 
@@ -228,7 +228,7 @@ You can use the [`step crypto nacl`](../step-cli/reference/crypto/nacl.mdx) comm
 
 ### Work with SSH Certificates
 
-The [`step ssh`](../step-cli/reference/ssh/.mdx) command group is usually used in conjunction with `step-ca`'s SSH CA functionality. But not all the subcommands require an SSH CA. You can inspect an SSH certificate:
+The [`step ssh`](../step-cli/reference/ssh/) command group is usually used in conjunction with `step-ca`'s SSH CA functionality. But not all the subcommands require an SSH CA. You can inspect an SSH certificate:
 
 ```shell-session nocopy
 $ step ssh inspect < mycert.crt

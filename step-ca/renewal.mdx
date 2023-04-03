@@ -36,7 +36,7 @@ $ step ca init --name "Speedy" --provisioner admin \
 $ step-ca $(step path)/config/ca.json --password-file password.txt
 ```
 
-Now let's generate a [single-use bootstrap token](../cli/ca/token/.mdx) and use it to obtain a certificate:
+Now let's generate a [single-use bootstrap token](../cli/ca/token/) and use it to obtain a certificate:
 
 <CodeBlock language="shell-session" copyText="TOKEN=$(step ca token --password-file password.txt foo.local)">
 {`$ TOKEN=$(step ca token --password-file password.txt foo.local)
@@ -418,7 +418,7 @@ but it's useful if you have devices with intermittent network connectivity.
 The device will be able to renew its certificate the next time it has network access,
 provided the certificate has not been revoked.
 
-To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner.mdx) management commands. See [managing provisioners](../step-ca/provisioners/.mdx#managing-provisioners).
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner.mdx) management commands. See [managing provisioners](../step-ca/provisioners/#managing-provisioners).
 
 <Alert severity="warning">
   <div>
