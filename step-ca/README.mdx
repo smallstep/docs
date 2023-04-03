@@ -12,7 +12,7 @@ cta:
 ## Introduction to `step-ca`
 
 `step-ca` is an online Certificate Authority (CA) for secure, automated X.509 and SSH certificate management. 
-It's the server counterpart to [`step` CLI](/docs/step-cli).
+It's the server counterpart to [`step` CLI](../step-cli.mdx).
 It is secured with TLS,
 and it offers several configurable certificate provisioners, flexible certificate templating, and pluggable database backends to suit a wide variety of contexts and workflows.
 It employs sane default algorithms and attributes,
@@ -53,7 +53,7 @@ With `step-ca`, you can:
 - Choose key types (RSA, ECDSA, EdDSA) and lifetimes to suit your needs
 - Issue [short-lived certificates](https://smallstep.com/blog/passive-revocation.html) with automated enrollment, renewal, and passive revocation
 - Operate [an online intermediate CA](https://smallstep.com/docs/tutorials/intermediate-ca-new-ca) to an existing root CA, eg. to add support for ACME to an existing PKI
-- Operate a local [Registration Authority (RA)](/docs/step-ca/registration-authority-ra-mode) on an internal network or inside a Kubernetes cluster, that authorizes certificate requests for an upstream `step-ca` server.
+- Operate a local [Registration Authority (RA)](../step-ca/registration-authority-ra-mode.mdx) on an internal network or inside a Kubernetes cluster, that authorizes certificate requests for an upstream `step-ca` server.
 - Deploy a high availability (HA) Certificate Authority using [root federation](https://smallstep.com/blog/step-v0.8.3-federation-root-rotation.html) and/or multiple intermediaries
 
 
@@ -72,16 +72,16 @@ Provisioners are methods of using the CA to get certificates for humans or machi
 They offer different modes of authorization for the CA.
 
 For example, you can have your CA issue certificates in exchange for:
-- [ACME challenge responses](/docs/tutorials/acme-protocol-acme-clients) from any ACMEv2 client
+- [ACME challenge responses](../tutorials/acme-protocol-acme-clients.mdx) from any ACMEv2 client
 - [OAuth OIDC single sign-on tokens](https://smallstep.com/blog/easily-curl-services-secured-by-https-tls.html), eg:
   - ID tokens from Okta, G Suite, Azure AD, Auth0.
   - ID tokens from an OAuth OIDC service that you host, like [Keycloak](https://www.keycloak.org/) or [Dex](https://github.com/dexidp/dex)
 - [Cloud instance identity documents](https://smallstep.com/blog/embarrassingly-easy-certificates-on-aws-azure-gcp/), for VMs on AWS, GCP, and Azure
-- [Single-use, short-lived JWK tokens](/docs/step-ca/provisioners#jwk), eg. issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
+- [Single-use, short-lived JWK tokens](../step-ca/provisioners.mdx#jwk), eg. issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
 
 ### Templates
 
-[X.509 Templates](/docs/step-ca/templates#x509-templates) let you customize certificate fields, eg:
+[X.509 Templates](../step-ca/templates.mdx#x509-templates) let you customize certificate fields, eg:
 - Add custom Subject Alternative Names (SANs) or non-standard X.509 Object Identifiers (OIDs) to certificates
 - Restrict certificates by domain name or key size
 - Issue CA certificates with longer path lengths for multiple intermediaries
@@ -91,8 +91,8 @@ and you can use Golang's `text/template` syntax to create new templates.
 
 ### Cryptographic Protection
 
-For strong protection of your CA signing keys, we've built [`step-ca` integrations](/docs/step-ca/configuration#cryptographic-protection) for PKCS #11 HSMs, Google Cloud KMS, AWS KMS, and YubiKey PIV, among others.
+For strong protection of your CA signing keys, we've built [`step-ca` integrations](../step-ca/configuration.mdx#cryptographic-protection) for PKCS #11 HSMs, Google Cloud KMS, AWS KMS, and YubiKey PIV, among others.
 
 ### Other Integrations
 
-`step-ca` plays well with Kubernetes cert-manager and Envoy Secret Discovery Service. See [Integrations](/docs/step-ca/integrations) to learn more.
+`step-ca` plays well with Kubernetes cert-manager and Envoy Secret Discovery Service. See [Integrations](../step-ca/integrations.mdx) to learn more.

@@ -28,8 +28,8 @@ Smallstep makes running your own private CA and managing certificates for intern
 
 ## Requirements
 
-- **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](/docs/step-ca/getting-started).
-- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please visit the [Certs for Humans documentation](/docs/certificate-manager/oidc) instead of using this tutorial to connect your identity provider to Certificate Manager.
+- **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
+- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please visit the [Certs for Humans documentation](../certificate-manager/oidc.mdx) instead of using this tutorial to connect your identity provider to Certificate Manager.
 
 ## Personal certificates via OAuth OpenID Connect
 
@@ -42,7 +42,7 @@ Here's how to obtain a user certificate using an OAuth token from G-Suite.
 
 ### 1. Add an OpenID Connect provisioner for your G-Suite
 
-Add a [G-suite provisioner](/docs/step-ca/provisioners#gcp):
+Add a [G-suite provisioner](../step-ca/provisioners.mdx#gcp):
 
 ```shell-session nocopy
 step ca provisioner add Google --type oidc \

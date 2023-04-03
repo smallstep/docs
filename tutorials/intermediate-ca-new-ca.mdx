@@ -24,7 +24,7 @@ This tutorial will walk you through three ways of bootstrapping `step-ca` to cre
 
 ## Requirements
 
-- **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](/docs/step-ca/getting-started).
+- **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
 - **[Smallstep Certificate Manager](/certificate-manager) -** Please contact [Smallstep Customer Success](mailto:support@smallstep.com) and we will assist in creating your intermediate authority off an existing Root.
 
 ## Overview
@@ -51,13 +51,13 @@ then all you'll need to do is move them to the right locations and update your
 
 ### 1. Use `step` to generate a boilerplate configuration
 
-It's easiest to run [`step ca init`](/docs/step-cli/reference/ca/init) to get the boilerplate configuration in place, then remove or replace these artifacts with new ones that are tied to your existing root CA.
+It's easiest to run [`step ca init`](../step-cli/reference/ca/init.mdx) to get the boilerplate configuration in place, then remove or replace these artifacts with new ones that are tied to your existing root CA.
 
 ```shell-session 
 $ step ca init
 ```
 
-When you run [`step ca init`](/docs/step-cli/reference/ca/init) we create a couple artifacts under `~/.step/`. The important ones for us are:
+When you run [`step ca init`](../step-cli/reference/ca/init.mdx) we create a couple artifacts under `~/.step/`. The important ones for us are:
 
  - `~/.step/certs/root_ca.crt` the CA certificate
  - `~/.step/secrets/root_ca_key` the CA signing key
@@ -95,13 +95,13 @@ configuring `step-ca` to use it.
 
 ### 1. Use `step` to generate a boilerplate configuration
 
-It's easiest to run [`step ca init`](/docs/step-cli/reference/ca/init) to get the boilerplate configuration in place, then remove or replace these artifacts with new ones that are tied to your existing root CA.
+It's easiest to run [`step ca init`](../step-cli/reference/ca/init.mdx) to get the boilerplate configuration in place, then remove or replace these artifacts with new ones that are tied to your existing root CA.
 
 ```shell-session 
 $ step ca init
 ```
 
-When you run [`step ca init`](/docs/step-cli/reference/ca/init) we create a couple artifacts under `~/.step/`. The important ones for us are:
+When you run [`step ca init`](../step-cli/reference/ca/init.mdx) we create a couple artifacts under `~/.step/`. The important ones for us are:
 
  - `~/.step/certs/root_ca.crt` the CA certificate
  - `~/.step/secrets/root_ca_key` the CA signing key
@@ -121,7 +121,7 @@ rm ~/.step/secrets/root_ca_key
 $ mv  </path/to/your/existing/root.crt> ~/.step/certs/root_ca.crt
 ```
 
-Now you need to generate a new signing key and intermediate certificate signed by your existing root CA. To do that, we can use the [`step certificate create`](/docs/step-cli/reference/certificate/create) subcommand to generate a certificate signing request (CSR) that we'll have your existing root CA sign, producing an intermediate certificate.
+Now you need to generate a new signing key and intermediate certificate signed by your existing root CA. To do that, we can use the [`step certificate create`](../step-cli/reference/certificate/create.mdx) subcommand to generate a certificate signing request (CSR) that we'll have your existing root CA sign, producing an intermediate certificate.
 
 To generate those artifacts run:
 
