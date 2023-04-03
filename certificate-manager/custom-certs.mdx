@@ -12,7 +12,7 @@ This tutorial covers:
 3. Automating custom certificates with templates
 
 ### Before you begin
-- This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](/docs/certificate-manager/getting-started) and understand [basic certificate operations](/docs/certificate-manager/basic-ops).
+- This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](../certificate-manager/getting-started.mdx) and understand [basic certificate operations](../certificate-manager/basic-ops.mdx).
 - When you created an Authority in Certificate Manager, we automatically created a provisioner called `authority-admin`. This provisioner allows you to manage your Authority and request certificates. Examples in this guide will use the default `authority-admin` provisioner. The concepts explored apply to all provisioner types. 
 
 ### Getting a certificate with a non-default lifetime
@@ -121,7 +121,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2046...1094]
 
 Provisioner claims define certificate minimum and maximum lifetime and the default certificate expiry. 
 A single Authority can support many provisioners to unlock various automated workflows.
-You can learn more about provisioners [here](/docs/certificate-manager/how-it-works#provisioners). 
+You can learn more about provisioners [here](../certificate-manager/how-it-works.mdx#provisioners). 
 
 ### Automating custom certificates with templates
 Certificate templates are JSON documents that describe the most important fields in the final certificate or certificate request.
@@ -154,5 +154,5 @@ Check out our [open-source documentation](https://smallstep.com/docs/step-ca/tem
 </Alert>
 
 ## Next Steps
-- You've created your custom certificate; now it's time to explore [automating certificate renewal](/docs/step-ca/renewal).
+- You've created your custom certificate; now it's time to explore [automating certificate renewal](../step-ca/renewal.mdx).
 - Ready to dive into a specific technology? Check out our [practical zero trust project](https://smallstep.com/practical-zero-trust). It provides step-by-step instructions for configuring TLS for popular technologies in Linux, Docker, and Kubernetes. 
