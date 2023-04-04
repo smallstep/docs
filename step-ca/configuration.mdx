@@ -5,7 +5,7 @@ description: Learn how to configure step-ca
 ---
 
 
-When the [`step ca init`](../step-cli/reference/ca/init.mdx) command sets up your PKI, it creates an initial
+When the [`step ca init`](../step-cli/reference/ca/init) command sets up your PKI, it creates an initial
 configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
 In this document we'll describe how to configure every aspect of `step-ca`. You'll
@@ -44,13 +44,13 @@ learn how to configure your CA to:
 When you run `step-ca`, you must provide a path to a configuration file
 (`ca.json`).
 It is the only required argument.
-Typically you'd use [`step path`](../step-cli/reference/path.mdx) to discover the path to `ca.json`:
+Typically you'd use [`step path`](../step-cli/reference/path) to discover the path to `ca.json`:
 
 ```shell-session
 $ step-ca $(step path)/config/ca.json
 ```
 
-The output of [`step path`](../step-cli/reference/path.mdx) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](../step-cli/the-step-command.mdx#contexts-working-with-multiple-cas).
+The output of [`step path`](../step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](../step-cli/the-step-command.mdx#contexts-working-with-multiple-cas).
 
 For non-interactive use (eg. as a `systemd` service), you can also add a
 `--password-file` flag with the name of a file containing the password for the
@@ -296,7 +296,7 @@ CA's keys.
   - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
  against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
-  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner.mdx) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](../step-ca/provisioners.mdx) for details.
+  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](../step-ca/provisioners.mdx) for details.
 
     - **claims**: Each provisioner can define an optional `claims` attribute. The settings in this attribute override any settings in the global `claims` attribute in the authority configuration. See the authority's **claims** section above for a complete list of options.
 

@@ -17,21 +17,21 @@ In this guide we will:
 
 ## Requirements
 
-You will need [`step`](../step-cli.mdx) and [`step-ca`](../step-ca.mdx) installed on your system.
+You will need [`step`](../step-cli) and [`step-ca`](.) installed on your system.
 
 ## Initialize your certificate authority
 
 The certificate authority is what you’ll be using to issue and sign certificates, knowing that you can trust anything using a certificate signed by the root certificate.
 
-Run the command [`step ca init`](../step-cli/reference/ca/init.mdx) in a terminal to configure your CA. You'll be asked about your project, DNS setup, etc.
+Run the command [`step ca init`](../step-cli/reference/ca/init) in a terminal to configure your CA. You'll be asked about your project, DNS setup, etc.
 
-The [`step ca init`](../step-cli/reference/ca/init.mdx) command has a lot of flags.
+The [`step ca init`](../step-cli/reference/ca/init) command has a lot of flags.
 Here are some of the most popular options:
 * Pass `--ssh` if you want to use SSH certificates (in addition to X.509)
 * Pass separate `--password-file` and `--provisioner-password-file` flags to set different signing CA and provisioner passwords.
 * Pass `--helm` to generate Helm YAML for use with [our Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates)
-* Pass `--acme` to create an [ACME provisioner](../step-ca/provisioners/#acme)
-* Pass `--remote-management` to enable [Remote Provisioner Management](../step-ca/provisioners/#remote-provisioner-management)
+* Pass `--acme` to create an [ACME provisioner](../step-ca/provisioners.mdx#acme)
+* Pass `--remote-management` to enable [Remote Provisioner Management](../step-ca/provisioners.mdx#remote-provisioner-management)
 
 <Alert severity="success">
   <AlertTitle>Don&apos;t want to run your own CA?</AlertTitle>
@@ -93,16 +93,16 @@ Please enter the password to decrypt /Users/bob/.step/secrets/intermediate_ca_ke
 
 #### Accessing your CA
 
-You can use [`step ca`](../step-cli/reference/ca.mdx) and [`step ssh`](../step-cli/reference/ssh.mdx) command groups to interact with the CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
+You can use [`step ca`]\(../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
 
 #### Accessing your CA remotely
 
-To access your CA remotely, install and use the [`step`](../step-cli.mdx) command on clients.
+To access your CA remotely, install and use the [`step`](../step-cli) command on clients.
 Or you can [use any ACME client to get certificates](../tutorials/acme-protocol-acme-clients.mdx).
 
 Because your CA root certificate is a self-signed certificate, it is not automatically trusted by clients.
 Any new `step` client will need to establish a trust relationship with your CA.
-You can do this by supplying your CA fingerprint to [`step ca bootstrap`](../step-cli/reference/ca/bootstrap.mdx).
+You can do this by supplying your CA fingerprint to [`step ca bootstrap`](../step-cli/reference/ca/bootstrap).
 Your CA fingerprint is a cryptographic signature identifying your root CA certificate.
 
 To configure `step` to access your CA from a new machine, run:
@@ -127,7 +127,7 @@ This command will download the root CA certificate and write CA connection detai
 	</div>
 </Alert>
 
-You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`](../step-cli/reference/certificate/install.mdx) command to install your root CA certificate into your system's trust store:
+You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`]\(../step-cli/reference/certificate/install) command to install your root CA certificate into your system's trust store:
 
 ```shell-session
 $ step certificate install $(step path)/certs/root_ca.crt
@@ -200,7 +200,7 @@ First, let's try making a curl request to our example server. In a new terminal,
 $ curl https://localhost:9443/hi
 ```
 
-If you already ran [`step certificate install`](../step-cli/reference/certificate/install.mdx) to install your root CA into your system's trust store, this command will work and you'll see "Hello, World!".
+If you already ran [`step certificate install`](../step-cli/reference/certificate/install) to install your root CA into your system's trust store, this command will work and you'll see "Hello, World!".
 
 If not, you'll see this error:
 
@@ -237,5 +237,5 @@ Nice! You've just generated and integrated our first certificate using `step-ca`
 * Familiarize yourself with [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) using `step ca` and `step ssh` command groups.
 * Check out the [Configuration](../step-ca/configuration.mdx) and [Core Concepts](../step-ca/certificate-authority-core-concepts.mdx) sections to learn more about tailoring
 `step-ca` to your infrastructure needs.
-* Or, head straight to our [tutorials](../tutorials.mdx) to see more examples of using `step-ca` in the wild.
+* Or, head straight to our [tutorials](../tutorials) to see more examples of using `step-ca` in the wild.
 

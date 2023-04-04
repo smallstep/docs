@@ -91,7 +91,7 @@ They're explained in the following subsections.
 Certificate issuance policies can be used to configure which certificate names the CA is allowed to sign.
 A policy consists of one or more rules that are evaluated when a new certificate is going to be signed.
 An example of a policy is to only allow certificates for subdomains of `internal.corp.com`, ensuring your CA won't ever sign a certificate for e.g. `public.corp.com`.
-More information about how certificate issuance policies work and how they can be configured, can be found [here](../../step-ca/policies).
+More information about how certificate issuance policies work and how they can be configured, can be found [here](../../step-ca/policies.mdx).
 
 Certificate issuance policies can be applied to authorities as well as all provisioners, and is thus not specific to the ACME functionalities.
 Combining ACME and an authority or provisioner policy can result in a simpler deployment, however, if the policy only allows hostnames for specific, internal (sub)domains to be signed.

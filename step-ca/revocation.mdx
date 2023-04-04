@@ -44,9 +44,9 @@ This section will walk through a few examples for revoking X.509 certificates us
   <div>
     This section assumes you have initialized and started up a
     <Code>step-ca</Code> instance using the steps in <Link
-    href="/docs/step-ca/getting-started">Getting Started</Link>.  As an
+    href="https://smallstep.com/docs/step-ca/getting-started">Getting Started</Link>.  As an
     alternative, you can use our hosted CA, <Link
-    href="/certificate-manager">Smallstep Certificate Manager</Link>.
+    href="https://smallstep.com/certificate-manager">Smallstep Certificate Manager</Link>.
   </div>
 </Alert>
 
@@ -73,7 +73,7 @@ Valid from:  2019-04-23T22:55:54Z
 
 ### 2. Renew the certificate
 
-Before revoking the certificate, note that it can be renewed with [`step ca renew`](../step-cli/reference/ca/renew.mdx).
+Before revoking the certificate, note that it can be renewed with [`step ca renew`](../step-cli/reference/ca/renew).
 
 ```shell-session nocopy
 $ step ca renew localhost.crt localhost.key
@@ -189,4 +189,4 @@ Certificate with Serial Number 59636004850364466675608080466579278406 has been r
 ### Further Reading
 
 - [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
-- [Enable active revocation on your intermediate CA](../step-ca/certificate-authority-server-production/#enable-active-revocation-on-your-intermediate-ca)
+- [Enable active revocation on your intermediate CA](certificate-authority-server-production.mdx#enable-active-revocation-on-your-intermediate-ca)

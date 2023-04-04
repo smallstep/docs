@@ -65,7 +65,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2599...1204]
 By default, `step-ca` issues certificates valid for 24 hours. This is suitably
 short for many scenarios. If it's not right for you, you can adjust the
 [`defaultTLSCertDuration`](../step-ca/provisioners.mdx#claims) per provisioner
-or pass the `--not-after` flag to the [`step ca certificate`](../step-cli/reference/ca/certificate.mdx) to adjust the
+or pass the `--not-after` flag to the [`step ca certificate`]\(../step-cli/reference/ca/certificate) to adjust the
 lifetime of an individual certificate. Very short lifetimes (eg. five minutes)
 are better from a security perspective, but this can be difficult in
 practice.
@@ -93,7 +93,7 @@ _Note the change in the validity period relative to the original certificate abo
 
 What good are short-lived certificates if we can't renew them automatically?
 
-Here are three options for setting up automated renewal of certificates using [`step ca renew`](../step-cli/reference/ca/renew.mdx):
+Here are three options for setting up automated renewal of certificates using [`step ca renew`]\(../step-cli/reference/ca/renew):
 * [Renewal using `systemd` timers](#renewal-using-systemd-timers). This is the preferred approach.
 
 * [The standalone `step` renewal daemon](#the-standalone-step-renewal-daemon).
@@ -298,7 +298,7 @@ You can override your timer units too, but you probably won't need to.
 #### The standalone `step` renewal daemon
 
 Another way to automate renewal is with the `step` renewal daemon.
-With this method, [`step ca renew`](../step-cli/reference/ca/renew.mdx) operates as a daemon that will keep your certificates up-to-date:
+With this method, [`step ca renew`]\(../step-cli/reference/ca/renew) operates as a daemon that will keep your certificates up-to-date:
 
 ```shell-session nocopy
 $ step ca renew --daemon foo.crt foo.key
@@ -310,7 +310,7 @@ POST https://localhost/renew failed: Post https://localhost/renew: dial tcp [::1
 INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 ```
 
-When daemonized, [`step ca renew`](../step-cli/reference/ca/renew.mdx) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
+When daemonized, [`step ca renew`]\(../step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
 So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
 
 There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
@@ -318,9 +318,9 @@ There is some random _jitter_ built into the daemon's schedule to prevent a larg
 
 If the CA is unreachable, renewals are retried every minute.
 
-You can trigger renewal anytime by sending a `SIGHUP` signal to the [`step ca renew`](../step-cli/reference/ca/renew.mdx) process ID.
+You can trigger renewal anytime by sending a `SIGHUP` signal to the [`step ca renew`]\(../step-cli/reference/ca/renew) process ID.
 
-You can add [`step ca renew --daemon`](../step-cli/reference/ca/renew.mdx) as a `systemd` service that runs on startup and restarts as needed.
+You can add [`step ca renew --daemon`]\(../step-cli/reference/ca/renew) as a `systemd` service that runs on startup and restarts as needed.
 
 Here's an example of setting up everything via `systemd`:
 
@@ -364,7 +364,7 @@ Many services that depend on certificates will only read the certificate files o
 So when you renew a certificate, a server process that depends on it may not detect that it has changed.
 
 It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
-To address this, [`step ca renew`](../step-cli/reference/ca/renew.mdx) can send a `SIGHUP` to your service after each renewal.
+To address this, [`step ca renew`]\(../step-cli/reference/ca/renew) can send a `SIGHUP` to your service after each renewal.
 Here's an example for `nginx`:
 
 ```shell-session nocopy
@@ -375,7 +375,7 @@ INFO: 2019/05/01 14:22:18 first renewal in 15h50m43s
 
 #### `cron`-based renewal
 
-With `cron`-based renewal, you can have [`step ca renew`](../step-cli/reference/ca/renew.mdx) run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
+With `cron`-based renewal, you can have [`step ca renew`]\(../step-cli/reference/ca/renew) run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
 
 You can request that certificate renewal only occur if the certificate is approaching its expiry using the `--expires-in <duration>` flag.
 The `<duration>` is a time interval like `4h` or `30m`.
@@ -405,7 +405,7 @@ Be sure the user (in this example, `step`) has write access to the certificate a
 
 #### Revoking a Certificate
 
-[`step ca renew`](../step-cli/reference/ca/renew.mdx) allows a certificate owner to extend the lifetime of a certificate before it expires.
+[`step ca renew`]\(../step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
 See the [certificate revocation section](../step-ca/revocation.mdx) for details.
@@ -418,7 +418,7 @@ but it's useful if you have devices with intermittent network connectivity.
 The device will be able to renew its certificate the next time it has network access,
 provided the certificate has not been revoked.
 
-To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner.mdx) management commands. See [managing provisioners](../step-ca/provisioners/#managing-provisioners).
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) management commands. See [managing provisioners](../step-ca/provisioners/#managing-provisioners).
 
 <Alert severity="warning">
   <div>

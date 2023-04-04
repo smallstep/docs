@@ -14,7 +14,7 @@ This document assumes you have initialized and started up a `step-ca` instance u
 - [Working With X.509 Certificates](#working-with-x-509-certificates)
 - [Working With SSH Certificates](#working-with-ssh-certificates)
 
-## Working With X.509 Certificates
+## Working With X.509 Certificates {#working-with-x-509-certificates}
 
 Let's perform some basic operations on X.509 certificates:
 - [Get a Certificate](#get-a-certificate)
@@ -26,7 +26,7 @@ Let's perform some basic operations on X.509 certificates:
 
 ### Get a Certificate
 
-Once you have a certificate authority up and running, the [`step ca certificate`](../step-cli/reference/ca/certificate command is a one-step option for generating a private key and obtaining a signed certificate:
+Once you have a certificate authority up and running, the [`step ca certificate`](../step-cli/reference/ca/certificate) command is a one-step option for generating a private key and obtaining a signed certificate:
 
 ```shell-session nocopy
 $ step ca certificate svc.example.com svc.crt svc.key
@@ -37,9 +37,9 @@ $ step ca certificate svc.example.com svc.crt svc.key
 ✔ Private Key: svc.key
 ```
 
-The positional arguments in the [`step ca certificate`](../step-cli/reference/ca/certificate command indicate the name you would like associated with the certificate (in this case, the DNS host name of a service) and the output filenames for the certificate and private key.
+The positional arguments in the [`step ca certificate`](../step-cli/reference/ca/certificate) command indicate the name you would like associated with the certificate (in this case, the DNS host name of a service) and the output filenames for the certificate and private key.
 
-You can check your work using [`step certificate inspect`](../step-cli/reference/certificate/inspect:
+You can check your work using [`step certificate inspect`](../step-cli/reference/certificate/inspect):
 
 ```shell-session nocopy
 $ step certificate inspect svc.crt --short
@@ -56,7 +56,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 7720...1576]
         Why does the certificate only last for ONE DAY!?
     </AlertTitle>
     <div>
-        When it comes to certificate lifetimes, <a href="/docs/step-ca/renewal">more is not always more</a>. A shorter validity period limits the downside risk of the private key being stolen. And since all certificates need to be renewed eventually, you may as well automate it and do it often. However, the 24 hour default TLS certificate lifetime is rather arbitrary. To change the default, see <a href="#adjust-certificate-lifetimes">Adjust Certificate Lifetimes</a> below.
+        When it comes to certificate lifetimes, <a href="https://smallstep.com/docs/step-ca/renewal">more is not always more</a>. A shorter validity period limits the downside risk of the private key being stolen. And since all certificates need to be renewed eventually, you may as well automate it and do it often. However, the 24 hour default TLS certificate lifetime is rather arbitrary. To change the default, see <a href="#adjust-certificate-lifetimes">Adjust Certificate Lifetimes</a> below.
     </div>
 </Alert>
 
@@ -68,7 +68,7 @@ Sometimes it's useful to separate enrollment into two steps:
 
 This is necessary if you want to generate a private key in a place that can't reach the CA directly.
 
-Let's make a CSR, using [`step certificate create --csr`](../step-cli/reference/certificate/create.mdx), then we'll use [`step ca sign`](../step-cli/reference/ca/sign to get a signed certificate from the CA:
+Let's make a CSR, using [`step certificate create --csr`](../step-cli/reference/certificate/create), then we'll use [`step ca sign`](../step-cli/reference/ca/sign) to get a signed certificate from the CA:
 
 ```shell-session nocopy
 $ step certificate create --csr foo.example.com foo.csr foo.key
@@ -98,7 +98,7 @@ and inject the token into a Docker container.
 This way, the container can create its own private key and get a certificate,
 but it doesn't hold any long-lived CA credentials.
 
-Under the hood, many of `step-ca`'s [certificate provisioners](../step-ca/certificate-authority-core-concepts/#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
+Under the hood, many of `step-ca`'s [certificate provisioners](../step-ca/certificate-authority-core-concepts.mdx#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
 - The JWK provisioner accepts JWTs signed using a JavaScript Web Key whose public key is configured in the CA.
 - The OIDC provisioner accepts JWTs signed by an identity provider via a single sign-on flow.
 - The X5C provisioner accepts JWTs signed using an X509 certificate private key whose root is configured in the CA.
@@ -171,7 +171,7 @@ Your certificate has been saved in foo.crt.
 
 When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](../step-ca/renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
-Note that because [`step ca renew`](../step-cli/reference/ca/renew uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
+Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
 ### Adjust Certificate Lifetimes
 
@@ -243,7 +243,7 @@ When [`step ca init`](../step-cli/reference/ca/init is run with `--ssh`, it crea
 
 ### Requirements
 
-* You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](../step-cli/reference/ca/init.
+* You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](../step-cli/reference/ca/init).
 * To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](../step-ca/getting-started.mdx#accessing-step-ca-remotely).
 
 ### Getting a host to authenticate users
@@ -408,5 +408,5 @@ You're all done. Now test your SSH connection.
 
 * Learn to automate certificate management in your PKI. [ACME Basics](../step-ca/acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
 * See [Provisioners](../step-ca/provisioners.mdx), [Production Considerations](../step-ca/certificate-authority-server-production.mdx), and our [Configuration Guide](../step-ca/configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.
-* Run [`step ca help`](../step-cli/reference/ca.mdx) or [`step ssh help`](../step-cli/reference/ssh for many more flags and examples.
-* Our [Tutorials](../tutorials.mdx) can guide you through more complex scenarios for using `step-ca` in various contexts and workflows.
+* Run [`step ca help`](../step-cli/reference/ca) or [`step ssh help`](../step-cli/reference/ssh) for many more flags and examples.
+* Our [Tutorials](../tutorials) can guide you through more complex scenarios for using `step-ca` in various contexts and workflows.

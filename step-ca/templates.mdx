@@ -196,9 +196,9 @@ Here are the most relevant parameters available in SSH certificate template:
   It is empty by default.
 
 - **.Principals**: For users, this value is derived from the OIDC token
-  (when using the [OIDC provisioner](#OAuth-OIDC-Single-Sign-on)).
+  (when using the [OIDC provisioner](provisioners.mdx#oauthoidc-single-sign-on)).
   For hosts, it is derived from the Instance Identity Document
-  (when using the [Cloud provisioners](#cloud-provisioners)).
+  (when using the [Cloud provisioners](provisioners.mdx#cloud-provisioners)).
 
 - **.KeyID**:
   The key ID being requested.
@@ -214,7 +214,7 @@ Here are the most relevant parameters available in SSH certificate template:
 
 - **.Insecure.CR.Principals**: If you trust a host to register its own custom SANs
   (for example, when using the IID provisioner),
-  then the host can pass several `--principal` values to [`step ssh certificate`](../step-cli/reference/ssh/certificate.mdx) when registering the host,
+  then the host can pass several `--principal` values to [`step ssh certificate`](../step-cli/reference/ssh/certificate) when registering the host,
   and use `.Insecure.CR.Principals` to access those from a template.
 
 - **.Insecure.CR.Type**:
@@ -225,7 +225,7 @@ Here are the most relevant parameters available in SSH certificate template:
   The key ID being requested.
 
 - **.Insecure.User**: This property holds user-supplied data from the certificate request.
-  Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](../step-cli/reference/ssh/certificate.mdx).
+  Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](../step-cli/reference/ssh/certificate).
 
 You can also import parameter values
 from your provisioner's [configuration block](#configuring-the-ca-to-use-templates).
@@ -331,8 +331,8 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
 <Alert severity="info">
   <div>
     <strong>Here's an easy way to test X.509 templates</strong><br />
-    You can create <a href="/docs/step-ca/certificate-authority-core-concepts#online-and-offline-x509-certificate-authority">a stateless offline CA</a> with <a href="/docs/step-cli/reference/certificate"><code>step certificate</code></a>,
-    and pass <code>--template &lt;path&gt;</code> to the <a href="/docs/step-cli/reference/certificate/create"><code>step certificate create</code></a> or <a href="/docs/step-cli/reference/certificate/sign"><code>step certificate sign</code></a> subcommands.
+    You can create <a href="https://smallstep.com/docs/step-ca/certificate-authority-core-concepts#online-and-offline-x509-certificate-authority">a stateless offline CA</a> with <a href="https://smallstep.com/docs/step-cli/reference/certificate"><code>step certificate</code></a>,
+    and pass <code>--template &lt;path&gt;</code> to the <a href="https://smallstep.com/docs/step-cli/reference/certificate/create"><code>step certificate create</code></a> or <a href="https://smallstep.com/docs/step-cli/reference/certificate/sign"><code>step certificate sign</code></a> subcommands.
   </div>
 </Alert>
 
@@ -447,7 +447,7 @@ least a `maxPathLen` of `1`. So if you want to use an intermediate certificate
 that can sign other intermediates, make sure to set more permissive `maxPathLen`
 in the root and intermediate certificate used.
 
-The command [`step certificate create`](../step-cli/reference/certificate/create.mdx) with the `--profile intermediate-ca` flag
+The command [`step certificate create`](../step-cli/reference/certificate/create) with the `--profile intermediate-ca` flag
 uses the template above, but if you want to create an intermediate with a custom
 template you can run:
 
@@ -483,7 +483,7 @@ and then create intermediates that set a specific limit, i.e. `0` for those that
 can sign only leaf certificates and `1` for those that can sign at most one downstream
 intermediate certificate.
 
-The command [`step certificate create`](../step-cli/reference/certificate/create.mdx) with the `--profile root-ca` flag uses the
+The command [`step certificate create`](../step-cli/reference/certificate/create) with the `--profile root-ca` flag uses the
 above template. To create a custom root certificate, you can run:
 
 ```shell
@@ -562,7 +562,7 @@ $ step ca sign --set-file vars.json input.csr output.crt
 ```
 
 Both flags, `--set <name=value>` and `--set-file <path>` are available in
-[`step ca certificate`](../step-cli/reference/ca/certificate.mdx) and [`step ca sign`](../step-cli/reference/ca/sign.mdx). If you need to pass more than one
+[`step ca certificate`](../step-cli/reference/ca/certificate) and [`step ca sign`](../step-cli/reference/ca/sign). If you need to pass more than one
 variable, you can use `--set` multiple times or use a JSON file with multiple
 properties.
 
@@ -668,7 +668,7 @@ Information Access extension [(RFC 5280, 4.2.2.1)](https://tools.ietf.org/html/r
 list [(RFC 5280, 4.2.1.13)](https://tools.ietf.org/html/rfc5280#section-4.2.1.13)).
 
 - **policyIdentifiers**: defines a list of ASN.1 object identifiers with
-certificate policies [(RFC 5280, 4.2.1.4)](https://tools.ietf.org/html/rfc5280#section-4.2.1.4).
+certificate policies [(RFC 5280, 4.2.1.4)](https://www.rfc-editor.org/rfc/rfc5280#section-4.2.1.4).
 
 But if you need to create your own extension, or use an unsupported one, you can
 also write a custom extension like:
@@ -751,12 +751,12 @@ Here's an SSH template that supports the GitHub custom SSH certificate extension
 
 To use this template, you'd need to add a `ghu` ("GitHub Username") custom claim to the token that you send the CA to authenticate your certificate request.
 
-If you use an [OIDC provisioner](#oauthoidc-single-sign-on) with this template,
+If you use an [OIDC provisioner](provisioners.mdx#oauthoidc-single-sign-on) with this template,
 you can configure your identity provider to serve a custom claim labeled `ghu` in your ID token.
-Our blog post ["Clever Uses of SSH Certificate Templates"](/blog/clever-uses-of-ssh-certificate-templates/) has more details on this option.
+Our blog post ["Clever Uses of SSH Certificate Templates"](https://smallstep.com/blog/clever-uses-of-ssh-certificate-templates/) has more details on this option.
 
 
-The [JWK](#jwk) and [Cloud](#cloud-provisioners) provisioners also use tokens.
+The [JWK](provisioners.mdx#jwk) and [Cloud](provisioners.mdx#cloud-provisioners) provisioners also use tokens.
 Here's an example of a Bash test script that
 decrypts your JWK provisioner key,
 and uses it to sign a token that `step-ca` will accept for an SSH certificate:
@@ -867,7 +867,7 @@ Then, use the following template to merge the group accounts with the user's own
 
 This is a good example of the use of [Sprig functions](https://masterminds.github.io/sprig/) in templates.
 
-Finally, test out your flow with [`step ssh login`](../step-cli/reference/ssh/login.mdx), and use [`step ssh inspect`](../step-cli/reference/ssh/inspect.mdx) to check the principals of the certificate you're issued by the CA.
+Finally, test out your flow with [`step ssh login`](../step-cli/reference/ssh/login), and use [`step ssh inspect`](../step-cli/reference/ssh/inspect) to check the principals of the certificate you're issued by the CA.
 
 ### Even More Templates
 
@@ -881,12 +881,12 @@ object represents a certificate template with all its properties.
 * The
 [CertificateRequest](https://pkg.go.dev/go.step.sm/crypto/x509util#CertificateRequest)
 object represents all properties for a CSR template that can be used in
-[`step certificate create --csr`](../step-cli/reference/certificate/create.mdx).
+[`step certificate create --csr`](../step-cli/reference/certificate/create).
 
 * All key usages and supported extended key usages without using
 `"unknownExtKeyUsage"` are available
 [here](https://pkg.go.dev/go.step.sm/crypto/x509util#pkg-variables).
 
 More information and more examples are available in the blog posts
-["Announcing X.509 Certificate Flexibility"](/blog/x509-certificate-flexibility/)
-and ["Clever Uses of SSH Certificate Templates"](/blog/clever-uses-of-ssh-certificate-templates/).
+["Announcing X.509 Certificate Flexibility"](https://smallstep.com/blog/x509-certificate-flexibility/)
+and ["Clever Uses of SSH Certificate Templates"](https://smallstep.com/blog/clever-uses-of-ssh-certificate-templates/).

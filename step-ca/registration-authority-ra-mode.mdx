@@ -62,7 +62,7 @@ Configure additional RA provisioners just as you would configure provisioners fo
 ### Setting up the CA
 
 You can set up the CA using the [Getting Started](../step-ca/getting-started.mdx) guide.
-You will need the name and password of the first provisioner you created when running [`step ca init`](../step-cli/reference/ca/init.mdx).
+You will need the name and password of the first provisioner you created when running [`step ca init`](../step-cli/reference/ca/init).
 
 ### Setting up the RA
 
@@ -176,8 +176,8 @@ Finally, use `--issuer-password-file` to provide a private key password file whe
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
-* [`step ca renew`](../step-cli/reference/ca/renew.mdx) typically uses mutual TLS authentication, but with a StepCAS RA it must use X5C authentication. Pass `--mtls=false` to [`step ca renew`](../step-cli/reference/ca/renew.mdx) when working with RAs.
-* [`step ca rekey`](../step-cli/reference/ca/rekey.mdx) is not supported.
+* [`step ca renew`](../step-cli/reference/ca/renew) typically uses mutual TLS authentication, but with a StepCAS RA it must use X5C authentication. Pass `--mtls=false` to [`step ca renew`](../step-cli/reference/ca/renew) when working with RAs.
+* [`step ca rekey`](../step-cli/reference/ca/rekey) is not supported.
 * SSH is not supported.
 * ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` or `postgresql` database for your RAs.
 * StepCAS RA keys cannot be stored in KMS or HSMs; only files are supported. This is because all the keys are kept in memory.
@@ -250,7 +250,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 
 4. Initialize your PKI.
 
-  Run [`step ca init --ra cloudcas`](../step-cli/reference/ca/init.mdx) to create a new PKI in CAS.
+  Run [`step ca init --ra cloudcas`](../step-cli/reference/ca/init) to create a new PKI in CAS.
   This will generate a root and intermediate certificate in Google CAS.
   You will be prompted for your GCP project id, a resource id, region, and other information.
 

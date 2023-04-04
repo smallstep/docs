@@ -69,7 +69,7 @@ When you [initialize your PKI](../step-ca/getting-started.mdx#initialize-your-ce
 the root and intermediate private keys will be encrypted with the same password.
 
 Use a password manager to generate random passwords, 
-or let [`step ca init`](../step-cli/reference/ca/init generate a strong password for you.
+or let [`step ca init`](../step-cli/reference/ca/init) generate a strong password for you.
 
 After initializing your CA, 
 we recommend that you immediately change the password for the intermediate CA private key:
@@ -129,7 +129,7 @@ This method is known as [Bash Process Subsitution](https://www.gnu.org/software/
 and on most systems the password will not appear in `ps` output.
 However, **this approach is not recommended** simply because it's so difficult to ensure security with environment variables.
 
-See our blog <a href="/blog/command-line-secrets/">How to Handle Secrets on the Command Line</a> for an in-depth exploration of this topic.
+See our blog [How to Handle Secrets on the Command Line](https://smallstep.com/blog/command-line-secrets/) for an in-depth exploration of this topic.
 
 ### Replace Your Default Provisioner
 
@@ -557,7 +557,7 @@ All supported key sizes are considered to be unbreakable for the foreseeable fut
 
 #### Root CA Certificate
 
-The Root CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init.
+The Root CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init).
 
 **Validity (10 year window)**
 
@@ -587,7 +587,7 @@ Key Usage describes how the certificate can be used.
 
 #### Intermediate CA Certificate
 
-The Intermediate CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init. It is signed by the Root CA certificate.
+The Intermediate CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init). It is signed by the Root CA certificate.
 
 The Path Length of the intermediate certificate is `0`. Otherwise it uses the same defaults as the root certificate.
 
