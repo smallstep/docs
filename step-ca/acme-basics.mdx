@@ -15,7 +15,7 @@ ACME is a modern, standardized protocol for automatic validation and issuance of
 
 - Learn about the ACME certificate flow and the most common ACME challenge types.
 - Learn how to use an ACME challenge to issue X.509 certificates to endpoints automatically.
-- Configure `step-ca` to enable ACME, and get your first certificate via [`step ca certificate`](/docs/step-cli/reference/ca/certificate).
+- Configure `step-ca` to enable ACME, and get your first certificate via [`step ca certificate`](../step-cli/reference/ca/certificate).
 
 <Alert severity="info">
   <div>
@@ -25,14 +25,14 @@ ACME is a modern, standardized protocol for automatic validation and issuance of
 
 ## Requirements
 
-- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](/docs/step-ca/getting-started)).
-- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** follow the instructions provided in the Certificate Manager [ACME documentation](/docs/certificate-manager/acme).
+- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](../step-ca/getting-started.mdx)).
+- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** follow the instructions provided in the Certificate Manager [ACME documentation](../certificate-manager/acme.mdx).
 
 ## Overview
 
 * [Why ACME?](#why-acme)
 * [A Typical ACME Flow](#a-typical-acme-flow)
-* [ACME Challenges](#acme-challenges)
+* [ACME Challenge Types](#acme-challenge-types)
 * [Configure `step-ca` for ACME](#configure-step-ca-for-acme)
 * [Next Steps](#next-steps)
 
@@ -117,7 +117,7 @@ These are typically client certificates that can be used for device authenticati
 
 Let's get an X.509 certificate via the ACME `http-01` challenge, using `step-ca`.
 
-First, [add an ACME provisioner](/docs/step-ca/provisioners#acme) to your `step-ca` configuration to enable ACME support:
+First, [add an ACME provisioner](../step-ca/provisioners.mdx#acme) to your `step-ca` configuration to enable ACME support:
 
 ```shell
 step ca provisioner add acme --type ACME
@@ -146,5 +146,5 @@ Finalizing Order .. done!
 
 ## Next Steps
 
-- Start tailoring `step-ca` to your infrastructure. See [Provisioners](/docs/step-ca/provisioners), [Production Considerations](/docs/step-ca/certificate-authority-server-production), and our [Configuration Guide](/docs/step-ca/configuration).
-- Tutorial: Learn [how to configure the most popular ACME clients](/docs/tutorials/acme-protocol-acme-clients) to connect to a `step-ca` server.
+- Start tailoring `step-ca` to your infrastructure. See [Provisioners](../step-ca/provisioners.mdx), [Production Considerations](../step-ca/certificate-authority-server-production.mdx), and our [Configuration Guide](../step-ca/configuration.mdx).
+- Tutorial: Learn [how to configure the most popular ACME clients](../tutorials/acme-protocol-acme-clients.mdx) to connect to a `step-ca` server.

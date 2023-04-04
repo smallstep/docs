@@ -10,7 +10,7 @@ provides an OAuth flow that can be used with open source `step-ca` to authentica
 
 In this tutorial, we'll configure Keycloak and `step-ca` to take advantage of this flow,
 which is especially useful for issuing X.509 client authentication certificates or
-[SSH user certificates](/docs/step-ca/basic-certificate-authority-operations#working-with-ssh-certificates).
+[SSH user certificates](../step-ca/basic-certificate-authority-operations.mdx#working-with-ssh-certificates).
 
 ## About this tutorial
 
@@ -24,8 +24,8 @@ which is especially useful for issuing X.509 client authentication certificates 
 
 ## Requirements
 
-- **Open source -** This tutorial assumes you have initialized a `step-ca` instance using the steps in [Getting Started](/docs/step-ca/getting-started). 
-- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please visit the [OIDC documentation](/docs/certificate-manager/oidc) instead of using this tutorial to connect keycloak to Certificate Manager.
+- **Open source -** This tutorial assumes you have initialized a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx). 
+- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please visit the [OIDC documentation](../certificate-manager/oidc.mdx) instead of using this tutorial to connect keycloak to Certificate Manager.
 - You'll need a Docker environment, and Docker Compose version 3+.
 - You'll need a hostname and TLS certificate files for your Keycloak instance.
 
@@ -138,7 +138,7 @@ detailing how to set up an SSH CA for your users and hosts.
 
 ### OIDC token issues
 
-If `step-ca` raises an OIDC token validation error, you can examine the token you receive from Keycloak using the [`step oauth`](/docs/step-cli/reference/oauth/) command. For example:
+If `step-ca` raises an OIDC token validation error, you can examine the token you receive from Keycloak using the [`step oauth`](../step-cli/reference/oauth/) command. For example:
 
 ```shell-session
 $ step oauth --oidc --bare --provider https://keycloak.internal:8443/auth/realms/myRealm/.well-known/openid-configuration \
@@ -182,7 +182,7 @@ This will take you through the OAuth login flow, and output the OIDC token at th
 
 Common issues are:
 * The `email` field in the token is empty; `step-ca` requires `email` to be populated.
-* The email address used with [`step ssh login`](/docs/step-cli/reference/ssh/login) doesn't match the email address of the Keycloak user.
+* The email address used with [`step ssh login`]\(../step-cli/reference/ssh/login) doesn't match the email address of the Keycloak user.
 * There is a `domains` list in the OIDC provisioner configuration, and the email domain in the token isn't listed in `domains`.
 
 ### Keycloak TLS certificate issues

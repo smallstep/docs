@@ -78,7 +78,7 @@ provisioner for a given workload.
 
 ## Provisioner Management
 
-Use the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
+Use the [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
 
 <Alert severity="warning">
   <div>
@@ -89,7 +89,7 @@ Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
 </Alert>
 
 Some provisioner options override global defaults for your CA.
-For a list of global options, see the [configuration guide](/docs/step-ca/configuration) section for the `authority` configuration block.
+For a list of global options, see the [configuration guide](../step-ca/configuration.mdx) section for the `authority` configuration block.
 
 A remote provisioner management API can be enabled in `step-ca`.
 It is disabled by default.
@@ -97,7 +97,7 @@ With remote provisioner management, the CA's provisioner configuration is stored
 
 This feature can be useful if you
 have multiple CA administrators,
-[run several load-balanced](/docs/step-ca/certificate-authority-server-production/#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+[run several load-balanced](../step-ca/certificate-authority-server-production/#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
 or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
 
 See [Remote Provisioner Management](#remote-provisioner-management) for more.
@@ -115,17 +115,17 @@ Unless you are using [remote provisioner management](#remote-provisioner-managem
 
 #### Add a provisioner
 
-Use [`step ca provisioner add`](/docs/step-cli/reference/ca/provisioner/add) to add a provisioner:
+Use [`step ca provisioner add`]\(../step-cli/reference/ca/provisioner/add) to add a provisioner:
 
 ```bash
 step ca provisioner add acme --type ACME
 ```
 
-See the [command reference](/docs/step-cli/reference/ca/provisioner/add) for complete documentation and examples.
+See the [command reference]\(../step-cli/reference/ca/provisioner/add) for complete documentation and examples.
 
 #### Remove a provisioner
 
-Use [`step ca provisioner remove`](/docs/step-cli/reference/ca/provisioner/remove) to remove provisioners:
+Use [`step ca provisioner remove`]\(../step-cli/reference/ca/provisioner/remove) to remove provisioners:
 
 ```bash
 step ca provisioner remove acme
@@ -136,11 +136,11 @@ containing the provisioner you'd like to remove.
 
 #### List all provisioners
 
-To get a list of all of your current provisioners, use [`step ca provisioner list`](/docs/step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
+To get a list of all of your current provisioners, use [`step ca provisioner list`]\(../step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
 
 #### Modify a provisioner
 
-Use [`step ca provisioner update`](/docs/step-cli/reference/ca/provisioner/update) to update provisioner configurations:
+Use [`step ca provisioner update`]\(../step-cli/reference/ca/provisioner/update) to update provisioner configurations:
 
 ```bash
 step ca provisioner update acme \
@@ -161,7 +161,7 @@ which are covered by the documentation for each provisioner type, below.
 
 When remote provisioner management is enabled, your provisioner configuration is
 stored in the database, rather than in `ca.json`.
-Provisioner configuration is managed by running [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) commands locally or remotely.
+Provisioner configuration is managed by running [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) commands locally or remotely.
 These commands require you to sign in as an Admin user.
 
 ### Enable Remote Provisioner Management
@@ -211,7 +211,7 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
 
 With remote provisioner management,  
 "Admins" can remotely manage provisioners.  
-"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](/docs/step-cli/reference/ca/admin).
+"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`]\(../step-cli/reference/ca/admin).
 
 #### Create An Admin User
 
@@ -253,7 +253,7 @@ Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
 You're all set. 🎉
 
-You can use the [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
+You can use the [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
 
 #### Unattended Remote Provisioner Management
 
@@ -302,7 +302,7 @@ step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
 JWK is the default provisioner type. It uses public-key cryptography to sign and
 validate a JSON Web Token (JWT).
 
-The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`](/docs/step-cli/reference/ca/init) is used.
+The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`]\(../step-cli/reference/ca/init) is used.
 
 #### Example
 
@@ -375,7 +375,7 @@ See [claims](#claims) for details.
 
 #### Decrypting the private key
 
-We can use [`step crypto jwe decrypt`](/docs/step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
+We can use [`step crypto jwe decrypt`]\(../step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
 
 <CodeBlock
   language="shell-session"
@@ -666,8 +666,8 @@ Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted
 
 #### Further reading
 
-* Tutorial: [Use Keycloak to issue user certificates with step-ca](/docs/tutorials/keycloak-oidc-provisioner)
-* Tutorial: [Connect your identity provider and issue X.509 certificates for user authentication to services](/docs/tutorials/user-authentication)
+* Tutorial: [Use Keycloak to issue user certificates with step-ca](../tutorials/keycloak-oidc-provisioner.mdx)
+* Tutorial: [Connect your identity provider and issue X.509 certificates for user authentication to services](../tutorials/user-authentication.mdx)
 
 ### X5C - X.509 Certificate
 
@@ -854,7 +854,7 @@ The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certif
 
 ACME clients must answer challenges presented by the ACME server to prove to the CA that they control the identifiers listed in the CSR.
 ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
-See [ACME Basics](/docs/step-ca/acme-basics#acme-challenges) for a description of each challenge type and their tradeoffs.
+See [ACME Basics](../step-ca/acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
 
 In a typical setup, an ACME server might issue server certificates via the `http-01`, `dns-01`, `tls-alpn-01` challenge types, and client certificates via the `device-attest-01` challenge type.
 
@@ -904,7 +904,7 @@ see the [claims](#claims) section for all the options.
 
 <br /><br />
 
-See [ACME Basics](/docs/step-ca/acme-basics)
+See [ACME Basics](../step-ca/acme-basics.mdx)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 #### ACME for Device Attestation
@@ -1000,7 +1000,7 @@ Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
 The RSA intermediate is used to decrypt the contents of the SCEP `pkcsPKIEnvelope` containing the certificate request. 
 This operation cannot be performed using an ECDSA key.
 
-Because [`step ca init`](/docs/step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](/docs/tutorials/rsa-chain) before using the SCEP provisioner.
+Because [`step ca init`]\(../step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](../tutorials/rsa-chain.mdx) before using the SCEP provisioner.
 
 <Alert severity="info">
   <div>
@@ -1164,7 +1164,7 @@ and use it to obtain a certificate from `step-ca`.
 
 From the CA's perspective, an IID is a single-use token.
 A host can only get one certificate, ever, per IID.
-A host can then renew its certificate using [`step ca renew`](/docs/step-cli/reference/ca/renew).
+A host can then renew its certificate using [`step ca renew`]\(../step-cli/reference/ca/renew).
 If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
 
 ### Security Risks and Limitations

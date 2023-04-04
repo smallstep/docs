@@ -12,7 +12,7 @@ We also describe some use cases for which ACME is less or not suitable, accompan
 
 ### At a High Level
 
-As described in ["why you should use ACME"](/docs/certificate-manager/acme/why-use-acme), the ACME protocol requires ACME clients to request certificates via HTTPS.
+As described in ["why you should use ACME"](why-use-acme.mdx), the ACME protocol requires ACME clients to request certificates via HTTPS.
 They must also be able to respond to challenges from an ACME server.
 Requesting a certificate and responding to challenges involves multiple requests and responses, each of which can fail.
 A certificate cannot be issued if one of the requests or responses fails to be sent or received in time.
@@ -41,7 +41,7 @@ The below listing is an overview of exemplary scenarios in which the ACME protoc
     While the Let's Encrypt staging environment has quite generous rate limits, it's not a very suitable solution for integration with development, staging or CI/CD 
 - Kubernetes, with [cert-manager](https://cert-manager.io/) and the [ACME issuer](https://cert-manager.io/docs/configuration/acme/) enabled.
     For this to work, challenges for the identifiers need to be solvable by `cert-manager`.
-    An example detailing this use case is available here: [Integrate Kubernetes cert-manager with an internal ACME CA](https://smallstep.com/docs/tutorials/kubernetes-acme-ca).
+    An example detailing this use case is available here: [Integrate Kubernetes cert-manager with an internal ACME CA](../../tutorials/kubernetes-acme-ca.mdx).
 
 ### When not to use ACME
 
@@ -53,9 +53,9 @@ These are summarized below:
     For example, an ACME client may not have administrative control over DNS records for the `example.com` domain, so that it can't request a wildcard cert for `*.example.com`.
     Another example may be that an ACME server can't reach out to an ACME client, because it exists on a different network segment that is not routable.
     *   Some cases that involve a technical issue or compliance requirement may still be supported when deploying an instance of the CA in Registration Authority (RA) mode.
-        Our [RA documentation page](https://smallstep.com/docs/step-ca/registration-authority-ra-mode) describes this configuration in more detail.
+        Our [RA documentation page](../../step-ca/registration-authority-ra-mode.mdx) describes this configuration in more detail.
         Or [contact us](mailto:support@smallstep.com) to see if we can support your use case.
-    *   A [draft RFC for an ACME extension](https://www.ietf.org/id/draft-bweeks-acme-device-attest-00.html) is in the making, describing how the ACME protocol can be used with challenges "solved" by a secure hardware component, like a Trusted Platform Module (TPM) or Secure Enclave (SE).
+    *   A [draft RFC for an ACME extension](https://datatracker.ietf.org/doc/draft-bweeks-acme-device-attest/) is in the making, describing how the ACME protocol can be used with challenges "solved" by a secure hardware component, like a Trusted Platform Module (TPM) or Secure Enclave (SE).
         This protocol extension, optionally combined with ACME External Account Binding, could obviate the need for a separate channel for solving challenges.
         At Smallstep we're closely monitoring progress of the RFC and may support this functionality in the future.
 - When a certificate requires email addresses to be signed, email signing certificates, for example. 

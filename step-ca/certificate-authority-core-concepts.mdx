@@ -40,14 +40,14 @@ request](https://smallstep.com/blog/everything-pki.html#certificate-signing-requ
 The details of how a provisioner interacts with an entity (machines or people) and the CA vary by provisioner type.
 Smallstep supports a number of provisioner types including:
 
-- [ACME protocol](/docs/step-ca/provisioners#acme)
-- [OAuth/OIDC Single Sign-on](/docs/step-ca/provisioners#oauthoidc-single-sign-on)
-- [AWS Instance Identity Documents](/docs/step-ca/provisioners#aws)
-- [Google Cloud Instance Identity Tokens](/docs/step-ca/provisioners#gcp)
-- [Azure Instance Metadata Service](/docs/step-ca/provisioners#azure) 
-- [Kubernetes Service Account Tokens](/docs/step-ca/provisioners#k8ssa-kubernetes-service-account) 
-- [SCEP protocol](/docs/step-ca/provisioners#scep)
-- [JWT for building custom integrations](/docs/step-ca/provisioners#jwt)
+- [ACME protocol](../step-ca/provisioners.mdx#acme)
+- [OAuth/OIDC Single Sign-on](../step-ca/provisioners.mdx#oauthoidc-single-sign-on)
+- [AWS Instance Identity Documents](../step-ca/provisioners.mdx#aws)
+- [Google Cloud Instance Identity Tokens](../step-ca/provisioners.mdx#gcp)
+- [Azure Instance Metadata Service](../step-ca/provisioners.mdx#azure) 
+- [Kubernetes Service Account Tokens](../step-ca/provisioners.mdx#k8ssa-kubernetes-service-account) 
+- [SCEP protocol](../step-ca/provisioners.mdx#scep)
+- [JWT for building custom integrations](../step-ca/provisioners.mdx#jwt)
 
 ## Active vs. passive revocation
 
@@ -67,7 +67,7 @@ Therefore, certificates should have a shorter lifetime to reduce the value of a 
 With certificate issuance policies administrators can configure what Subjects, SANs and Principals the CA is allowed to sign.
 An example of a policy is to only allow (strict) subdomains of `internal.example.com`, which would be encoded as `*.internal.example.com`.
 
-Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
+Visit the [`step-ca` policy](../step-ca/policies.mdx) page to learn how certificate issuance policies work and how they can be configured.
 
 ## Templates
 
@@ -82,9 +82,9 @@ With certificate templates, you can do things like:
 - Make longer certificate chains, with multiple intermediate CAs
 - Use SSH `force-command` or `source-address` extensions
 - Add conditionals around a certificate's parameters, and fail if they are not met
-- Enrich a certificate with data [from a webhook](/docs/step-ca/webhooks)
+- Enrich a certificate with data [from a webhook](../step-ca/webhooks.mdx)
 
-Visit the [`step-ca` templates](/docs/step-ca/templates) page to learn how to use templates.
+Visit the [`step-ca` templates](../step-ca/templates.mdx) page to learn how to use templates.
 
 ## Other operational modes
 
@@ -108,7 +108,7 @@ When in RA mode, `step-ca` can peer with three kinds of upstream CA:
 
 ![Example PKI topology with StepCAS RA Mode](/graphics/stepcas-ra-mode.png)
 
-To create an RA-based PKI topology, see our [Registration Authority (RA) Mode](/docs/step-ca/registration-authority-ra-mode) documentation.
+To create an RA-based PKI topology, see our [Registration Authority (RA) Mode](../step-ca/registration-authority-ra-mode.mdx) documentation.
 
 ### Offline Mode
 
@@ -131,4 +131,4 @@ $ step ca certificate --offline foo.smallstep.com foo.crt foo.key
 
 ## Next Steps
 
-- Read the [Getting Started guide](/docs/step-ca/getting-started) to set up a CA and get your first certificate.
+- Read the [Getting Started guide](../step-ca/getting-started.mdx) to set up a CA and get your first certificate.

@@ -20,7 +20,7 @@ With Certificate Manager, you can create your own private CA to manage certifica
 ### Before you begin
 This tutorial assumes you are setting up Certificate Manager.
 
-If you need SSH certificates instead, see our [documentation for Smallstep SSH](/docs/ssh).
+If you need SSH certificates instead, see our [documentation for Smallstep SSH](../ssh).
 
 Have questions? [Contact](mailto:support@smallstep.com) Customer Success.
 
@@ -62,7 +62,7 @@ On the Authority detail page, you will see the CA URL and Fingerprint used to in
 Certificate Manager also creates a default provisioner called `authority-admin`,
 connected to your smallstep login.
 You can use this provisioner to administer the Authority and to get certificates. 
-See [basic certificate operations](/docs/certificate-manager/basic-ops) for examples. 
+See [basic certificate operations](basic-ops.mdx) for examples. 
 
 An *authority super admin* account is also created, using your e-mail address as the admin name/subject. 
 The super admin can manage other authority admins.
@@ -71,7 +71,7 @@ The super admin can manage other authority admins.
 To interact with Certificate Manager, you will need our `step` CLI command on your local machine.
 `step` acts as a front-end interface to Certificate Manager and is used for many common crypto and X.509 operations.
 It's trivial to install the step binary on your local machine.
-The instructions are [here](https://smallstep.com/docs/step-cli/installation).
+The instructions are [here](../step-cli/installation.mdx).
 
 ### Step 4 - Configure your client
 Certificate Manager authorities are administered using the `step` CLI command.
@@ -87,9 +87,9 @@ Run the following command, substituting the values from your Authority's propert
 
 This command will download the CA Root certificate and configure your local `step` client to interact with the Authority.
 
-If desired, you can also use the `step` CLI to [install](https://smallstep.com/docs/step-cli/reference/certificate/install) the CA Root certificate to your system's truststore.
+If desired, you can also use the `step` CLI to [install](../step-cli/reference/certificate/install) the CA Root certificate to your system's truststore.
 
 ## Next Steps
 
-- With your initial configuration complete, it's time to explore [basic certificate operations](/docs/certificate-manager/basic-ops).
+- With your initial configuration complete, it's time to explore [basic certificate operations](basic-ops.mdx).
 - Need help getting started? [Contact](mailto:support@smallstep.com) our Customer Success team. 

@@ -5,7 +5,7 @@ description: Learn how to configure step-ca
 ---
 
 
-When the [`step ca init`](/docs/step-cli/reference/ca/init) command sets up your PKI, it creates an initial
+When the [`step ca init`](../step-cli/reference/ca/init) command sets up your PKI, it creates an initial
 configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
 In this document we'll describe how to configure every aspect of `step-ca`. You'll
@@ -44,13 +44,13 @@ learn how to configure your CA to:
 When you run `step-ca`, you must provide a path to a configuration file
 (`ca.json`).
 It is the only required argument.
-Typically you'd use [`step path`](/docs/step-cli/reference/path) to discover the path to `ca.json`:
+Typically you'd use [`step path`](../step-cli/reference/path) to discover the path to `ca.json`:
 
 ```shell-session
 $ step-ca $(step path)/config/ca.json
 ```
 
-The output of [`step path`](/docs/step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](/docs/step-cli/the-step-command#contexts-working-with-multiple-cas).
+The output of [`step path`](../step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](../step-cli/the-step-command.mdx#contexts-working-with-multiple-cas).
 
 For non-interactive use (eg. as a `systemd` service), you can also add a
 `--password-file` flag with the name of a file containing the password for the
@@ -263,7 +263,7 @@ CA's keys.
 - **authority**: controls the request authorization and signature processes.
 
   - **type**: the type of backing CA service that issues certificates for this step-ca instance. The default is an internal certificate authority service.
-  Other options can [turn `step-ca` into a Registration Authority](/docs/step-ca/registration-authority-ra-mode): `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
+  Other options can [turn `step-ca` into a Registration Authority](../step-ca/registration-authority-ra-mode.mdx): `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
 
   - **template**: default ASN1DN values for new certificates.
 
@@ -296,11 +296,11 @@ CA's keys.
   - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
  against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
-  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](/docs/step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](/docs/step-ca/provisioners) for details.
+  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](../step-ca/provisioners.mdx) for details.
 
     - **claims**: Each provisioner can define an optional `claims` attribute. The settings in this attribute override any settings in the global `claims` attribute in the authority configuration. See the authority's **claims** section above for a complete list of options.
 
-    - **options**: Each provisioner can define an optional `options` attribute. This attribute allows an operator to set templates that will be applied to all X.509 or SSH certificates generated using the provisioner. See the [templates documentation](/docs/step-ca/templates) for details.
+    - **options**: Each provisioner can define an optional `options` attribute. This attribute allows an operator to set templates that will be applied to all X.509 or SSH certificates generated using the provisioner. See the [templates documentation](../step-ca/templates.mdx) for details.
 
   - **password**: ☠️  plain text password for starting the CA. Used to decrypt the intermediate private key. 
 
@@ -316,7 +316,7 @@ CA's keys.
 ## Provisioners
 
 Provisioners are people or entities that are registered with the certificate authority and 
-authorized to issue certificates. Visit the [`step-ca` provisioners](/docs/step-ca/provisioners) page to learn about the 
+authorized to issue certificates. Visit the [`step-ca` provisioners](../step-ca/provisioners.mdx) page to learn about the 
 different provisioners, their target use cases, and how to add, remove, and configure them.
 
 ## Policy
@@ -332,7 +332,7 @@ Some examples of policies you can configure are:
 - An `email` rule for `@devops`, matching all SSH user principals in the `@devops` domain.
 - A `uri` rule for `*.example.com`, matching all URIs for subdomains of `example.com`, ignoring the URI scheme, path, query and fragment parts.
 
-Visit the [`step-ca` policy](/docs/step-ca/policies) page to learn how certificate issuance policies work and how they can be configured.
+Visit the [`step-ca` policy](../step-ca/policies.mdx) page to learn how certificate issuance policies work and how they can be configured.
 
 <Alert severity="info">
   <AlertTitle>Need more control?</AlertTitle>
@@ -356,7 +356,7 @@ These include things like:
 - Embed SSH `force-command` or `source-address` extensions
 - Evaluate basic logic operations on certificate's parameters, and fail if requirements are not met
 
-Visit the [`step-ca` templates](/docs/step-ca/templates) page to learn how to use templates.
+Visit the [`step-ca` templates](../step-ca/templates.mdx) page to learn how to use templates.
 
 ## Databases
 

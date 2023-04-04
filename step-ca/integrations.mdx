@@ -41,15 +41,15 @@ is a fully functional private ACME server that works with all popular ACME clien
 Learn more about how to [setup your own private ACME server][private-acme-server] and [configure 
 popular ACME clients to use that server][configure-acme].
 
-[private-acme-server]: /docs/step-ca/acme-basics
-[configure-acme]: /docs/tutorials/acme-protocol-acme-clients
+[private-acme-server]: ../step-ca/acme-basics.mdx
+[configure-acme]: ../tutorials/acme-protocol-acme-clients.mdx
 
 ### SCEP
 
 The `step-ca` server includes support for certificate enrollment using the [SCEP protocol][scep-rfc]. See our [SCEP provisioner documentation][scep-docs] for details.
 
 [scep-rfc]: https://datatracker.ietf.org/doc/rfc8894/
-[scep-docs]: /docs/step-ca/provisioners#scep
+[scep-docs]: ../step-ca/provisioners.mdx#scep
 
 ### OIDC
 
@@ -58,7 +58,7 @@ credentials in exchange for OIDC tokens.
 
 Learn more about how to [configure an OIDC provisioner][configure-oidc].
 
-[configure-oidc]: /docs/step-ca/provisioners#oauthoidc-single-sign-on
+[configure-oidc]: ../step-ca/provisioners.mdx#oauthoidc-single-sign-on
 
 ### Cloud Instance Identity
 
@@ -71,7 +71,7 @@ credentials in exchange for IIDs from AWS, GCP, and Azure.
 
 Learn more about how to [configure a cloud identity document provisioner][configure-iid].
 
-[configure-iid]: /docs/step-ca/provisioners#cloud-provisioners
+[configure-iid]: ../step-ca/provisioners.mdx#cloud-provisioners
 
 ### Kubernetes
 
@@ -79,7 +79,7 @@ The popular [`cert-manager`](https://cert-manager.io) Kubernetes add-on brings X
 
 We have two integration options with `cert-manager`:
 - [Our open source `step-issuer`](https://github.com/smallstep/step-issuer) is a `cert-manager` Issuer that integrates with `step-ca`.
-- Or, if you want a pure ACME solution, you can [configure `cert-manager`'s ACME Issuer to use `step-ca`](/docs/tutorials/kubernetes-acme-ca).
+- Or, if you want a pure ACME solution, you can [configure `cert-manager`'s ACME Issuer to use `step-ca`](../tutorials/kubernetes-acme-ca.mdx).
 
 [`autocert`][autocert] is our k8s add-on that automatically injects TLS/HTTPS certificates into your containers. It is a simple admission controller that modifies a Deployment to inject a new Pod that generates and renews the Pod's certificate. It's not designed to support k8s Ingresses. Learn more about how to [install and configure `autocert`][autocert].
 
@@ -87,7 +87,7 @@ We have two integration options with `cert-manager`:
 
 The [Nebula](https://github.com/slackhq/nebula) networking service supports encrypted overlay networks. Nebula uses certificates to authenticate clients joining the network. Nebula has its own custom certificate format (it's not X.509).
 
-`step-ca` has a [Nebula provisioner](/docs/step-ca/provisioners) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
+`step-ca` has a [Nebula provisioner](../step-ca/provisioners.mdx) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
 
 ### Envoy Secret Discovery Service (SDS)
 
@@ -107,16 +107,16 @@ Learn more about how to [install and configure `step-sds`][step-sds].
 Cloud Key Management Services allow users to store cryptographic keys and sign certificates
 using cloud storage and APIs.
 Integrations with Google Cloud KMS, Amazon AWS KMS, and Azure Key Vault are currently supported.
-[Learn more.](/docs/step-ca/configuration#cryptographic-protection)
+[Learn more.](../step-ca/configuration.mdx#cryptographic-protection)
 
 ### YubiKey PIV
 
 Want to store your CA locally on a YubiKey? `step-ca` supports the YubiKey PIV application.
-[Learn more.](/docs/step-ca/configuration#yubikey-piv)
+[Learn more.](../step-ca/configuration.mdx#yubikey-piv)
 
 ### PKCS#11 HSMs
 
 `step-ca` supports PKCS#11 hardware security modules (HSMs).
-[Learn more.](/docs/step-ca/configuration#pkcs-11)
+[Learn more.](../step-ca/configuration.mdx#pkcs-11)
 
 
