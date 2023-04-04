@@ -61,7 +61,7 @@ GCP    | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
 
 <br></br>
 <Footnote id="f1" marker="1"> By design, SSH user certificates cannot be renewed by any provisioner. You can re-use the same key to get a new certificate, however. See [smallstep/discussions#1296](https://github.com/smallstep/certificates/discussions/1296).</Footnote>
-<Footnote id="f2" marker="2"> Privileged OIDC subject names can generate Host SSH Certificates. These can be configured in the <Link href="#oauthoidc-single-sign-on">OIDC provisioner</Link>.</Footnote>
+<Footnote id="f2" marker="2"> Privileged OIDC subject names can generate Host SSH Certificates. These can be configured in the <a href="#oauthoidc-single-sign-on">OIDC provisioner</a>.</Footnote>
 
 For an example of how to interpret this table, let's take the `JWK` provisioner.
 The `JWK` provisioner is capable of signing, renewing, and revoking X.509
@@ -1006,7 +1006,7 @@ Because [`step ca init`](../step-cli/reference/ca/init) creates an ECDSA chain b
   <div>
 	  <p>
       <strong>Note:</strong> Some SCEP clients may fail if the intermediate CA certificate does not contain the right key usage extensions or does contain otherwise unexpected content. 
-      Consult the documentation of your SCEP client for specific configuration required or ask us on <Link href="https://u.step.sm/discord">Discord</Link> or in <Link href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</Link> if you hit a blocker.
+      Consult the documentation of your SCEP client for specific configuration required or ask us on <a href="https://u.step.sm/discord">Discord</a> or in <a href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</a> if you hit a blocker.
     </p>
   </div>
 </Alert>
