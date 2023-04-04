@@ -93,7 +93,7 @@ Please enter the password to decrypt /Users/bob/.step/secrets/intermediate_ca_ke
 
 #### Accessing your CA
 
-You can use [`step ca`]\(../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
+You can use [`step ca`](../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
 
 #### Accessing your CA remotely
 
@@ -127,7 +127,7 @@ This command will download the root CA certificate and write CA connection detai
 	</div>
 </Alert>
 
-You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`]\(../step-cli/reference/certificate/install) command to install your root CA certificate into your system's trust store:
+You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`](../step-cli/reference/certificate/install) command to install your root CA certificate into your system's trust store:
 
 ```shell-session
 $ step certificate install $(step path)/certs/root_ca.crt

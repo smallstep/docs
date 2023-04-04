@@ -78,12 +78,12 @@ provisioner for a given workload.
 
 ## Provisioner Management
 
-Use the [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
+Use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
 
 <Alert severity="warning">
   <div>
 	<p><b>May I edit <Code>ca.json</Code> directly?</b></p>
-    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
+    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
 Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
 	</div>
 </Alert>
@@ -97,7 +97,7 @@ With remote provisioner management, the CA's provisioner configuration is stored
 
 This feature can be useful if you
 have multiple CA administrators,
-[run several load-balanced](../step-ca/certificate-authority-server-production/#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+[run several load-balanced](../step-ca/certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
 or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
 
 See [Remote Provisioner Management](#remote-provisioner-management) for more.
@@ -115,17 +115,17 @@ Unless you are using [remote provisioner management](#remote-provisioner-managem
 
 #### Add a provisioner
 
-Use [`step ca provisioner add`]\(../step-cli/reference/ca/provisioner/add) to add a provisioner:
+Use [`step ca provisioner add`](../step-cli/reference/ca/provisioner/add) to add a provisioner:
 
 ```bash
 step ca provisioner add acme --type ACME
 ```
 
-See the [command reference]\(../step-cli/reference/ca/provisioner/add) for complete documentation and examples.
+See the [command reference](../step-cli/reference/ca/provisioner/add) for complete documentation and examples.
 
 #### Remove a provisioner
 
-Use [`step ca provisioner remove`]\(../step-cli/reference/ca/provisioner/remove) to remove provisioners:
+Use [`step ca provisioner remove`](../step-cli/reference/ca/provisioner/remove) to remove provisioners:
 
 ```bash
 step ca provisioner remove acme
@@ -136,11 +136,11 @@ containing the provisioner you'd like to remove.
 
 #### List all provisioners
 
-To get a list of all of your current provisioners, use [`step ca provisioner list`]\(../step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
+To get a list of all of your current provisioners, use [`step ca provisioner list`](../step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
 
 #### Modify a provisioner
 
-Use [`step ca provisioner update`]\(../step-cli/reference/ca/provisioner/update) to update provisioner configurations:
+Use [`step ca provisioner update`](../step-cli/reference/ca/provisioner/update) to update provisioner configurations:
 
 ```bash
 step ca provisioner update acme \
@@ -161,7 +161,7 @@ which are covered by the documentation for each provisioner type, below.
 
 When remote provisioner management is enabled, your provisioner configuration is
 stored in the database, rather than in `ca.json`.
-Provisioner configuration is managed by running [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) commands locally or remotely.
+Provisioner configuration is managed by running [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands locally or remotely.
 These commands require you to sign in as an Admin user.
 
 ### Enable Remote Provisioner Management
@@ -211,7 +211,7 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
 
 With remote provisioner management,  
 "Admins" can remotely manage provisioners.  
-"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`]\(../step-cli/reference/ca/admin).
+"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](../step-cli/reference/ca/admin).
 
 #### Create An Admin User
 
@@ -253,7 +253,7 @@ Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
 You're all set. 🎉
 
-You can use the [`step ca provisioner`]\(../step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
+You can use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
 
 #### Unattended Remote Provisioner Management
 
@@ -302,7 +302,7 @@ step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
 JWK is the default provisioner type. It uses public-key cryptography to sign and
 validate a JSON Web Token (JWT).
 
-The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`]\(../step-cli/reference/ca/init) is used.
+The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`](../step-cli/reference/ca/init) is used.
 
 #### Example
 
@@ -364,9 +364,9 @@ Without the `encryptedKey` attribute, the private key must be provided by the cl
 
 
 - **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
-See [claims](#claims) for details.
+See [claims](configuration.mdx#claims) for details.
 
-- **options**<Reference id="star2" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star1" marker="*">Recommended</Footnote>
 <Footnote id="star2" marker="**">Optional</Footnote>
@@ -375,7 +375,7 @@ See [claims](#claims) for details.
 
 #### Decrypting the private key
 
-We can use [`step crypto jwe decrypt`]\(../step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
+We can use [`step crypto jwe decrypt`](../step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
 
 <CodeBlock
   language="shell-session"
@@ -613,9 +613,9 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 - **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
 
 - **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star2" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
@@ -730,9 +730,9 @@ Below is an example of an X5C provisioner in the `ca.json`:
 tokens.
 
 - **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star4" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star4" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
 
@@ -740,7 +740,7 @@ see the [claims](#claims) section for all the options.
   <div> 
     By default, the `X5C` provisioner will issue a certificates for <strong>any</strong> Subject names.
     If you want to limit or modify the subject names this provisioner will issue,
-    you can use a <a href="/docs/step-ca/templates">certificate template</a>.
+    you can use a <a href="https://smallstep.com/docs/step-ca/templates">certificate template</a>.
     
     For example, say your users will use the X5C provisioner to exchange an X.509 client certificate for an SSH user certificate.
     The X.509 client certificate has `alice@example.com` as its subject,
@@ -842,9 +842,9 @@ An example SSHPOP provisioner in the `ca.json`:
   used.
 
 - **claims**<Reference id="star5" marker="*" />: overwrites the default `claims` set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star5" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star5" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star5" marker="*">Optional</Footnote>
 
@@ -896,9 +896,9 @@ An example of an ACME provisioner in the `ca.json`:
 * **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided.
 
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star6" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
@@ -1000,7 +1000,7 @@ Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
 The RSA intermediate is used to decrypt the contents of the SCEP `pkcsPKIEnvelope` containing the certificate request. 
 This operation cannot be performed using an ECDSA key.
 
-Because [`step ca init`]\(../step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](../tutorials/rsa-chain.mdx) before using the SCEP provisioner.
+Because [`step ca init`](../step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](../tutorials/rsa-chain.mdx) before using the SCEP provisioner.
 
 <Alert severity="info">
   <div>
@@ -1120,9 +1120,9 @@ used.
 K8sSA tokens.
 
 - **claims**<Reference id="star7" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star7" marker="*">Optional</Footnote>
 
@@ -1164,7 +1164,7 @@ and use it to obtain a certificate from `step-ca`.
 
 From the CA's perspective, an IID is a single-use token.
 A host can only get one certificate, ever, per IID.
-A host can then renew its certificate using [`step ca renew`]\(../step-cli/reference/ca/renew).
+A host can then renew its certificate using [`step ca renew`](../step-cli/reference/ca/renew).
 If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
 
 ### Security Risks and Limitations
@@ -1270,9 +1270,9 @@ In the `ca.json`, an AWS provisioner looks like:
 Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
 
 - **claims**<Reference id="star8" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star8" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star8" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star8" marker="*">Optional</Footnote>
 
@@ -1341,9 +1341,9 @@ In the `ca.json`, a GCP provisioner looks like:
 Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
 
 - **claims**<Reference id="star9" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star9" marker="*">Optional</Footnote>
 
@@ -1409,8 +1409,8 @@ In the `ca.json`, an Azure provisioner looks like:
   and different tokens can be used to get different certificates.
 
 - **claims**<Reference id="star10" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star10" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star10" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star10" marker="*">Optional</Footnote>

@@ -5,7 +5,7 @@ description: Smallstep SSH Manual Host Installation Instructions | Smallstep Doc
 
 
 These are the instructions for setting up a host by hand.
-We also have [an installation script](../ssh/hosts.mdx),
+We also have [an installation script](./hosts.mdx),
 which is the preferred setup method.
 
 ### Step 1. Run all steps as root
@@ -108,7 +108,7 @@ step-ssh-ctl register --hostname "$hostname"
 
 #### Registering a host with host tags
 
-For access control in multi-user environments, [host tags](#step-0-understanding-host-tags) can be assigned via the `--tag` flag.
+For access control in multi-user environments, [host tags](hosts.mdx#understanding-host-tags) can be assigned via the `--tag` flag.
 
 ```shell
 step-ssh-ctl register --tag <key=value> --tag <role=web> --hostname "$hostname"
