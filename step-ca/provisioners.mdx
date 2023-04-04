@@ -364,7 +364,7 @@ Without the `encryptedKey` attribute, the private key must be provided by the cl
 
 
 - **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
-See [claims](#claims) for details.
+See [claims](configuration.mdx#claims) for details.
 
 - **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
@@ -613,9 +613,9 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 - **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
 
 - **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star2" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
@@ -730,9 +730,9 @@ Below is an example of an X5C provisioner in the `ca.json`:
 tokens.
 
 - **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star4" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star4" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
 
@@ -842,9 +842,9 @@ An example SSHPOP provisioner in the `ca.json`:
   used.
 
 - **claims**<Reference id="star5" marker="*" />: overwrites the default `claims` set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star5" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star5" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star5" marker="*">Optional</Footnote>
 
@@ -896,9 +896,9 @@ An example of an ACME provisioner in the `ca.json`:
 * **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided.
 
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star6" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
@@ -1120,9 +1120,9 @@ used.
 K8sSA tokens.
 
 - **claims**<Reference id="star7" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star7" marker="*">Optional</Footnote>
 
@@ -1270,9 +1270,9 @@ In the `ca.json`, an AWS provisioner looks like:
 Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
 
 - **claims**<Reference id="star8" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star8" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star8" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star8" marker="*">Optional</Footnote>
 
@@ -1341,9 +1341,9 @@ In the `ca.json`, a GCP provisioner looks like:
 Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
 
 - **claims**<Reference id="star9" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star9" marker="*">Optional</Footnote>
 
@@ -1409,8 +1409,8 @@ In the `ca.json`, an Azure provisioner looks like:
   and different tokens can be used to get different certificates.
 
 - **claims**<Reference id="star10" marker="*" />: overwrites the default claims set in the authority,
-see the [claims](#claims) section for all the options.
+see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star10" marker="*" />: see [template configuration](templates#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star10" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
 <Footnote id="star10" marker="*">Optional</Footnote>
