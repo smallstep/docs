@@ -48,8 +48,8 @@ To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configurati
 Download and install the Debian package from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
 ```shell
-wget https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.1/step-cli_0.23.1_amd64.deb
-sudo dpkg -i step-cli_0.23.1_amd64.deb
+wget https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.4/step-cli_0.23.4_amd64.deb
+sudo dpkg -i step-cli_0.23.4_amd64.deb
 ```
 
 To uninstall, run `sudo dpkg -r step-cli` and remove the `$HOME/.step` configuration directory.
@@ -73,8 +73,8 @@ Big shout out to the maintainers of these packages! We appreciate you.
 Download and install the RPM package from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
 ```shell
-wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step-cli_0.23.1_amd64.rpm
-sudo rpm -i step-cli_0.23.1_amd64.rpm
+wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.4/step-cli_0.23.4_amd64.rpm
+sudo rpm -i step-cli_0.23.4_amd64.rpm
 ```
 
 To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` configuration directory.
@@ -124,19 +124,16 @@ We use [cosign](https://github.com/sigstore/cosign) for signing and verifying re
 To verify the signature of the `step-ca` binary:
 
 1. [Install cosign](https://docs.sigstore.dev/cosign/installation/)
-2. Download the binary signature (`.sig`) and certificate (`.pem`) files from th
-e Assets section of our [GitHub Releases page](https://github.com/smallstep/cert
-ificates/releases/latest)
+2. Download the binary signature (`.sig`) and certificate (`.pem`) files from the Assets section of our [GitHub Releases page](https://github.com/smallstep/cli/releases/latest)
 3. Run:
 
    ```
    cosign verify-blob \
-     --certificate step_linux_0.23.1_amd64.tar.gz.pem \
-     --signature step_linux_0.23.1_amd64.tar.gz.sig \
-     --certificate-identity-regexp "https://github\.com/smallstep/cli/.
-*" \
+     --certificate step_linux_0.23.4_amd64.tar.gz.pem \
+     --signature step_linux_0.23.4_amd64.tar.gz.sig \
+     --certificate-identity-regexp "https://github\.com/smallstep/cli/.*" \
      --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-     step_linux_0.23.1_amd64.tar.gz
+     step_linux_0.23.4_amd64.tar.gz
    ```
 
 ### Windows
@@ -148,6 +145,8 @@ Install `step` via [Winget](https://learn.microsoft.com/en-us/windows/package-ma
 ```shell
 winget install Smallstep.step
 ```
+
+To uninstall, run `winget uninstall Smallstep.step` and remove the `$HOME/.step` configuration directory.
 
 #### Install via Scoop
 
@@ -167,9 +166,9 @@ Download the Windows binary from our [latest releases](https://github.com/smalls
 Open PowerShell and run the following:
 
 ```shell
-curl.exe -LO https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.1/step_windows_0.23.1_amd64.zip
-Expand-Archive -LiteralPath .\step_windows_0.23.1_amd64.zip -DestinationPath .
-step_0.23.1\bin\step.exe version
+curl.exe -LO https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.4/step_windows_0.23.4_amd64.zip
+Expand-Archive -LiteralPath .\step_windows_0.23.4_amd64.zip -DestinationPath .
+step_0.23.4\bin\step.exe version
 ```
 
 Finally, move the `step.exe` binary wherever you'd like it to into a location in your user's `PATH`.
