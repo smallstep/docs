@@ -18,6 +18,7 @@ It's trivial to install the `step-ca` binary on your local machine.
 #### Select your operating system or infrastructure:
 
 - [macOS](#macos)
+- [Windows](#windows)
 - [Linux Packages](#linux-packages-amd64)
   - [Debian](#debian)   
   - [Arch Linux](#arch-linux)
@@ -25,7 +26,7 @@ It's trivial to install the `step-ca` binary on your local machine.
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
-- [Linux binaries](#linux-binaries)
+- [Linux Binaries](#linux-binaries)
 - [Kubernetes](#kubernetes)
 - [Docker](#docker)
 
@@ -36,6 +37,33 @@ Install `step` and `step-ca` together, via [Homebrew](https://brew.sh/):
 ```shell
 brew install step
 ```
+
+### Windows
+
+#### Winget package
+
+We publish a [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
+package for `Smallstep.step-ca`. To install both `step-ca.exe` and `step.exe`, run:
+
+```
+winget install Smallstep.step-ca
+```
+
+To uninstall, you can use `winget uninstall`.
+Then, remove the `$HOME/.step` configuration directory.
+
+### Scoop package
+
+We also publish a [Scoop package](https://scoop.sh/):
+
+```
+scoop bucket add smallstep https://github.com/smallstep/scoop-bucket.git
+scoop install smallstep/step
+scoop install smallstep/step-ca
+```
+
+To remove it, you can use `scoop uninstall`.
+Then, remove the `$HOME/.step` configuration directory.
 
 ### Linux Packages (amd64)
 
@@ -55,8 +83,8 @@ brew install step
     Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
-    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step-cli_0.23.1_amd64.deb
-    sudo dpkg -i step-cli_0.23.1_amd64.deb
+    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.2/step-cli_0.23.2_amd64.deb
+    sudo dpkg -i step-cli_0.23.2_amd64.deb
     ```
 
 2. Install `step-ca`
@@ -64,8 +92,8 @@ brew install step
     Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.1/step-ca_0.23.1_amd64.deb
-    sudo dpkg -i step-ca_0.23.1_amd64.deb
+    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.2/step-ca_0.23.2_amd64.deb
+    sudo dpkg -i step-ca_0.23.2_amd64.deb
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -97,8 +125,8 @@ To uninstall, run `pacman -R step-ca step-cli` and remove the configuration dire
     Download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
-    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step-cli_0.23.1_amd64.rpm
-    sudo dnf install step-cli_0.23.1_amd64.rpm
+    wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.2/step-cli_0.23.2_amd64.rpm
+    sudo dnf install step-cli_0.23.2_amd64.rpm
     ```
 
 2. Install `step-ca`
@@ -106,8 +134,8 @@ To uninstall, run `pacman -R step-ca step-cli` and remove the configuration dire
     Download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.1/step-ca_0.23.1_amd64.rpm
-    sudo dnf install step-ca_0.23.1_amd64.rpm
+    wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.2/step-ca_0.23.2_amd64.rpm
+    sudo dnf install step-ca_0.23.2_amd64.rpm
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -159,10 +187,13 @@ Here's an [installation transcript](https://github.com/smallstep/certificates/di
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
-### Linux binaries
+### Linux Binaries
 
 We distribute pre-compiled binaries for amd64, arm64, armv6, armv7, mips, mips64, ppc64le, and 386.
 See the [latest release](https://github.com/smallstep/cli/releases/latest) page.
+
+We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
+See [Binary Signatures](#binary-signatures) for details.
 
 Here's how to download and install the `step` and `step-ca` binaries on an amd64 machine:
 
@@ -171,9 +202,10 @@ Here's how to download and install the `step` and `step-ca` binaries on an amd64
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
     ```shell
-    wget -O step.tar.gz https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step_linux_0.23.1_amd64.tar.gz
+    curl -L https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.2/step_linux_0.23.2_amd64.tar.gz \
+       -o step.tar.gz
     tar -xf step.tar.gz
-    sudo cp step_0.23.1/bin/step /usr/bin
+    sudo cp step_0.23.2/bin/step /usr/bin
     ```
 
 2. Install `step-ca`
@@ -181,22 +213,42 @@ Here's how to download and install the `step` and `step-ca` binaries on an amd64
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget -O step-ca.tar.gz https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.1/step-ca_linux_0.23.1_amd64.tar.gz
+    curl -L https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.2/step-ca_linux_0.23.2_amd64.tar.gz \
+       -o step-ca.tar.gz
     tar -xf step-ca.tar.gz
-    sudo cp step-ca_0.23.1/bin/step-ca /usr/bin
+    sudo cp step-ca_0.23.2/step-ca /usr/bin
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
 
 [systemd-setup]: https://smallstep.com/docs/step-ca/certificate-authority-server-production#running-step-ca-as-a-daemon
 
+#### Binary Signature Verification
+
+We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
+To verify the signature of the `step-ca` binary:
+
+1. [Install cosign](https://docs.sigstore.dev/cosign/installation/)
+2. Download the binary signature (`.sig`) and certificate (`.pem`) files from the Assets section of our [GitHub Releases page](https://github.com/smallstep/certificates/releases/latest)
+3. Run:
+   
+   ```
+   cosign verify-blob \
+     --certificate step-ca_linux_0.23.2_amd64.tar.gz.pem \
+     --signature step-ca_linux_0.23.2_amd64.tar.gz.sig \
+     --certificate-identity-regexp "https://github\.com/smallstep/certificates/.*" \
+     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+     step-ca_linux_0.23.2_amd64.tar.gz
+   ```
 
 ### Kubernetes
 
-We publish [helm charts](https://hub.helm.sh/charts/smallstep/step-certificates) for easy installation on kubernetes:
+We publish [Helm charts](https://smallstep.github.io/helm-charts/) for easy installation on kubernetes:
 
 ```shell
-helm install step-certificates
+helm repo add smallstep https://smallstep.github.io/helm-charts/
+helm repo update
+helm install step-certificates smallstep/step-certificates
 ```
 
 You can see all the configuration options at https://hub.helm.sh/charts/smallstep/step-certificates.

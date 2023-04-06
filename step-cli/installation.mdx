@@ -27,7 +27,8 @@ It's trivial to install the `step` binary on your local machine.
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
-- [Linux binaries](#linux-binaries)
+- [Linux Binaries](#linux-binaries)
+- [Signature Verification](#binary-signatures)
 - [Windows](#windows)
 
 ### macOS
@@ -47,8 +48,8 @@ To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configurati
 Download and install the Debian package from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
 ```shell
-wget https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.1/step-cli_0.23.1_amd64.deb
-sudo dpkg -i step-cli_0.23.1_amd64.deb
+wget https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.4/step-cli_0.23.4_amd64.deb
+sudo dpkg -i step-cli_0.23.4_amd64.deb
 ```
 
 To uninstall, run `sudo dpkg -r step-cli` and remove the `$HOME/.step` configuration directory.
@@ -72,8 +73,8 @@ Big shout out to the maintainers of these packages! We appreciate you.
 Download and install the RPM package from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
 ```shell
-wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.1/step-cli_0.23.1_amd64.rpm
-sudo rpm -i step-cli_0.23.1_amd64.rpm
+wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.4/step-cli_0.23.4_amd64.rpm
+sudo rpm -i step-cli_0.23.4_amd64.rpm
 ```
 
 To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` configuration directory.
@@ -86,7 +87,7 @@ To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` config
     </AlertTitle>
     <div>
       To install it, you'll need to append <code>http://dl-cdn.alpinelinux.org/alpine/edge/community</code> to <code>/etc/apk/repositories</code>.
-      Alternatively, see <a href="#linux-binaries">Linux binaries</a>.
+      Alternatively, see <a href="#linux-binaries">Linux Binaries</a>.
     </div>
 </Alert>
 
@@ -110,14 +111,42 @@ Install the [`step-cli`](https://search.nixos.org/packages?channel=20.09&show=st
 
 Install the [`step-cli`](https://www.freshports.org/security/step-cli/) package on FreeBSD.
 
-### Linux binaries
+### Linux Binaries
 
 We have 386, amd64, arm64, armv7, mips, and mips64 releases available to download from our [latest
 release](https://github.com/smallstep/cli/releases/latest).
 
 Place the binary in `/usr/bin` for compatibility with the rest of our documentation.
 
+#### Binary Signature Verification
+
+We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
+To verify the signature of the `step-ca` binary:
+
+1. [Install cosign](https://docs.sigstore.dev/cosign/installation/)
+2. Download the binary signature (`.sig`) and certificate (`.pem`) files from the Assets section of our [GitHub Releases page](https://github.com/smallstep/cli/releases/latest)
+3. Run:
+
+   ```
+   cosign verify-blob \
+     --certificate step_linux_0.23.4_amd64.tar.gz.pem \
+     --signature step_linux_0.23.4_amd64.tar.gz.sig \
+     --certificate-identity-regexp "https://github\.com/smallstep/cli/.*" \
+     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+     step_linux_0.23.4_amd64.tar.gz
+   ```
+
 ### Windows
+
+#### Install via Winget
+
+Install `step` via [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+
+```shell
+winget install Smallstep.step
+```
+
+To uninstall, run `winget uninstall Smallstep.step` and remove the `$HOME/.step` configuration directory.
 
 #### Install via Scoop
 
@@ -137,9 +166,9 @@ Download the Windows binary from our [latest releases](https://github.com/smalls
 Open PowerShell and run the following:
 
 ```shell
-curl.exe -LO https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.1/step_windows_0.23.1_amd64.zip
-Expand-Archive -LiteralPath .\step_windows_0.23.1_amd64.zip -DestinationPath .
-step_0.23.1\bin\step.exe version
+curl.exe -LO https://dl.step.sm/gh-release/cli/docs-cli-install/v0.23.4/step_windows_0.23.4_amd64.zip
+Expand-Archive -LiteralPath .\step_windows_0.23.4_amd64.zip -DestinationPath .
+step_0.23.4\bin\step.exe version
 ```
 
 Finally, move the `step.exe` binary wherever you'd like it to into a location in your user's `PATH`.
