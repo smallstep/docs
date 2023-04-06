@@ -13,15 +13,16 @@ menu:
 ## Usage
 
 ```raw
-step ssh needs-renewal <crt-file> [--expires-in=<percent|duration>]
+step ssh needs-renewal <crt-file>
+[--expires-in=<percent|duration>] [--verbose]
 ```
 
 ## Description
 
 **step ssh needs-renewal** returns '0' if the SSH certificate needs
-to be renewed based on it's remaining lifetime. Returns '1' if the SSH certificate is
-within it's validity lifetime bounds and does not need to be renewed. Returns
-'255' for any other error. By default, an SSH certificate "needs renewal" when it has
+to be renewed based on it's remaining lifetime. Returns '1' if the SSH
+certificate is within it's validity lifetime bounds and does not need to be
+renewed. By default, an SSH certificate "needs renewal" when it has
 passed 66% (default threshold) of it's allotted lifetime. This threshold can be
 adjusted using the '--expires-in' flag.
 
@@ -39,6 +40,9 @@ using `percent|duration`. If using `percent`, the input must be followed by a "%
 character. If using `duration`, the input must be a sequence of decimal numbers,
 each with optional fraction and a unit suffix, such as "300ms", "-1.5h" or "2h45m".
 Valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+
+**--verbose**, **-v**
+Print human readable affirmation if certificate requires renewal.
 
 ## Exit codes
 
