@@ -1,0 +1,430 @@
+---
+title: Certificate Renewal
+html_title: Certificate renewal options
+description: Learn how to renew certificates and set up automated renewals
+---
+
+By default, `step-ca` issues short-lived certificates that expire after 24
+hours. Short-lived certificates are excellent security hygiene because they
+offer regular key rotation and [passive revocation](../step-ca/revocation.mdx)
+
+Short-lived certificates create a problem though: For any long-lived workloads,
+you will need to renew your certificates each day before they expire. This
+section will show three approaches to renew certs with `step`.
+
+<Alert severity="info">
+  <div>
+    This section assumes you have initialized and started up a
+    <Code>step-ca</Code> instance using the steps in <a href="https://smallstep.com/docs/step-ca/getting-started">Getting Started</a>.  As an
+    alternative, you can use our hosted CA, <a href="../certificate-manager">Smallstep Certificate Manager</a>.
+  </div>
+</Alert>
+
+### Creating short-lived certificates
+
+First, let's initialize a new PKI and start `step-ca`. We'll write a password
+out to password.txt so we don't have to enter it repeatedly.
+
+```shell nocopy
+$ echo "p4ssword" > password.txt
+$ step ca init --name "Speedy" --provisioner admin \
+               --dns localhost --address ":443" \
+               --password-file password.txt \
+               --provisioner-password-file password.txt
+$ step-ca $(step path)/config/ca.json --password-file password.txt
+```
+
+Now let's generate a [single-use bootstrap token](../step-cli/reference/ca/token) and use it to obtain a certificate:
+
+<CodeBlock language="shell-session" copyText="TOKEN=$(step ca token --password-file password.txt foo.local)">
+{`$ TOKEN=$(step ca token --password-file password.txt foo.local)
+✔ Key ID: w1OUFng_fCqWygHHpc9Ak8m_HGmE0TEasYIfahLoZUg (admin)`}
+</CodeBlock>
+
+In a production environment, you might use something like Kubernetes or Chef to generate this token and give it to a host or client that needs a certificate.
+
+Now we can generate a keypair locally, and use our bootstrap token to obtain a certificate for _foo.local_ from `step-ca`:
+
+```shell nocopy
+$ step ca certificate foo.local foo.crt foo.key --token $TOKEN
+✔ CA: https://localhost
+✔ Certificate: foo.crt
+✔ Private Key: foo.key
+
+$ step certificate inspect --short foo.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2599...1204]
+  Subject:     foo.local
+  Issuer:      Speedy Intermediate CA
+  Provisioner: admin [ID: w1OU...oZUg]
+  Valid from:  2019-05-01T21:06:25Z
+          to:  2019-05-02T21:06:25Z
+```
+
+By default, `step-ca` issues certificates valid for 24 hours. This is suitably
+short for many scenarios. If it's not right for you, you can adjust the
+[`defaultTLSCertDuration`](../step-ca/provisioners.mdx#claims) per provisioner
+or pass the `--not-after` flag to the [`step ca certificate`](../step-cli/reference/ca/certificate) to adjust the
+lifetime of an individual certificate. Very short lifetimes (eg. five minutes)
+are better from a security perspective, but this can be difficult in
+practice.
+
+With short-lived certificates, your services and hosts will need to renew their certificates regularly, by extending their lifetimes _before they expire_.
+
+You can do this manually with the following command:
+
+<CodeBlock language="shell" copyText="step ca renew --force foo.crt foo.key">
+{`$ step ca renew --force foo.crt foo.key
+Your certificate has been saved in foo.crt \n
+$ step certificate inspect --short foo.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1664...3445]
+  Subject:     foo.local
+  Issuer:      Speedy Intermediate CA
+  Provisioner: admin [ID: w1OU...oZUg]
+  Valid from:  2019-05-01T21:15:16Z
+          to:  2019-05-02T21:15:16Z
+`}
+</CodeBlock>
+
+_Note the change in the validity period relative to the original certificate above._
+
+### Automated renewal
+
+What good are short-lived certificates if we can't renew them automatically?
+
+Here are three options for setting up automated renewal of certificates using [`step ca renew`](../step-cli/reference/ca/renew):
+* [Renewal using `systemd` timers](#renewal-using-systemd-timers). This is the preferred approach.
+
+* [The standalone `step` renewal daemon](#the-standalone-step-renewal-daemon).
+
+* [`cron`-based renewal](#cron-based-renewal).
+
+#### Renewal using `systemd` timers
+
+This approach runs a periodic [systemd timer](https://wiki.archlinux.org/index.php/Systemd/Timers) for each certificate you want to keep current.
+The timer will run a one-shot systemd service every few minutes.
+The one-shot service checks the certificate and renews it if more than &frac23; of its lifetime has elapsed.
+Upon renewal, the service can try to reload or restart a service using the certificate files, if it exists.
+Custom post-renewal commands can be configured as well.
+
+We will leverage systemd [service templates](https://www.freedesktop.org/software/systemd/man/systemd.service.html#Service%20Templates) to simplify configuration of certificate renewal for many target services.
+
+In `/etc/systemd/system`, we'll start by creating template files `cert-renewer@.service`, and `cert-renewer@.timer`.
+
+Service templates accept a single argument after the `@`, called the _service unit argument_.
+For example, for `cert-renewer@postgresql.service`, the service unit argument is `postgresql`.
+In the template, `%i` represents the service unit argument.
+
+Let's review the service template first, then we'll look at the timer template.
+
+Create a service unit template file:
+
+```shell-session
+$ sudo touch /etc/systemd/system/cert-renewer@.service
+```
+
+Add the following configuration:
+
+```ini
+[Unit]
+Description=Certificate renewer for %I
+After=network-online.target
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+StartLimitIntervalSec=0
+; PartOf=cert-renewer.target
+
+[Service]
+Type=oneshot
+User=root
+
+Environment=STEPPATH=/etc/step-ca \
+            CERT_LOCATION=/etc/step/certs/%i.crt \
+            KEY_LOCATION=/etc/step/certs/%i.key
+
+; ExecCondition checks if the certificate is ready for renewal,
+; based on the exit status of the command.
+; (In systemd <242, you can use ExecStartPre= here.)
+ExecCondition=/usr/bin/step certificate needs-renewal ${CERT_LOCATION}
+
+; ExecStart renews the certificate, if ExecStartPre was successful.
+ExecStart=/usr/bin/step ca renew --force ${CERT_LOCATION} ${KEY_LOCATION}
+
+; Try to reload or restart the systemd service that relies on this cert-renewer
+; If the relying service doesn't exist, forge ahead.
+; (In systemd <229, use `reload-or-try-restart` instead of `try-reload-or-restart`)
+ExecStartPost=/usr/bin/env sh -c "! systemctl --quiet is-active %i.service || systemctl try-reload-or-restart %i"
+
+[Install]
+WantedBy=multi-user.target
+```
+
+(This file is maintained [on GitHub](https://github.com/smallstep/cli/blob/master/systemd/cert-renewer@.service))
+
+With this template file in place, we can now ask systemd to start any `cert-renewer@*.service`.
+
+For example, if you have a systemd service called `postgresql.service`,
+with certificate and key files located in `/etc/step/certs/postgresql.crt` and `/etc/step/certs/postgresql.key`,
+you can manually run `systemctl start cert-renewer@postgresql.service`
+and systemd will immediately check that certificate's readiness for renewal, and potentially renew it.
+If the certificate is successfully renewed, the `postgresql` service will be reloaded or restarted.
+
+#### Customizing a service unit
+
+You'll often need to customize your service unit for a given service.
+
+For example, you may need to:
+* Deploy the certificate and key to a service
+
+* Reload or restart additional dependent services
+
+* Combine the certificate and key files into a bundled `.pem` or a PKCS#12 `.p12` file, as needed by some services
+
+* Ping a health check service or perform another action after a specific certificate is renewed
+
+Instead of modifying the service template, we'll use _service template overrides_ here.
+The overrides live in the drop-in configuration directory for the service being custommized.
+
+Here's an example override for a [Lighttpd](https://www.lighttpd.net/) service that uses Docker Compose and is not managed by systemd:
+
+`/etc/systemd/system/cert-renewer@lighttpd-docker.service.d/override.conf`:
+
+```ini
+[Service]
+; `Environment=` overrides are applied per environment variable. This line does not
+; affect any other variables set in the service template.
+Environment=CERT_LOCATION=/etc/docker/compose/lighttpd/certs/example.com.crt \
+            KEY_LOCATION=/etc/docker/compose/lighttpd/certs/example.com.key
+WorkingDirectory=/etc/docker/compose/lighttpd
+
+; Restart lighttpd docker containers after the certificate is successfully renewed.
+ExecStartPost=/usr/local/bin/docker-compose restart
+```
+
+<Alert severity="info">
+  <div>
+    <strong>A subtlety of service template overrides:</strong> Any <code>ExecStartPost</code> lines in your <code>override.conf</code> will run <i>in addition to</i> those in the service template. Furthermore, adding an <i>empty</i> <code>ExecStartPost=</code> override will disable the template's <code>ExecStartPost</code> line(s).
+  </div>
+</Alert>
+
+Here's a more complex example that calls the [Grafana Data source HTTP API](https://grafana.com/docs/grafana/latest/http_api/data_source/) to refresh a client certificate stored in Grafana's configuration database.
+
+`/etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/override.conf`:
+
+```ini
+[Service]
+ExecStartPost=/usr/bin/env bash -c 'jq -n \
+             --rawfile ca_cert $STEPPATH/certs/root_ca.crt \
+             --rawfile client_cert $CERT_LOCATION \
+             --rawfile client_key $KEY_LOCATION \
+             -f /etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/datasource.jq \
+      | curl -s -X PUT \
+      -H @/etc/systemd/system/cert-renewer@grafana-loki-datasource.service.d/api_headers \
+      -d @- \
+      --cacert $STEPPATH/certs/root_ca.crt  \
+      https://grafana:3000/api/datasources/1 > /dev/null'
+
+ExecStartPost=curl -s -m 10 --retry 5 https://hc-ping.com/a66...fbba2
+```
+
+When the certificate is successfully renewed:
+
+1. The `ExecStartPost` in the service template will attempt to reload or restart `grafana-loki-datasource.service`—which will do nothing, because no service with that name exists.
+2. The `ExecStartPost` in the override configuration will construct JSON and pass it to curl, updating the certificate and key in Grafana.
+3. If all goes well, the final `ExecStartPost` in the override configuration will ping a health check service at [Healthchecks](https://healthchecks.io/) that expects to hear from this unit daily.
+
+#### Enabling `systemd` renewal timers
+
+The final piece of the puzzle is the renewal timer. Timers and services go hand in hand in systemd:
+A `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
+
+Therefore, instead of enabling the `cert-renewer@*.service` service units directly, we'll enable timer units that will periodically trigger each service unit.
+
+Create a timer unit template file:
+
+```shell-session
+$ sudo touch /etc/systemd/system/cert-renewer@.timer
+```
+
+Add the following configuration to the file:
+
+```ini
+[Unit]
+Description=Timer for certificate renewal of %I
+Documentation=https://smallstep.com/docs/step-ca/certificate-authority-server-production
+; PartOf=cert-renewer.target
+
+[Timer]
+Persistent=true
+
+; Run the timer unit every 15 minutes.
+OnCalendar=*:1/15
+
+; Always run the timer on time.
+AccuracySec=1us
+
+; Add jitter to prevent a "thundering hurd" of simultaneous certificate renewals.
+RandomizedDelaySec=5m
+
+[Install]
+WantedBy=timers.target
+```
+
+(This file is maintained [on GitHub](https://github.com/smallstep/cli/blob/master/systemd/cert-renewer@.timer))
+
+Timers using this template will run every 5-10 minutes,
+with a randomized delay on each timer.
+The randomized delay helps with [thundering herd problems](https://en.wikipedia.org/wiki/Thundering_herd_problem)
+that can occur when many virtual machines that were provisioned together try to renew their certificates at the same time.
+
+With this template in place,
+let's start timers for our `postgresql` and `grafana-server` renewer services:
+
+```shell-session nocopy
+$ systemctl enable --now cert-renewer@postgresql.timer
+Created symlink /etc/systemd/system/multi-user.target.wants/cert-renewer@postgresql.service → /etc/systemd/system/cert-renewer@.service.
+$ systemctl enable --now cert-renewer@grafana-server.timer
+Created symlink /etc/systemd/system/multi-user.target.wants/cert-renewer@grafana-server.service → /etc/systemd/system/cert-renewer@.service.
+$ systemctl list-timers
+NEXT                        LEFT          LAST                        PASSED       UNIT                                    ACTIVATES
+Wed 2020-12-16 17:06:23 PST 8min left     n/a                         n/a          cert-renewer@postgresql.timer           cert-renewer@postgresql.service
+Wed 2020-12-16 17:04:12 PST 6min left     n/a                         n/a          cert-renewer@grafana-server.timer       cert-renewer@grafana-server.service
+...
+```
+
+Your periodic timers are now running and will run on system startup. 
+You can override your timer units too, but you probably won't need to.
+
+#### The standalone `step` renewal daemon
+
+Another way to automate renewal is with the `step` renewal daemon.
+With this method, [`step ca renew`](../step-cli/reference/ca/renew) operates as a daemon that will keep your certificates up-to-date:
+
+```shell-session nocopy
+$ step ca renew --daemon foo.crt foo.key
+INFO: 2019/06/20 12:36:54 first renewal in 14h46m57s
+INFO: 2019/06/21 03:14:23 certificate renewed, next in 15h17m31s
+INFO: 2019/06/21 18:31:00 certificate renewed, next in 14h33m17s
+ERROR: 2019/06/22 11:04:39 error renewing certificate: client
+POST https://localhost/renew failed: Post https://localhost/renew: dial tcp [::1]:443: connect: connection refused
+INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
+```
+
+When daemonized, [`step ca renew`](../step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
+So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
+
+There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
+(eg. by a multitude of virtual machines that were provisioned at the same time and have identical certificate expiration dates).
+
+If the CA is unreachable, renewals are retried every minute.
+
+You can trigger renewal anytime by sending a `SIGHUP` signal to the [`step ca renew`](../step-cli/reference/ca/renew) process ID.
+
+You can add [`step ca renew --daemon`](../step-cli/reference/ca/renew) as a `systemd` service that runs on startup and restarts as needed.
+
+Here's an example of setting up everything via `systemd`:
+
+```shell-session nocopy
+$ cat <<EOF | sudo tee /etc/systemd/system/step.service > /dev/null
+[Unit]
+Description=Step TLS Renewer for Foo service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=step
+ExecStart=/usr/bin/step ca renew --daemon /home/step/foo.crt /home/step/foo.key
+
+[Install]
+WantedBy=multi-user.target
+EOF
+$ systemctl daemon-reload
+```
+
+Be sure the `User` has write access to the certificate and key you're renewing.
+
+Rescan the `systemd` unit files:
+
+```shell
+$ sudo systemctl daemon-reload
+```
+
+Enable and start the service:
+
+```shell
+sudo systemctl enable --now step
+```
+
+#### Notifying Certificate-Dependent Services
+
+Many services that depend on certificates will only read the certificate files on startup.
+So when you renew a certificate, a server process that depends on it may not detect that it has changed.
+
+It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
+To address this, [`step ca renew`](../step-cli/reference/ca/renew) can send a `SIGHUP` to your service after each renewal.
+Here's an example for `nginx`:
+
+```shell-session nocopy
+$ step ca renew --daemon --exec "kill -HUP $NGINX_PID" foo.crt foo.key
+INFO: 2019/05/01 14:22:18 first renewal in 15h50m43s
+```
+
+
+#### `cron`-based renewal
+
+With `cron`-based renewal, you can have [`step ca renew`](../step-cli/reference/ca/renew) run at a regular cadence (eg. every five minutes) and renew a certificate only when it's approaching its expiration date.
+
+You can request that certificate renewal only occur if the certificate is approaching its expiry using the `--expires-in <duration>` flag.
+The `<duration>` is a time interval like `4h` or `30m`.
+Renewal will only occur if the expiry is within `<duration>` of the current time.
+For example:
+
+```shell-session nocopy
+$ step ca renew --force --expires-in 4h foo.crt foo.key
+certificate not renewed: expires in 23h58m44s
+$ step ca renew --force --expires-in 24h foo.crt foo.key
+Your certificate has been saved in foo.crt.
+```
+
+With `--expires-in`, we add a random _jitter_ to `<duration>` (between 0 and `<duration>/20`). This helps with [thundering herd problems](https://en.wikipedia.org/wiki/Thundering_herd_problem) if many virtual machines that were provisioned together try to renew their certificates at the same time.
+
+Here's an example of setting up renewal via `cron` on a Debian-based system:
+
+```shell-session nocopy
+$ cat <<EOF | sudo tee /etc/cron.d/step-ca-renew
+# Check for possible certificate renewal every five minutes
+*/5 * * * *   step   step ca renew --force --expires-in 4h /home/step/foo.crt /home/step/foo.key
+EOF
+```
+Be sure the user (in this example, `step`) has write access to the certificate and key you're renewing.
+
+### Caveats of Automated Renewal
+
+#### Revoking a Certificate
+
+[`step ca renew`](../step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
+Unfortunately, it also lets an attacker with the private key do the same thing.
+To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
+See the [certificate revocation section](../step-ca/revocation.mdx) for details.
+
+#### Renewal after expiry: For intermittently-connected devices
+
+You can configure a provisioner to allow certificates to be renewed after they expire.
+This is not the default behavior,
+but it's useful if you have devices with intermittent network connectivity.
+The device will be able to renew its certificate the next time it has network access,
+provided the certificate has not been revoked.
+
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner) management commands. See [managing provisioners](../step-ca/provisioners.mdx#managing-provisioners).
+
+<Alert severity="warning">
+  <div>
+	Enabling certificate renewal after expiry adds security risk.
+	Consider alternatives, such as longer certificate lifetimes.
+	If you enable this option, use the principle of least privilege and limit its availability as narrowly as possible.
+  </div>
+</Alert>
+
+
+

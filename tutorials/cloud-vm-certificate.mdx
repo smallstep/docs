@@ -1,0 +1,206 @@
+---
+title: Use the AWS, GCP, or Azure metadata API to issue X.509 cloud VM certificates to workloads
+html_title: Use the cloud metadata APIs to issue SSL/TLS certificates to workloads
+description: Use the AWS, GCP, or Azure cloud metadata API to get private PKI certificates to workloads running on cloud virtual machines (VMs)
+---
+
+
+With open source `step-ca`, you can use our provisioners to automate certificate enrollment for almost anything in your production network. To create a cloud VM certificate, we recommend you use the cloud provider metadata API and our IID provisioner. This short tutorial will show how to use Instance Identity Documents (IID) to authorize and retrieve an X.509 Certificate from `step-ca`. 
+
+IIDs are simply credentials that identify an instance's name and owner. By
+presenting an IID in a request, a workload can prove that it is running on a cloud VM instance that you own.
+
+## About this tutorial
+
+- Learn how to automate enrollment of cloud VM certificates using the AWS, Azure, or GCP metadata API.
+- Examples include copy/paste code blocks and specific commands for cloud providers.
+- Estimated effort: Reading time ~5 mins, Lab time ~10 to 60 mins. 
+
+<Alert severity="info">
+  <div>
+    If you run into any issues please let us know <a href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</a>.
+  </div>
+</Alert>
+
+## Requirements
+
+- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx). 
+
+## IID-based authentication overview
+
+The major clouds have different names for IIDs: AWS calls them [instance
+identity documents][1], GCP calls them [instance identity tokens][2], and Azure
+calls them [access tokens][3]. The _metadata_ included in an IID also differs
+between clouds, along with many other implementation details. In general,
+they're all the same: signed bearer tokens that identify at least the
+name and owner of a VM.
+
+Metadata API's expose IIDs via a non-routable IP address
+(the [link-local address][4] 169.254.169.254). This magic is orchestrated by
+the [hypervisor][5], which identifies the requesting VM and services IID
+requests locally.
+
+IIDs are very easy to get from within a VM via one unauthenticated HTTP
+request. Barring any security issues, they're impossible to get from anywhere
+else.
+
+As an example, let's fetch an IID on GCP. Since GCP encodes IIDs as JWTs and
+makes their public keys available at a well-known endpoint, we can easily verify
+and decode a GCP IID on the command line using `step`:
+
+```shell-session nocopy
+$ curl -s -H "Metadata-Flavor: Google"
+'http://metadata/computeMetadata/v1/instance/service-accounts/default/identity?audience=step-cli&amp;format=full'
+| step crypto jwt verify --jwks https://www.googleapis.com/oauth2/v3/certs --aud step-cli --iss https://accounts.google.com { "header": {
+"alg": "RS256", "kid": "afde80eb1edf9f3bf4486dd877c34ba46afbba1f", "typ":
+"JWT" }, "payload": { "aud": "step-cli", "azp":
+"117354011164720418655", "email":
+"259112794408-compute@developer.gserviceaccount.com", "email_verified": true,
+"exp": 1562780090, "google": { "compute_engine": {;
+"instance_creation_timestamp": 1557864897, "instance_id":
+"5404647754959331152", "instance_name": "foo", "project_id":
+"step-instance-identity-test", "project_number": 259112794408, "zone":
+"us-west1-b" { {, "iat": 1562776490, "iss":
+"https://accounts.google.com", "sub": "117354011164720418655" },
+"signature":
+"AV8vZiNjOJNkWhWp5oy9R_WgGu3-tePyM4pKyHoela2SMVyWfpq4fPlSUxSPdzmfCT_akrUXrw-mDq7eLByqDOp3A4sGEZn9bY4Vmt5h9QYMVIo_60LRtC7c7QoBFZp2u3tNrPaI8ZhoINgHCsTdbfGEUDnCA8aH1mygd8b3kUEXcMCHrgUayPEVSMih8OYfmHUdecyTt0qOw6Ima16lX1jmM6lSoj8VNFmee36qFn58qULchB89lqviv-E0VzS5NthlqaM2_ukYNtKac-MdQdIlE86a-2YtgyXo4OVCpb87Svf2Rw9VaFsCKt4wFlRsnz4B3rx3I2bM2mXsQZY38Q"
+}
+```
+
+Your cloud provider signs IIDs. Therefore, additional API requests are not required.
+In addition to being easy for clients, IID-based
+authentication is scalable, performant, and highly available.
+
+By fetching an IID from the metadata API and presenting it in an HTTPS request
+header a workload can prove that it's running on a VM under your control.
+That’s how `step` and `step-ca` use IIDs.
+
+[1]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
+[2]: https://cloud.google.com/compute/docs/instances/verifying-instance-identity
+[3]: https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token
+[4]: https://en.wikipedia.org/wiki/Link-local_address
+[5]: https://en.wikipedia.org/wiki/Hypervisor
+
+## Getting a certificate from step-ca using IID-based authentication
+
+Here's a diagram of the basic architecture of the `step-ca` IID-based authentication:
+
+![Diagram of the basic architecture of step-ca’s IID-based authentication][6]
+
+
+To get a certificate from `step-ca` using an IID we need to:
+
+- Generate a key pair and a certificate signing request (CSR) with the workload's name
+- Obtain an IID from the metadata API to authenticate to `step-ca`
+- Submit the CSR and IID to `step-ca` via HTTPS POST to obtain a certificate
+- Store the certificate and private key somewhere our workload can find it
+
+While this is all standards-based and simple in theory, in practice, there’s a
+lot of implementation detail to get right. Luckily, the `step` utility
+works seamlessly with `step-ca` to do all of this for us.
+
+To demonstrate, assume we have `step-ca` running on AWS with hostname
+_ca.local_.
+
+To enable IID-based authentication we’ll [configure][7] `step-ca`,
+   adding an AWS-type provisioner.
+
+Find your [AWS account ID][8] to restrict access to our VMs:
+
+![AWS account ID][9]
+
+On the host running `step-ca` add an AWS provisioner to your configuration by running:
+
+<CodeBlock
+  language="shell-session"
+  copyText='step ca provisioner add "AWS IID Provisioner" --type AWS --aws-account 123456789042'
+>
+  {`$ step ca provisioner add "AWS IID Provisioner" --type AWS --aws-account 123456789042`}
+</CodeBlock>
+
+Start or restart `step-ca` to pick up this new configuration:
+
+<CodeBlock
+  language="shell-session"
+  copyText="step-ca $(step path)/config/ca.json"
+>
+  {`$ step-ca $(step path)/config/ca.json`}
+</CodeBlock>
+
+With the `step-ca` server configured and running, let's use the `step ca
+bootstrap` command to configure a new VM instance to trust and connect to it:
+
+```shell-session nocopy
+$ step ca bootstrap --ca-url https://ca.local --fingerprint f501ed49263c1369bd490a85660ddd4388d4175e0337100a11d4e82eae496499
+The root certificate has been saved in ~/.step/certs/root_ca.crt.
+Your configuration has been saved in ~/.step/config/defaults.json.
+```
+
+The `--fingerprint` is for the root certificate used by `step-ca`. Find it by
+running the following command on your CA:
+
+<CodeBlock
+  language="shell-session"
+  copyText="step certificate fingerprint $(step path)/certs/root_ca.crt"
+>
+  {`$ step certificate fingerprint $(step path)/certs/root_ca.crt`}
+</CodeBlock>
+
+After bootstrapping, we're ready to get a certificate. If we pass our AWS IID
+provisioner name to [`step ca certificate`](../step-cli/reference/ca/certificate) with the `--provisioner` attribute,
+`step` will automatically use IID-based authentication to get a certificate:
+
+```shell-session nocopy
+$ step ca certificate foo.local foo.crt foo.key --provisioner "AWS IID Provisioner"
+✔ Key ID: AWS IID Provisioner (AWS)
+✔ CA: https://ca.local
+✔ Certificate: foo.crt
+✔ Private Key: foo.key
+```
+
+The first positional argument to [`step ca certificate`](../step-cli/reference/ca/certificate) specifies our workload's
+name, the certificate subject. In this case, it's _foo.local_. The next two
+positional arguments specify which files to write the certificate and private
+key, respectively.
+
+We can use [`step certificate inspect`](../step-cli/reference/certificate/inspect) to check our work:
+
+```shell-session nocopy
+$ step certificate inspect --short foo.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 4555...1939]
+Subject:     foo.local
+              ip-172-31-65-180.us-east-1.compute.internal
+              172.31.65.180
+Issuer:      My Intermediate CA
+Provisioner: AWS IID Provisioner [ID: 8074...3263]
+Valid from:  2019-07-08T21:39:40Z
+       to:  2019-07-09T21:39:40Z
+```
+
+Congratulations, that's it. Tell your workload to use _foo.crt_ and _foo.key_,
+configure clients to trust X.509 certificates signed by `$(step
+path)/certs/root_ca.crt`, and you're good to go. You now have a strong
+standards-based mechanism to authenticate workloads and encrypt traffic using
+TLS.
+
+[6]: /graphics/iid-authentication.png
+[7]: ../step-ca/provisioners.mdx#cloud-provisioners
+[8]: https://docs.aws.amazon.com/general/latest/gr/acct-identifiers.html
+[9]: /graphics/aws-account-id.png
+
+## Next steps
+
+Example configurations for GCP and Azure are available in the [step-ca
+configuration docs][7]. Instead of account IDs, the GCP IID implementation restricts access
+by project and/or service account. Azure restricts access by tenant. The `step
+CLI` abstracts away the remaining differences.
+
+Depending on your situation and tech stack, you might put these commands in a
+startup script, put them in an AMI, or use configuration management for the
+last piece of automation. If you’re using kubernetes, then IID-based
+authentication isn’t right for you. Use [ACME][13], [autocert][11] or [cert-manager
+integration][12] instead.
+
+[11]: https://github.com/smallstep/autocert
+[12]: https://github.com/smallstep/step-issuer
+[13]: https://smallstep.com/docs/tutorials/kubernetes-acme-ca
