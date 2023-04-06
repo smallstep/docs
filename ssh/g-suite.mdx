@@ -1,0 +1,89 @@
+---
+title: G Suite Quickstart
+description: SSH G Suite Quickstart | Smallstep Documentation
+---
+
+### Prerequisites
+
+You will need:
+
+* An account on the smallstep platform. Need one? [Register here](https://smallstep.com/signup?product=ssh)
+* Google Admin console privileges for your organization.
+* A single domain name that your users will use, added and verified in the Google Admin console.
+* A Google Cloud Platform (GCP) project in your G Suite Organization.
+  * [Create a GCP project here](https://console.cloud.google.com/projectcreate) if you don't yet have one.
+
+### Features
+
+The following provisioning features are supported:
+
+* New Users and Periodical Pull of All Groups
+  * New users created through G Suite will be created in the third party application.
+  * Groups and Memberships will be synchronized periodically
+* Push Profile Updates
+  * Updates made to the user's profile through G Suite will be pushed to the third party application.
+* Push User Deactivation
+  * Deactivating the user or disabling the user's access to the application through G Suite will deactivate the user in the third party application.
+  * Note: For this application, deactivating a user means removing access to login, but maintaining the user's ssh access information as an inactive user.
+* Reactivate Users
+  * User accounts can be reactivated in the application.
+
+## Overview
+1. Create an OAUTH client ID
+2. Enter OIDC details into the Smallstep SSH UI
+3. Set up API client access
+4. Configure G Suite settings in Smallstep SSH UI
+
+## Step-by-step Instructions
+
+### Step 1. Create an OAuth Client ID
+
+1. Configure the OAuth Consent Screen
+   1. In the Google Cloud Console, visit [Configure the OAuth Consent Screen](https://console.cloud.google.com/apis/credentials/consent)
+   2. Choose **User Type: Internal**
+   3. **Create**
+   4. Now give your application a name, like **Smallstep SSH**
+   5. Update the **support email address**, if needed
+   6. **Save**
+2. Create an OAuth Credential
+   1. Visit [Create an OAuth Credential](https://console.cloud.google.com/apis/credentials/oauthclient)
+   2. Choose **Application type: Desktop app**
+   3. Name it **Smallstep SSH**
+   4. **Create**
+   5. Copy the Value of **Your Client ID** and **Your Client Secret** and save them.
+
+### Step 2. Enter your OIDC Settings into the Smallstep SSH UI
+
+1. Open a new browser tab and log in at `https://smallstep.com/app/[TEAM-NAME]`
+2. Enter the **client ID** and **client secret** from above.
+3. For the **configuration endpoint**, enter the following string:
+
+   ```
+   https://accounts.google.com/.well-known/openid-configuration
+   ```
+
+4. Enter your primary domain name in the Domain Whitelist.
+5. **Enable Single Sign-On**
+6. Keep this tab open for the next step, where you will need the values from **User Group Synchronization Details**.
+
+### Step 3. Set up API Client Access
+
+1. In Google Admin, visit [Domain-wide Delegation](https://admin.google.com/ac/owl/domainwidedelegation).
+3. Under API clients, choose **Add new**.
+4. For **Client ID**, fill in the Client ID (a 21-digit number) given to you by smallstep.
+5. For **OAuth Scopes**, enter the comma-delimited API Scopes given to you by smallstep.
+6. Choose **Authorize**.
+
+When you're finished, the Manage API Client Access screen page should resemble this:
+
+![](/graphics/quickstart/g-suite-api-clients.png)
+
+### Step 4. Configure G Suite Settings in Smallstep
+
+1. Fill in your **domain name** and **the email address of a Google Admin** in your organization, and Save.
+2. Wait while we configure and sync your G Suite directory. Please note that G Suite sync is periodical and might take a few minutes.
+3. You should see your directory with users and groups synced.
+
+## Troubleshooting Tips
+
+* Note: When users are deactivated in G Suite, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on smallstep managed hosts. To permanently delete user data on smallstep managed hosts, contact Smallstep Support, ([support@smallstep.com](mailto:support@smallstep.com)).

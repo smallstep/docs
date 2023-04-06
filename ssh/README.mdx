@@ -1,0 +1,82 @@
+---
+title: Getting Started with Smallstep SSH
+html_title: Smallstep SSH Docs Introduction
+description: Smallstep SSH Documentation
+---
+
+Smallstep SSH is a commercial product that delivers a complete end-to-end SSH
+workflow combining the benefits of modern identity providers, SSH certificates,
+and proven standard technologies like OpenSSH and OAuth. The Professional
+Edition is a managed offering that takes the open source `step-ca` and adds
+automatic access control, end-to-end user lifecycle management, event activity
+logging, and reporting.
+
+<Alert severity="info" mb={4}>
+  <div>
+    Are you looking for the open source <Code>step-ca</Code> documentation?{' '}
+    <a href="../step-ca">Find it here</a>.
+  </div>
+</Alert>
+
+![Smallstep SSH](/graphics/docs-ssh-logo.png 'Smallstep SSH')
+
+Before you begin,
+[register for a smallstep account](https://smallstep.com/signup?product=ssh) if
+you haven't already.
+
+## Step 1: Set up your client
+
+Start by configuring SSH access on your laptop:
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="client">
+  Client Quickstart Guide &gt;
+</ContentLink>
+
+## Step 2: Register Hosts
+
+Register your hosts with Smallstep SSH:
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="hosts">
+  Host Quickstart Guide &gt;
+</ContentLink>
+
+## Step 3: Set up Single Sign-on and Directory Sync
+
+If you want to use Smallstep SSH in multi-user mode, you can sync with an
+identity provider. Note: Single Sign-on through your identity provider requires
+SSH Professional + Team level account or higher. [Click here for more pricing
+information] (/sso-ssh/pricing/#pricing).
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="/docs/ssh/azure-ad">
+  Azure AD Quickstart Guide &gt;
+</ContentLink>
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="/docs/ssh/g-suite">
+  G Suite Quickstart Guide &gt;
+</ContentLink>
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="/docs/ssh/okta">
+  Okta Quickstart Guide &gt;
+</ContentLink>
+
+<Alert severity="info" mt={2}>
+  <AlertTitle>Don't see your identity provider?</AlertTitle>
+  <div>
+    We may still be able to work with you. Please{' '}
+    <a href="mailto:support@smallstep.com">contact us</a> and tell us a
+    little about your setup.
+  </div>
+</Alert>
+
+## Step 4: Grant Access
+
+Establish access control rules:
+
+<ContentLink icon={<FileWithFlippedCornerIcon />} href="/docs/ssh/acls">
+  Access Control Guide &gt;
+</ContentLink>
+
+## Looking For Technical Details On The Product?
+
+You can read more about the technical details of Smallstep SSH by visiting our
+[how it works page](https://smallstep.com/sso-ssh/how-it-works).

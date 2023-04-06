@@ -1,0 +1,414 @@
+---
+title: Basic Certificate Authority Operations
+html_title: basic certificate authority operations
+description: Learn about the basic certificate authority operations of step-ca
+---
+
+
+## Before You Begin
+
+This document assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
+
+## Table of Contents
+
+- [Working With X.509 Certificates](#working-with-x-509-certificates)
+- [Working With SSH Certificates](#working-with-ssh-certificates)
+
+## Working With X.509 Certificates {#working-with-x-509-certificates}
+
+Let's perform some basic operations on X.509 certificates:
+- [Get a Certificate](#get-a-certificate)
+- [Sign a Certificate Signing Request (CSR)](#sign-a-certificate-signing-request-csr)
+- [Issue a certificate using a single-use CA token](#issue-a-certificate-using-a-single-use-ca-token)
+- [Renew a Certificate](#renew-a-certificate)
+- [Adjust Certificate Lifetimes](#adjust-certificate-lifetimes)
+- [Revoke a Certificate](#revoke-a-certificate)
+
+### Get a Certificate
+
+Once you have a certificate authority up and running, the [`step ca certificate`](../step-cli/reference/ca/certificate) command is a one-step option for generating a private key and obtaining a signed certificate:
+
+```shell-session nocopy
+$ step ca certificate svc.example.com svc.crt svc.key
+✔ Provisioner: carl@smallstep.com (JWK) [kid: JxCvTLC67zKCOi-yyMoHpO5vAj_MnXs80PR0nh7IjUg]
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://127.0.0.1:4337
+✔ Certificate: svc.crt
+✔ Private Key: svc.key
+```
+
+The positional arguments in the [`step ca certificate`](../step-cli/reference/ca/certificate) command indicate the name you would like associated with the certificate (in this case, the DNS host name of a service) and the output filenames for the certificate and private key.
+
+You can check your work using [`step certificate inspect`](../step-cli/reference/certificate/inspect):
+
+```shell-session nocopy
+$ step certificate inspect svc.crt --short
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 7720...1576]
+  Subject:     svc.example.com
+  Issuer:      Smallstep Intermediate CA
+  Provisioner: carl@smallstep.com [ID: JxCv...IjUg]
+  Valid from:  2020-09-22T00:59:37Z
+          to:  2020-09-23T01:00:37Z
+```
+
+<Alert severity="info">
+    <AlertTitle>
+        Why does the certificate only last for ONE DAY!?
+    </AlertTitle>
+    <div>
+        When it comes to certificate lifetimes, <a href="https://smallstep.com/docs/step-ca/renewal">more is not always more</a>. A shorter validity period limits the downside risk of the private key being stolen. And since all certificates need to be renewed eventually, you may as well automate it and do it often. However, the 24 hour default TLS certificate lifetime is rather arbitrary. To change the default, see <a href="#adjust-certificate-lifetimes">Adjust Certificate Lifetimes</a> below.
+    </div>
+</Alert>
+
+### Sign a Certificate Signing Request (CSR)
+
+([What's a Certificate SIgning Request?](https://smallstep.com/blog/everything-pki/#certificate-signing-requests))
+
+Sometimes it's useful to separate enrollment into two steps:
+- Generating a private key and a certificate request (CSR) file
+- Asking the CA to sign the CSR and return a certificate
+
+This is necessary if you want to generate a private key in a place that can't reach the CA directly.
+
+Let's make a CSR, using [`step certificate create --csr`](../step-cli/reference/certificate/create), then we'll use [`step ca sign`](../step-cli/reference/ca/sign) to get a signed certificate from the CA:
+
+```shell-session nocopy
+$ step certificate create --csr foo.example.com foo.csr foo.key
+Please enter the password to encrypt the private key:
+
+$ step ca sign foo.csr foo.crt
+✔ Provisioner: carl@smallstep.com (JWK) [kid: yWa7WGfoSt9yJ0OZCndrvR_m65jzDriY7mhPz094fdw]
+✔ Please enter the password to decrypt the provisioner key: ...
+✔ CA: https://127.0.0.1:4337
+✔ Certificate: foo.crt
+```
+
+### Issue a certificate using a single-use CA token
+
+Occasionally it's useful to separate enrollment process even further, into three steps:
+- Generating a private key and a CSR
+- Generating a single-use, signed, short-lived CA authentication token (a JWT)
+- Using the token and CSR to ask the CA for a signed certificate
+
+Each step can happen in a different context,
+and the first two steps can happen without contacting the CA.
+
+This is useful for delegating CA authentication to a third party.
+
+For example, you may want to generate a CA token on a host,
+and inject the token into a Docker container.
+This way, the container can create its own private key and get a certificate,
+but it doesn't hold any long-lived CA credentials.
+
+Under the hood, many of `step-ca`'s [certificate provisioners](../step-ca/certificate-authority-core-concepts.mdx#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
+- The JWK provisioner accepts JWTs signed using a JavaScript Web Key whose public key is configured in the CA.
+- The OIDC provisioner accepts JWTs signed by an identity provider via a single sign-on flow.
+- The X5C provisioner accepts JWTs signed using an X509 certificate private key whose root is configured in the CA.
+
+In the following example, the CA generates a token for the client who has the JWK's encrypted private key password:
+
+```shell-session nocopy
+$ TOKEN=$(step ca token localhost)
+✔ Provisioner: carl@smallstep.com (JWK) [kid: kvPj79hrAnrQywrVy-oFmye4foHq1rdUg55nxsuCvkI]
+✔ Please enter the password to decrypt the provisioner key:
+$ echo $TOKEN | step crypto jwt inspect --insecure
+{
+  "header": {
+    "alg": "ES256",
+    "kid": "kvPj79hrAnrQywrVy-oFmye4foHq1rdUg55nxsuCvkI",
+    "typ": "JWT"
+  },
+  "payload": {
+    "aud": "https://localhost:8443/1.0/sign",
+    "exp": 1634667515,
+    "iat": 1634667215,
+    "iss": "carl@smallstep.com",
+    "jti": "ffa63c06b0f3ccb0de554711836042a877e32a0322df42d617c6da59af65ec7d",
+    "nbf": 1634667215,
+    "sans": [
+      "localhost"
+    ],
+    "sha": "256538bb3b338289f80308ef286b00d4a4ac87b87fa3fcaff2234f2943572bb6",
+    "sub": "localhost"
+  },
+  "signature": "g8S-1Mrb9U3l3CbTRE-Mvcy2m2I-M2b_9KXj04SnqSxyMVDRzvnpoW3XYtlGgCcIexo5gQpOpe0QrkdZuKwhUQ"
+}
+```
+
+This JWT expires in 5 minutes. [The raw `$TOKEN`](https://jwt.io/#debugger-io?token=eyJhbGciOiJFUzI1NiIsImtpZCI6Imt2UGo3OWhyQW5yUXl3clZ5LW9GbXllNGZvSHExcmRVZzU1bnhzdUN2a0kiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2xvY2FsaG9zdDo4NDQzLzEuMC9zaWduIiwiZXhwIjoxNjM0NjY3NTE1LCJpYXQiOjE2MzQ2NjcyMTUsImlzcyI6ImNhcmxAc21hbGxzdGVwLmNvbSIsImp0aSI6ImZmYTYzYzA2YjBmM2NjYjBkZTU1NDcxMTgzNjA0MmE4NzdlMzJhMDMyMmRmNDJkNjE3YzZkYTU5YWY2NWVjN2QiLCJuYmYiOjE2MzQ2NjcyMTUsInNhbnMiOlsibG9jYWxob3N0Il0sInNoYSI6IjI1NjUzOGJiM2IzMzgyODlmODAzMDhlZjI4NmIwMGQ0YTRhYzg3Yjg3ZmEzZmNhZmYyMjM0ZjI5NDM1NzJiYjYiLCJzdWIiOiJsb2NhbGhvc3QifQ.g8S-1Mrb9U3l3CbTRE-Mvcy2m2I-M2b_9KXj04SnqSxyMVDRzvnpoW3XYtlGgCcIexo5gQpOpe0QrkdZuKwhUQ&publicKey=%7B%0A%20%20%22use%22%3A%20%22sig%22%2C%0A%20%20%22kty%22%3A%20%22EC%22%2C%0A%20%20%22kid%22%3A%20%22kvPj79hrAnrQywrVy-oFmye4foHq1rdUg55nxsuCvkI%22%2C%0A%20%20%22crv%22%3A%20%22P-256%22%2C%0A%20%20%22alg%22%3A%20%22ES256%22%2C%0A%20%20%22x%22%3A%20%22qgJNrHeWBxHpGKns1VqkQCTQYIHOzoJm5khaqGXAbdw%22%2C%0A%20%20%22y%22%3A%20%22Sb4RL5_S5ZAKPZMAS8a0eye1uJHDJWFiCfXFx04mYcc%22%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%20%7D) is a series of base64-encoded values.
+
+Next, generate the CSR:
+
+```shell-session nocopy
+$ step certificate create --csr localhost localhost.csr localhost.key
+Please enter the password to encrypt the private key:
+Your certificate signing request has been saved in localhost.csr.
+Your private key has been saved in localhost.key.
+```
+
+And finally, get the CSR signed, using the token:
+
+```shell-session nocopy
+$ step ca sign --token $TOKEN localhost.csr localhost.crt
+✔ CA: https://localhost:8443
+✔ Certificate: localhost.crt
+$ step certificate inspect localhost.crt --short
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1459...0708]
+  Subject:     localhost
+  Issuer:      Example Intermediate CA
+  Provisioner: carl@smallstep.com [ID: kvPj...CvkI]
+  Valid from:  2021-10-19T18:14:55Z
+          to:  2021-10-20T18:15:55Z
+```
+
+### Renew a Certificate
+
+Certificate renewal is easy, and is authenticated using the existing private key:
+
+```shell-session
+$ step ca renew foo.crt foo.key
+✔ Would you like to overwrite foo.crt [y/n]: y
+Your certificate has been saved in foo.crt.
+```
+
+When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](../step-ca/renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
+
+Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
+
+### Adjust Certificate Lifetimes
+
+The 24 hour default validity window for certificates from `step-ca` is arbitrary. Depending on your threat model and use context, you may want much shorter or much longer certificate lifetimes:
+- Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
+- Client certificates for humans typically are shorter lived and could expire after a few minutes or up to a month.
+
+A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
+
+You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate:
+
+```shell-session nocopy
+# This certificate will be valid for five minutes:
+$ step ca certificate localhost localhost.crt localhost.key --not-after=5m
+
+# This certificate will be valid starting 5 minutes from now, until 10 days from now:
+$ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h
+```
+
+Note that default maximum certificate duration is 24 hours. To adjust the global default, minimum, and maximum certificate durations for your CA, add a `claims` section to the `$(step path)/config/ca.json` configuration file, under `"authority"`, with the following keys:
+
+```json
+"claims": {
+    "minTLSCertDuration": "5m",
+    "maxTLSCertDuration": "24h",
+    "defaultTLSCertDuration": "24h"
+}
+```
+
+You can also set default, minimum, and maximum certificate durations on each provisioner.
+See [Basic Configuration Options](../step-ca/configuration.mdx#basic-configuration-options) for more details.
+
+### Revoke a Certificate
+
+There is no way to "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
+
+However, you can ask the CA to block the renewal of a certificate. This is called _passive revocation_.
+
+Let's revoke the `svc.crt` certificate we created earlier.
+
+```shell-session
+$ step ca revoke --cert svc.crt --key svc.key
+✔ CA: https://localhost:4337
+Certificate with Serial Number 30671613121311574910895916201205874495 has been revoked.
+```
+
+For more on this topic, read [All About Certificate Revocation](../step-ca/revocation.mdx).
+
+## Working With SSH Certificates
+
+In this section we'll go over the basics of issuing and renewing SSH certificates for users and hosts.
+
+### Background
+
+SSH certificates are not X.509 certificates.
+Instead, they follow an [SSH-specific certificate format](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys).
+
+Mercifully, they are a lot simpler than X.509:
+- SSH supports only User certificates and Host certificates.
+- There are no certificate chains in SSH.
+- Instead of a root CA certificate, an SSH CA is represented as a trusted public key.
+- An SSH CA is just like any other SSH public key, except it's prepended with a special `@cert-authority` annotation when used in a `known_hosts` file.
+
+When both the user and the host use certificates in a connection, you will have mutual authentication:
+- **The host authenticates the user**: When configured to trust the User CA key, a host delegates user identity to the SSH CA. When a user presents their certificate to a host during the SSH handshake, the host will trust it if it's signed by the User CA key, and it will alow any listed certificate principals (usernames) to sign in.
+- **The user authenticates the host**: When configured to trust the Host CA key, clients delegate host identity to the CA. When a host presents its certificate to a user during the SSH handshake, the user will trust it if it's signed by the host CA key.
+
+When [`step ca init`](../step-cli/reference/ca/init is run with `--ssh`, it creates two SSH CA key pairs: one for the host CA, and one for the user CA. The user CA key signs SSH user certificates, and the host CA key signs SSH host certificates.
+
+### Requirements
+
+* You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](../step-cli/reference/ca/init).
+* To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](../step-ca/getting-started.mdx#accessing-step-ca-remotely).
+
+### Getting a host to authenticate users
+
+First let's delegate user authentication to the SSH CA.
+
+#### 1. Get your host to trust your SSH user CA
+
+On your host, once you've [bootstrapped your CA configuration](../step-ca/getting-started.mdx#accessing-step-ca-remotely), run:
+
+```shell-session
+$ step ssh config --roots > /path/to/ssh_user_key.pub
+```
+
+Add this to key your SSHD configuration. On your host, run:
+
+```shell-session
+$ cat <<EOF >> /etc/ssh/sshd_config
+# This is the CA's public key for authenticating user certificates:
+TrustedUserCAKeys /path/to/ssh_user_key.pub
+EOF
+```
+
+Restart SSHD. Your host will now trust any user certificate issued by the CA. On Ubuntu 18.04 LTS, run:
+
+```shell-session
+$ systemctl restart ssh.service
+```
+
+#### 2. Issue an SSH user certificate and test your connection
+
+Let's create an SSH user certificate for the user `alice`:
+
+```shell-session
+$ step ssh certificate alice@smallstep.com id_ecdsa
+✔ Provisioner: carl@smallstep.com (JWK) [kid: yWa7WGfoSt9yJ0OZCndrvR_m65jzDriY7mhPz094fdw]
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://127.0.0.1:4337
+Please enter the password to encrypt the private key:
+✔ Private Key: id_ecdsa
+✔ Public Key: id_ecdsa.pub
+✔ Certificate: id_ecdsa-cert.pub
+✔ SSH Agent: yes
+```
+
+The CA issued a private key, a public key, and an SSH certificate, and `step` added the certificate and private key to our local SSH agent. We only need the private key and certificate to use SSH certificate authentication. Let's inspect the certificate:
+
+```shell-session
+$ cat id_ecdsa-cert.pub | tail -1 | step ssh inspect
+-:
+        Type: ecdsa-sha2-nistp256-cert-v01@openssh.com user certificate
+        Public key: ECDSA-CERT SHA256:EPVTWfml136JG5FNR5xkFz7PRhUvuMUWzRXyQ+2zJfE
+        Signing CA: ECDSA SHA256:yrTW8Ej/0kzGebLRvXIVFclXfA1dF/9VRiGjRnRcXl4
+        Key ID: "alice@smallstep.com"
+        Serial: 7887351871112993341
+        Valid: from 2020-09-22T11:27:56 to 2020-09-23T03:28:56
+        Principals:
+                alice
+                alice@smallstep.com
+        Critical Options: (none)
+        Extensions:
+                permit-pty
+                permit-user-rc
+                permit-X11-forwarding
+                permit-agent-forwarding
+                permit-port-forwarding
+```
+
+By default, when using SSH certificates, SSHD will allow you to connect as any of the listed principals. If the list of principals is empty, SSHD will allow you to authenticate as _anyone_ on the host.
+
+Now you have a certificate for your user, try to login on your host.
+
+### Getting SSH clients to trust hosts
+
+Hosts can have SSH certificates, too, instead of the typical host public key pair. Host certificates allow clients who trust the host CA to avoid the trust on first use prompt.
+
+#### 1. Issue a certificate for your host
+
+On your host, run:
+
+```shell-session
+$ step ssh certificate --host internal.example.com ssh_host_ecdsa_key
+✔ Provisioner: carl@smallstep.com (JWK) [kid: yWa7WGfoSt9yJ0OZCndrvR_m65jzDriY7mhPz094fdw]
+✔ Please enter the password to decrypt the provisioner key:
+✔ CA: https://127.0.0.1:4337
+Please enter the password to encrypt the private key:
+✔ Private Key: ssh_host_ecdsa_key
+✔ Public Key: ssh_host_ecdsa_key.pub
+✔ Certificate: ssh_host_ecdsa_key-cert.pub
+```
+
+Let's see what you created:
+
+```shell-session
+$ cat ssh_host_ecdsa_key-cert.pub | step ssh inspect
+-:
+        Type: ecdsa-sha2-nistp256-cert-v01@openssh.com host certificate
+        Public key: ECDSA-CERT SHA256:Dc+Mzy43RzKoIaLrI8GzeHcQLbIa3hQ3mhirIDjbu0s
+        Signing CA: ECDSA SHA256:IG7xVPz9kC6PwUTDDRvn+HIy1xUf/zllPo0InlSfaTg
+        Key ID: "internal.example.com"
+        Serial: 14283430004353679661
+        Valid: from 2020-09-22T11:34:40 to 2020-10-22T11:35:40
+        Principals:
+                internal.example.com
+        Critical Options: (none)
+        Extensions: (none)
+```
+
+By default, host certificates expire in a month. 
+
+#### 2. Install your host key and certificate
+
+If you want your host to use this key, move the files to `/etc/ssh` and add the following to your SSHD configuration. On your host:
+
+```shell-session
+$ mv ssh_host_ecdsa_key ssh_host_ecdsa_key-cert.pub /etc/ssh
+$ cat <<EOF >> /etc/ssh/sshd_config
+# This is our host private key and certificate:
+HostKey /etc/ssh/ssh_host_ecdsa_key
+HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
+EOF
+```
+
+#### 3. Automate host key rotation
+
+Because the host certificate expires in a month, you'll also need to set up automated renewal of the certificate. Let's add a weekly renewal `cron` script that runs `step ssh renew`, on your host:
+
+```shell-session
+$ cat <<EOF > /etc/cron.weekly/rotate-ssh-certificate
+#!/bin/sh
+export STEPPATH=/root/.step
+cd /etc/ssh && step ssh renew ssh_host_ecdsa_key-cert.pub ssh_host_ecdsa_key --force 2> /dev/null
+exit 0
+EOF
+chmod 755 /etc/cron.weekly/rotate-ssh-certificate
+```
+
+#### 4. Configure SSH clients to trust your host CA
+
+To get your SSH clients to trust host certificates issued by your CA, you'll need to add the host CA key to SSH's `.ssh/known_hosts` file.
+
+To view the host key, run:
+
+```shell-session
+$ step ssh config --host --roots
+ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFM2fTh3Utg3eGMqy2mJqa48Qsr7onZfOtIpJRNvvd71+eBUHBQdhnGmo2NPksNV3GxEuUZKAjZMlNv5c13XvfY=
+```
+
+Add this to the `.ssh/known_hosts` file on your SSH client, prepending `@cert-authority * ` to it to mark it as a Certificate Authority, eg:
+
+```
+@cert-authority * ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBFM2fTh3Utg3eGMqy2mJqa48Qsr7onZfOtIpJRNvvd71+eBUHBQdhnGmo2NPksNV3GxEuUZKAjZMlNv5c13XvfY=
+```
+
+Your SSH client will now trust any host with a valid certificate signed by the CA.
+
+### Test your connection
+
+You're all done. Now test your SSH connection.
+
+## Next Steps
+
+* Learn to automate certificate management in your PKI. [ACME Basics](../step-ca/acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
+* See [Provisioners](../step-ca/provisioners.mdx), [Production Considerations](../step-ca/certificate-authority-server-production.mdx), and our [Configuration Guide](../step-ca/configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.
+* Run [`step ca help`](../step-cli/reference/ca) or [`step ssh help`](../step-cli/reference/ssh) for many more flags and examples.
+* Our [Tutorials](../tutorials) can guide you through more complex scenarios for using `step-ca` in various contexts and workflows.

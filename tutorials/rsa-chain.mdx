@@ -1,0 +1,40 @@
+---
+title: Configure step-ca with an RSA certificate chain
+html_title: Create a root and intermediate CA chain that uses RSA keys
+description: Configure step-ca with an RSA certificate chain to create a root and intermediate CA chain that uses RSA keys.
+---
+
+## Requirements
+
+- **Open Source -** This tutorial assumes you have installed the `step` and `step-ca` software, and that you've just initialized a CA using the steps in [Getting Started](../step-ca/getting-started.mdx).
+- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please get in touch with [Smallstep Customer Success](mailto:support@smallstep.com) if you want to use a RSA certificate chain.
+
+## Instructions
+
+Some legacy applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
+
+First, stop your `step-ca` server if it is running.
+
+Next, delete your existing PKI and create RSA root and intermediate certificates and keys.
+**This step will overwrite your existing CA.**
+
+```bash
+step certificate create "Example Root CA" \
+	$(step path)/certs/root_ca.crt \
+	$(step path)/secrets/root_ca_key \
+	--profile root-ca \
+	--kty RSA
+step certificate create "Example Intermediate CA" \
+	$(step path)/certs/intermediate_ca.crt \
+	$(step path)/secrets/intermediate_ca_key \
+	--profile intermediate-ca \
+	--ca $(step path)/certs/root_ca.crt \
+	--ca-key $(step path)/secrets/root_ca_key \
+	--kty RSA
+```
+
+Change the certificate subject names as desired.
+You'll be prompted to supply a password to encrypt your private keys.
+
+You can now restart `step-ca` server.
+

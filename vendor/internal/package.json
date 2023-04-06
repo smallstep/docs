@@ -1,7 +1,0 @@
-{
-  "name": "@smallstep/internal",
-  "version": "0.0.1",
-  "private": "true",
-  "author": "Smallstep",
-  "main": "./index.js"
-}
