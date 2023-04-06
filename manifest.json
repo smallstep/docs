@@ -364,7 +364,7 @@
             {
               "hideFromSidebar": true,
               "title": "Reference - CA Bootstrap",
-              "path": "/step-cli/reference/ca/boostrap/README.mdx"
+              "path": "/step-cli/reference/ca/bootstrap/README.mdx"
             },
             {
               "hideFromSidebar": true,
@@ -454,7 +454,7 @@
             {
               "hideFromSidebar": true,
               "title": "Reference - CA policy ACME x509 deny dns",
-              "path": "/step-cli/reference/ca/policy/acme/x509/denu/dns/README.mdx"
+              "path": "/step-cli/reference/ca/policy/acme/x509/deny/dns/README.mdx"
             },
             {
               "hideFromSidebar": true,
@@ -568,7 +568,7 @@
             },
             {
               "hideFromSidebar": true,
-              "title": "Reference - CA policy Authority SSH user denu",
+              "title": "Reference - CA policy Authority SSH user deny",
               "path": "/step-cli/reference/ca/policy/authority/ssh/user/deny/README.mdx"
             },
             {
@@ -579,7 +579,7 @@
             {
               "hideFromSidebar": true,
               "title": "Reference - CA policy Authority SSH user deny principla",
-              "path": "/step-cli/reference/ca/policy/authority/ssh/user/allow/deny/README.mdx"
+              "path": "/step-cli/reference/ca/policy/authority/ssh/user/deny/principal/README.mdx"
             },
             {
               "hideFromSidebar": true,
@@ -599,7 +599,7 @@
             {
               "hideFromSidebar": true,
               "title": "Reference - CA policy Authority x509 allow",
-              "path": "/step-cli/reference/ca/policy/acme/authority/x509/allow/README.mdx"
+              "path": "/step-cli/reference/ca/policy/authority/x509/allow/README.mdx"
             },
             {
               "hideFromSidebar": true,
