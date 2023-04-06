@@ -338,10 +338,8 @@ Visit the [`step-ca` policy](../step-ca/policies.mdx) page to learn how certific
   <AlertTitle>Need more control?</AlertTitle>
   <div>
     A self-hosted <Code>step-ca</Code> instance can be configured with a policy on the authority level only.
-    In a <Link external
-      href="https://smallstep.com/signup?product=cm">
-      free hosted smallstep Certificate Manager authority
-    </Link>, policies can be configured on the authority, on each provisioner, and on every ACME account.
+    In a <a href="https://smallstep.com/signup?product=cm">
+      free hosted smallstep Certificate Manager authority</a>, policies can be configured on the authority, on each provisioner, and on every ACME account.
   </div>
 </Alert>
 
@@ -872,8 +870,8 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 
 <Alert severity="info">
   <div>
-    <strong>This feature is not enabled by default.</strong><br />
-    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.<br />
+    <strong>This feature requires building from source.</strong><br />
+    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.
     See <a href="https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
   </div>
 </Alert>

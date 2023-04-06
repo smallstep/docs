@@ -1542,7 +1542,7 @@
           "path": "/practical-zero-trust/README.mdx"
         },
         {
-          "title": "Mutual TLS",
+          "title": "Hello mTLS",
           "path": "/mtls/README.mdx"
         },
         {
