@@ -48,5 +48,5 @@ npm install -g markdown-link-check
 Then run:
 
 ```
-find . -name '*.mdx' -not -path './node_modules/*' -exec markdown-link-check -q -c .github/mdl.config.json '{}' ';'
+find . -name \*.mdx -not -path './node_modules/*' -print0 | xargs -0 -n1 markdown-link-check -q -c .github/mdl.config.json
 ```
