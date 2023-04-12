@@ -1,0 +1,81 @@
+---
+layout: auto-doc
+category: reference
+title: step ca policy provisioner x509 wildcards allow
+menu:
+  docs:
+    parent: step ca policy provisioner x509 wildcards
+---
+
+## Name
+**step ca policy provisioner x509 wildcards allow** -- allow wildcard names in X.509 certificate issuance policies
+
+## Usage
+
+```raw
+step ca policy x509 wildcards allow
+[--provisioner=<name>] [--eab-key-id=<eab-key-id>] [--eab-key-reference=<eab-key-reference>]
+[--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
+[--admin-provisioner=<name>] [--admin-password-file=<file>]
+[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+```
+
+## Description
+
+**step ca policy x509 wildcards allow** allow wildcard names in X.509 policy
+
+## Options
+
+
+**--provisioner**=`name`
+The provisioner `name`
+
+**--eab-key-id**=`value`
+An ACME EAB Key ID.
+
+**--eab-key-reference**=`value`
+An ACME EAB Key Reference.
+
+**--admin-cert**=`chain`
+Admin certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
+
+**--admin-key**=`file`
+Private key `file`, used to sign a JWT, corresponding to the admin certificate that will
+be stored in the 'x5c' header.
+
+**--admin-subject**=`subject`, **--admin-name**=`subject`
+The admin `subject` to use for generating admin credentials.
+
+**--admin-provisioner**=`name`, **--admin-issuer**=`name`
+The provisioner `name` to use for generating admin credentials.
+
+**--admin-password-file**=`file`, **--password-file**=`file`
+The path to the `file` containing the password to decrypt the one-time token
+generating key.
+
+**--ca-url**=`URI`
+`URI` of the targeted Step Certificate Authority.
+
+**--root**=`file`
+The path to the PEM `file` used as the root certificate authority.
+
+**--context**=`name`
+The context `name` to apply for the given command.
+
+## Examples  
+
+Allow wildcard names in X.509 certificates on authority level
+```shell
+$ step ca policy authority x509 wildcards allow
+```    
+
+Allow wildcard names in X.509 certificates on provisioner level
+```shell
+$ step ca policy provisioner x509 wildcards allow --provisioner my_provisioner
+```    
+
+Allow wildcard names in X.509 certificates on ACME account level by reference
+```shell
+$ step ca policy acme x509 wildcards allow --provisioner my_acme_provisioner --eab-reference my_reference
+```
+

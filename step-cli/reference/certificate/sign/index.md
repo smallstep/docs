@@ -1,0 +1,187 @@
+---
+layout: auto-doc
+category: reference
+title: step certificate sign
+menu:
+  docs:
+    parent: step certificate
+---
+
+## Name
+**step certificate sign** -- sign a certificate signing request (CSR)
+
+## Usage
+
+```raw
+step certificate sign <csr-file> <crt-file> <key-file>
+[--profile=<profile>] [--template=<file>] 
+[--set=<key=value>] [--set-file=<file>]
+[--password-file=<file>] [--path-len=<maximum>]
+[--not-before=<time|duration>] [--not-after=<time|duration>]
+[--bundle]
+```
+
+## Description
+
+**step certificate sign** generates a signed
+certificate from a certificate signing request (CSR).
+
+## Positional arguments
+
+`csr-file`
+The path to a certificate signing request (CSR) to be signed.
+
+`crt-file`
+The path to an issuing certificate.
+
+`key-file`
+The path to a private key for signing the CSR.
+
+## Options
+
+
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
+**--profile**=`profile`
+The certificate profile sets various certificate details such as
+  certificate use and expiration. The default profile is 'leaf' which is suitable
+  for a client or server using TLS.
+
+`profile` is a case-sensitive string and must be one of:
+
+- **leaf**: Signs a leaf x.509 certificate suitable for use with TLS.
+
+- **intermediate-ca**: Signs a certificate that can be used to sign additional leaf certificates.
+
+- **csr**: Signs a x.509 certificate without modifying the CSR.
+
+**--template**=`file`
+The certificate template `file`, a JSON representation of the certificate to create.
+
+**--set**=`key=value`
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
+
+**--set-file**=`file`
+The JSON `file` with the template data variables.
+
+**--password-file**=`file`
+The path to the `file` containing the password to encrypt or decrypt the private key.
+
+**--not-before**=`time|duration`
+The `time|duration` set in the NotBefore property of the certificate. If a
+`time` is used it is expected to be in RFC 3339 format. If a `duration` is
+used, it is a sequence of decimal numbers, each with optional fraction and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--not-after**=`time|duration`
+The `time|duration` set in the NotAfter property of the certificate. If a
+`time` is used it is expected to be in RFC 3339 format. If a `duration` is
+used, it is a sequence of decimal numbers, each with optional fraction and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--path-len**=`maximum`
+The `maximum` path length to set in the pathLenConstraint of an intermediate-ca.
+Defaults to 0. If it's set to -1 no path length limit is imposed.
+
+**--bundle**
+Bundle the new leaf certificate with the signing certificate.
+
+## Exit codes
+
+This command returns 0 on success and >0 if any error occurs.
+
+## Examples
+
+Sign a certificate signing request using the leaf profile:
+```shell
+$ step certificate sign leaf.csr issuer.crt issuer.key
+# or
+$ step certificate sign --profile leaf leaf.csr issuer.crt issuer.key
+```
+
+Sign a CSR and bundle the new certificate with the issuer:
+```shell
+$ step certificate sign --bundle leaf.csr issuer.crt issuer.key
+```
+
+Sign a CSR with custom validity and bundle the new certificate with the issuer:
+```shell
+$ step certificate sign --bundle --not-before -1m --not-after 16h leaf.csr issuer.crt issuer.key
+```
+
+Sign an intermediate ca:
+```shell
+$ step certificate sign --profile intermediate-ca intermediate.csr issuer.crt issuer.key
+```
+
+Sign an intermediate ca that can sign other intermediates; in this example, the
+issuer must set the pathLenConstraint at least to 2 or without a limit:
+```shell
+$ step certificate sign --profile intermediate-ca --path-len 1 intermediate.csr issuer.crt issuer.key
+```
+
+Sign a CSR but only use information present in it, it doesn't add any key or
+extended key usages if they are not in the CSR.
+```shell
+$ step certificate sign --profile csr test.csr issuer.crt issuer.key
+```
+
+Sign a CSR with only clientAuth as key usage using a template:
+```shell
+$ cat coyote.tpl
+{
+  "subject": {
+    "country": "US",
+        "organization": "Coyote Corporation",
+        "commonName": "{{ .Subject.CommonName }}"
+  },
+  "emailAddresses": {{ toJson .Insecure.CR.EmailAddresses }},
+  "keyUsage": ["digitalSignature"],
+  "extKeyUsage": ["clientAuth"]
+}
+$ step certificate create --csr coyote@acme.corp coyote.csr coyote.key
+$ step certificate sign --template coyote.tpl coyote.csr issuer.crt issuer.key
+```
+
+Sign a CSR using a template and allow configuring the subject using the
+**--set** and **--set-file** flags.
+```shell
+$ cat rocket.tpl
+{
+  "subject": {
+    "country": {{ toJson .Insecure.User.country }},
+    "organization": {{ toJson .Insecure.User.organization }},
+    "organizationalUnit": {{ toJson .Insecure.User.organizationUnit }},
+    "commonName": {{toJson .Subject.CommonName }}
+  },
+  "sans": {{ toJson .SANs }},
+{{- if typeIs "*sa.PublicKey" .Insecure.CR.PublicKey }}
+  "keyUsage": ["keyEncipherment", "digitalSignature"],
+{{- else }}
+  "keyUsage": ["digitalSignature"],
+{{- end }}
+  "extKeyUsage": ["serverAuth", "clientAuth"]
+}
+$ cat organization.json
+{
+  "country": "US",
+  "organization": "Acme Corporation",
+  "organizationUnit": "HQ"
+}
+$ step certificate create --csr rocket.acme.corp rocket.csr rocket.key
+$ step certificate sign --template rocket.tpl \
+  --set-file organization.json --set organizationUnit=Engineering \
+  rocket.csr issuer.crt issuer.key
+```
+
+Sign a CSR using `step-kms-plugin`:
+```shell
+$ step certificate sign \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  leaf.csr issuer.crt 'pkcs11:id=4001'
+```
+
+
