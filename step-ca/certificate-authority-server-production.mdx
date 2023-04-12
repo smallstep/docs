@@ -432,10 +432,10 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   $ sudo systemctl status step-ca
 
   # Enable and start the `step-ca` process
-  $ systemctl enable --now step-ca
+  $ sudo systemctl enable --now step-ca
 
   # Follow the log messages for step-ca
-  $ journalctl --follow --unit=step-ca
+  $ sudo journalctl --follow --unit=step-ca
   ```
 
 ## High Availability
