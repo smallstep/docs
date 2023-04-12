@@ -13,7 +13,7 @@ should know about when running `step-ca` as a certificate authority server.
 
 ## Overview
 
-- [Good Security Practices](#securing-your-pki)
+- [Good Security Practices](#good-security-practices)
   - [Safeguard Your Root And Intermediate Keys](#safeguard-your-root-and-intermediate-keys)
   - [Use Strong Passwords and Store Them Well](#use-strong-passwords-and-store-them-well)
   - [Avoid Storing Passwords In Environment Variables](#avoid-storing-passwords-in-environment-variables)
@@ -33,13 +33,13 @@ should know about when running `step-ca` as a certificate authority server.
   - [X.509 Certificates](#x509-certificates)
   - [TLS Defaults](#tls-defaults)
 
-## Good Security Practices {#securing-your-pki}
+## Good Security Practices
 
 In this section we recommend a few best practices when it comes to running, deploying, and managing your own online certificate authority server and PKI.
 Security is a moving target.
 We expect our recommendations to change and evolve as well.
 
-### Safeguard Your Root And Intermediate CA Keys {#safeguard-your-root-and-intermediate-keys}
+### Safeguard Your Root And Intermediate Keys
 
 When you initialize a two-tier CA, two private keys are generated:
 one intermediate private key, and one root private key.
@@ -432,10 +432,10 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   $ sudo systemctl status step-ca
 
   # Enable and start the `step-ca` process
-  $ systemctl enable --now step-ca
+  $ sudo systemctl enable --now step-ca
 
   # Follow the log messages for step-ca
-  $ journalctl --follow --unit=step-ca
+  $ sudo journalctl --follow --unit=step-ca
   ```
 
 ## High Availability

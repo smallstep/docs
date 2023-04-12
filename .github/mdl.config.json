@@ -1,31 +1,31 @@
 {
   "ignorePatterns": [
     {
-      "pattern": "^https://i.imgur.com"
+      "pattern": "^https?://.*.local"
     },
     {
-      "pattern": "^https://ca.local"
+      "pattern": "^https?://.*.internal"
+    },
+    {
+      "pattern": "^https?://localhost"
+    },
+    {
+      "pattern": "^https?://127.0.0.1"
+    },
+    {
+      "pattern": "^https?://.*.example.com"
+    },
+    {
+      "pattern": "^https://yourco.okta.com"
     },
     {
       "pattern": "^https://somehost.com"
     },
     {
-      "pattern": "^https://ca.internal"
+      "pattern": "^https://.*ca.smallstep.com"
     },
     {
-      "pattern": "^http://127.0.0.1"
-    },
-    {
-      "pattern": "^https://example.mycompany.ca.smallstep.com"
-    },
-    {
-      "pattern": "^https://*.example.com"
-    },
-    {
-      "pattern": "^http://*.example.com"
-    },
-    {
-      "pattern": "^https://foo.internal"
+      "pattern": "^https://i.imgur.com"
     }
   ],
   "replacementPatterns": [

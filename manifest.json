@@ -943,6 +943,11 @@
             },
             {
               "hideFromSidebar": true,
+              "title": "Reference - CA",
+              "path": "/step-cli/reference/ca/README.mdx"
+            },
+            {
+              "hideFromSidebar": true,
               "title": "Reference - CA root",
               "path": "/step-cli/reference/ca/root/README.mdx"
             },
