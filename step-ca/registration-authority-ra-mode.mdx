@@ -43,7 +43,7 @@ When in RA mode, `step-ca` can peer with one of three types of upstream CA:
 
 StepCAS allows configuring a `step-ca` server as an RA, with a second, upstream `step-ca` server acting as the main CA.
 
-StepCAS supports the [JWK](../step-ca/provisioners.mdx#jwk) and [X5C](../step-ca/provisioners.mdx#x5c) provisioners for requests between RAs and the CA.
+StepCAS supports the [JWK](../step-ca/provisioners.mdx#jwk) and [X5C](../step-ca/provisioners.mdx#x5c-x509-certificate) provisioners for requests between RAs and the CA.
 The JWK provisioner balances security and simplicity, and it covers the most common use cases.
 The X5C provisioner allows for more complex trust relationships and expiring certificates,
 but it requires setting up ongoing certificate lifecycle management on the RAs.
@@ -147,7 +147,7 @@ Finally, use `--issuer-password-file` to provide a password file when starting u
 
 ### Using the X5C provisioner
 
-Instead of a JWK, the RA can alternatively use certificate authentication with the CA, via the [X5C Provisioner](#x5c-x509-certificate).
+Instead of a JWK, the RA can alternatively use certificate authentication with the CA, via the [X5C Provisioner](provisioners.mdx#x5c-x509-certificate).
 While this approach is more complex,
 it offers more security because it uses expiring certificates instead of non-expiring JWKs.
 
@@ -155,7 +155,7 @@ In this scenario, the RA `"certificateIssuer"` block will need to be configured 
 
 To configure an RA ↔ CA connection using an X5C provisioner,
 first add an X5C provisioner to the CA.
-(See the [X5C Provisioner](#x5c-x509-certificate) configuration section.)
+(See the [X5C Provisioner](provisioners.mdx#x5c-x509-certificate) configuration section.)
 
 Next, change the `"certificateIssuer"` object in the RA configuration as follows:
 
