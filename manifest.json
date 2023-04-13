@@ -215,8 +215,15 @@
             {
               "title": "Command Reference",
               "path": "/step-cli/reference/README.mdx"
-            },
-            {
+            }
+        ]
+       },
+       {
+       "title": "step reference pages",
+       "hideFromSidebar": true,
+       "isStepReference": true,
+       "routes": [
+        {
               "hideFromSidebar": true,
               "title": "Reference - Base64",
               "path": "/step-cli/reference/base64/README.mdx"
@@ -1472,8 +1479,8 @@
               "path": "/step-cli/reference/version/README.mdx"
             }
           ]
-        },
-        {
+       },
+         {
           "title": "Step CA",
           "routes": [
             {
