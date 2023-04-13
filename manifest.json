@@ -90,7 +90,7 @@
             },
             {
               "hideFromSidebar": true,
-              "title": "Step by Step Guid",
+              "title": "Step by Step Guide",
               "path": "/ssh/hosts-step-by-step.mdx"
             }
           ]
@@ -120,55 +120,59 @@
             },
             {
               "title": "ACME Server",
-              "path": "/certificate-manager/acme.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "ACME How",
-              "path": "/certificate-manager/acme/how-to-use-acme.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "ACME When",
-              "path": "/certificate-manager/acme/when-to-use-acme.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "ACME Why",
-              "path": "/certificate-manager/acme/why-use-acme.mdx"
+              "path": "/certificate-manager/acme/README.mdx",
+              "routes": [
+                {
+                  "hideFromSidebar": true,
+                  "title": "ACME How",
+                  "path": "/certificate-manager/acme/how-to-use-acme.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "ACME When",
+                  "path": "/certificate-manager/acme/when-to-use-acme.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "ACME Why",
+                  "path": "/certificate-manager/acme/why-use-acme.mdx"
+                }
+              ]
             },
             {
               "title": "Certs For Humans",
               "path": "/certificate-manager/oidc.mdx"
             },
             {
-              "hideFromSidebar": true,
-              "title": "Kubernetes autocert",
-              "path": "/certificate-manager/kubernetes-autocert.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "Kubernetes container tls",
-              "path": "/certificate-manager/kubernetes-container-tls.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "Kubernetes ingress tls",
-              "path": "/certificate-manager/kubernetes-ingress-tls.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "Kubernetes install",
-              "path": "/certificate-manager/kubernetes-install.mdx"
-            },
-            {
-              "hideFromSidebar": true,
-              "title": "Kubernetes step issuer",
-              "path": "/certificate-manager/kubernetes-step-issuer.mdx"
-            },
-            {
               "title": "Kubernetes TLS",
-              "path": "/certificate-manager/kubernetes-tls.mdx"
+              "path": "/certificate-manager/kubernetes-tls.mdx",
+              "routes": [
+                {
+                  "hideFromSidebar": true,
+                  "title": "Kubernetes autocert",
+                  "path": "/certificate-manager/kubernetes-autocert.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "Kubernetes container tls",
+                  "path": "/certificate-manager/kubernetes-container-tls.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "Kubernetes ingress tls",
+                  "path": "/certificate-manager/kubernetes-ingress-tls.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "Kubernetes install",
+                  "path": "/certificate-manager/kubernetes-install.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "Kubernetes step issuer",
+                  "path": "/certificate-manager/kubernetes-step-issuer.mdx"
+                }
+              ]
             }
           ]
         },
