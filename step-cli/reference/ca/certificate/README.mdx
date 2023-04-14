@@ -50,6 +50,15 @@ Add `dns|ip|email|uri` Subject Alternative Name(s) (SANs)
 that should be authorized. Use the '--san' flag multiple times to configure
 multiple SANs. The '--san' flag and the '--token' flag are mutually exclusive.
 
+**--attestation-ca-url**=`value`
+The base url of the Attestation CA to use
+
+**--attestation-ca-root**=`file`
+The path to the PEM `file` with trusted roots when connecting to the Attestation CA
+
+**--tpm-storage-directory**=`value`
+The directory where TPM keys and certificates will be stored
+
 **--set**=`key=value`
 The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
 
