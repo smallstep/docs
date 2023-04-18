@@ -324,10 +324,12 @@ Hosts can have SSH certificates, too, instead of the typical host public key pai
 
 #### 1. Issue a certificate for your host
 
+You'll do this by having the CA sign a host certificate bound to your host's ECDSA SSH key.
 On your host, run:
 
 ```shell-session
-$ step ssh certificate --host internal.example.com ssh_host_ecdsa_key
+$ cd /etc/ssh
+$ sudo -E step ssh certificate --host --sign internal.example.com ssh_host_ecdsa_key.pub
 ✔ Provisioner: carl@smallstep.com (JWK) [kid: yWa7WGfoSt9yJ0OZCndrvR_m65jzDriY7mhPz094fdw]
 ✔ Please enter the password to decrypt the provisioner key:
 ✔ CA: https://127.0.0.1:4337
@@ -361,8 +363,8 @@ By default, host certificates expire in a month.
 If you want your host to use this key, move the files to `/etc/ssh` and add the following to your SSHD configuration. On your host:
 
 ```shell-session
-$ mv ssh_host_ecdsa_key ssh_host_ecdsa_key-cert.pub /etc/ssh
-$ cat <<EOF >> /etc/ssh/sshd_config
+$ cat <<EOF | sudo tee -a /etc/ssh/sshd_config
+
 # This is our host private key and certificate:
 HostKey /etc/ssh/ssh_host_ecdsa_key
 HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
@@ -374,13 +376,13 @@ EOF
 Because the host certificate expires in a month, you'll also need to set up automated renewal of the certificate. Let's add a weekly renewal `cron` script that runs `step ssh renew`, on your host:
 
 ```shell-session
-$ cat <<EOF > /etc/cron.weekly/rotate-ssh-certificate
+$ cat <<EOF | sudo tee /etc/cron.weekly/rotate-ssh-certificate
 #!/bin/sh
 export STEPPATH=/root/.step
 cd /etc/ssh && step ssh renew ssh_host_ecdsa_key-cert.pub ssh_host_ecdsa_key --force 2> /dev/null
 exit 0
 EOF
-chmod 755 /etc/cron.weekly/rotate-ssh-certificate
+$ sudo chmod 755 /etc/cron.weekly/rotate-ssh-certificate
 ```
 
 #### 4. Configure SSH clients to trust your host CA
