@@ -871,9 +871,12 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 
 <Alert severity="info">
   <div>
-    <strong>This feature requires building from source.</strong><br />
-    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support.
-    See <a href="https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
+    <strong>The standard `step-ca` binary does not support PKCS #11.</strong><br />
+    For PKCS #11 support, you'll need a CGO build of `step-ca`.
+    When built with CGO, `step-ca` can call native PKCS #11 C libraries.<br />
+    You can either:<br />
+    - Build `step-ca` yourself. See <a href="https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>, or<br />
+    - Use the <a href="https://hub.docker.com/r/smallstep/step-ca">`step-ca:hsm`</a> Docker image. The `hsm` tag is built with CGO.<br />
   </div>
 </Alert>
 
@@ -1048,8 +1051,12 @@ When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH 
 
 <Alert severity="info">
   <div>
-    <strong>This feature is not enabled in <code>step-ca</code> by default</strong><br />
-    To enable support, you will need to build <code>step-ca</code> yourself, using CGO support. See <a href="https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>. 
+    <strong>The standard `step-ca` binary does not support YubiKey PIV.</strong><br />
+    For YubiKey PIV support, you'll need a CGO build of `step-ca`.
+    When built with CGO, `step-ca` can call native Yubico C libraries.<br />
+    You can either:<br />
+    - Build `step-ca` yourself. See <a href="https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo">Building From Source Using CGO</a>, or<br />
+    - Use the <a href="https://hub.docker.com/r/smallstep/step-ca">`step-ca:hsm`</a> Docker image. The `hsm` tag is built with CGO.<br />
   </div>
 </Alert>
 
