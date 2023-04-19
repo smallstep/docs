@@ -12,7 +12,7 @@ This tutorial covers:
 3. Automating custom certificates with templates
 
 ### Before you begin
-- This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](../certificate-manager/getting-started.mdx) and understand [basic certificate operations](../certificate-manager/basic-ops.mdx).
+- This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](./getting-started.mdx) and understand [basic certificate operations](./basic-ops.mdx).
 - When you created an Authority in Certificate Manager, we automatically created a provisioner called `authority-admin`. This provisioner allows you to manage your Authority and request certificates. Examples in this guide will use the default `authority-admin` provisioner. The concepts explored apply to all provisioner types. 
 
 ### Getting a certificate with a non-default lifetime
@@ -121,7 +121,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2046...1094]
 
 Provisioner claims define certificate minimum and maximum lifetime and the default certificate expiry. 
 A single Authority can support many provisioners to unlock various automated workflows.
-You can learn more about provisioners [here](../certificate-manager/how-it-works.mdx#provisioners). 
+You can learn more about provisioners [here](./how-it-works.mdx#provisioners).
 
 ### Automating custom certificates with templates
 Certificate templates are JSON documents that describe the most important fields in the final certificate or certificate request.
