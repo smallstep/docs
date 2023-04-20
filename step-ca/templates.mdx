@@ -193,9 +193,11 @@ For example:
 {"id": "1.2.3.4", "value": {{ asn1Seq (asn1Enc "YubiKey") (asn1Enc "int:123456") | toJson }}}
 ```
 
-1. `asn1Enc "YubiKey"` will encode "YubiKey" as an ASN.1 Printable string, and return the base64
-2. `asn1Enc "int:123456"` will encode 123 as an ASN.1 Integer, and return the base64
-3. `asn1Seq` will get all the base64 strings, decode them, create an ASN.1 SEQENCE and return the base64 of the SEQUENCE.
+This template example does the following:
+
+1. `asn1Enc "YubiKey"` encodes "YubiKey" as an ASN.1 Printable string, and return the base64
+2. `asn1Enc "int:123456"` encodes 123 as an ASN.1 Integer, and return the base64
+3. `asn1Seq` gets the resulting base64 strings, decodes them, creates an ASN.1 SEQENCE and return the base64 of the SEQUENCE.
 4. Finally, `toJson` returns a JSON string representation of the base64
 
 #### asn1Enc
