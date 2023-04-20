@@ -234,12 +234,26 @@ without converting it to a string first, `asn1Marshal .AuthorizationCrt.NotAfter
 `asn1Marshal` imitates Go's [`asn1.MarshalWithParams`](https://pkg.go.dev/encoding/asn1#MarshalWithParams).
 
 ```
-asn1Marshal .Token.iss "printable"
+asn1Marshal .Token.iss
 asn1Marshal .AuthorizationCrt.NotAfter "utc"
 ```
 
-The second parameter ("printable", "utc") is the ASN.1 data type.
-The data types are listed in the [`encoding/asn1` package documentation](https://pkg.go.dev/encoding/asn1)
+The second parameter is the ASN.1 data type.
+It will use Go's default transformation if no data type is supplied.
+
+It supports the data types described in [this function](https://github.com/smallstep/crypto/blob/878092791d7e5ef8530dfa949cfe3cde61373d77/x509util/extensions.go#L486):
+
+- **printable**: "printable:abcfoo" (or just "abcfoo")
+- **int**: "int:12324"
+- **oid**: "oid:1.2.3.4"
+- **utf8**: "utf8:foobar"
+- **ia5**: "ia5:abcfoo"
+- **numeric**: "numeric:01 02 03345" (multiple space-separated ints)
+- **utc**: "utc:2023-03-29T02:03:57Z" or "utc:2023-04-20 15:28:27.909088 -0700 PDT"
+- **generalized**: "generalized:2023-03-29T02:03:57Z" or "generalized:2023-04-20 15:28:27.909088 -0700 PDT"
+- **raw**: a special type that accepts a base64 string
+
+For more details on ASN.1 types and their meanings, see [ASN.1 Types](https://www.oss.com/asn1/resources/asn1-made-simple/asn1-quick-reference.html#Types).
 
 ### SSH Templates
 
