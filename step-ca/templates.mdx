@@ -159,7 +159,7 @@ This can be useful for populating custom OID `extensions`:
 
 ```
 "extensions": [
-  {"id": "1.2.3.4", "critical": true, "value": {{ asn1Enc "int:3848281" | toJson }}}
+  {"id": "1.2.3.4", "critical": false, "value": {{ asn1Enc "int:3848281" | toJson }}}
 ]
 ```
 
