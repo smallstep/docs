@@ -25,7 +25,7 @@ ACME is a modern, standardized protocol for automatic validation and issuance of
 
 ## Requirements
 
-- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](../step-ca/getting-started.mdx)).
+- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](./getting-started.mdx)).
 - **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** follow the instructions provided in the Certificate Manager [ACME documentation](../certificate-manager/acme.mdx).
 
 ## Overview
@@ -117,7 +117,7 @@ These are typically client certificates that can be used for device authenticati
 
 Let's get an X.509 certificate via the ACME `http-01` challenge, using `step-ca`.
 
-First, [add an ACME provisioner](../step-ca/provisioners.mdx#acme) to your `step-ca` configuration to enable ACME support:
+First, [add an ACME provisioner](./provisioners.mdx#acme) to your `step-ca` configuration to enable ACME support:
 
 ```shell
 step ca provisioner add acme --type ACME
@@ -146,5 +146,5 @@ Finalizing Order .. done!
 
 ## Next Steps
 
-- Start tailoring `step-ca` to your infrastructure. See [Provisioners](../step-ca/provisioners.mdx), [Production Considerations](../step-ca/certificate-authority-server-production.mdx), and our [Configuration Guide](../step-ca/configuration.mdx).
+- Start tailoring `step-ca` to your infrastructure. See [Provisioners](./provisioners.mdx), [Production Considerations](./certificate-authority-server-production.mdx), and our [Configuration Guide](./configuration.mdx).
 - Tutorial: Learn [how to configure the most popular ACME clients](../tutorials/acme-protocol-acme-clients.mdx) to connect to a `step-ca` server.

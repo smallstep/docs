@@ -43,7 +43,7 @@ When in RA mode, `step-ca` can peer with one of three types of upstream CA:
 
 StepCAS allows configuring a `step-ca` server as an RA, with a second, upstream `step-ca` server acting as the main CA.
 
-StepCAS supports the [JWK](../step-ca/provisioners.mdx#jwk) and [X5C](../step-ca/provisioners.mdx#x5c-x509-certificate) provisioners for requests between RAs and the CA.
+StepCAS supports the [JWK](./provisioners.mdx#jwk) and [X5C](./provisioners.mdx#x5c-x509-certificate) provisioners for requests between RAs and the CA.
 The JWK provisioner balances security and simplicity, and it covers the most common use cases.
 The X5C provisioner allows for more complex trust relationships and expiring certificates,
 but it requires setting up ongoing certificate lifecycle management on the RAs.
@@ -61,7 +61,7 @@ Configure additional RA provisioners just as you would configure provisioners fo
 
 ### Setting up the CA
 
-You can set up the CA using the [Getting Started](../step-ca/getting-started.mdx) guide.
+You can set up the CA using the [Getting Started](./getting-started.mdx) guide.
 You will need the name and password of the first provisioner you created when running [`step ca init`](../step-cli/reference/ca/init).
 
 ### Setting up the RA
@@ -512,7 +512,7 @@ We'll need the `VAULT_ROLE_ID` and `VAULT_SECRET_ID` to configure our RA in the 
 In this section, we'll initialize a basic CA,
 and then convert it into an RA.
 
-First, run `step ca init` as described in [Getting Started](../step-ca/getting-started.mdx).
+First, run `step ca init` as described in [Getting Started](./getting-started.mdx).
 Configure the DNS names, address, and JWK provisioner password.
 
 Once the PKI is initialized, let's update `ca.json` to enable RA functionality.

@@ -30,8 +30,8 @@ Here are some of the most popular options:
 * Pass `--ssh` if you want to use SSH certificates (in addition to X.509)
 * Pass separate `--password-file` and `--provisioner-password-file` flags to set different signing CA and provisioner passwords.
 * Pass `--helm` to generate Helm YAML for use with [our Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates)
-* Pass `--acme` to create an [ACME provisioner](../step-ca/provisioners.mdx#acme)
-* Pass `--remote-management` to enable [Remote Provisioner Management](../step-ca/provisioners.mdx#remote-provisioner-management)
+* Pass `--acme` to create an [ACME provisioner](./provisioners.mdx#acme)
+* Pass `--remote-management` to enable [Remote Provisioner Management](./provisioners.mdx#remote-provisioner-management)
 
 <Alert severity="success">
   <AlertTitle>Don&apos;t want to run your own CA?</AlertTitle>
@@ -87,7 +87,7 @@ Please enter the password to decrypt /Users/bob/.step/secrets/intermediate_ca_ke
 
 #### Accessing your CA
 
-You can use [`step ca`](../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
+You can use [`step ca`](../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](./basic-certificate-authority-operations.mdx) for an overview of common operations.
 
 #### Accessing your CA remotely
 
@@ -107,7 +107,7 @@ The root certificate has been saved in /home/alice/.step/certs/root_ca.crt.
 Your configuration has been saved in /home/alice/.step/config/defaults.json.
 ```
 
-This command will download the root CA certificate and write CA connection details to `$HOME/.step/config/defaults.json`. The `step` command will now trust your CA. See [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) for an overview of common operations.
+This command will download the root CA certificate and write CA connection details to `$HOME/.step/config/defaults.json`. The `step` command will now trust your CA. See [Basic CA Operations](./basic-certificate-authority-operations.mdx) for an overview of common operations.
 
 <Alert severity="info">
     <AlertTitle>
@@ -228,8 +228,8 @@ Nice! You've just generated and integrated our first certificate using `step-ca`
 
 ## Next Steps
 
-* Familiarize yourself with [Basic CA Operations](../step-ca/basic-certificate-authority-operations.mdx) using `step ca` and `step ssh` command groups.
-* Check out the [Configuration](../step-ca/configuration.mdx) and [Core Concepts](../step-ca/certificate-authority-core-concepts.mdx) sections to learn more about tailoring
+* Familiarize yourself with [Basic CA Operations](./basic-certificate-authority-operations.mdx) using `step ca` and `step ssh` command groups.
+* Check out the [Configuration](./configuration.mdx) and [Core Concepts](./certificate-authority-core-concepts.mdx) sections to learn more about tailoring
 `step-ca` to your infrastructure needs.
 * Or, head straight to our [tutorials](../tutorials) to see more examples of using `step-ca` in the wild.
 
