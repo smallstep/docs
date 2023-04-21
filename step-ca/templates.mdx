@@ -16,45 +16,44 @@ With certificate templates, you can do things like:
 - Use SSH `force-command` or `source-address` extensions
 - Add conditionals around a certificate's parameters, and fail if they are not met
 
+## Template Syntax Overview
+
 Certificate templates are JSON documents
 that describe the most important properties in the final certificate or certificate request.
-They use [Go templates](https://golang.org/pkg/text/template/) at the core.
-They are extended with [Sprig functions](http://masterminds.github.io/sprig/)
-and a few custom functions that we built
-for working with ASN.1-encoded values.
-
-A few default [X.509](https://github.com/smallstep/crypto/blob/master/x509util/templates.go)
-and [SSH](https://github.com/smallstep/crypto/blob/master/sshutil/templates.go)
-templates are hardcoded into `step-ca`.
-
-In the next sections, we'll cover
-X.509 template parameters,
-SSH template parameters,
-and how to configure the CA to use templates.
+They are [Go `text/template` files](https://golang.org/pkg/text/template/).
+[Sprig functions](http://masterminds.github.io/sprig/) are availabie inside the templates.
+A few custom [functions for ASN.1 encoding](#asn1-values) are also available.
 
 <Alert severity="warning">
   <div>
     <strong>Warning: Always wrap values in <code>toJson</code></strong><br />
-    In the templates below, variables are pulled into templates using <code>{`{{`} toJson .variableName {`}}`}</code> 
+    In the templates on this page, variables are pulled into templates using <code>{`{{`} toJson .variableName {`}}`}</code> 
     to sanitize the value of the variable.
     When using templates, you must sanitize all variables using <code>toJson</code> to avoid template injection vulnerabilities.
   </div>
 </Alert>
 
-## Overview
+There are [default X.509](https://github.com/smallstep/crypto/blob/master/x509util/templates.go)
+and [SSH](https://github.com/smallstep/crypto/blob/master/sshutil/templates.go)
+templates hardcoded into `step-ca`.
+
+## On This Page
 
 - [X.509 Templates](#x509-templates)
 - [ASN.1 Values](#asn1-values)
 - [SSH Templates](#ssh-templates)
-- [Configuring the CA to Use Templates](#configuring-the-ca-to-use-templates)
+- [Configuring `step-ca` to Use Templates](#configuring-step-ca-to-use-templates)
 - [Basic X.509 Template Examples](#basic-x509-template-examples)
 - [Advanced X.509 Template Examples](#advanced-x509-template-examples)
 - [SSH Template Examples](#ssh-template-examples)
 - [Even More Templates](#even-more-templates)
 
-### X.509 Templates
+## X.509 Templates
 
-X.509 templates can be used with `step certificate` or `step-ca`.
+X.509 templates can be used in two places:
+1. In a CLI CA, via [`step certificate create`](../step-cli/reference/certificate/create/) or [`step certificate sign`](../step-cli/reference/certificate/sign/).
+2. In a [`step-ca` server configuration](./configuration.mdx).
+
 Here's what the default X.509 [leaf certificate template](https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/x509util/templates.go#L98) looks like:
 
 ```json
@@ -70,6 +69,8 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
 }
 ```
 
+### X.509 Template Variables
+
 <Alert severity="info" id="star11">
   <div>
     <strong>A note on <code>.Insecure</code> variables</strong><br />
@@ -79,8 +80,6 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
     For example, the <code>.Insecure.CR</code> variable holds the user-supplied Certificate Request.
   </div>
 </Alert>
-
-#### X.509 Template Variables
 
 Here are some common variables available in X.509 certificate template:
 - **.Subject**:
@@ -154,8 +153,8 @@ in your provisioner's [configuration block](#configuring-the-ca-to-use-templates
 
 ### ASN.1 Values
 
-The X.509 templating system includes functions for ASN.1 encoding in a template.
-This can be useful for populating custom OID `extensions`:
+The X.509 templating system includes a few functions for encoding ASN.1 values.
+Use these functions to populate custom OID `extensions`:
 
 ```
 "extensions": [
@@ -163,7 +162,7 @@ This can be useful for populating custom OID `extensions`:
 ]
 ```
 
-When applied to template variables, these functions enable dynamic OID values in your certificate:
+When applied to template variables, these functions enable dynamic OID extensions:
 
 ```
 {
@@ -176,40 +175,69 @@ When applied to template variables, these functions enable dynamic OID values in
 {{- end }}
 	"extKeyUsage": ["serverAuth", "clientAuth"],
 	"extensions": [
-		{"id": "1.2.3.5", "value": {{ asn1Marshal .AuthorizationCrt.NotAfter | toJson }}},
-		{"id": "1.2.3.6", "value": {{ asn1Seq (asn1Enc (first .Insecure.CR.DNSNames)) (asn1Enc "int:123456") | toJson }}},
-		{"id": "1.2.3.7", "value": {{ asn1Set (asn1Marshal (first .Insecure.CR.DNSNames) "utf8") (asn1Enc "int:123456") | toJson }}}
+		{"id": "1.2.3.4", "value": {{ asn1Marshal .AuthorizationCrt.NotAfter | toJson }}},
+		{"id": "1.2.3.5", "value": {{ asn1Set (asn1Marshal (first .Insecure.CR.DNSNames) "utf8") (asn1Enc "int:123456") | toJson }}},
+		{"id": "1.2.3.6", "value": {{ asn1Seq (asn1Enc "YubiKey") (asn1Enc "int:123456") | toJson }}}
 	]
 }
 ```
 
-All of the functions here return base64.
-
-To make that possible, `asn1Seq` and `asn1Set` will decode a list of base64 values before putting them into an ASN.1 set or sequence, which is then re-encoded to base64.
-
-For example:
+Let's walk through one line of this template:
 
 ```
-{"id": "1.2.3.4", "value": {{ asn1Seq (asn1Enc "YubiKey") (asn1Enc "int:123456") | toJson }}}
+{"id": "1.2.3.6", "value": {{ asn1Seq (asn1Enc "YubiKey") (asn1Enc "int:123456") | toJson }}}
 ```
 
-This template example does the following:
+To render this line of the template:
 
-1. `asn1Enc "YubiKey"` encodes "YubiKey" as an ASN.1 Printable string, and return the base64
-2. `asn1Enc "int:123456"` encodes 123 as an ASN.1 Integer, and return the base64
-3. `asn1Seq` gets the resulting base64 strings, decodes them, creates an ASN.1 SEQENCE and return the base64 of the SEQUENCE.
-4. Finally, `toJson` returns a JSON string representation of the base64
+1. `asn1Enc "YubiKey"` encodes "YubiKey" as an ASN.1 Printable string, and returns the Base64
+2. `asn1Enc "int:123456"` encodes 123 as an ASN.1 Integer, and returns the Base64
+3. `asn1Seq` gets the resulting Base64 strings, decodes them, creates an ASN.1 SEQENCE, and returns the Base64 of the SEQUENCE.
+4. Finally, `toJson` returns a JSON string representation of the Base64
 
 #### asn1Enc
 
 Encodes a string into an ASN.1 value.
-A data type can be supplied inline.
+
+A data type can be supplied as a prefix,
+and ASN.1 Printable is the default data type:
 
 ```
 asn1Enc "int:123"
+asn1Enc "oid:1.2.3.4"
 asn1Enc "foo"
 asn1Enc .Subject.CommonName
 ```
+
+This function supports the data types described [here](https://github.com/smallstep/crypto/blob/878092791d7e5ef8530dfa949cfe3cde61373d77/x509util/extensions.go#L486):
+
+- **printable**: "printable:abcfoo" (or just "abcfoo")
+- **int**: "int:12324"
+- **oid**: "oid:1.2.3.4"
+- **utf8**: "utf8:foobar"
+- **ia5**: "ia5:abcfoo"
+- **numeric**: "numeric:01 02 03345" (multiple space-separated ints)
+- **utc**: "utc:2023-03-29T02:03:57Z" or "utc:2023-04-20 15:28:27.909088 -0700 PDT"
+- **generalized**: "generalized:2023-03-29T02:03:57Z" or "generalized:2023-04-20 15:28:27.909088 -0700 PDT"
+- **raw**: a special type that accepts a Base64 string
+
+For more details on ASN.1 types and their meanings, see [ASN.1 Types](https://www.oss.com/asn1/resources/asn1-made-simple/asn1-quick-reference.html#Types).
+
+#### asn1Marshal
+
+`asn1Marshal` simplifies the encoding of Go variables into ASN.1.
+For example, if you want to encode the Not After value in an X5C authorization certificate,
+without converting it to a string first, `asn1Marshal .AuthorizationCrt.NotAfter` will do the trick.
+
+`asn1Marshal` imitates Go's [`asn1.MarshalWithParams`](https://pkg.go.dev/encoding/asn1#MarshalWithParams) function.
+
+```
+asn1Marshal .Token.iss
+asn1Marshal .AuthorizationCrt.NotAfter "utc"
+```
+
+The second parameter is the ASN.1 data type.
+It will use Go's default transformation if no data type is supplied.
 
 #### asn1Seq
 
@@ -227,37 +255,7 @@ Creates an ASN.1 `SET` of values.
 asn1Set (asn1Enc "foo") (asn1Enc "int:123") ...
 ```
 
-#### asn1Marshal
-
-The intention of `asn1Marshal` is to be able to marshal variable data.
-For example, if you want to encode the Not After value in an X5C authorization certificate,
-without converting it to a string first, `asn1Marshal .AuthorizationCrt.NotAfter` will do the trick.
-
-`asn1Marshal` imitates Go's [`asn1.MarshalWithParams`](https://pkg.go.dev/encoding/asn1#MarshalWithParams).
-
-```
-asn1Marshal .Token.iss
-asn1Marshal .AuthorizationCrt.NotAfter "utc"
-```
-
-The second parameter is the ASN.1 data type.
-It will use Go's default transformation if no data type is supplied.
-
-It supports the data types described in [this function](https://github.com/smallstep/crypto/blob/878092791d7e5ef8530dfa949cfe3cde61373d77/x509util/extensions.go#L486):
-
-- **printable**: "printable:abcfoo" (or just "abcfoo")
-- **int**: "int:12324"
-- **oid**: "oid:1.2.3.4"
-- **utf8**: "utf8:foobar"
-- **ia5**: "ia5:abcfoo"
-- **numeric**: "numeric:01 02 03345" (multiple space-separated ints)
-- **utc**: "utc:2023-03-29T02:03:57Z" or "utc:2023-04-20 15:28:27.909088 -0700 PDT"
-- **generalized**: "generalized:2023-03-29T02:03:57Z" or "generalized:2023-04-20 15:28:27.909088 -0700 PDT"
-- **raw**: a special type that accepts a base64 string
-
-For more details on ASN.1 types and their meanings, see [ASN.1 Types](https://www.oss.com/asn1/resources/asn1-made-simple/asn1-quick-reference.html#Types).
-
-### SSH Templates
+## SSH Templates
 
 `step-ca` also supports SSH certificate templates.
 Here is `step-ca`'s default [SSH certificate template](https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/sshutil/templates.go#L144):
@@ -275,7 +273,7 @@ Here is `step-ca`'s default [SSH certificate template](https://github.com/smalls
 The [OpenSSH certificate protocol spec](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys) defines the available Critical Options and Extensions.
 Third parties can also add custom extensions.
 
-#### SSH Template Variables
+### SSH Template Variables
 
 Here are the most relevant parameters available in SSH certificate template:
 - **.Token**:
@@ -347,7 +345,7 @@ from your provisioner's [configuration block](#configuring-the-ca-to-use-templat
   </div>
 </Alert>
 
-### Configuring the CA to Use Templates
+## Configuring `step-ca` to Use Templates
 
 Within provisioner configuration, certificate templates can be set
 under the property `"options"`.
@@ -412,7 +410,7 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
         ```
 
     - **template**: set the full template in a string. The value can be the
-      string representation of a JSON object, or you encoded in base64. For
+      string representation of a JSON object, or you encoded in Base64. For
       example: 
 
         ```json
@@ -423,7 +421,7 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
         }
         ```
 
-        Or using base64:
+        Or using Base64:
 
         ```json
         {
@@ -788,9 +786,9 @@ also write a custom extension like:
 }
 ```
 
-The crux here is that the value of the extension is the base64 encoding of the
+The crux here is that the value of the extension is the Base64 encoding of the
 actual bytes that go into that extension, so if you are encoding a structure
-in your extension using the ASN.1 encoding, you will have to put the base64
+in your extension using the ASN.1 encoding, you will have to put the Base64
 version of the encoded bytes.
 
 #### X.509 OpenVPN certificates
