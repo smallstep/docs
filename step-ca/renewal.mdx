@@ -6,7 +6,7 @@ description: Learn how to renew certificates and set up automated renewals
 
 By default, `step-ca` issues short-lived certificates that expire after 24
 hours. Short-lived certificates are excellent security hygiene because they
-offer regular key rotation and [passive revocation](../step-ca/revocation.mdx)
+offer regular key rotation and [passive revocation](./revocation.mdx)
 
 Short-lived certificates create a problem though: For any long-lived workloads,
 you will need to renew your certificates each day before they expire. This
@@ -62,7 +62,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2599...1204]
 
 By default, `step-ca` issues certificates valid for 24 hours. This is suitably
 short for many scenarios. If it's not right for you, you can adjust the
-[`defaultTLSCertDuration`](../step-ca/provisioners.mdx#claims) per provisioner
+[`defaultTLSCertDuration`](./provisioners.mdx#claims) per provisioner
 or pass the `--not-after` flag to the [`step ca certificate`](../step-cli/reference/ca/certificate) to adjust the
 lifetime of an individual certificate. Very short lifetimes (eg. five minutes)
 are better from a security perspective, but this can be difficult in
@@ -406,7 +406,7 @@ Be sure the user (in this example, `step`) has write access to the certificate a
 [`step ca renew`](../step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.
 To prevent this, you need to explicitly tell `step-ca` to revoke a retired certificate.
-See the [certificate revocation section](../step-ca/revocation.mdx) for details.
+See the [certificate revocation section](./revocation.mdx) for details.
 
 #### Renewal after expiry: For intermittently-connected devices
 
@@ -416,7 +416,7 @@ but it's useful if you have devices with intermittent network connectivity.
 The device will be able to renew its certificate the next time it has network access,
 provided the certificate has not been revoked.
 
-To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner) management commands. See [managing provisioners](../step-ca/provisioners.mdx#managing-provisioners).
+To configure renewal after expiry for a provisioner, pass the `--allow-renewal-after-expiry` flag to the [`step ca provisioner`](../step-cli/reference/ca/provisioner) management commands. See [managing provisioners](./provisioners.mdx#managing-provisioners).
 
 <Alert severity="warning">
   <div>

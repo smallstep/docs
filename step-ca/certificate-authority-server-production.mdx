@@ -61,11 +61,11 @@ For durability, keep at least two copies of your root key, in separate locations
 5. Configure `step-ca` to use the signed root and intermediate certificates
 6. Configure `step-ca` to access the cloud HSM or KMS intermediate key for online signing operations
 
-See the [Cryptographic Protection](../step-ca/configuration.mdx#cryptographic-protection) section of our [Configuration Guide](../step-ca/configuration.mdx) to learn more about your options for using HSMs or cloud KMS with `step-ca`.
+See the [Cryptographic Protection](./configuration.mdx#cryptographic-protection) section of our [Configuration Guide](./configuration.mdx) to learn more about your options for using HSMs or cloud KMS with `step-ca`.
 
 ### Use Strong Passwords and Store Them Well
 
-When you [initialize your PKI](../step-ca/getting-started.mdx#initialize-your-certificate-authority),
+When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority),
 the root and intermediate private keys will be encrypted with the same password.
 
 Use a password manager to generate random passwords, 
@@ -133,7 +133,7 @@ See our blog [How to Handle Secrets on the Command Line](https://smallstep.com/b
 
 ### Replace Your Default Provisioner
 
-When you [initialize your PKI](../step-ca/getting-started.mdx#initialize-your-certificate-authority),
+When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority),
 a default `JWK` provisioner will be created.
 If you're not going to use this provisioner,
 we recommend deleting it.
@@ -142,7 +142,7 @@ If you _are_ going to use this provisioner,
 secure it with a different password than your CA's signing keys.
 You can do this by passing separate `--password-file` and `--provisioner-password-file` files when running `step ca init`.
 
-See the section on [managing provisioners](../step-ca/provisioners.mdx#provisioner-management).
+See the section on [managing provisioners](./provisioners.mdx#provisioner-management).
 
 ### Use Short-Lived Certificates
 
@@ -151,10 +151,10 @@ We recommend the following:
 - Host or service account certificates should have a lifetime of one month or less.
 
 Certificates from `step-ca` expire in 24 hours by default.
-We made it easy for you to [automate the renewal of your certificates](../step-ca/renewal.mdx) using the `step` command.
+We made it easy for you to [automate the renewal of your certificates](./renewal.mdx) using the `step` command.
 Carpe diem!
 
-You can [configure certificate lifetimes](../step-ca/configuration.mdx#basic-configuration-options) in the `ca.json` file. 
+You can [configure certificate lifetimes](./configuration.mdx#basic-configuration-options) in the `ca.json` file. 
 
 <Alert severity="info">
   <div>
@@ -280,7 +280,7 @@ Source: [OpenSSL PKI Tutorial](https://pki-tutorial.readthedocs.io/en/latest/cad
 
 Because certificate templates add a lot of flexibility to `step-ca`,
 they can be a source of subtle vulnerabilities in your PKI.
-If you use [custom certificate templates](../step-ca/templates.mdx), be sure they are tightly restricted for your use case.
+If you use [custom certificate templates](./templates.mdx), be sure they are tightly restricted for your use case.
 Use extreme caution when referencing user-supplied data marked as `Insecure` in templates.
 
 ### Create a Service User to Run `step-ca`
@@ -468,14 +468,14 @@ A few things to consider / implement when running multiple instances of `step-ca
   sent `SIGHUP` or restarted. It's recommended to use a configuration management
   tool (ansible, chef, salt, puppet, etc.) to synchronize `ca.json` across instances.
 
-[db-ref]: ../step-ca/configuration.mdx#databases
+[db-ref]: ./configuration.mdx#databases
 
 ## Load balancing or proxying `step-ca` traffic
 
 If you need to place a load balancer or reverse proxy downstream from the CA, we recommend using layer 4 (TCP)
 load balancing or proxying (aka "TLS passthrough").
 
-We also recommend enabling [remote provisioner management](../step-ca/provisioners.mdx#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
+We also recommend enabling [remote provisioner management](./provisioners.mdx#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
 
 Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
 - `step` expects to be able to perform a TLS handshake with `step-ca`, using the CA's root certificate
@@ -502,13 +502,13 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
 
 We recommend automating certificate renewal when possible.
 Renewal can be easily automated in many environments.
-See our [Renewal](../step-ca/renewal.mdx) documentation for details.
+See our [Renewal](./renewal.mdx) documentation for details.
 
 ## X.509 Certificate Revocation
 
 By default, `step-ca` uses passive revocation.
 Certificates can be revoked using the `step ca revoke` subcommand.
-See our [Revocation](../step-ca/revocation.mdx) documentation for details.
+See our [Revocation](./revocation.mdx) documentation for details.
 
 ## Sane Cryptographic Defaults
 

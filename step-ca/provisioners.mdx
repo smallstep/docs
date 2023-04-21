@@ -89,7 +89,7 @@ Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
 </Alert>
 
 Some provisioner options override global defaults for your CA.
-For a list of global options, see the [configuration guide](../step-ca/configuration.mdx) section for the `authority` configuration block.
+For a list of global options, see the [configuration guide](./configuration.mdx) section for the `authority` configuration block.
 
 A remote provisioner management API can be enabled in `step-ca`.
 It is disabled by default.
@@ -97,7 +97,7 @@ With remote provisioner management, the CA's provisioner configuration is stored
 
 This feature can be useful if you
 have multiple CA administrators,
-[run several load-balanced](../step-ca/certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+[run several load-balanced](./certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
 or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
 
 See [Remote Provisioner Management](#remote-provisioner-management) for more.
@@ -854,7 +854,7 @@ The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certif
 
 ACME clients must answer challenges presented by the ACME server to prove to the CA that they control the identifiers listed in the CSR.
 ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
-See [ACME Basics](../step-ca/acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
+See [ACME Basics](./acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
 
 In a typical setup, an ACME server might issue server certificates via the `http-01`, `dns-01`, `tls-alpn-01` challenge types, and client certificates via the `device-attest-01` challenge type.
 
@@ -904,7 +904,7 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 <br /><br />
 
-See [ACME Basics](../step-ca/acme-basics.mdx)
+See [ACME Basics](./acme-basics.mdx)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 #### ACME for Device Attestation
