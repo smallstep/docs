@@ -129,7 +129,7 @@ Finally, use `step` as an ACME client to request a certificate.
 The client will start a web server on port 80 to respond to the ACME challenge.
 
 ```shell
-step ca certificate example.com --provisioner acme
+step ca certificate --provisioner acme example.com example.crt example.key
 ```
 
 Output:
