@@ -148,6 +148,18 @@ When used with the [ACME provisioner](https://smallstep.com/docs/step-ca/provisi
 and the ACME `device-attest-01` challenge,
 the request body will also contain the verified device ID in the `attestationData.permanentIdentifier` field.
 
+Webhooks can also be used to validate SCEP challenges when a SCEP provisioner is in use.
+Add a webhook to your SCEP provisioner using the CLI: 
+
+  ```bash
+  step ca provisioner webhook add my_scep_provisioner scepchallenge --url 'https://localhost:9443/scepvalidation' --kind SCEPCHALLENGE
+  ```
+
+When a SCEP client requests a certificate with a challenge password embedded, the webhook server will receive a request.
+The request will contain the `scepChallenge` provided by the client and the `scepTransactionID` of the request.
+Unlike webhooks configured on other provisioners, when a single SCEP provisioner is configured with multiple `SCEPCHALLENGE` webhooks, 
+only a single one of the `SCEPCHALLENGE` webhooks needs to indicate the request is allowed for the certificate to be issued.
+
 #### SSH Request Body
 
 For SSH certificates `step-ca` will include an `sshCertificateRequest` field with [data from the request](https://github.com/smallstep/certificates/blob/c169defc73db6ba4b83e1acd5bd31feafb4df050/webhook/types.go#L37).

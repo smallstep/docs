@@ -992,7 +992,7 @@ The SCEP provisioner can sign and renew certificates using the SCEP protocol ([R
 SCEP is very popular for use in network equipment and mobile device management (MDM). 
 It runs over HTTP using POSTed binary data or base64-encoded GET parameters, 
 using CMS (PKCS#7) and CSR (PKCS#10) data formats. 
-A shared secret authenticates clients to the CA.
+A (shared) secret authenticates clients to the CA.
 
 #### Requirements
 
@@ -1043,6 +1043,10 @@ It behaves the same as `forceCN` in the ACME provisioner, and it defaults to fal
 - The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
 - When `includeRoot` is set to true, the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
 - The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
+
+If you don't want to rely on a single, static secret, you can [configure a `SCEPCHALLENGE` webhook](./webhooks.mdx#x509-request-body) instead.
+When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the request.
+The webhook server can then decide if the request is allowed or not.
 
 #### Enable the HTTP Server
 
