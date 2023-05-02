@@ -1,0 +1,158 @@
+---
+title: "Smallstep Certificate Manager: Customize Certificates"
+html_title: "Smallstep Certificate Manager: Customize Certificates"
+description: Changing certificate lifetimes and using templates for customized certificates
+---
+
+In this documentation, we will explore customizing certificates and templates using the [`step`](https://smallstep.com/docs/step-cli) command-line tool. 
+`step` acts as a front-end interface to certificate manager and is used for many common crypto and X.509 operations.
+This tutorial covers:
+1. Getting a certificate with a non-default lifetime
+2. Setting minimum, maximum, and default certificate lifetimes
+3. Automating custom certificates with templates
+
+### Before you begin
+- This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](./getting-started.mdx) and understand [basic certificate operations](./basic-ops.mdx).
+- When you created an Authority in Certificate Manager, we automatically created a provisioner called `authority-admin`. This provisioner allows you to manage your Authority and request certificates. Examples in this guide will use the default `authority-admin` provisioner. The concepts explored apply to all provisioner types. 
+
+### Getting a certificate with a non-default lifetime
+The 24-hour default validity window for certificates is arbitrary. Depending on your threat model and use context, you may want much shorter or much longer certificate lifetimes:
+- Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
+- Client certificates for humans are typically shorter-lived and could expire after a few minutes or up to a month.
+
+A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
+
+You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate.
+Let's look at a couple of examples. 
+
+This certificate will be valid for six minutes.
+
+<CodeBlock language="shell-session" copyText="step ca certificate localhost localhost.crt localhost.key --not-after=6m">
+{`$ step ca certificate localhost localhost.crt localhost.key --not-after=6m`}
+</CodeBlock>
+
+This certificate will be valid starting 5 minutes from now, until 10 days from now.
+
+<CodeBlock language="shell-session" copyText="step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h">
+{`$ step ca certificate localhost localhost.crt localhost.key --not-before=5m --not-after=240h`}
+</CodeBlock>
+
+
+### Setting minimum, maximum, and default certificate lifetimes
+Provisioners authenticate certificate requests. 
+Certificate lifetimes, access control policies, renewal, templates, and many other options are configurable per-provisioner. 
+By setting *claims* on a provisioner, you can control minimum, maximum, and default certificate lifetimes. 
+Let's take a look at the provisioner claims on the `authority-admin` provisioner that's automatically created with your Authority.
+
+<CodeBlock language="shell-session" copyText="step ca provisioner list">
+{`$ step ca provisioner list
+[
+   {
+      "type": "OIDC",
+      "name": "authority-admin",
+      "clientID": "43a20143-9e0e-416e-876a-47ca074416c6",
+      "clientSecret": "8f60f2d310dcdf7287048ee3c10e359650986e0172ce0213c00004e31d30ede7",
+      "configurationEndpoint": "https://auth.smallstep.com/oidc/smallstep/.well-known/openid-configuration",
+      "admins": [
+         "TeamAdmins@yourco.com"
+      ],
+      "listenAddress": "127.0.0.1:10000",
+      "claims": {
+         "maxTLSCertDuration": "8784h0m0s",
+         "enableSSHCA": true,
+         "disableRenewal": false,
+         "allowRenewalAfterExpiry": false
+      },
+      "options": {
+         "x509": {},
+         "ssh": {}
+      }
+   }
+]
+}`}
+</CodeBlock>
+
+Claims are enabled with a maximum duration of 8784 hours or 366 days. 
+A default duration is not set,  so it uses the Authority default value of 24 hours. 
+
+Let's update the claims on the provisioner to produce a 7 day (168h) default certificate.
+We will also set the minimum lifetime to 5 minutes and the maximum lifetime to 500 days (12000h). 
+
+<CodeBlock language="shell-session" copyText="step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h">
+  {`$ step ca provisioner update authority-admin --x509-default-dur=168h --x509-min-dur=5m --x509-max-dur=12000h
+iNo admin credentials found. You must login to execute admin commands.
+✔ Please enter admin name/subject (e.g., name@example.com): eng@smallstep.com
+✔ Provisioner: authority-admin (OIDC) [client: 43a20143-9e0e-416e-876a-47ca074416c6]
+{
+...
+  "claims": {
+    "x509": {
+      "enabled": true,
+      "durations": {
+        "default": "168h",
+        "min": "5m",
+        "max": "12000h"
+      }
+    }
+  }
+...
+}`}
+</CodeBlock>
+
+Get and inspect a certificate to test the new seven-day default expiry. 
+
+<CodeBlock language="shell-session" copyText="step ca certificate newdefault newdefault.crt newdefault.key">
+  {`$ step ca certificate newdefault newdefault.crt newdefault.key
+✔ Provisioner: authority-admin (OIDC) [client: 380d0a5a-7263-4e43-bb73-980afd0dc5c0]
+✔ CA: https://production.yourco.ca.smallstep.com
+✔ Certificate: newdefault.crt
+✔ Private Key: newdefault.key`}
+</CodeBlock>
+
+<CodeBlock language="shell-session" copyText="step certificate inspect newdefault.crt --short">
+  {`$ step certificate inspect newdefault.crt --short
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2046...1094]
+  Subject:     newdefault
+  Issuer:      Production Intermediate CA
+  Provisioner: authority-admin [ID: 380d...c5c0]
+  Valid from:  2021-10-29T00:18:43Z
+          to:  2021-11-05T00:19:43Z`}
+</CodeBlock>
+
+Provisioner claims define certificate minimum and maximum lifetime and the default certificate expiry. 
+A single Authority can support many provisioners to unlock various automated workflows.
+You can learn more about provisioners [here](./how-it-works.mdx#provisioners).
+
+### Automating custom certificates with templates
+Certificate templates are JSON documents that describe the most important fields in the final certificate or certificate request.
+Templates give you granular control over certificate details.
+By default, Certificate Manager is configured to issue short-lived certificates for use with TLS.
+Templates let you customize every detail of a certificate, down to the [OID](https://en.wikipedia.org/wiki/Object_identifier),
+to support your use case.
+
+Concretely, a template is a JSON representation of a certificate that's materialized using Go's [`text/template`](https://golang.org/pkg/text/template/) module and [sprig functions](http://masterminds.github.io/sprig/).
+They look like this:
+
+![Certificate Templates](/graphics/templates-screenshot.svg "Certificate Templates")
+
+Context from certificate requests and authentication credentials are made available as template variables,
+so you can adjust certificate details based on who's requesting the certificate. 
+
+To update the default template to create custom certificates,
+you need to update the provisioner using a template flag:
+- `--x509-template=<file>` - The x509 certificate template file, a JSON representation of the certificate to create.
+- `--x509-template-data=<file>` - The x509 certificate template data file, a JSON map of data that can be used by the certificate template. 
+
+Templates unlock any x.509 certificate format, or longer certificate chains. 
+You can even add conditionals and fail if a certificate request is not valid.
+Check out our [open-source documentation](https://smallstep.com/docs/step-ca/templates) to learn what's possible and how to build your custom template.
+
+<Alert severity="info">
+  <div>
+    Need help with templates? <a href="mailto:support@smallstep.com">Contact</a> our Customer Success team.
+  </div>
+</Alert>
+
+## Next Steps
+- You've created your custom certificate; now it's time to explore [automating certificate renewal](../step-ca/renewal.mdx).
+- Ready to dive into a specific technology? Check out our [practical zero trust project](https://smallstep.com/practical-zero-trust). It provides step-by-step instructions for configuring TLS for popular technologies in Linux, Docker, and Kubernetes. 

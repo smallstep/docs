@@ -1,0 +1,37 @@
+{
+  "ignorePatterns": [
+    {
+      "pattern": "^https?://.*.local"
+    },
+    {
+      "pattern": "^https?://.*.internal"
+    },
+    {
+      "pattern": "^https?://localhost"
+    },
+    {
+      "pattern": "^https?://127.0.0.1"
+    },
+    {
+      "pattern": "^https?://.*.example.com"
+    },
+    {
+      "pattern": "^https://yourco.okta.com"
+    },
+    {
+      "pattern": "^https://somehost.com"
+    },
+    {
+      "pattern": "^https://.*ca.smallstep.com"
+    },
+    {
+      "pattern": "^https://i.imgur.com"
+    }
+  ],
+  "replacementPatterns": [
+    {
+      "pattern": "^/graphics",
+      "replacement": "{{BASEURL}}/graphics/"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+---
+title: Authorities
+html_title: Smallstep Platform | Authorities, powered by step-ca
+description: Smallstep Platform Authorities provide core certificate signing and management functions.
+---
+
+Authorities, powered by `step-ca`, are the foundation of the Smallstep Platform and provide core certificate signing and management functions (issue, renew, and revoke certificates). 
+Authorities are used to issue and sign certificates and can run at any level of the PKI trust chain.
+
+- **Root CA** - At the bottom of the PKI trust chain is the root authority. 
+Typically, a Root CA is only invoked to sign intermediate CA certificates. 
+This indirection allows for redundant topologies and facilitates migrations. 
+It also means root CA private keys can be managed, stored, and accessed with more care. 
+For the most security-sensitive use cases root signing keys can even be kept offline in a physically secure environment.
+- **Intermediate CA** - Automated certificate management requires an online CA with an API that's capable of authenticating certificate signing requests (CSRs) and issuing certificates. 
+An intermediate CA is used to sign and issue certificates for devices, people, workloads, or whatever else you need to identify.
+- **Registration Authority** - Not a certificate signer, a Registration Authority accepts and verifies certificate requests. 
+Upon verification, certificate signing requests are passed to an Intermediate CA or Root CA to sign and catalog. 
+Registration Authorities are useful for connecting remote sites to a central set of signing authorities.
+
+## Learn More
+
+Authorities are an open-source feature. 
+The best way to learn about Authorities is to create one for yourself. 
+Follow the instructions on [the `step-ca` getting started page](../step-ca/getting-started.mdx) and you will have your own Authority in no time at all.

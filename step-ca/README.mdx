@@ -1,0 +1,92 @@
+---
+title: "`step-ca` server"
+html_title: step-ca open source server
+description: Learn about step-ca
+cta:
+  text: Install `step-ca`
+  icon: ToolsIcon
+  path: /docs/step-ca/installation
+---
+
+
+## Introduction to `step-ca`
+
+`step-ca` is an online Certificate Authority (CA) for secure, automated X.509 and SSH certificate management. 
+It's the server counterpart to [`step` CLI](../step-cli).
+It is secured with TLS,
+and it offers several configurable certificate provisioners, flexible certificate templating, and pluggable database backends to suit a wide variety of contexts and workflows.
+It employs sane default algorithms and attributes,
+so you don't have to be a security engineer to use it securely.
+
+Teams use `step-ca` to:
+- Generate TLS certificates for private infrastructure using the ACME protocol
+- Automate TLS certificate renewal
+- Add Automated Certificate Management Environment (ACME) support to a legacy subordinate CA
+- Issue short-lived SSH certificates via OAuth OIDC single sign on
+- Issue customized X.509 and SSH certificates
+- and much more ...
+
+<Alert severity="success">
+  <AlertTitle>Don&apos;t want to run your own CA?</AlertTitle>
+  <div>
+    To get up and running quickly, or as an alternative to running your own{' '}
+    <Code>step-ca</Code> server, consider creating a{' '}
+    <a href="https://smallstep.com/signup?product=cm">free hosted smallstep Certificate Manager authority</a>.
+  </div>
+</Alert>
+
+## Features
+
+### X.509 Certificate Authority
+
+`step-ca` issues X.509 certificates for use with TLS, mutual TLS (mTLS) authentication, document signing, and X.509 authentication more broadly.
+With `step-ca`, you can:
+
+- Automate certificate issuance and renewal for clients and servers and Kubernetes workloads.
+- Issue certificates to humans, eg. using Single Sign-on (OpenID Connect) for authentication.
+- Choose key types (RSA, ECDSA, EdDSA) and lifetimes to suit your needs
+- Issue [short-lived certificates](https://smallstep.com/blog/passive-revocation.html) with automated enrollment, renewal, and passive revocation
+- Operate [an online intermediate CA](https://smallstep.com/docs/tutorials/intermediate-ca-new-ca) to an existing root CA, eg. to add support for ACME to an existing PKI
+- Operate a local [Registration Authority (RA)](./registration-authority-ra-mode.mdx) on an internal network or inside a Kubernetes cluster, that authorizes certificate requests for an upstream `step-ca` server.
+- Deploy a high availability (HA) Certificate Authority using [root federation](https://smallstep.com/blog/step-v0.8.3-federation-root-rotation.html) and/or multiple intermediaries
+
+
+### SSH Certificate Authority
+
+`step-ca` can issue SSH certificates to users and hosts.
+Delegate SSH authentication to `step-ca`
+and set up a clear chain of trust for authorizing access.
+
+- Avoid the risk of trust-on-first-use (TOFU) when connecting to SSH hosts
+- Issue short-lived SSH user certificate via [Single Sign-on](https://smallstep.com/blog/diy-single-sign-on-for-ssh/).
+
+### Provisioners
+
+Provisioners are methods of using the CA to get certificates for humans or machines.
+They offer different modes of authorization for the CA.
+
+For example, you can have your CA issue certificates in exchange for:
+- [ACME challenge responses](../tutorials/acme-protocol-acme-clients.mdx) from any ACMEv2 client
+- [OAuth OIDC single sign-on tokens](https://smallstep.com/blog/easily-curl-services-secured-by-https-tls.html), eg:
+  - ID tokens from Okta, G Suite, Azure AD, Auth0.
+  - ID tokens from an OAuth OIDC service that you host, like [Keycloak](https://www.keycloak.org/) or [Dex](https://github.com/dexidp/dex)
+- [Cloud instance identity documents](https://smallstep.com/blog/embarrassingly-easy-certificates-on-aws-azure-gcp/), for VMs on AWS, GCP, and Azure
+- [Single-use, short-lived JWK tokens](./provisioners.mdx#jwk), eg. issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
+
+### Templates
+
+[X.509 Templates](./templates.mdx#x509-templates) let you customize certificate fields, eg:
+- Add custom Subject Alternative Names (SANs) or non-standard X.509 Object Identifiers (OIDs) to certificates
+- Restrict certificates by domain name or key size
+- Issue CA certificates with longer path lengths for multiple intermediaries
+
+`step-ca` ships with several built-in templates for everyday operations,
+and you can use Golang's `text/template` syntax to create new templates.
+
+### Cryptographic Protection
+
+For strong protection of your CA signing keys, we've built [`step-ca` integrations](./configuration.mdx#cryptographic-protection) for PKCS #11 HSMs, Google Cloud KMS, AWS KMS, and YubiKey PIV, among others.
+
+### Other Integrations
+
+`step-ca` plays well with Kubernetes cert-manager and Envoy Secret Discovery Service. See [Integrations](./integrations.mdx) to learn more.

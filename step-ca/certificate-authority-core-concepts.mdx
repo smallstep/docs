@@ -1,0 +1,134 @@
+---
+title: Certificate Authority Core Concepts
+html_title: Certificate authority core concepts for open source step-ca
+description: Learn about certificate authority core concepts for open source step-ca
+---
+
+
+This document defines and describes certificate authority core concepts that are integral to the design
+and practical usage of `step-ca`.
+
+Readers who are not yet familiar with public key infrastructure (PKI) and 
+certificate management may want to check out...
+
+- [Everything you should know about certificates and PKI but are too afraid to ask](https://smallstep.com/blog/everything-pki/)
+- [The case for using TLS everywhere](https://smallstep.com/blog/use-tls/)
+
+## Overview
+
+- [Online X.509 Certificate Authority](#online-x509-certificate-authority)
+- [Provisioners](#provisioners)
+- [Certificate Issuance Policies](#policies)
+- [Certificate Templates](#templates)
+- [Active vs. Passive Revocation](#active-vs-passive-revocation)
+- [Other Operational Modes](#other-operational-modes)
+
+## Online X.509 Certificate Authority
+
+`step-ca` is an online certificate authority, meaning it runs as a server
+on the network and accepts certificate requests.
+
+## Provisioners
+
+Provisioners are methods of proving an entity's identity to the CA prior to getting a new certificate.
+The CA needs proof that an entity that is requesting a new certificate is who they say they are.
+Once a provisioner authenticates an entity's identity, it then issues the entity a bearer token to submit to the CA, along with a [certificate
+signing
+request](https://smallstep.com/blog/everything-pki.html#certificate-signing-requests
+'CSR') (CSR), to obtain the new certificate.
+
+The details of how a provisioner interacts with an entity (machines or people) and the CA vary by provisioner type.
+Smallstep supports a number of provisioner types including:
+
+- [ACME protocol](./provisioners.mdx#acme)
+- [OAuth/OIDC Single Sign-on](./provisioners.mdx#oauthoidc-single-sign-on)
+- [AWS Instance Identity Documents](./provisioners.mdx#aws)
+- [Google Cloud Instance Identity Tokens](./provisioners.mdx#gcp)
+- [Azure Instance Metadata Service](./provisioners.mdx#azure) 
+- [Kubernetes Service Account Tokens](./provisioners.mdx#k8ssa-kubernetes-service-account) 
+- [SCEP protocol](./provisioners.mdx#scep)
+- [JWT for building custom integrations](./provisioners.mdx#jwt)
+
+## Active vs. passive revocation
+
+There are two certificate revocation methods: active vs. passive.
+Private PKIs like `step-ca` uses passive revocation by default.
+Passive revocation doesn't use Certificate Revocation List (CRL) and Online Certificate Signing Protocol (OCSP) like the Web PKI you may be familiar with. 
+
+To passively revoke a certificate means to block its renewal at the CA.
+This eliminates the additional network request that occurs when using a web PKI because the certificate just expires by itself. 
+Unlike active revocation, certificates cannot be immedietely revoked.
+Therefore, certificates should have a shorter lifetime to reduce the value of a key that has been exfiltrated.
+
+![passive revocation diagram](/graphics/passive-revocation.png)
+
+## Policies
+
+With certificate issuance policies administrators can configure what Subjects, SANs and Principals the CA is allowed to sign.
+An example of a policy is to only allow (strict) subdomains of `internal.example.com`, which would be encoded as `*.internal.example.com`.
+
+Visit the [`step-ca` policy](./policies.mdx) page to learn how certificate issuance policies work and how they can be configured.
+
+## Templates
+
+People use private CAs for all sorts of things, in many different contexts:
+web apps, mobile apps, code signing, cloud VM instances, SSH, IoT devices, etc.
+So `step-ca` must be flexible enough to handle a wide variety of flows.
+
+X.509 and SSH certificate templates open up these possibilities.
+With certificate templates, you can do things like:
+
+- Add custom SANs or extensions to X.509 certificates
+- Make longer certificate chains, with multiple intermediate CAs
+- Use SSH `force-command` or `source-address` extensions
+- Add conditionals around a certificate's parameters, and fail if they are not met
+- Enrich a certificate with data [from a webhook](./webhooks.mdx)
+
+Visit the [`step-ca` templates](./templates.mdx) page to learn how to use templates.
+
+## Other operational modes
+
+Aside from being an online Certificate Authority, `step-ca` has a couple of non-standard modes of operation:
+Registration Authority (RA) mode, and offline mode.
+
+### Registration Authority (RA) mode
+
+`step-ca` can operate in Registration Authority (RA) mode.
+An RA is a server that acts as an authentication layer for an upstream signing CA.
+
+RA mode lets you separate certificate request authentication (the RA) from certificate signing operations (the CA).
+This operational mode centralizes key management:
+a single CA can serve several RAs.
+
+When in RA mode, `step-ca` can peer with three kinds of upstream CA:
+
+- Another `step-ca` server ("StepCAS" mode)
+- A [Google CloudCAS](https://cloud.google.com/certificate-authority-service/) CA
+- A [Hashicorp Vault](https://www.hashicorp.com/products/vault) CA
+
+![Example PKI topology with StepCAS RA Mode](/graphics/stepcas-ra-mode.png)
+
+To create an RA-based PKI topology, see our [Registration Authority (RA) Mode](./registration-authority-ra-mode.mdx) documentation.
+
+### Offline Mode
+
+Sometimes it's useful to access a local CA offline, without running the `step-ca` server.
+For this purpose, the `step` CLI can be used in _offline mode_ (with the `--offline` flag).
+Offline mode uses the configuration, database, certificates, and keys of an existing `step-ca` installation.
+
+This table shows some of the feature differences between an online `step-ca` server, `step` CLI in offline mode, and the [`step certificate` subcommand](https://smallstep.com/docs/step-cli/basic-crypto-operations#run-an-offline-x509-certificate-authority).
+
+![](/graphics/cas-three-ways.png)
+
+### Example: Offline Mode
+
+Let's create a certificate without `step-ca`:
+
+```shell-session nocopy
+$ step ca init --name "Local CA" --provisioner admin --dns localhost --address ":443"
+$ step ca certificate --offline foo.smallstep.com foo.crt foo.key
+```
+
+## Next Steps
+
+- Read the [Getting Started guide](./getting-started.mdx) to set up a CA and get your first certificate.

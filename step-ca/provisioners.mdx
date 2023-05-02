@@ -1,0 +1,1416 @@
+---
+title: Configuring `step-ca` Provisioners
+html_title: Configuring open source step-ca Provisioners
+description: Learn how to configure step-ca Provisioners
+---
+
+
+Provisioners are methods of using the CA to get certificates for humans or machines.
+They offer different modes of authorization for the CA. 
+In this section we'll discuss the different provisioners, their target use cases, and how to add, remove, and configure them.
+
+## Overview
+
+- [Choosing a Provisioner](#choosing-a-provisioner)
+- [Authorization Scope by Provisioner](#authorization-scope-by-provisioner)
+- [Provisioner Management](#provisioner-management)
+- [Remote Provisioner Management](#remote-provisioner-management)
+- [Provisioner Types](#provisioner-types)
+  - [JWK](#jwk)
+  - [OAuth/OIDC Single Sign-on](#oauthoidc-single-sign-on)
+  - [X5C - X.509 Certificate](#x5c-x509-certificate)
+  - [SSHPOP - SSH Certificate](#sshpop-ssh-certificate)
+  - [ACME](#acme)
+  - [Nebula](#nebula)
+  - [SCEP](#scep)
+  - [K8sSA - Kubernetes Service Account](#k8ssa-kubernetes-service-account)
+  - [Cloud Provisioners](#cloud-provisioners)
+
+## Choosing a Provisioner
+
+When choosing a provisioner for your use case,
+you can narrow your options by starting from the types of
+identifiers you need on a certificate. 
+
+Identifier Type | JWK | OAuth | X5C | ACME `dns-01` | ACME `http-01` | ACME `tls-alpn-01` | ACME `device-attest-01` | Nebula | SCEP | K8sSA | Cloud Provisioners
+--------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
+Hostname        | ✔️   | 𝗫   | ✔️   | ✔️   | ✔️   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️   
+IP address      | ✔️   | 𝗫   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️   | ✔️   | 𝗫   | ✔️ 
+Hardware ID     | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫   | 𝗫   | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫  
+Service Account | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | ✔️   | ✔️   | 𝗫 
+Human           | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫
+
+## Authorization Scope by Provisioner
+
+Every provisioner has a slightly different scope of authorization. Below is a
+table detailing the authorization capabilities of each provisioner.
+
+Provisioner Capabilities| x509-sign | x509-renew | x509-revoke | ssh-user-cert-sign | ssh-host-cert-sign | ssh-user-cert-renew<Reference id="f1" marker="1"/>  | ssh-host-cert-renew | ssh-revoke | ssh-rekey
+----------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-:
+JWK    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫
+OIDC   | ✔️  | ✔️  | ✔️  | ✔️  | ✔️ <Reference id="f2" marker="2"/> | 𝗫 | 𝗫 | ✔️  | 𝗫
+X5C    | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
+Nebula | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫  | 𝗫 | 𝗫 | ✔️ | 𝗫
+K8sSA  | ✔️  | ✔️  | ✔️  | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
+ACME   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
+SCEP   | ✔️  | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫
+SSHPOP | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | 𝗫 | ✔️  | ✔️  | ✔️
+AWS    | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
+Azure  | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
+GCP    | ✔️  | ✔️  | 𝗫 | 𝗫 | ✔️  | 𝗫 | 𝗫 | 𝗫 | 𝗫
+
+<br></br>
+<Footnote id="f1" marker="1"> By design, SSH user certificates cannot be renewed by any provisioner. You can re-use the same key to get a new certificate, however. See [smallstep/discussions#1296](https://github.com/smallstep/certificates/discussions/1296).</Footnote>
+<Footnote id="f2" marker="2"> Privileged OIDC subject names can generate Host SSH Certificates. These can be configured in the <a href="#oauthoidc-single-sign-on">OIDC provisioner</a>.</Footnote>
+
+For an example of how to interpret this table, let's take the `JWK` provisioner.
+The `JWK` provisioner is capable of signing, renewing, and revoking X.509
+certificates, as well signing user and host SSH certificates. A `JWK` provisioner
+_cannot_ renew or rekey SSH certificates.
+
+An `SSHPOP` provisioner _can_ revoke and rekey SSH certificates and renew SSH host
+certificates. An `SSHPOP` provisioner _cannot_ sign, renew, or revoke X.509 
+certificates, and it _cannot_ sign SSH user and host certificates or renew SSH
+user certificates. 
+
+It's important to understand the capabilities and limitations when selecting a 
+provisioner for a given workload.
+
+## Provisioner Management
+
+Use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
+
+<Alert severity="warning">
+  <div>
+	<p><b>May I edit <Code>ca.json</Code> directly?</b></p>
+    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
+Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
+	</div>
+</Alert>
+
+Some provisioner options override global defaults for your CA.
+For a list of global options, see the [configuration guide](./configuration.mdx) section for the `authority` configuration block.
+
+A remote provisioner management API can be enabled in `step-ca`.
+It is disabled by default.
+With remote provisioner management, the CA's provisioner configuration is stored in the database instead of `ca.json`. (The global CA configuration remains in `ca.json`.)
+
+This feature can be useful if you
+have multiple CA administrators,
+[run several load-balanced](./certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
+
+See [Remote Provisioner Management](#remote-provisioner-management) for more.
+
+### Common Provisioner Operations
+
+Common provisioner operations include:
+
+- [Adding a provisioner](#add-a-provisioner)
+- [Removing a provisioner](#remove-a-provisioner)
+- [Listing all provisioner](#list-all-provisioners)
+- [Modifying the configuration of an existing provisioner](#modify-a-provisioner)
+
+Unless you are using [remote provisioner management](#remote-provisioner-management), you must send a `SIGHUP` signal, or restart the `step-ca` process, for changes to your provisioner configuration to take effect.
+
+#### Add a provisioner
+
+Use [`step ca provisioner add`](../step-cli/reference/ca/provisioner/add) to add a provisioner:
+
+```bash
+step ca provisioner add acme --type ACME
+```
+
+See the [command reference](../step-cli/reference/ca/provisioner/add) for complete documentation and examples.
+
+#### Remove a provisioner
+
+Use [`step ca provisioner remove`](../step-cli/reference/ca/provisioner/remove) to remove provisioners:
+
+```bash
+step ca provisioner remove acme
+```
+
+You can also edit the `ca.json` configuration file and remove the entire block
+containing the provisioner you'd like to remove.
+
+#### List all provisioners
+
+To get a list of all of your current provisioners, use [`step ca provisioner list`](../step-cli/reference/ca/provisioner/list) or the `/provisioners` endpoint on your CA.
+
+#### Modify a provisioner
+
+Use [`step ca provisioner update`](../step-cli/reference/ca/provisioner/update) to update provisioner configurations:
+
+```bash
+step ca provisioner update acme \
+   --x509-min-dur=20m \
+   --x509-max-dur=72h \
+   --x509-default-dur=36h
+```
+
+In this example we've modified the minumum, maximum, and default durations for TLS certificates generated by this provisioner.
+
+Provisioner configuration can be used to affect X.509 and SSH certificate lifetimes, extensions, and templates.
+There are some provisioner-specific options,
+which are covered by the documentation for each provisioner type, below.
+
+## Remote Provisioner Management
+
+**This feature is disabled by default.**
+
+When remote provisioner management is enabled, your provisioner configuration is
+stored in the database, rather than in `ca.json`.
+Provisioner configuration is managed by running [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands locally or remotely.
+These commands require you to sign in as an Admin user.
+
+### Enable Remote Provisioner Management
+
+#### On a New CA
+
+To enable remote provisioner management on a new CA, pass `--remote-management` to `step ca init`. This will:
+
+* Add an initial [JWK](#jwk) provisioner called Admin JWK to the database.
+* Create an initial Super Admin user, with default username `step`, and link it to the Admin JWK provisioner.
+
+#### On an Existing CA
+
+To migrate your `ca.json` provisioners to the database, and to enable remote provisioner management on an existing CA:
+
+1. Stop `step-ca` if it is running.
+2. Update your `"authority"` block in `ca.json` to include the following:
+
+  ```json
+  "authority": {
+    "enableAdmin": true,
+    "provisioners": [
+      ...
+    ]
+  },
+  ```
+ 
+3. Start `step-ca` from the command line.
+
+   When `step-ca` starts up, it will:
+   
+   * Migrate the provisioners from your `ca.json` to the database
+   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner key.
+   * Create an initial Super Admin user, with username `step`, and link it to the administrative provisioner.
+  
+4. Remove old provisioner configurations from `ca.json`.
+   Once your provisioners are migrated to the database, the provisioners in `ca.json` are ignored and you can remove them from that file:
+   
+   ```json
+   "authority": {
+   		"enableAdmin": true,
+           "provisioners": []
+   },
+   ```
+  
+### Managing Admin Users
+
+With remote provisioner management,  
+"Admins" can remotely manage provisioners.  
+"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](../step-cli/reference/ca/admin).
+
+#### Create An Admin User
+
+To perform CA administrative operations, you sign into that provisioner as an Admin.
+
+As a Super Admin, lets create an Admin user linked to the Admin JWK provisioner:
+
+```bash
+step ca admin add carl "Admin JWK"
+```
+
+Output:
+
+```bash
+SUBJECT    PROVISIONER        TYPE
+carl       Admin JWK (JWK)    ADMIN
+```
+
+#### Authenticating as an admin
+
+An Admin (or a Super Admin) is a combination of a username (a subject name) and a provisioner.
+There are no passwords associated with administrators.
+An administrator is just a subject name and a provisioner name.
+
+**The default Super Admin username is `step`, and the default admin provisioner  is called `Admin JWK`.**
+
+You can authenticate as an administrator via the authentication scheme of the provisioner.
+For example, for the default JWK provisioner, running administrative commands in `step` will prompt for the provisioner password.
+
+**Tip: Single Sign-On can be used for Admin users.** 
+To enable SSO CA administration, first add an [OIDC provisioner](#oauthoidc-single-sign-on) linked to your identity provider.
+Then, add an Admin user associated with that provisioner, using your email address as the Admin's subject name.
+
+The Admin and Super Admin privileges **are not scoped to a provisioner**:
+Admins can modify any provisioner configurations.
+Super Admins are Admins that can also modify Admins, regardless of provisioner.
+
+### Use Remote Provisioner Management
+
+You're all set. 🎉
+
+You can use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
+
+#### Unattended Remote Provisioner Management
+
+If you want to manage provisioners remotely using a script or an Infrastructure as Code (IaC) tool,
+you will need an _administrative certificate_ and key.
+
+An administrative certificate must meet the following criteria:
+- The Subject (or any SAN) must match the name of an Admin or Super Admin.
+- The certificate must be issued by the provisioner of the Admin or Super Admin.
+- The certificate must be valid and unexpired.
+- A passively revoked certificate is valid until it expires; for immediate revocation, remove the admin instead of revoking the certificate.
+
+To create an admin certificate, run:
+
+```bash
+step ca certificate step admin.crt admin.key --provisioner "Admin JWK"
+```
+
+Output:
+
+```
+✔ Provisioner: Admin JWK (JWK) [kid: 5UasaZcgkI_PxQeZqssfq5mzFnGHOWL5g5kDt07Vc1k]
+Please enter the password to decrypt the provisioner key:
+✔ CA: https://localhost
+✔ Certificate: admin.crt
+✔ Private Key: admin.key
+```
+
+With that certificate, you can use it as follows:
+
+```bash
+step ca provisioner add ... --admin-cert=admin.crt --admin-key=admin.key
+```
+
+If the `admin.crt` represents a Super Admin, the same flags can also be used to manage Admins:
+
+```bash
+step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
+```
+
+
+## Provisioner Types
+
+### JWK
+
+JWK is the default provisioner type. It uses public-key cryptography to sign and
+validate a JSON Web Token (JWT).
+
+The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`](../step-cli/reference/ca/init) is used.
+
+#### Example
+
+Add a JWK provisioner:
+
+```shell
+step ca provisioner add you@smallstep.com --create
+```
+
+In the ca.json configuration file, a complete JWK provisioner example looks like:
+
+```json
+{
+    "type": "JWK",
+    "name": "you@smallstep.com",
+    "key": {
+        "use": "sig",
+        "kty": "EC",
+        "kid": "NPM_9Gz_omTqchS6Xx9Yfvs-EuxkYo6VAk4sL7gyyM4",
+        "crv": "P-256",
+        "alg": "ES256",
+        "x": "bBI5AkO9lwvDuWGfOr0F6ttXC-ZRzJo8kKn5wTzRJXI",
+        "y": "rcfaqE-EEZgs34Q9SSH3f9Ua5a8dKopXNfEzDD8KRlU"
+    },
+    "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiTlV6MjlEb3hKMVdOaFI3dUNjaGdYZyJ9.YN7xhz6RAbz_9bcuXoymBOj8bOg23ETAdmSCRyHpxGekkV0q3STYYg.vo1oBnZsZjgRu5Ln.Xop8AvZ74h_im2jxeaq-hYYWnaK_eF7MGr4xcZGodMUxp-hGPqS85oWkyprkQLYt1-jXTURfpejtmPeB4-sxgj7OFxMYYus84BdkG9BZgSBmMN9SqZItOv4pqg_NwQA0bv9g9A_e-N6QUFanxuYQsEPX_-IwWBDbNKyN9bXbpEQa0FKNVsTvFahGzOxQngXipi265VADkh8MJLjYerplKIbNeOJJbLd9CbS9fceLvQUNr3ACGgAejSaWmeNUVqbho1lY4882iS8QVx1VzjluTXlAMdSUUDHArHEihz008kCyF0YfvNdGebyEDLvTmF6KkhqMpsWn3zASYBidc9k._ch9BtvRRhcLD838itIQlw",
+    "claims": {
+        "minTLSCertDuration": "5m",
+        "maxTLSCertDuration": "24h",
+        "defaultTLSCertDuration": "24h",
+        "disableRenewal": false,
+        "minHostSSHCertDuration": "5m",
+        "maxHostSSHCertDuration": "1680h",
+        "minUserSSHCertDuration": "5m",
+        "maxUserSSHCertDuration": "24h",
+        "enableSSHCA": true
+    },
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        },
+        "ssh": {
+            "templateFile": "templates/certs/ssh/default.tpl"
+        }
+    }
+}
+```
+
+- **type**: for a JWK provisioner it must be `JWK`, this field is case insensitive.
+
+- **name**: identifies the provisioner, a good practice is to use an email address or a descriptive string that allows the identification of the owner, but it can be any non-empty string.
+
+- **key**: is the JWK (JSON Web Key) representation of a public key
+  used to validate a signed token.
+
+- **encryptedKey**<Reference id="star1" marker="*" />: is the encrypted private key used to sign a token. 
+It's a JWE compact string containing the JWK representation of the private key.
+This value is not necessary for CA operation, but is provided for the convenience of clients.
+Without the `encryptedKey` attribute, the private key must be provided by the client, using the `--key` flag.
+
+
+- **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
+See [claims](configuration.mdx#claims) for details.
+
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star1" marker="*">Recommended</Footnote>
+<Footnote id="star2" marker="**">Optional</Footnote>
+
+<br /><br />
+
+#### Decrypting the private key
+
+We can use [`step crypto jwe decrypt`](../step-cli/reference/crypto/jwe/decrypt) to see the private key encrypted with the password `asdf`:
+
+<CodeBlock
+  language="shell-session"
+>
+{`$ step ca provisioner list \\
+    | jq -r '.[] | select(.name == "you@smallstep.com") | .encryptedKey' \\
+	| step crypto jwe decrypt \\
+	| jq
+Please enter the password to decrypt the content encryption key:
+{
+  "use": "sig",
+  "kty": "EC",
+  "kid": "NPM_9Gz_omTqchS6Xx9Yfvs-EuxkYo6VAk4sL7gyyM4",
+  "crv": "P-256",
+  "alg": "ES256",
+  "x": "bBI5AkO9lwvDuWGfOr0F6ttXC-ZRzJo8kKn5wTzRJXI",
+  "y": "rcfaqE-EEZgs34Q9SSH3f9Ua5a8dKopXNfEzDD8KRlU",
+  "d": "rsjCCM_2FQ-uk7nywBEQHl84oaPo4mTpYDgXAu63igE"
+}`}
+</CodeBlock>
+
+#### Changing a JWK provisioner password
+
+1. Retrieve the current encrypted key.
+
+  Run the following, changing the provisioner name in the `jq` command to match your configuration:
+
+  ```shell
+  OLD_ENCRYPTED_KEY=$(step ca provisioner list \
+     | jq -r '.[] | select(.name == "you@smallstep.com").encryptedKey')
+  ```
+
+2. Update the encrypted key password.
+
+  Run:
+
+  ```shell
+  ENCRYPTED_KEY=$(echo $OLD_ENCRYPTED_KEY | \
+    step crypto jwe decrypt | \
+    step crypto jwe encrypt --alg PBES2-HS256+A128KW | \
+    step crypto jose format)
+  ```
+
+  You'll be asked for the old and new passwords.
+
+3. Update the provisioner.
+  
+  Run the following, changing the provisioner name in the command to match your configuration:
+  
+  ```shell
+  step ca provisioner update you@smallstep.com \
+    --private-key=<(echo -n "$ENCRYPTED_KEY")
+  ```
+  
+4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+#### Rekeying a JWK provisioner
+
+1. Update the provisioner.
+
+  Run the following, changing the provisioner name in the command to match your configuration:
+
+  ```shell
+  step ca provisioner update you@smallstep.com --create
+  ```
+
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+#### Removing the encrypted private key from a JWK provisioner
+
+The encrypted private key stored in the JWK provisioner configuration and published to the public `/provisioners` endpoint is provided for client convenience.
+It is not required for `step-ca` to operate.
+To remove this key:
+
+1. Update the provisioner.
+
+  Run the following, changing the provisioner name in the command to match your configuration:
+
+  ```shell
+  step ca provisioner update you@smallstep.com --private-key ""
+  ```
+
+2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
+
+  (Skip this step if you have enabled remote provisioner administration.)
+
+  ```shell
+  killall -i -s SIGHUP step-ca
+  ```
+
+### OAuth/OIDC Single Sign-on
+
+Sometimes it's useful to issue certificates to people.
+So `step-ca` supports single sign-on with identity providers (IdPs) like Google, Okta, Azure Active Directory, Keycloak, 
+or any other provider that supports OAuth's [OpenID Connect extension](https://openid.net/connect/)..
+
+OpenID Connect is an extension to OAuth 2.0 that adds an identity layer.
+Providers that support OIDC can issue identity tokens ("ID tokens") to OAuth clients.
+These are JSON Web Tokens (JWTs) containing user identity information (eg. full name, username, email address).
+Like certificates, OIDC tokens have a validity period and are cryptographically signed by a trust authority (the OAuth provider).
+
+Here's an example OIDC identity token issued by Google:
+
+```json
+{
+  "alg": "RS256",
+  "kid": "cd49b2ab16e1e9a496c8239dac0dadd09d443012",
+  "typ": "JWT"
+}.{
+  "iss": "https://accounts.google.com",
+  "azp": "1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com",
+  "aud": "1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com",
+  "sub": "115449349109627210866",
+  "hd": "smallstep.com",
+  "email": "mike@smallstep.com",
+  "email_verified": true,
+  "at_hash": "lE6o-GdMpurFQ0WrJ9-H7g",
+  "nonce": "5f5820880a43c3f50d55ce79af15430b14b4059bdf4efbe717da6af8bfc53122",
+  "iat": 1621877714,
+  "exp": 1621881314
+}.[Signature]
+```
+
+The OIDC provisioner in `step-ca` can be configured to trust and accept an OAuth provider's ID tokens for authentication.
+By default, the issued certificate will use the _subject_ (sub) claim from the identity token as its subject.
+The value of the token's _email_ claim is also included as an email _SAN_ in the certificate.
+
+![example of provisioner working with step ca](/graphics/oauth-provisioner.png)
+
+_Fig. 3: Diagram of how step works with individuals using a single sign-on provisioner_
+
+From the user's perspective, when requesting a certificate, `step` detects the OIDC provisioner and initiates the OAuth login flow automatically:
+
+<CodeBlock
+  language="shell-session"
+  copyText="step ca certificate mike@smallstep.com mike.crt mike.key"
+>
+{`$ step ca certificate mike@smallstep.com mike.crt mike.key
+ 
+✔ Key ID: 650445034027-jsjdrkiskeq9ke99ud2rqkst82ft8uch.apps.googleusercontent.com (Google)
+✔ CA: https://ca.internal
+✔ Certificate: mike.crt
+✔ Private Key: mike.key`}
+</CodeBlock>
+
+
+<CodeBlock
+  language="shell-session"
+  copyText="step certificate inspect --short mike.crt"
+>
+{`$ step certificate inspect --short mike.crt
+X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2581...6739]
+Subject:     115449349109627210866
+            mike@smallstep.com
+Issuer:      Smallstep Intermediate CA
+Provisioner: Google [ID: 6504....com]
+Valid from:  2019-06-20T18:21:52Z
+        to:  2019-06-21T18:21:52Z`}
+</CodeBlock>
+
+#### Configuring your identity provider (IdP)
+
+When creating an OAuth app, there isn't much to configure on the IdP.
+Most providers will ask you to specify a Redirect URI, where the ID token will be delivered at the end of the OAuth flow.
+Since `step` starts its own local web server to receive the token, use `http://127.0.0.1` as the Redirect URI.
+
+#### Example: Google Identity
+
+One of the most common providers, and the one used in the following example, is [Google Identity](https://developers.google.com/identity/protocols/oauth2/openid-connect).
+
+Add a Google provisioner:
+
+```shell-session
+$ step ca provisioner add Google --type oidc \
+  --client-id 650445034027-jsjdrkiskeq9ke99ud2rqkst82ft8uch.apps.googleusercontent.com \
+  --client-secret 6Q7lGMua_Oox4nA92QBXYypT \
+  --configuration-endpoint https://accounts.google.com/.well-known/openid-configuration \
+  --domain smallstep.com --domain gmail.com
+```
+
+Example `ca.json` provisioner configuration for a Google provisioner:
+
+```json nocopy
+{
+  "type": "OIDC",
+  "name": "Google",
+  "clientID": "1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com",
+  "clientSecret": "udTrOT3gzrO7W9fDPgZQLfYJ",
+  "configurationEndpoint": "https://accounts.google.com/.well-known/openid-configuration",
+  "admins": ["you@smallstep.com"],
+  "domains": ["smallstep.com"],
+  "listenAddress": ":10000",
+  "claims": {
+    "maxTLSCertDuration": "8h",
+    "defaultTLSCertDuration": "2h",
+    "disableRenewal": true
+  },
+  "options": {
+      "x509": {
+          "templateFile": "templates/certs/x509/default.tpl"
+      },
+      "ssh": {
+          "templateFile": "templates/certs/ssh/default.tpl"
+      }
+  }
+}
+```
+
+- **type**: indicates the provisioner type and must be OIDC.
+
+- **name**: a string used to identify the provider when the CLI is used.
+
+- **clientID**: the client id provided by the identity provider used to initialize the authentication flow.
+
+- **clientSecret**: the shared secret provided by the identity provider; used to get the id token during the OAuth flow. Some identity providers may use an empty string as a secret. In the context of `step-ca`, the client "secret" is not actually a secret and is available via the CA's `/provisioners` configuration endpoint, because every `step` client needs to use it locally.
+
+- **configurationEndpoint**: is the HTTP address used by the CA to get the OpenID Connect configuration and public keys used to validate the tokens.
+
+- **admins**<Reference id="star3" marker="*" />: These privileged users may request certificates with arbitrary subject names (custom SANs). Non-privileged users may only request certificates for their email address.
+
+- **domains**<Reference id="star3" marker="*" />: is the list of domains valid. If provided only the emails with the provided domains will be able to authenticate.
+
+- **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
+
+- **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star3" marker="*">Optional</Footnote>
+
+#### Browserless Console Mode
+
+Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
+The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
+The `step-ca` OIDC provisioner supports the Device Authorization Grant flow.
+
+To use the Device Authorization Grant flow for input-constrained devices, run:
+
+```shell-session
+$ step ca certificate foo foo.crt foo.key --console
+```
+
+To specify a flow other than the default (for example Google's deprecated Out of Band flow), run:
+
+```shell-session
+$ STEP_CONSOLE_FLOW=oob step ca certificate foo foo.crt foo.key --console
+```
+
+#### Notes
+
+<Alert severity="info">
+  <div>
+    <b>Why is the OAuth client secret unprotected?</b>
+
+When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
+Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
+
+So, what makes it secure?
+The Authorization Code flow for native OAuth apps requires the redirect URI hostname be hardcoded as `127.0.0.1` (or `localhost`) in the client configuration.
+This constraint obviates the need for a client secret, because the loopback address is inherently resistant to network attacks that the client secret is designed to mitigate in other, non-native app flows.
+
+An attacker in posession of the client secret would need local access to your device in order to compromise the flow.
+OAuth in general is not very resistant to local attacks, so the threat model for the native app flow with an exposed client secret is the same as with any other OAuth flow:
+It assumes that if you have a local attacker on your device, it's unlikely that this kind of attack is going to be your biggest threat.
+
+The client secret is superfluous in the Authorization Code flow for native apps.
+In fact, BCP212 has recommended that OAuth identity providers offer a special OAuth client type that has no client secret.
+In practice, very few OAuth providers have implemented this "secretless" approach, so we don't yet support it.
+Functionally, however, it is equivalent to having a public secret.
+
+Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted and considered secure.
+  </div>
+</Alert>
+
+#### Further reading
+
+* Tutorial: [Use Keycloak to issue user certificates with step-ca](../tutorials/keycloak-oidc-provisioner.mdx)
+* Tutorial: [Connect your identity provider and issue X.509 certificates for user authentication to services](../tutorials/user-authentication.mdx)
+
+### X5C - X.509 Certificate
+
+With the X5C provisioner, a client can authenticate a certificate request
+using an existing X.509 certificate. Configure this provisioner with a root
+CA certificate, and any certificate bundle that chains up to that root can
+be used in a certificate request.
+
+- Clients may request an X.509 or SSH certificate
+- Clients must provide an X.509 certificate bundle whose root is trusted by the provisioner
+- Clients sign their request with the certificate private key
+- The validity period of the new certificate must fall within the validity period
+of the certificate used to authenticate the request
+
+The X5C provisioner uses X5C tokens for authentication. An X5C token is a JWT, signed by the certificate private key, with an `x5c` header that contains the certificate bundle.
+
+#### Example
+
+If you would like any certificate signed by `step-ca` to become a provisioner
+(have the ability to request new certificates with any name),
+you can create an X5C provisioner using the root certificate used by
+`step-ca`, like so:
+
+```shell
+step ca provisioner add x5c-smallstep --type X5C --x5c-root $(step path)/certs/root_ca.crt
+```
+
+Or, you can configure the X5C provisioner with an outside root, granting provisioner
+capabilities to a completely separate PKI.
+
+Below is an example of an X5C provisioner in the `ca.json`:
+
+```json
+...
+{
+    "type": "X5C",
+    "name": "x5c",
+    "roots": "LS0tLS1 ... Q0FURS0tLS0tCg==",
+    "claims": {
+        "maxTLSCertDuration": "8h",
+        "defaultTLSCertDuration": "2h",
+        "disableRenewal": true
+    },
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        },
+        "ssh": {
+            "templateFile": "templates/certs/ssh/default.tpl"
+        }
+    }
+}
+```
+
+* **type**: indicates the provisioner type and must be `X5C`.
+
+* **name**: a string used to identify the provider when the CLI is used.
+
+* **roots**: a base64 encoded list of root certificate PEM blocks used for validating X5C
+tokens.
+
+- **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star4" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star4" marker="*">Optional</Footnote>
+
+<Alert severity="warning">
+  <div> 
+    By default, the `X5C` provisioner will issue a certificates for <strong>any</strong> Subject names.
+    If you want to limit or modify the subject names this provisioner will issue,
+    you can use a <a href="https://smallstep.com/docs/step-ca/templates">certificate template</a>.
+    
+    For example, say your users will use the X5C provisioner to exchange an X.509 client certificate for an SSH user certificate.
+    The X.509 client certificate has `alice@example.com` as its subject,
+    and you want to ensure the SSH certificate has both `alice` and `alice@example.com` as principals.
+    The following template will make that scenario possible:
+    
+    <CodeBlock language="json">
+	{`{
+        "type": {{ toJson .Type }},
+        "keyId": {{ toJson .AuthorizationCrt.Subject.CommonName }},
+        "principals": [
+            {{ replace "@example.com" "" .AuthorizationCrt.Subject.CommonName | toJson }},
+            {{ toJson .AuthorizationCrt.Subject.CommonName }}
+        ],
+        "extensions": {{ toJson .Extensions }},
+        "criticalOptions": {{ toJson .CriticalOptions }}
+    }`}
+    </CodeBlock>
+  </div>
+</Alert>
+
+### Nebula
+
+**This is an experimental feature.**
+
+If you have a [Nebula overlay network](https://nebula.defined.net/docs/), you can create a Nebula provisioner and configure it with your Nebula root CA certificate.
+Clients can then use their Nebula client certificate and private key to request an X.509 or SSH host certificate from `step-ca`.
+The Nebula certificate they use for authentication must be issued by the Nebula root CA configured in the provisioner.
+
+The Nebula client certificate is used for authorization, too:
+The client is allowed to request an X.509 or SSH host certificate with the `name` or any of the `ips` appearing on the Nebula client certificate.
+
+To be clear, Nebula certificates can contain a single `name` and a list of `ips`.
+The `name` field is often a DNS hostname, but it could be an email, IP, or URI.
+And `ips` contains a list of CIDR blocks.
+In `step-ca`, the Nebula provisioner will authorize certificate subjects or SANs that include the `name`, plus IPs in any of the CIDR blocks in `ips` on the Nebula certificate.
+
+To get started, create a Nebula provisioner:
+
+```shell
+step ca provisioner add --type Nebula --nebula-root /etc/nebula/ca.crt
+```
+
+Now you can get an X509 certificate with the Nebula provisioner, using a Nebula client certificate. Here's an example using the DNS name `host3.example.com`, and two IPs:
+
+```shell
+step ca certificate host3.example.com host3.crt host3.key \
+	--nebula-cert /etc/nebula/client.crt \
+	--nebula-key /etc/nebula/client.key \
+	--san 192.168.100.2 \ 
+	--san 192.168.100.3
+```
+
+### SSHPOP - SSH Certificate
+
+An SSHPOP provisioner allows a client to renew, revoke, or rekey an SSH
+certificate using that certificate for authentication with the CA.
+The renew and rekey methods can only be used on SSH host certificates.
+
+An SSHPOP provisioner is configured with the user and host root ssh certificates
+from the `ca.json`. The SSHPOP provisioner can only authenticate SSHPOP tokens
+generated using SSH certificates created by `step-ca`.
+
+An SSHPOP token is a JWT, signed by the certificate private key, with an `sshpop`
+header that contains the SSH certificate.
+
+When configured with the `--ssh` option (`step ca init --ssh`), the CA
+will contain a default SSHPOP provisioner named `sshpop`.
+
+#### Example
+
+Add an SSHPOP provisioner:
+
+```shell
+step ca provisioner add sshpop --type SSHPOP
+```
+
+An example SSHPOP provisioner in the `ca.json`:
+
+```json
+...
+{
+    "type": "SSHPOP",
+    "name": "sshpop",
+    "claims": {
+		"enableSSHCA": true
+	},
+    "options": {
+        "ssh": {
+            "templateFile": "templates/certs/ssh/default.tpl"
+        }
+    }
+}
+```
+
+* **type**: indicates the provisioner type and must be `SSHPOP`.
+
+* **name**: a string used to identify the provider when the CLI is
+  used.
+
+- **claims**<Reference id="star5" marker="*" />: overwrites the default `claims` set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star5" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star5" marker="*">Optional</Footnote>
+
+### ACME
+
+The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certificate Signing Requests (CSRs) in a way that enables automation.
+
+ACME clients must answer challenges presented by the ACME server to prove to the CA that they control the identifiers listed in the CSR.
+ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
+See [ACME Basics](./acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
+
+In a typical setup, an ACME server might issue server certificates via the `http-01`, `dns-01`, `tls-alpn-01` challenge types, and client certificates via the `device-attest-01` challenge type.
+
+The ACME provisioner in `step-ca` supports issuing X.509 certificates using IP, hostname, and device identifiers.
+
+#### Example
+
+Add an ACME provisioner:
+
+```shell
+step ca provisioner add acme --type ACME
+```
+
+An example of an ACME provisioner in the `ca.json`:
+
+```json
+...
+{
+    "type": "ACME",
+    "name": "acme",
+    "forceCN": true,
+    "claims": {
+        "maxTLSCertDuration": "8h",
+        "defaultTLSCertDuration": "2h"
+	},
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        }
+    }
+}
+```
+
+* **type**: indicates the provisioner type and must be `ACME`.
+
+* **name**: a string used to identify the provider when the CLI is
+  used.
+
+* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided.
+
+- **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star6" marker="*">Optional</Footnote>
+
+<br /><br />
+
+See [ACME Basics](./acme-basics.mdx)
+for more guidance on configuring and using the ACME protocol with `step-ca`.
+
+#### ACME for Device Attestation
+
+<Alert severity="warning">
+  <div> 
+    This challenge type must be explicitly enabled in an ACME provisioner.
+  </div>
+</Alert>
+
+The `device-attest-01` challenge supports device attestations from iOS, iPadOS, tvOS, and YubiKeys. An attestation certificate is used to satisfy the ACME challenge. The CSR may include a device ID in a `permanentIdentifier` SAN ([RFC 4043](https://www.rfc-editor.org/rfc/rfc4043.html)), depending on the application. 
+
+##### Managed Device Attestation for Apple Devices
+
+To add a `device-attest-01` provisioner for use with [Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) on Apple devices, run:
+
+```bash
+step ca provisioner add acme-da \
+   --type ACME \
+   --challenge device-attest-01 \
+   --attestation-format apple
+```
+
+<Alert severity="warning">
+  <div>
+    Apple's device attestation CA will be trusted by the provisioner.
+    For a production environment, you must add policies to restrict this provisioner.
+    Without policy restrictions, the provisioner may issue certificates **for any Apple device**.
+  </div>
+</Alert>
+
+In your Apple MDM profile, you will need:
+* A [`CertificateRoot`](https://developer.apple.com/documentation/devicemanagement/certificateroot) payload, containing your root CA certificate PEM block, so that it's trusted by the device. 
+* An [`ACMECertificate`](https://developer.apple.com/documentation/devicemanagement/acmecertificate) payload. For this one, set the `ClientIdentifier` to the UDID or serial number of the device. 
+
+##### Device Attestation for YubiKeys
+
+To add a `device-attest-01` provisioner for YubiKey devices, run:
+
+```bash
+step ca provisioner add acme-da \
+      --type ACME \
+      --challenge device-attest-01 \
+      --attestation-format step
+```
+
+<Alert severity="warning">
+  <div>
+    Yubico's attestation CA will be trusted by the new provisioner.
+    For a production environment, you must add policies to restrict this provisioner.
+    Without policy restrictions, the provisioner may issue certificates **for any YubiKey**.
+  </div>
+</Alert>
+
+To get a client certificate for a hardware-bound private key on your YubiKey:
+ 
+0. Create a `device-attest-01` provisioner as described above.
+1. Install [`step-kms-plugin`](https://github.com/smallstep/step-kms-plugin/)
+2. Insert the YubiKey.
+3. Generate a private key in one of the YubiKey's slots, if you haven't already.
+   In this example, we'll use slot `9a`.
+   Run:
+
+   ```bash
+   step kms create 'yubikey:slot-id=9a' \
+       --kms 'yubikey:?pin-value=123456'
+   ```
+4. Get a certificate for the YubiKey from `step-ca`.
+   Substitute the serial number of your YubiKey here:
+
+   ```bash
+   {
+     YUBIKEY_SERIAL_NO=123EXAMPLE90
+     step ca certificate 
+      --attestation-uri 'yubikey:slot-id=9a' \
+      --kms 'yubikey:?pin-value=123456' \
+      --provisioner acme-da $YUBIKEY_SERIAL_NO yubikey.crt
+   }
+   ```
+
+
+### SCEP
+
+The SCEP provisioner can sign and renew certificates using the SCEP protocol ([RFC8894](https://datatracker.ietf.org/doc/html/rfc8894)). 
+SCEP is very popular for use in network equipment and mobile device management (MDM). 
+It runs over HTTP using POSTed binary data or base64-encoded GET parameters, 
+using CMS (PKCS#7) and CSR (PKCS#10) data formats. 
+A shared secret authenticates clients to the CA.
+
+#### Requirements
+
+Your CA must use an RSA intermediate CA, even if your client supports ECDSA.
+The RSA intermediate is used to decrypt the contents of the SCEP `pkcsPKIEnvelope` containing the certificate request. 
+This operation cannot be performed using an ECDSA key.
+
+Because [`step ca init`](../step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](../tutorials/rsa-chain.mdx) before using the SCEP provisioner.
+
+<Alert severity="info">
+  <div>
+	  <p>
+      <strong>Note:</strong> Some SCEP clients may fail if the intermediate CA certificate does not contain the right key usage extensions or does contain otherwise unexpected content. 
+      Consult the documentation of your SCEP client for specific configuration required or ask us on <a href="https://u.step.sm/discord">Discord</a> or in <a href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</a> if you hit a blocker.
+    </p>
+  </div>
+</Alert>
+
+#### Configure the Provisioner
+
+In this example, we will add a SCEP provisioner using challenge secret `secret1234` and `AES-256-CBC` as the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63):
+
+```shell
+step ca provisioner add my_scep_provisioner \
+  --type SCEP --challenge "secret1234" \
+  --encryption-algorithm-identifier 2
+```
+
+The shared `challenge` should be a value that you will distribute to your SCEP clients.
+
+Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
+
+```json
+{
+    "type": "SCEP",
+    "name": "scepca",
+    "forceCN": true,
+    "challenge": "secret1234",
+    "minimumPublicKeyLength": 2048,
+    "includeRoot": true,
+    "encryptionAlgorithmIdentifier": 2,
+}
+```
+
+- The `forceCN` parameter is optional. 
+It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
+- `challenge` is the secret shared between the provisioner and SCEP clients. By default no secret is used.
+- The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
+- When `includeRoot` is set to true, the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
+- The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
+
+#### Enable the HTTP Server
+
+By default SCEP will only be served via HTTPS.
+Most SCEP clients use HTTP, so you will most likely need your CA to listen using HTTP too, which it does not do by default. 
+Enable this by filling in the `"insecureAddress"` property to your top-level CA configuration:
+
+```json
+        ...
+        "insecureAddress": ":8080",
+        ...
+```
+
+Finally, restart `step-ca`.
+Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
+
+<Alert severity="info">
+  <div>
+	<p><strong>Note:</strong> Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.</p>
+  </div>
+</Alert>
+
+### K8sSA - Kubernetes Service Account
+
+A K8sSA provisioner allows a client to request a certificate from the server
+using a Kubernetes Service Account Token.
+
+As of the time when this provisioner was coded, the Kubernetes Service Account
+API for retrieving the token from a running instance was still in beta. Therefore,
+our K8sSA provisioner must be configured with the public key that will be used
+to validate K8sSA tokens.
+
+K8sSA tokens are very minimal. There is no place for SANs, or other details that
+a user may want validated in a CSR. It is essentially a bearer token. Therefore,
+at this time a K8sSA token can be used to sign a CSR with any SANs. Said
+differently, the **K8sSA provisioner does little to no validation on the CSR
+before signing it**. You should only configure and use this provisioner if you
+know what you are doing. If a malicious user obtains the private key they will
+be able to create certificates with any SANs and Subject.
+
+#### Example
+
+Add a K8sSA provsioner:
+
+```shell
+step ca provisioner add my-kube-provisioner --type K8sSA --pem-keys key.pub
+```
+
+An example of a K8sSA provisioner in the `ca.json`:
+
+```json
+...
+{
+    "type": "K8sSA",
+    "name": "my-kube-provisioner",
+    "publicKeys": "LS0tLS1...LS0tCg==",
+    "claims": {
+        "maxTLSCertDuration": "8h",
+        "defaultTLSCertDuration": "2h"
+	},
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        }
+    }
+}
+```
+
+* **type**: indicates the provisioner type and must be `K8sSA`.
+
+* **name**: a string used to identify the provider when the CLI is
+used.
+
+* **publicKeys**: a base64 encoded list of public keys used to validate
+K8sSA tokens.
+
+- **claims**<Reference id="star7" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star7" marker="*">Optional</Footnote>
+
+## Cloud Provisioners
+
+`step-ca` can be configured to use instance identity documents (IIDs) to authorize certificate signing requests from cloud VMs running on AWS, GCP, or Azure.
+IIDs are signed JSON tokens, created when the instance is launched, and made available via the instance metadata API.
+
+Here's the contents of an example IID from AWS:
+
+```json
+{
+    "devpayProductCodes" : null,
+    "marketplaceProductCodes" : [ "1abc2defghijklm3nopqrs4tu" ], 
+    "availabilityZone" : "us-west-2b",
+    "privateIp" : "10.158.112.84",
+    "version" : "2017-09-30",
+    "instanceId" : "i-1234567890abcdef0",
+    "billingProducts" : null,
+    "instanceType" : "t2.micro",
+    "accountId" : "123456789012",
+    "imageId" : "ami-5fb8c835",
+    "pendingTime" : "2016-11-19T16:32:11Z",
+    "architecture" : "x86_64",
+    "kernelId" : null,
+    "ramdiskId" : null,
+    "region" : "us-west-2"
+}
+```
+
+![example of provisioner working with step ca](/graphics/iid-provisioner.png)
+
+_Fig. 2: Diagram of how step works with a cloud service as the provisioner_
+
+Once you’ve configured `step-ca` to accept IIDs for authentication,
+`step` will detect the provisioner type,
+obtain an IID token from your cloud provider's metadata API,
+and use it to obtain a certificate from `step-ca`.
+
+From the CA's perspective, an IID is a single-use token.
+A host can only get one certificate, ever, per IID.
+A host can then renew its certificate using [`step ca renew`](../step-cli/reference/ca/renew).
+If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
+
+### Security Risks and Limitations
+
+While IIDs simplify the integration of `step-ca`, the approach comes with risks.
+
+Unfortunately, an IID usually doesn't contain enough information to authenticate a host certificate.
+For example, while an IID may contain the private or public IP for the host,
+it will not contain all of the DNS names and IP addresses that you may want on the certificate.
+
+Because of this, `step-ca`'s cloud provisioners use the _Trust on First Use (TOFU)_ security model,
+allowing any instance to get a certificate with any names (SANs) on it.
+
+This allows for a "cryptographic perimeter":
+If a host presents a certificate that was signed by your CA using a cloud provisioner,
+and the CA is configured to verify the instance's account, project, or tenant ID in the IID,
+you can have some confidence that the request came from your infrastructure (not someone else's),
+but _you cannot assume that the names on the certificate are authentic_.
+
+Because of this, every host in your infrastructure must be trusted.
+
+#### Mitigating the risk of IIDs
+
+Here are some things you can do to mitigate risk when using IIDs:
+- **Configure the provisioner with `instanceAge`.**
+  The IID will effectively "expire" if it's not used within `instanceAge` after the instance is launched.
+- **Use a trusted launch configuration / User Data script to obtain a certificate.**
+  Coupled with `instanceAge`, this will give you more assuance that the names on your certificates can be trusted.
+- **Restrict provisioning by your cloud provider account or project IDs.** 
+  Configure the provisioner's `accounts` (AWS) or `projectIDs` (GCP) setting.
+- **Disable Custom SANs, if possible.**
+  When using the `disableCustomSANs` setting, the CA will only issue certificates with authentic name(s) extracted from the signed instance identity document.
+  Unfortunately, the names on the IID may not be the names that you use to refer to your servers and services.
+- **Instances that don't obtain a certificate are a risk.**
+  Anyone with access to the instance will be able to obtain a certificate binding any names,
+  so long as the instance is younger than `instanceAge`.
+  Consider requesting certificates even for instances that will never use them,
+  so that the IID cannot later be used by an attacker.
+
+There are a lot of details to get right to make this model secure, many of which are environment-dependent and beyond the scope of this document.
+
+### AWS
+
+The AWS provisioner allows granting a certificate to an Amazon EC2 instance
+using the [Instance Identity Documents](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html)
+
+The [`step`](https://github.com/smallstep/cli) CLI will generate a custom JWT
+token containing the instance identity document and its signature and the CA
+will grant a certificate after validating it.
+
+#### Example
+
+Find your AWS [account ID](https://docs.aws.amazon.com/general/latest/gr/acct-identifiers.html) to restrict access to our VMs:
+
+![AWS Account ID](/graphics/aws-account-id.png)
+
+On the host running `step-ca` add an AWS provisioner to your configuration by running:
+
+```shell
+step ca provisioner add "AWS IID Provisioner" --type AWS --aws-account 123456789042
+```
+
+In the `ca.json`, an AWS provisioner looks like:
+
+```json
+{
+    "type": "AWS",
+    "name": "Amazon Web Services",
+    "accounts": ["123456789042"],
+    "disableCustomSANs": false,
+    "disableTrustOnFirstUse": false,
+    "instanceAge": "1h",
+    "claims": {
+        "maxTLSCertDuration": "2160h",
+        "defaultTLSCertDuration": "2160h"
+    },
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        }
+    }
+}
+```
+
+- **type**: indicates the provisioner type and must be `AWS`.
+
+- **name**: a string used to identify the provider when the CLI is
+  used.
+
+- **accounts**<Reference id="star8" marker="*" />: the list of AWS account numbers that are allowed to use
+  this provisioner. If none is specified, all AWS accounts will be valid.
+
+- **disableCustomSANs**<Reference id="star8" marker="*" />: by default custom SANs are valid, but if this
+  option is set to true only the SANs available in the instance identity
+  document will be valid, these are the private IP and the DNS
+  `ip-<private-ip>.<region>.compute.internal`.
+
+- **disableTrustOnFirstUse**<Reference id="star8" marker="*" />: by default only one certificate will be
+  granted per instance, but if the option is set to true this limit is not set
+  and different tokens can be used to get different certificates.
+
+- **instanceAge**<Reference id="star8" marker="*" />: The maximum age of an instance that should be allowed to obtain a certificate. 
+Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
+
+- **claims**<Reference id="star8" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star8" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star8" marker="*">Optional</Footnote>
+
+### GCP
+
+The GCP provisioner grants certificates to Google Compute Engine instance using
+its [identity](https://cloud.google.com/compute/docs/instances/verifying-instance-identity)
+token. The CA will validate the JWT and grant a certificate.
+
+#### Example
+
+On the host running `step-ca`, add an GCP provisioner to your configuration by running:
+
+```shell
+step ca provisioner add Google --type GCP \
+    --gcp-service-account 1234567890-compute@developer.gserviceaccount.com \
+    --gcp-service-account 9876543210-compute@developer.gserviceaccount.com \
+    --gcp-project identity --gcp-project accounting
+```
+
+In the `ca.json`, a GCP provisioner looks like:
+
+```json
+{
+    "type": "GCP",
+    "name": "Google Cloud",
+    "serviceAccounts": ["1234567890"],
+    "projectIDs": ["project-id"],
+    "disableCustomSANs": false,
+    "disableTrustOnFirstUse": false,
+    "instanceAge": "1h",
+    "claims": {
+        "maxTLSCertDuration": "2160h",
+        "defaultTLSCertDuration": "2160h"
+    },
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        }
+    }
+}
+```
+
+- **type**: indicates the provisioner type and must be `GCP`.
+
+- **name**: a string used to identify the provider when the CLI is used.
+
+- `serviceAccounts`<Reference id="star9" marker="*" />: the list of service account numbers that are
+  allowed to use this provisioner. If none is specified, all service accounts
+  will be valid.
+
+- **projectIDs**<Reference id="star9" marker="*" />: the list of project identifiers that are allowed to
+  use this provisioner. If non is specified all project will be valid.
+
+- **disableCustomSANs**<Reference id="star9" marker="*" />: by default custom SANs are valid, but if this
+  option is set to true only the SANs available in the instance identity
+  document will be valid, these are the DNS
+  `<instance-name>.c.<project-id>.internal` and
+  `<instance-name>.<zone>.c.<project-id>.internal`
+
+- **disableTrustOnFirstUse**<Reference id="star9" marker="*" />: by default only one certificate will be
+  granted per instance, but if the option is set to true this limit is not set
+  and different tokens can be used to get different certificates.
+
+- **instanceAge**<Reference id="star9" marker="*" />: The maximum age of an instance that should be allowed to obtain a certificate. 
+Limits certificate issuance to new instances to mitigate the risk of credential-misuse from instances that don't need a certificate.
+
+- **claims**<Reference id="star9" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star9" marker="*">Optional</Footnote>
+
+### Azure
+
+The Azure provisioner grants certificates to Microsoft Azure instances using
+the [managed identities tokens](https://docs.microsoft.com/en-us/azure/active-directory/managed-identities-azure-resources/how-to-use-vm-token).
+The CA will validate the JWT and grant a certificate.
+
+#### Example
+
+On the host running `step-ca`, add an Azure provisioner to your configuration by running:
+
+```shell
+step ca provisioner add Azure --type Azure \
+    --azure-tenant bc9043e2-b645-4c1c-a87a-78f8644bfe57 \
+    --azure-resource-group identity --azure-resource-group accounting
+```
+
+In the `ca.json`, an Azure provisioner looks like:
+
+```json
+{
+    "type": "Azure",
+    "name": "Microsoft Azure",
+    "tenantId": "b17c217c-84db-43f0-babd-e06a71083cda",
+    "resourceGroups": ["backend", "accounting"],
+    "audience": "https://management.azure.com/",
+    "disableCustomSANs": false,
+    "disableTrustOnFirstUse": false,
+    "claims": {
+        "maxTLSCertDuration": "2160h",
+        "defaultTLSCertDuration": "2160h"
+    },
+    "options": {
+        "x509": {
+            "templateFile": "templates/certs/x509/default.tpl"
+        }
+    }
+}
+```
+
+- **type**: indicates the provisioner type and must be `Azure`.
+
+- **name**: a string used to identify the provider when the CLI is used.
+
+- **tenantId**: the Azure account tenant id for this provisioner. This
+  id is the Directory ID available in the Azure Active Directory properties.
+
+- **audience**<Reference id="star10" marker="*" />: defaults to `https://management.azure.com/` but it can
+  be changed if necessary.
+
+- **resourceGroups**<Reference id="star10" marker="*" />: the list of resource group names that are allowed
+  to use this provisioner. If none is specified, all resource groups will be
+  valid.
+
+- **disableCustomSANs**<Reference id="star10" marker="*" />: by default custom SANs are valid, but if this
+  option is set to true only the SANs available in the token will be valid, in
+  Azure only the virtual machine name is available.
+
+- **disableTrustOnFirstUse**<Reference id="star10" marker="*" />: by default only one certificate will be
+  granted per instance, but if the option is set to true this limit is not set
+  and different tokens can be used to get different certificates.
+
+- **claims**<Reference id="star10" marker="*" />: overwrites the default claims set in the authority,
+see the [claims](configuration.mdx#claims) section for all the options.
+
+- **options**<Reference id="star10" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+<Footnote id="star10" marker="*">Optional</Footnote>
