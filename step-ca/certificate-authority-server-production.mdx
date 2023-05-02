@@ -214,13 +214,14 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   Use the template to create your intermediate CA. You will need your root CA certificate and key:
   
   ```bash
-  $ step certificate create "Example Intermediate CA" \
-       $(step path)/certs/intermediate_ca.crt \
-       $(step path)/secrets/intermediate_ca_key \
+  $ step certificate create \
        --template intermediate.tpl \
        --ca $(step path)/certs/root_ca.crt \
        --ca-key $(step path)/secrets/root_ca_key \
-       --not-after 87660h
+       --not-after 87660h \
+       "Example Intermediate CA" \
+       $(step path)/certs/intermediate_ca.crt \
+       $(step path)/secrets/intermediate_ca_key
   ```
 
 2. Create an empty CRL file and sign it with your root CA key:
@@ -517,29 +518,41 @@ See our [Revocation](./revocation.mdx) documentation for details.
 
 It's possible to rotate both root and intermediate X.509 CA cerificates.
 
-A two-tiered PKI hierarchy simplifies intermediate CA rotation. Each leaf certificate is issued in a PEM bundle that includes the intermediate that signed it. The leaf certificate and intermediate CA travel together and are used to complete the trust chain.
+A two-tiered PKI hierarchy simplifies intermediate CA rotation.
+Each leaf certificate is issued in a PEM bundle that includes the intermediate that signed it.
+The leaf certificate and intermediate CA travel together and are used to complete the trust chain.
 
-Root CA rotation is trickier. It requires a migration period. You'll need to create a new root certificate and add it as a trusted CA to all of your current endpoints before you can start signing new certificates with the new root. Furthermore, root CA rotation will always require intermediate rotation, since the intermediate CA is signed by the root CA.
+Root CA rotation is trickier.
+It requires a migration period where the new root is introduced while the old root is still active and trusted.
+The old root has to be carefully decommissioned.
+Root rotation is out of scope for this document.
 
 ### Rotating an Intermediate CA
 
-Intermediate CA rotation will not affect previously-issued leaf certificates. These certificates are already bundled with the old intermediate CA. When an old certificate is renewed, the entire PEM bundle is replaced. This way, intermediate CA rotation can be seamless.
+Creating a new Intermediate CA will not affect previously-issued leaf certificates.
+When they were issued, these certificates were bundled with the old intermediate CA.
+When an old certificate is renewed,
+the entire PEM bundle is replaced.
+This way, intermediate CA rotation can be seamless.
 
-To rotate your intermediate CA, you will need your root CA certificate and private key.
+To rotate your intermediate CA,
+you will need your root CA certificate and private key.
 
 1. Back up your previous intermediate CA and key. They are located in `$(step path)/certs/intermediate_ca.crt` and `$(step path)/secrets/intermediate_ca_key`
-2. Sign a new intermediate CA using your root CA:
+2. Sign a new intermediate CA using your root CA. Be sure the intermediate expires at or before the root expiration date.
    ```bash
-   $ step certificate create "Example Intermediate CA" \
-        $(step path)/certs/intermediate_ca.crt \
-	      $(step path)/secrets/intermediate_ca_key \
+   $ step certificate create \
         --profile intermediate-ca \
         --ca $(step path)/certs/root_ca.crt \
-        --ca-key $(step path)/secrets/root_ca_key
+        --ca-key $(step path)/secrets/root_ca_key \
+        "Example Intermediate CA" \
+        $(step path)/certs/intermediate_ca.crt \
+	    $(step path)/secrets/intermediate_ca_key
    ```
 3. Send a `HUP` signal to `step-ca` to read the new configuration.
 
 New leaf certificates will now include and be signed by your new intermediate CA.
+
 #### Caveats
 
 In rare cases, an intermediate CA must be bundled with a trusted root CA.
@@ -549,37 +562,6 @@ If you have this sort of CA bundle in your infrastructure, you can smooth the tr
 adding both the new and old intermediate CA certificates to the bundle
 during a transition period.
 Remove the old intermediate from the bundle once all of the certificates signed by it have expired. This is similar to the root rotation process.
-
-### Rotating a Root CA
-
-To rotate your root CA:
-
-1. Create a new root CA.
-   ```bash
-   $ step certificate create "Example Root CA" \
-        root_ca.crt \
-	      root_ca_key \
-        --profile root-ca
-    ```
-   Choose a strong password for your root CA. You'll need it to sign an intermediate CA.
-2. Add `root_ca.crt` to the trust stores on all of your active endpoints. Do not remove your previous root CA from any trust stores yet.
-3. Update any `step ca bootstrap` commands to use the new root CA fingerprint.
-3. Back up your previous root CA certificate (`$(step path)/certs/root_ca.crt`) and private key (`$(step path)/secrets/root_ca_key`)
-4. Stop `step-ca` and copy your new root CA into place.
-5. Finally, follow the instructions for [rotating an intermediate CA](#rotating-an-intermediate-ca).
-6. Copy `root_ca.crt` into `$(step path)/certs`.
-6. Restart `step-ca` to pick up the new root CA
-
-Your CA fingerprint has now changed.
-
-The `step` ecosystem uses sane defaults so that you don't have to be a security
-engineer to use our `step-ca` safely. Our defaults align with best current
-practices in the industry for using cryptographic primitives and higher order
-abstractions, like JWTs.
-
-This section describes our defaults and explains the rationale behind them. Our
-selections and guidance will change and evolve over time as security and
-cryptography are constantly changing in response to real world pressures.
 
 ### Tokens
 
