@@ -1045,7 +1045,7 @@ It behaves the same as `forceCN` in the ACME provisioner, and it defaults to fal
 - The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
 
 If you don't want to rely on a single, static secret, you can [configure a `SCEPCHALLENGE` webhook](./webhooks.mdx#x509-request-body) instead.
-When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the request.
+When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the SCEP request.
 The webhook server can then decide if the request is allowed or not.
 
 #### Enable the HTTP Server

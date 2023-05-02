@@ -156,7 +156,7 @@ Add a webhook to your SCEP provisioner using the CLI:
   ```
 
 When a SCEP client requests a certificate with a challenge password embedded, the webhook server will receive a request.
-The request will contain the `scepChallenge` provided by the client and the `scepTransactionID` of the request.
+The request will contain the `scepChallenge` provided by the client and the `scepTransactionID` from the SCEP request.
 Unlike webhooks configured on other provisioners, when a single SCEP provisioner is configured with multiple `SCEPCHALLENGE` webhooks, 
 only a single one of the `SCEPCHALLENGE` webhooks needs to indicate the request is allowed for the certificate to be issued.
 
