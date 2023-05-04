@@ -553,21 +553,22 @@ you will need your root CA certificate and private key.
 
 New leaf certificates will now include and be signed by your new intermediate CA.
 
-#### Caveats
+#### Caveat: Root + Intermediate Bundles
 
-In rare cases, an intermediate CA must be bundled with a trusted root CA.
-In this case, you will need to rotate those CA bundles when you rotate the intermediate CA.
+Typically, endpoints are configured to trust your root CA certificate only. But in some rare applications, intermediates and roots must be bundled together. This is not common.
 
-If you have this sort of CA bundle in your infrastructure, you can smooth the transition to your new intermediate.
-adding both the new and old intermediate CA certificates to the bundle
-during a transition period.
-Remove the old intermediate from the bundle once all of the certificates signed by it have expired. This is similar to the root rotation process.
+If you have PEM bundles containing both your root and intermediate CAs, you will need an intermediate CA migration process:
+1. **Create your new intermediate CA** certificate and key, but do not start issuing certificates with it yet.
+2. **Append the new intermediate certificate** to the bundles that need it.
+3. **Configure `step-ca` to use your new intermediate**.
+3. **Wait** for all certificates issued by the old intermediate to expire.
+3. It is now safe to **remove the old intermediate from the bundles**.
 
 ## Sane Cryptographic Defaults
 
 We've done our best to provide sane defaults in `step-ca`,
 so that it's easy to use and hard to misuse.
-This section elaborates on our reasoning the default parameters for tokens, keys, and certificates.
+This section explains our reasoning behind `step-ca`'s default parameters for tokens, keys, and certificates.
 These values are subject to change to reflect the current security and cryptography landscape.
 
 ### Tokens
