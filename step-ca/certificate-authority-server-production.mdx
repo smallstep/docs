@@ -27,6 +27,7 @@ should know about when running `step-ca` as a certificate authority server.
 - [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
 - [Automate X.509 Certificate Lifecycle Management](#automate-x509-certificate-lifecycle-management)
 - [X.509 Certificate Revocation](#x509-certificate-revocation)
+- [Rotating CA certificates](#rotating-ca-certificates)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
   - [Key Types and Ciphers](#key-types-and-ciphers)
@@ -213,13 +214,14 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
   Use the template to create your intermediate CA. You will need your root CA certificate and key:
   
   ```bash
-  $ step certificate create "Example Intermediate CA" \
-       $(step path)/certs/intermediate_ca.crt \
-       $(step path)/secrets/intermediate_ca_key \
+  $ step certificate create \
        --template intermediate.tpl \
        --ca $(step path)/certs/root_ca.crt \
        --ca-key $(step path)/secrets/root_ca_key \
-       --not-after 87660h
+       --not-after 87660h \
+       "Example Intermediate CA" \
+       $(step path)/certs/intermediate_ca.crt \
+       $(step path)/secrets/intermediate_ca_key
   ```
 
 2. Create an empty CRL file and sign it with your root CA key:
@@ -278,10 +280,12 @@ Source: [OpenSSL PKI Tutorial](https://pki-tutorial.readthedocs.io/en/latest/cad
 
 ### Use Templates With Care
 
-Because certificate templates add a lot of flexibility to `step-ca`,
-they can be a source of subtle vulnerabilities in your PKI.
-If you use [custom certificate templates](./templates.mdx), be sure they are tightly restricted for your use case.
-Use extreme caution when referencing user-supplied data marked as `Insecure` in templates.
+[Certificate templates](./templates.mdx) add a lot of flexibility to `step-ca`,
+and they can be a source of subtle vulnerabilities. Here are some tips for limiting your risk:
+- Write templates that are tightly restricted for your use case.
+- Use extreme caution when referencing user-supplied data, especially when it's marked as `.Insecure` in templates.
+- When enriching a certificate via [webhooks](./webhooks.mdx), OIDC tokens, or other external sources, consider potential attack vectors and limit your CA's exposure as much as possible.
+- Finally, avoid JSON injection attacks by applying `toJson` to all template data evaluations.
 
 ### Create a Service User to Run `step-ca`
 
@@ -510,16 +514,62 @@ By default, `step-ca` uses passive revocation.
 Certificates can be revoked using the `step ca revoke` subcommand.
 See our [Revocation](./revocation.mdx) documentation for details.
 
+## Rotating CA Certificates
+
+It's possible to rotate both root and intermediate X.509 CA cerificates.
+
+A two-tiered PKI hierarchy simplifies intermediate CA rotation.
+Each leaf certificate is issued in a PEM bundle that includes the intermediate that signed it.
+The leaf certificate and intermediate CA travel together and are used to complete the trust chain.
+
+Root CA rotation is trickier.
+It requires a migration period where the new root is introduced while the old root is still active and trusted.
+The old root has to be carefully decommissioned.
+Root rotation is out of scope for this document.
+
+### Rotating an Intermediate CA
+
+Creating a new Intermediate CA will not affect previously-issued leaf certificates.
+When they were issued, these certificates were bundled with the old intermediate CA.
+When an old certificate is renewed,
+the entire PEM bundle is replaced.
+This way, intermediate CA rotation can be seamless.
+
+To rotate your intermediate CA,
+you will need your root CA certificate and private key.
+
+1. Back up your previous intermediate CA and key. They are located in `$(step path)/certs/intermediate_ca.crt` and `$(step path)/secrets/intermediate_ca_key`
+2. Sign a new intermediate CA using your root CA. Be sure the intermediate expires at or before the root expiration date.
+   ```bash
+   $ step certificate create \
+        --profile intermediate-ca \
+        --ca $(step path)/certs/root_ca.crt \
+        --ca-key $(step path)/secrets/root_ca_key \
+        "Example Intermediate CA" \
+        $(step path)/certs/intermediate_ca.crt \
+	    $(step path)/secrets/intermediate_ca_key
+   ```
+3. Send a `HUP` signal to `step-ca` to read the new configuration.
+
+New leaf certificates will now include and be signed by your new intermediate CA.
+
+#### Caveat: Root + Intermediate Bundles
+
+Typically, endpoints are configured to trust your root CA certificate only. But in some rare applications, intermediates and roots must be bundled together. This is not common.
+
+If you have PEM bundles containing both your root and intermediate CAs, you will need an intermediate CA migration process:
+1. **Create your new intermediate CA** certificate and key, but do not start issuing certificates with it yet.
+2. **Append the new intermediate certificate** to the bundles that need it.
+3. **Configure `step-ca` to use your new intermediate**.
+3. **Wait** for all certificates issued by the old intermediate to expire.
+3. It is now safe to **remove the old intermediate from the bundles**.
+
 ## Sane Cryptographic Defaults
 
-The `step` ecosystem uses sane defaults so that you don't have to be a security
-engineer to use our `step-ca` safely. Our defaults align with best current
-practices in the industry for using cryptographic primitives and higher order
-abstractions, like JWTs.
-
-This section describes our defaults and explains the rationale behind them. Our
-selections and guidance will change and evolve over time as security and
-cryptography are constantly changing in response to real world pressures.
+We've done our best to provide sane defaults in `step-ca`,
+so that it's easy to use and hard to misuse.
+This section explains our reasoning behind `step-ca`'s default parameters for tokens, keys, and certificates.
+These values are subject to change to reflect the current security and cryptography landscape.
 
 ### Tokens
 
@@ -624,7 +674,7 @@ Key Usage describes how the certificate can be used.
 These are the defaults used for communication between `step` and `step-ca`.
 
 **Min TLS Version**: TLS 1.2  
-**Max TLS Version**: TLS 1.2
+**Max TLS Version**: TLS 1.3
 
 The PCI Security Standards Council required all payment processors and merchants to move to TLS 1.2 and above by June 30, 2018. By setting TLS 1.2 as the default for all TLS protocol negotiation, we encourage our users to adopt the same security conventions.
 
