@@ -502,6 +502,40 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
   See [this blog post](https://fedingo.com/how-to-configure-ssl-tls-passthrough-in-nginx/) for an example of TLS passthrough.
 - Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
 
+## Exposing `step-ca` To The Internet
+
+With some precautions,
+`step-ca` can be exposed to the public internet.
+This can be useful for issuing network access certificates, in particular.
+
+Here are some guidelines for exposing a CA to the internet:
+- Consider alternatives.
+  - If you are using hardware-bound private keys in your clients,
+    you could issue longer-lived certificates
+    so that renewal from the public internet is never needed.
+  - When your clients are spread across differenet networks—
+    eg. in multi-cloud environments—
+    you can use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx).
+- Rather than exposing your entire CA to the internet,
+  use a reverse proxy to expose only the necessary CA endpoints:
+  - `/root/*` will allow clients to bootstrap with `step ca bootstrap`
+  - `/renew` for mutual TLS or token-based renewals
+  - `/sign` for JWK issuance
+  - `/provisioners` enumerates all provisioners and allows remote access to encrypted JWKs — it is not necessary to expose this endpoint.
+- You may expose ACME provisioners (`/acme/*`), with precautions:
+  - The default ACME provisioner will issue certificates to any client, including clients from the public internet, just as Let's Encrypt does.
+  - Use [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
+  - Do not expose `/provisioners`, so the ACME provisioner cannot be discovered
+  - Obscure your ACME provisioner name, so that the directory URL is unguessable:
+
+    ```
+    {
+    PROVISIONER_NAME=$(< /dev/urandom  LC_ALL=C tr -dc A-Za-z0-9 | head -c80)
+    step ca provisioner update acme-da --name $PROVISIONER_NAME
+    echo https://ca.example.com/acme/$PROVISIONER_NAME/directory
+    }
+    ```
+
 ## Automate X.509 Certificate Lifecycle Management
 
 We recommend automating certificate renewal when possible.
