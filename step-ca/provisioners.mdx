@@ -880,6 +880,20 @@ An example of an ACME provisioner in the `ca.json`:
         "maxTLSCertDuration": "8h",
         "defaultTLSCertDuration": "2h"
 	},
+    "termsOfService": "",
+    "website": "",
+    "caaIdentities": [],
+    "challenges": [
+        "http-01",
+        "dns-01",
+        "tls-alpn-01"
+    ],
+    "attestationFormats": [
+        "apple",
+        "step",
+        "tpm"
+    ],
+    "attestationRoots": [],
     "options": {
         "x509": {
             "templateFile": "templates/certs/x509/default.tpl"
@@ -899,6 +913,18 @@ An example of an ACME provisioner in the `ca.json`:
 see the [claims](configuration.mdx#claims) section for all the options.
 
 - **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+
+- **termsOfService**<Reference id="star6" marker="*" />: contains a URL pointing to the ACME server's terms of service. Defaults to empty.
+
+- **website**<Reference id="star6" marker="*" />: contains a URL pointing to more information about the ACME server. Defaults to empty.
+
+- **caaIdentities**<Reference id="star6" marker="*" />: an array of hostnames that the ACME server identifies itself with. These hostnames can be used by ACME clients to determine the correct issuer domain name to use when configuring CAA records. Defaults to empty array.
+
+- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. Note that `device-attest-01` is disabled by default.
+
+- **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. The `apple` format is for Apple devices, and adds trust for Apple's CAs. The `step` format is for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for Yubico's root CA. The `tpm` format is for TPMs. It does not trust any TPM vendor CAs by default.
+
+- **attestationRoots**<Reference id="star6" marker="*" />: contains a trust bundle of root certificates in PEM format that will be used to verify attestation certificates. The default value depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA trust established by setting **attestationFormats**.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
