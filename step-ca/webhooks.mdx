@@ -85,28 +85,28 @@ or as the basis of your own custom webhook integration.
 
 10. Add a template to the provisioner to incorporate the data returned from the `people` webhook:
 
-   ```bash
-   cat <<EOF > external_ou.tmpl
-   {
-     "subject": {
-       "organizationalUnit": {{ toJson .Webhooks.people.role }}
-     }
-   }
-   EOF
-   step ca provisioner update my_provisioner --x509-template external_ou.tmpl
-   ```
+    ```bash
+    cat <<EOF > external_ou.tpl
+    {
+      "subject": {
+        "organizationalUnit": {{ toJson .Webhooks.people.role }}
+      }
+    }
+    EOF
+    step ca provisioner update my_provisioner --x509-template external_ou.tpl
+    ```
 
 11. Get a certificate with the provisioner you configured earlier:
 
-   ```bash
-   step ca certificate andrew@smallstep.com my.crt my.key --provisioner my_provisioner
-   ```
+    ```bash
+    step ca certificate andrew@smallstep.com my.crt my.key --provisioner my_provisioner
+    ```
 
 12. Inspect the certificate. Notice that the user's role returned from the webhook server appears in the OU.
 
-   ```bash
-   step certificate inspect my.crt --format json | jq .subject
-   ```
+    ```bash
+    step certificate inspect my.crt --format json | jq .subject
+    ```
 
 # Implementation Details
 
