@@ -71,7 +71,7 @@ To uninstall, run `scoop uninstall`, then remove the configuration directory `$H
 ### Linux Packages (amd64)
 
 <Alert severity="info">
-  <AlertTitle>Install both <Code>step-ca</Code> and the <Code>step</Code> CLI tool.</AlertTitle>  
+  <AlertTitle>Install both <Code>step-ca</Code> and the <Code>step</Code> CLI tool.</AlertTitle>
   <div>
     The <a href="https://smallstep.com/docs/step-cli"><Code>step</Code> CLI tool</a> is the easiest way to
     initialize, configure, and control <Code>step-ca</Code>. 
@@ -101,7 +101,7 @@ To uninstall, run `dpkg -r step-cli step-ca`, then remove the configuration dire
 
 #### Arch Linux
 
-There are community-driven Arch Linux packages.
+There are community-maintained Arch Linux packages.
 
 To install with [pacman](https://www.archlinux.org/pacman/), run: 
 
@@ -140,18 +140,10 @@ To uninstall, run `dnf remove step-cli step-ca`, then remove the configuration d
 
 #### Alpine Linux
 
-<Alert severity="info">
-    <AlertTitle>
-        This package is in a testing repository.
-    </AlertTitle>
-    <div>
-      To install, append <code>http://dl-cdn.alpinelinux.org/alpine/edge/testing</code> to <code>/etc/apk/repositories</code>,
-     or see <a href="#linux-binaries">Linux (other)</a>.
-    </div>
-</Alert>
-<br>
+There are community-maintained Alpine Linux Packages for `step` and `step-ca`.
 
-There are community driven Alpine Linux Packages for `step` and `step-ca`.
+**These packages are in a testing repository.**
+To use the testing repository, append <code>http://dl-cdn.alpinelinux.org/alpine/edge/testing</code> to <code>/etc/apk/repositories</code>, or see <a href="#linux-binaries">Linux (other)</a>.
 
 To install `step` with [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management), run:
 
