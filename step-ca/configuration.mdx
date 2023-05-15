@@ -8,19 +8,19 @@ description: Learn how to configure step-ca
 When the [`step ca init`](../step-cli/reference/ca/init) command sets up your PKI, it creates an initial
 configuration file for your CA and stores it in `$(step path)/config/ca.json`.
 
-In this document we'll describe how to configure every aspect of `step-ca`. You'll
+This document describes how to configure every aspect of `step-ca`. You'll
 learn how to configure your CA to:
 
-- bind to a non default address
+- bind to a non-default address
 - generate ACME certificates
 - adjust the default lifetime of certificates
 - store certificates in memory, on the file system, or in a database
-- set the root and intermediate PKI chain that will be used to sign new certificates
+- set the root and intermediate PKI chain used to sign new certificates
 - and much more
 
 ## Overview
 
-- [Specifying a Configuration File](#specifying-a-configuration-file)
+- [Specify a Configuration File](#specify-a-configuration-file)
 - [Environment Variables](#environment-variables)
 - [Basic Configuration Options](#basic-configuration-options)
 - [Provisioners](#provisioners)
@@ -39,26 +39,27 @@ learn how to configure your CA to:
   - [PKCS #11](#pkcs-11)
   - [YubiKey PIV](#yubikey-piv)
 
-## Specifying a Configuration File
+## Specify a Configuration File
 
 When you run `step-ca`, you must provide a path to a configuration file
 (`ca.json`).
 It is the only required argument.
-Typically you'd use [`step path`](../step-cli/reference/path) to discover the path to `ca.json`:
+After you've run `step ca init` to create a default configuration,
+use [`step path`](../step-cli/reference/path) to discover the path to `ca.json`:
 
 ```shell-session
 $ step-ca $(step path)/config/ca.json
 ```
 
-The output of [`step path`](../step-cli/reference/path) will vary based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](../step-cli/the-step-command.mdx#contexts-working-with-multiple-cas).
+The output of [`step path`](../step-cli/reference/path) varies based on the `$STEPPATH` environment variable, and whether you [use the `step` command with multiple CAs](../step-cli/the-step-command.mdx#contexts-working-with-multiple-cas).
 
-For non-interactive use (eg. as a `systemd` service), you can also add a
-`--password-file` flag with the name of a file containing the password for the
-CA's keys.
+For non-interactive use (eg. as a `systemd` service),
+the `--password-file` flag accepts
+ the name of a file containing the password for the CA's keys.
 
 ## Environment Variables
 
-* `STEPDEBUG` When set to `1`, `step-ca` will provide extra diagnostic information for debugging. This variable can also be used with `step`.
+* `STEPDEBUG` When set to `1`, `step-ca` provides extra diagnostic information for debugging. This variable can also be used with `step`.
 
 ## Basic Configuration Options
 
@@ -72,19 +73,19 @@ CA's keys.
   "key": "examples/pki/secrets/intermediate_ca_key",
   "address": ":9000",
   "dnsNames": [
-  	"localhost"
+    "localhost"
   ],
   "logger": {
-  	"format": "text"
+    "format": "text"
   },
   "ssh": {
-      "hostKey": "/examples/pki/secrets/secrets.host.key",
-      "userKey": "/examples/pki/secrets/secrets.user.key"
+    "hostKey": "/examples/pki/secrets/secrets.host.key",
+    "userKey": "/examples/pki/secrets/secrets.user.key"
   },
   "db": {
-    "type": "badger",
-    "dataSource": "./.step/db"
-  },
+    "type": "badgerv2",
+    "dataSource": "/Users/carl/.step/authorities/config-example/db"
+  }, 
   "crl": {
     "enabled": false
   }, 
@@ -121,24 +122,24 @@ CA's keys.
         }
       }
     },
-  	"provisioners": [
-  		{
-  			"type": "jwk",
-  			"name": "mike@smallstep.com",
-  			"key": {
-  				"use": "sig",
-  				"kty": "EC",
-  				"kid": "YYNxZ0rq0WsT2MlqLCWvgme3jszkmt99KjoGEJJwAKs",
-  				"crv": "P-256",
-  				"alg": "ES256",
-  				"x": "LsI8nHBflc-mrCbRqhl8d3hSl5sYuSM1AbXBmRfznyg",
-  				"y": "F99LoOvi7z-ZkumsgoHIhodP8q9brXe4bhF3szK-c_w"
-  			},
-  			"encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiVERQS2dzcEItTUR4ZDJxTGo0VlpwdyJ9.2_j0cZgTm2eFkZ-hrtr1hBIvLxN0w3TZhbX0Jrrq7vBMaywhgFcGTA.mCasZCbZJ-JT7vjA.bW052WDKSf_ueEXq1dyxLq0n3qXWRO-LXr7OzBLdUKWKSBGQrzqS5KJWqdUCPoMIHTqpwYvm-iD6uFlcxKBYxnsAG_hoq_V3icvvwNQQSd_q7Thxr2_KtPIDJWNuX1t5qXp11hkgb-8d5HO93CmN7xNDG89pzSUepT6RYXOZ483mP5fre9qzkfnrjx3oPROCnf3SnIVUvqk7fwfXuniNsg3NrNqncHYUQNReiq3e9I1R60w0ZQTvIReY7-zfiq7iPgVqmu5I7XGgFK4iBv0L7UOEora65b4hRWeLxg5t7OCfUqrS9yxAk8FdjFb9sEfjopWViPRepB0dYPH8dVI.fb6-7XWqp0j6CR9Li0NI-Q",
-  			"claims": {
-  				"minTLSCertDuration": "1m0s",
-  				"defaultTLSCertDuration": "2m0s"
-  			},
+    "provisioners": [
+      {
+        "type": "jwk",
+        "name": "mike@smallstep.com",
+        "key": {
+          "use": "sig",
+          "kty": "EC",
+          "kid": "YYNxZ0rq0WsT2MlqLCWvgme3jszkmt99KjoGEJJwAKs",
+          "crv": "P-256",
+          "alg": "ES256",
+          "x": "LsI8nHBflc-mrCbRqhl8d3hSl5sYuSM1AbXBmRfznyg",
+          "y": "F99LoOvi7z-ZkumsgoHIhodP8q9brXe4bhF3szK-c_w"
+        },
+        "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiVERQS2dzcEItTUR4ZDJxTGo0VlpwdyJ9.2_j0cZgTm2eFkZ-hrtr1hBIvLxN0w3TZhbX0Jrrq7vBMaywhgFcGTA.mCasZCbZJ-JT7vjA.bW052WDKSf_ueEXq1dyxLq0n3qXWRO-LXr7OzBLdUKWKSBGQrzqS5KJWqdUCPoMIHTqpwYvm-iD6uFlcxKBYxnsAG_hoq_V3icvvwNQQSd_q7Thxr2_KtPIDJWNuX1t5qXp11hkgb-8d5HO93CmN7xNDG89pzSUepT6RYXOZ483mP5fre9qzkfnrjx3oPROCnf3SnIVUvqk7fwfXuniNsg3NrNqncHYUQNReiq3e9I1R60w0ZQTvIReY7-zfiq7iPgVqmu5I7XGgFK4iBv0L7UOEora65b4hRWeLxg5t7OCfUqrS9yxAk8FdjFb9sEfjopWViPRepB0dYPH8dVI.fb6-7XWqp0j6CR9Li0NI-Q",
+        "claims": {
+          "minTLSCertDuration": "1m0s",
+          "defaultTLSCertDuration": "2m0s"
+        },
         "options": {
           "x509": {
             "templateFile": "templates/certs/x509/default.tpl"
@@ -147,7 +148,7 @@ CA's keys.
             "templateFile": "templates/certs/ssh/default.tpl"
           }
         }
-  		},
+      },
       {
         "type": "OIDC",
         "name": "Google",
@@ -173,26 +174,26 @@ CA's keys.
         }
       },
       {
-  			"type": "SSHPOP",
-  			"name": "sshpop-smallstep",
-  			"claims": {
-  				"enableSSHCA": true
-  			}
-  		},
+        "type": "SSHPOP",
+        "name": "sshpop-smallstep",
+        "claims": {
+          "enableSSHCA": true
+        }
+      },
       {
-  			"type": "ACME",
-  			"name": "my-acme-provisioner"
-  		}
-  	]
+        "type": "ACME",
+        "name": "my-acme-provisioner"
+      }
+    ]
   },
   "tls": {
-  	"cipherSuites": [
-  		"TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305",
-  		"TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
-  	],
-  	"minVersion": 1.2,
-  	"maxVersion": 1.2,
-  	"renegotiation": false
+    "cipherSuites": [
+      "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256",
+      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256"
+    ],
+    "minVersion": 1.2,
+    "maxVersion": 1.3,
+    "renegotiation": false
   },
   "password": "p@55w0rd"
 }
@@ -204,15 +205,15 @@ CA's keys.
 
 - **federatedRoots**: location of the federated root certificates on the filesystem. The federated roots are used to authenticate client and servers using TLS certificates from multiple CAs.
 
-- **crt**: location of the intermediate certificate on the filesystem. The intermediate certificate is returned alongside each new certificate, allowing the client to complete the certificate chain. Multiple intermediates are allowed here. When multiple intermediates are supplied, the first certificate in the PEM bundle must be the one that will be used for signing.
+- **crt**: location of the intermediate certificate on the filesystem. The intermediate certificate is returned alongside each new certificate, allowing the client to complete the certificate chain. Multiple intermediates are allowed here. When multiple intermediates are supplied, the first certificate in the PEM bundle must be the one used for signing.
 
 - **key**: location of the intermediate private key on the filesystem. The intermediate key signs all new certificates generated by the CA.
 
-- **kms**: enables and configures [cryptographic protection](#cryptographic-protection) using cloud key management services or hardware security modules.
+- **kms**: enables and configures cryptographic protection using cloud key management services or hardware security modules. See [Cryptographic Protection](#cryptographic-protection).
 
-  - **type**: required. one of `awskms`, `cloudkms`, `pkcs11`, or `yubikey`
+  - **type**: required. one of `azurekms`, `awskms`, `cloudkms`, `pkcs11`, or `yubikey`
 
-  - **uri**: this field can be used to specify other fields in this section, and its value will take precedence over those values. See [cryptographic protection](#cryptographic-protection) for examples.
+  - **uri**: this field can be used to specify other fields in this section, and its value takes precedence over those values. See [cryptographic protection](#cryptographic-protection) for examples.
 
   - **region**: for `awskms`, the AWS region
 
@@ -222,9 +223,7 @@ CA's keys.
 
   - **pin**: for `yubikey`, the PIN of the YubiKey PIV application
 
-- **password**: optionally store the password for decrypting the intermediate private key (this should be the same password you chose during PKI initialization). If the value is not stored in configuration then you will be prompted for it when starting the CA.
-
-- **address**: ex. 127.0.0.1:8080 - address and port on which the CA will bind and respond to requests.
+- **address**: ex. 127.0.0.1:8080 - address and port on which the CA bind and respond to requests.
 
 - **dnsNames**: comma separated list of DNS name(s) for the CA.
 
@@ -237,17 +236,9 @@ CA's keys.
 
   - **hostKey**: the signing key for host SSH certificates.
 
-- **db**: data persistence layer. See [database documentation](#databases) for more info.
+- **db**: data persistence layer. See [databases](#databases), below.
 
-  - **type**: badger, bbolt, mysql, or postgresql
-
-  - **dataSource**: string that can be interpreted differently depending on the type of the database. Usually a path to where the data is stored. See the database configuration docs for more info.
-
-  - **database**: name of the database. Used for back-ends that may have multiple databases. e.g. MySQL and PostgreSQL
-
-  - **valueDir**: directory to store the value log in (Badger specific).
-
-- **crl**: Certificate Revocation List(CRL) settings. (experimental)
+- **crl**: Certificate Revocation List (CRL) settings. (experimental)
 
   - **enabled**: enables CRL generation (`true` to generate, `false` to disable). Default is false.
 
@@ -255,8 +246,7 @@ CA's keys.
 
   - **cacheDuration**: the duration until next update of the CRL. Defaults to 24h.
 
-  - **renewPeriod**: the time between CRL regeneration. Defaults to ~2/3 of the
-    cacheDuration.
+  - **renewPeriod**: the time between CRL regeneration. Defaults to ~2/3 of the cacheDuration.
 
 - **tls**: settings for negotiating communication with the CA; includes acceptable ciphersuites, min/max TLS version, etc.
 
@@ -265,7 +255,7 @@ CA's keys.
   - **type**: the type of backing CA service that issues certificates for this step-ca instance. The default is an internal certificate authority service.
   Other options can [turn `step-ca` into a Registration Authority](./registration-authority-ra-mode.mdx): `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
 
-  - **template**: default ASN1DN values for new certificates.
+  - **template**: default ASN1DN values for new certificates. See [Templates](./templates.mdx).
 
   - **claims**: default validation for requested attributes in the certificate request. Can be overridden by similar claims objects defined by individual provisioners.
 
@@ -293,38 +283,40 @@ CA's keys.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
-  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention
- against token reuse. The default value is false. Do not change this unless you know what you are doing.
+    - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
-  - **provisioners**: list of provisioners. Each provisioner has a name, associated authentication attributes, and an optional claims attribute that will override any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group can be used to add, modify, and remove provisioners. See the [provisioner documentation](./provisioners.mdx) for details.
+  - **provisioners**: list of certificate [Provisioners](./provisioners.mdx). Each provisioner has a name, associated authentication attributes, and an optional claims attribute that overrides any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group can add, modify, and remove provisioners. See [Provisioners](./provisioners.mdx).
 
-    - **claims**: Each provisioner can define an optional `claims` attribute. The settings in this attribute override any settings in the global `claims` attribute in the authority configuration. See the authority's **claims** section above for a complete list of options.
+    - **claims**: Each provisioner can override the authority-wide `claims` settings. See the authority's **claims** section above for a complete list of options.
 
-    - **options**: Each provisioner can define an optional `options` attribute. This attribute allows an operator to set templates that will be applied to all X.509 or SSH certificates generated using the provisioner. See the [templates documentation](./templates.mdx) for details.
+    - **options**: This optional attribute allows an operator to set templates applied to all X.509 or SSH certificates generated using the provisioner. See [Templates](./templates.mdx).
 
-  - **password**: ☠️  plain text password for starting the CA. Used to decrypt the intermediate private key. 
+  - **password**: ☠️  plain text password for starting the CA. Used to decrypt the intermediate CA private key. 
 
     <Alert severity="warning">
       <div> 
-        We do not recommend storing the password plain text in your <Code>ca.json</Code>. 
-        The recommended option is to use the <Code>--password-file</Code> flag when
-        running <Code>step-ca</Code>. This attribute is a convenience that should be 
-        avoided in production.
+        In production, do not store a plain text password in your <Code>ca.json</Code>.
+        Use the <Code>--password-file</Code> flag when running <Code>step-ca</Code>.
+        This attribute is a convenience that should be avoided in production.
       </div>
     </Alert>
 
 ## Provisioners
 
-Provisioners are people or entities that are registered with the certificate authority and 
-authorized to issue certificates. Visit the [`step-ca` provisioners](./provisioners.mdx) page to learn about the 
-different provisioners, their target use cases, and how to add, remove, and configure them.
+Provisioners offer many ways to issue certificates to endpoints and people.
+By default, `step ca init` creates a [JWK](provisioners.mdx#jwk) provisioner,
+for administrative use.
+
+`step-ca` supports ACME, SCEP, X.509, OpenID, and several other provisioner types.
+
+**See [Provisioners](./provisioners.mdx) to learn more.**
 
 ## Policy
 
-Certificate issuance policies can be used to enforce which Subjects, SANs and Principals the CA is allowed to sign.
-They can be configured for X.509 certificates as well as SSH user and host certificates.
+Policies can be used to enforce which Subjects, SANs and Principals the CA is allowed to issue a certificate for.
+They can be configured for X.509 certificates, SSH user, and SSH host certificates.
 Policies are evaluated before a certificate is signed.
-Some examples of policies you can configure are:
+Some examples of policies are:
 
 - A `dns` rule for `www.example.com`, only matching the domain `www.example.com`
 - A `dns` rule for `*.internal.example.com`, matching all subdomains of `internal.example.com`.
@@ -332,7 +324,7 @@ Some examples of policies you can configure are:
 - An `email` rule for `@devops`, matching all SSH user principals in the `@devops` domain.
 - A `uri` rule for `*.example.com`, matching all URIs for subdomains of `example.com`, ignoring the URI scheme, path, query and fragment parts.
 
-Visit the [`step-ca` policy](./policies.mdx) page to learn how certificate issuance policies work and how they can be configured.
+**See [Policies](./policies.mdx) to learn more.**
 
 <Alert severity="info">
   <AlertTitle>Need more control?</AlertTitle>
@@ -354,17 +346,17 @@ These include things like:
 - Embed SSH `force-command` or `source-address` extensions
 - Evaluate basic logic operations on certificate's parameters, and fail if requirements are not met
 
-Visit the [`step-ca` templates](./templates.mdx) page to learn how to use templates.
+**See [Templates](./templates.mdx) to learn more.**
 
 ## Databases
 
 `step-ca` uses a simple key-value interface over popular database
-implementations to store persistent certificate management meta-data. Our
-recommended default database implementation is nosql-Badger, a NoSQL interface
-over the popular [Badger](https://github.com/dgraph-io/badger) database. As a
-first pass, the database layer will store every certificate (along with
-        metadata surrounding the provisioning of the certificate) and
-revocation data that will be used to enforce passive revocation.
+implementations to store persistent certificate management metadata.
+Our recommended default database implementation is nosql-Badger,
+a NoSQL interface over the popular [Badger](https://github.com/dgraph-io/badger) database.
+The database layer stores every certificate
+(along with metadata surrounding the provisioning of the certificate) and
+revocation data used to enforce passive revocation.
 
 Configuring `step-ca` to use a database is as simple as adding a top-level `db`
 stanza to your `ca.json` file. Below users can find documentation and examples
@@ -394,9 +386,9 @@ for supported databases:
 
 - `type`
 
-  - **badger**: currently refers to Badger V1. However, as Badger V1 is deprecated, this will refer to Badger V2 starting with a the next major version release.
+  - **badger**: currently refers to Badger V1. Some day, when Badger V1 is deprecated, this will refer to Badger V2.
   - **badgerV1**: explicitly select Badger V1.
-  - **badgerV2**: explicitly select Badger V2. Anyone looking to use Badger V2 will need to set it explicitly until it becomes the default.
+  - **badgerV2**: explicitly select Badger V2.
 
 - `dataSource`: path, database directory.
 - `valueDir` [optional]: path, value directory, only if different from dataSource.
@@ -489,9 +481,9 @@ An example database configuration that enables TLS server hostname verification 
 },
 ```
 
-The database driver will look for a file with root CAs to trust in `$HOME/.postgresql/root.crt`, but will use the system CA trust store if that file is not found.
-Similarly, `$HOME/.postgresql/postgresql.crt` and the corresponding `$HOME/.postgresql/postgresql.key` will be used for mutual TLS authentication if these files exist and if the server requests a client certificate.
-It is also possible to override the locations for these files by providing them in the DSN:
+The database driver looks in `$HOME/.postgresql/root.crt` for a PEM bundle of root CAs to trust. When that file is not found, it uses the system CA trust store.
+Similarly, `$HOME/.postgresql/postgresql.crt` and the corresponding `$HOME/.postgresql/postgresql.key` is used for mutual TLS authentication if these files exist, and if the PostgreSQL server requests a client certificate.
+You can override the locations for these files by providing them in the DSN:
 
 ```json
 {
@@ -505,7 +497,7 @@ It is also possible to override the locations for these files by providing them 
 ```
 
 The behavior of the PostgreSQL database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
-More info about TLS options and the DSN query parameters for `libpq` can be found at https://www.postgresql.org/docs/current/libpq-ssl.html.
+The [`libpq` docs](https://www.postgresql.org/docs/current/libpq-ssl.html) cover TLS options and the DSN query parameters for `libpq`.
 
 ### Schema
 
@@ -572,7 +564,7 @@ To constructe the key name parameter, use the resource name of the [CryptoKey](h
 projects/<project-id>/locations/<location>/keyRings/<key-ring-id>/cryptoKeys/<key-id>
 ```
 
-Once the key is generated, `step` will output the key's name (including a version number), and the public key PEM:
+Once the key is generated, `step` outputs the key's name (including a version number), and the public key PEM:
 
 ```
 {
@@ -585,7 +577,7 @@ You'll need this key name for the next step.
 
 <Alert severity="info">
   <div>
-	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
   </div>
 </Alert>
 
@@ -604,7 +596,7 @@ Output:
 Your certificate has been saved in root_ca.crt.
 ```
 
-Great. Next, we'll repeat the process for the Intermediate CA:
+Great. Next, repeat the process for the Intermediate CA:
 
 ```shell nocopy
 $ step kms create --json --kms 'cloudkms:' \
@@ -624,9 +616,9 @@ Your certificate has been saved in intermediate_ca.crt.
 ```
 
 Now you should have both `root_ca.crt` and `intermediate_ca.crt` certificate PEM files.
-You'll need these files for your CA configuration, below.
+Use these files in your CA configuration, below.
 
-If you want to run an SSH CA, you'll also need to create SSH CA key pairs:
+If you want to run an SSH CA, you also need to create SSH CA key pairs:
 
 ```shell nocopy
 $ step kms create --json --kms 'cloudkms:' \
@@ -637,7 +629,7 @@ $ step kms create --json --kms 'cloudkms:' \
 
 #### Configuring `step-ca` to use Google Cloud KMS
 
-Next, to configure Cloud KMS signing in `step-ca`, start with a basic CA configuration created using `step ca init`. Add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS resource name of your intermediate key:
+Next, to configure Cloud KMS in `step-ca`, start with a basic CA configuration created using `step ca init`. Add the `kms` object to your `ca.json` file and replace the property `key` with the Cloud KMS resource name of your intermediate key:
 
 ```json nocopy
 {
@@ -670,7 +662,7 @@ To add SSH support, change the SSH key locations to Cloud KMS resource names for
 }
 ```
 
-When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
 
 ```
 2022/09/20 16:28:45 The primary server URL is https://localhost:443
@@ -693,7 +685,7 @@ Also, make sure you have installed [the `aws` CLI](https://aws.amazon.com/cli/) 
 
 <Alert severity="info">
   <div>
-	Avoid storing local AWS credentials in plaintext, if you can. We prefer either <a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/step1.html">AWS Identity Center</a> or <a href="https://github.com/99designs/aws-vault">aws-vault</a> for securing local credentials.
+  Avoid storing local AWS credentials in plaintext, if you can. We prefer either <a href="https://docs.aws.amazon.com/singlesignon/latest/userguide/step1.html">AWS Identity Center</a> or <a href="https://github.com/99designs/aws-vault">aws-vault</a> for securing local credentials.
   </div>
 </Alert>
 
@@ -704,7 +696,7 @@ Next, let's generate a private key for your root CA inside AWS KMS. Run:
 $ step kms create --json --kms 'awskms:region=us-east-2' root-ca
 ```
 
-Once the key is generated, `step` will output the key ID and the public key PEM:
+Once the key is generated, `step` outputs the key ID and the public key PEM:
 
 ```
 {
@@ -717,7 +709,7 @@ You'll need this key name for the next step.
 
 <Alert severity="info">
   <div>
-	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
   </div>
 </Alert>
 
@@ -786,7 +778,7 @@ To configure AWS KMS in your certificate authority, add the `kms` object to `ca.
 }
 ```
 
-By default, `step-ca` (and, more broadly, AWS's SDK) will look for credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
+By default, `step-ca` (and, more broadly, AWS's SDK) looks for credentials stored in `~/.aws/credentials`. Use the `credentials-file` option to override. The `region` and `profile` options specify the AWS region and configuration profiles respectively. These options can also be configured using environment variables as described in the [AWS SDK for Go session documentation](https://docs.aws.amazon.com/sdk-for-go/api/aws/session/).
 
 Finally, copy the `root_ca.crt` and `intermediate_ca.crt` files into the `root` and `crt` locations:
 
@@ -807,7 +799,7 @@ To configure an SSH CA, replace the SSH key locations with the SSH CA keys you c
 }
 ```
 
-When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
+When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH user and host CA keys in SSH key format:
 
 ```
 2022/09/20 16:28:45 The primary server URL is https://localhost:443
@@ -824,14 +816,15 @@ When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH 
 
 #### Authentication
 
-When using Azure Key Vault with `step-ca`, you will first need to authenticate to Azure.
+When using Azure Key Vault with `step-ca`, first authenticate to Azure.
+
 Authentication to Azure is handled via environment variables;
 we recommend using either [file-based authentication](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authorization#use-file-based-authentication) via the `AZURE_AUTH_LOCATION` environment variable,
 or [using a managed identity](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication-managed-identity?tabs=azure-cli) and setting the  `AZURE_TENANT_ID` and `AZURE_CLIENT_ID` variables when starting `step-ca`.
 Alternatively, you can create a [service principal](https://docs.microsoft.com/en-us/cli/azure/create-an-azure-service-principal-azure-cli) and set the `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, and `AZURE_CLIENT_SECRET` variables.
 See Option 1 under [Authentication Methods for Azure SDK for Go](https://docs.microsoft.com/en-us/azure/developer/go/azure-sdk-authentication?tabs=bash#-option-1-define-environment-variables) for examples of authentication methods and environment variables.
 
-For local development and testing, Azure CLI credentials will be used if no authentication environment variables are set.
+For local development and testing, Azure CLI credentials are used if no authentication environment variables are set.
 
 #### Initialize a PKI
 
@@ -844,8 +837,8 @@ Then, run:
 $ step ca init --kms azurekms
 ```
 
-You will be walked through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them.
-If you're creating an SSH CA, SSH host and user CA keys will be created in Key Vault as well.
+This walks you through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them.
+If you're creating an SSH CA, SSH host and user CA keys are created in Key Vault as well.
 
 #### Manual Configuration
 
@@ -863,7 +856,7 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 ```
 
 * In the `key` URI, the `name` and `vault` refer to the key name and vault name of your intermediate key in Azure Key Vault.
-* In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version will be used.
+* In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version is used.
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
 
@@ -897,13 +890,13 @@ Your HSM or TPM2 may need to be prepared before you can initialize a PKI on it.
 Preparation steps depend on the device and are beyond the scope of this documentation.
 For example,
 
-- With YubiHSM2, you will need to create an authentication key with appropriate capabiliites.
-- With TPM2, you will need to initialize the TPM and create a PKCS#11 token on it.
+- With YubiHSM2, first create an authentication key with appropriate capabiliites.
+- With TPM2, initialize the TPM and create a PKCS#11 token on it.
 
-You'll also want to consider how you will backup and restore your CA keys, for offline storage.
+Plan how you will backup and restore your CA keys, for offline storage.
 
 The `step kms` plugin will create CA keys and sign certificates on your device.
-You'll need to provide a PKCS #11 URI for accessing the device, using the `--kms` flag.
+To use it, you'll need to provide a PKCS #11 URI for accessing the device, using the `--kms` flag.
 
 Here are some examples of PKCS #11 URIs for accessing various devices in Linux:
 
@@ -915,7 +908,7 @@ SoftHSM                    | `pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so
 nCipher nShield            | `pkcs11:module-path=/opt/nfast/toolkits/pkcs11/libcknfast.so;token=rjk?pin-source=/etc/step-ca/hsm-pin.txt`
 TPM2 (via libtpm2_pkcs11)  | `pkcs11:module-path=/usr/local/lib/libtpm2_pkcs11.so;token=step-ca?pin-value=$HSM_PASSWORD`
 
-You'll need to substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
+Substitute `$HSM_USER` and `$HSM_PASSWORD` with your own values.
 
 In this URI,
 * `module-path` points to your PKCS #11 `.dll`, `.so`, or `.dylib` library file,
@@ -948,7 +941,7 @@ You'll need this key name for the next step.
 
 <Alert severity="info">
   <div>
-	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
+  We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, protection level, or other options for your environment. See <Code>step kms help create</Code> for details.
   </div>
 </Alert>
 
@@ -1079,7 +1072,7 @@ Run:
 $ step kms create --json 'yubikey:slot-id=82'
 ```
 
-Once the key is generated, `step` will output the key name and public key PEM:
+Once the key is generated, `step` outputs the key name and public key PEM:
 
 ```
 {
@@ -1090,7 +1083,7 @@ Once the key is generated, `step` will output the key name and public key PEM:
 
 <Alert severity="info">
   <div>
-	We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, or other options for your environment. See <Code>step kms help create</Code> for details.
+  We have taken care to provide sane defaults in `step kms create`, but you may wish to change the key type, size, or other options for your environment. See <Code>step kms help create</Code> for details.
   </div>
 </Alert>
 
@@ -1183,7 +1176,7 @@ To configure an SSH CA, replace the SSH key locations with the SSH CA keys you c
 }
 ```
 
-When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH host and user CA keys in SSH key format:
+When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH host and user CA keys in SSH key format:
 
 ```
 2022/09/20 16:28:45 The primary server URL is https://localhost:443
