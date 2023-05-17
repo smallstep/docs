@@ -12,5 +12,6 @@ jobs:
         with:
           file-extension: '.mdx'
           use-quiet-mode: 'yes'
-          only-changed-files: 'yes'
+          check-modified-files-only: 'yes'
+          base-branch: 'main'
           config-file: '.github/mdl.config.json'

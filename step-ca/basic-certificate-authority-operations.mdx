@@ -7,7 +7,7 @@ description: Learn about the basic certificate authority operations of step-ca
 
 ## Before You Begin
 
-This document assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
+This document assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](./getting-started.mdx).
 
 ## Table of Contents
 
@@ -100,7 +100,7 @@ and inject the token into a Docker container.
 This way, the container can create its own private key and get a certificate,
 but it doesn't hold any long-lived CA credentials.
 
-Under the hood, many of `step-ca`'s [certificate provisioners](../step-ca/certificate-authority-core-concepts.mdx#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
+Under the hood, many of `step-ca`'s [certificate provisioners](./certificate-authority-core-concepts.mdx#provisioners) accept a Javascript Web Token (JWT) along with a CSR to authenticate certificate requests:
 - The JWK provisioner accepts JWTs signed using a JavaScript Web Key whose public key is configured in the CA.
 - The OIDC provisioner accepts JWTs signed by an identity provider via a single sign-on flow.
 - The X5C provisioner accepts JWTs signed using an X509 certificate private key whose root is configured in the CA.
@@ -171,7 +171,7 @@ $ step ca renew foo.crt foo.key
 Your certificate has been saved in foo.crt.
 ```
 
-When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](../step-ca/renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
+When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](./renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
 Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
@@ -204,7 +204,7 @@ Note that default maximum certificate duration is 24 hours. To adjust the global
 ```
 
 You can also set default, minimum, and maximum certificate durations on each provisioner.
-See [Basic Configuration Options](../step-ca/configuration.mdx#basic-configuration-options) for more details.
+See [Basic Configuration Options](./configuration.mdx#basic-configuration-options) for more details.
 
 ### Revoke a Certificate
 
@@ -220,7 +220,7 @@ $ step ca revoke --cert svc.crt --key svc.key
 Certificate with Serial Number 30671613121311574910895916201205874495 has been revoked.
 ```
 
-For more on this topic, read [All About Certificate Revocation](../step-ca/revocation.mdx).
+For more on this topic, read [All About Certificate Revocation](./revocation.mdx).
 
 ## Working With SSH Certificates
 
@@ -246,7 +246,7 @@ When [`step ca init`](../step-cli/reference/ca/init is run with `--ssh`, it crea
 ### Requirements
 
 * You will need a `step-ca` Certificate Authority **with SSH support enabled**. Create one by running [`step ca init --ssh`](../step-cli/reference/ca/init).
-* To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](../step-ca/getting-started.mdx#accessing-step-ca-remotely).
+* To see SSH certificates in action, set up a host or VM running SSHD. In this example, our host is running Ubuntu 18.04 LTS, and it [has been configured to access our CA remotely](./getting-started.mdx#accessing-step-ca-remotely).
 
 ### Getting a host to authenticate users
 
@@ -254,7 +254,7 @@ First let's delegate user authentication to the SSH CA.
 
 #### 1. Get your host to trust your SSH user CA
 
-On your host, once you've [bootstrapped your CA configuration](../step-ca/getting-started.mdx#accessing-step-ca-remotely), run:
+On your host, once you've [bootstrapped your CA configuration](./getting-started.mdx#accessing-step-ca-remotely), run:
 
 ```shell-session
 $ step ssh config --roots > /path/to/ssh_user_key.pub
@@ -324,10 +324,12 @@ Hosts can have SSH certificates, too, instead of the typical host public key pai
 
 #### 1. Issue a certificate for your host
 
+You'll do this by having the CA sign a host certificate bound to your host's ECDSA SSH key.
 On your host, run:
 
 ```shell-session
-$ step ssh certificate --host internal.example.com ssh_host_ecdsa_key
+$ cd /etc/ssh
+$ sudo -E step ssh certificate --host --sign internal.example.com ssh_host_ecdsa_key.pub
 ✔ Provisioner: carl@smallstep.com (JWK) [kid: yWa7WGfoSt9yJ0OZCndrvR_m65jzDriY7mhPz094fdw]
 ✔ Please enter the password to decrypt the provisioner key:
 ✔ CA: https://127.0.0.1:4337
@@ -361,8 +363,8 @@ By default, host certificates expire in a month.
 If you want your host to use this key, move the files to `/etc/ssh` and add the following to your SSHD configuration. On your host:
 
 ```shell-session
-$ mv ssh_host_ecdsa_key ssh_host_ecdsa_key-cert.pub /etc/ssh
-$ cat <<EOF >> /etc/ssh/sshd_config
+$ cat <<EOF | sudo tee -a /etc/ssh/sshd_config
+
 # This is our host private key and certificate:
 HostKey /etc/ssh/ssh_host_ecdsa_key
 HostCertificate /etc/ssh/ssh_host_ecdsa_key-cert.pub
@@ -374,13 +376,13 @@ EOF
 Because the host certificate expires in a month, you'll also need to set up automated renewal of the certificate. Let's add a weekly renewal `cron` script that runs `step ssh renew`, on your host:
 
 ```shell-session
-$ cat <<EOF > /etc/cron.weekly/rotate-ssh-certificate
+$ cat <<EOF | sudo tee /etc/cron.weekly/rotate-ssh-certificate
 #!/bin/sh
 export STEPPATH=/root/.step
 cd /etc/ssh && step ssh renew ssh_host_ecdsa_key-cert.pub ssh_host_ecdsa_key --force 2> /dev/null
 exit 0
 EOF
-chmod 755 /etc/cron.weekly/rotate-ssh-certificate
+$ sudo chmod 755 /etc/cron.weekly/rotate-ssh-certificate
 ```
 
 #### 4. Configure SSH clients to trust your host CA
@@ -408,7 +410,7 @@ You're all done. Now test your SSH connection.
 
 ## Next Steps
 
-* Learn to automate certificate management in your PKI. [ACME Basics](../step-ca/acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
-* See [Provisioners](../step-ca/provisioners.mdx), [Production Considerations](../step-ca/certificate-authority-server-production.mdx), and our [Configuration Guide](../step-ca/configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.
+* Learn to automate certificate management in your PKI. [ACME Basics](./acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
+* See [Provisioners](./provisioners.mdx), [Production Considerations](./certificate-authority-server-production.mdx), and our [Configuration Guide](./configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.
 * Run [`step ca help`](../step-cli/reference/ca) or [`step ssh help`](../step-cli/reference/ssh) for many more flags and examples.
 * Our [Tutorials](../tutorials) can guide you through more complex scenarios for using `step-ca` in various contexts and workflows.

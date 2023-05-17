@@ -15,12 +15,14 @@ menu:
 ```raw
 step fileserver <dir>
 [--address=<address>] [--cert=<file>] [--key=<file>] [--roots=<file>]
+[--pidfile=<file>]
 ```
 
 ## Description
 
-**step fileserver** command starts an HTTP(S) server serving the contents of a file
-system.
+**step fileserver** command starts an HTTP(S) server that serves
+the contents of a file system. If the server is running using certificates, sending the
+HUP signal will reload the certificates.
 
 This command is experimental and only intended for test purposes.
 
@@ -43,6 +45,9 @@ The `file` containing the key corresponding to the certificate.
 
 **--roots**=`file`
 The `file` containing the root certificate(s) that will be used to verify the client certificates.
+
+**--pidfile**=`file`
+The path to the `file` to write the process ID.
 
 ## Examples
 

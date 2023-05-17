@@ -21,11 +21,11 @@ Here's a few common uses of the `step` command:
 
 ## Requirements
 
-- [`step`](../step-cli)
+- [`step`](./README.mdx)
 
 ## Create and work with X.509 certificates
 
-Let's take a look at the [`step certificate`](../step-cli/reference/certificate/) command group.
+Let's take a look at the [`step certificate`](./reference/certificate/) command group.
 This command group is a Swiss Army knife for working with certificates.
 You can use it to create certificate signing requests (CSRs),
 sign CSRs,
@@ -97,7 +97,7 @@ To inspect the certificate you just made, run:
           to:  2021-09-02T20:48:40Z`}
 </CodeBlock>
 
-You can get a certificate in JSON format by calling [`step certificate inspect`](../step-cli/reference/certificate/inspect) with `--format json`. This example [uses jq](https://stedolan.github.io/jq/) to parse the JSON and extract a specific value:
+You can get a certificate in JSON format by calling [`step certificate inspect`](./reference/certificate/inspect) with `--format json`. This example [uses jq](https://stedolan.github.io/jq/) to parse the JSON and extract a specific value:
 
 ```shell-session nocopy
 $ step certificate inspect example.com.crt --format json | jq -r .validity.end
@@ -133,11 +133,11 @@ For a dry run, you can use Let's Encrypt's staging server URL: `https://acme-sta
 ## Generate JSON Web Tokens (JWTs) and JSON Web Keys (JWKs)
 
 The following command groups work with JOSE objects like JWTs and JWEs:
-* [`step crypto jwt`](../step-cli/reference/crypto/jwt)
-* [`step crypto jwk`](../step-cli/reference/crypto/jwk)
-* [`step crypto jwe`](../step-cli/reference/crypto/jwe)
-* [`step crypto jws`](../step-cli/reference/crypto/jws)
-* [`step crypto jose`](../step-cli/reference/crypto/jose)
+* [`step crypto jwt`](./reference/crypto/jwt)
+* [`step crypto jwk`](./reference/crypto/jwk)
+* [`step crypto jwe`](./reference/crypto/jwe)
+* [`step crypto jws`](./reference/crypto/jws)
+* [`step crypto jose`](./reference/crypto/jose)
 
 In this example, you'll create a [JSON Web Key](https://tools.ietf.org/html/rfc7517) (JWK), add the public key to a keyset, and sign a [JSON Web Token](https://tools.ietf.org/html/rfc7519) (JWT) that expires in 15 minutes:
 
@@ -177,7 +177,7 @@ We can then verify the JWT and return the payload:
 
 ## Obtain and Work With OAuth Tokens
 
-The [`step oauth`](../step-cli/reference/oauth/) command group supports API authorization and single sign on with OAuth and OIDC.
+The [`step oauth`](./reference/oauth/) command group supports API authorization and single sign on with OAuth and OIDC.
 
 This command group requires that you supply your own OAuth provider URL, client ID, and client secret.
 
@@ -208,7 +208,7 @@ $ echo $TOKEN | step crypto jwt verify \
 
 ### Generate TOTP Tokens for Multi-Factor Authentication (MFA)
 
-With [`step crypto otp`](../step-cli/reference/crypto/otp), you can generate a [TOTP](https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm) token and a QR code:
+With [`step crypto otp`](./reference/crypto/otp), you can generate a [TOTP](https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm) token and a QR code:
 
 ```shell
 step crypto otp generate \
@@ -224,11 +224,11 @@ step crypto otp verify --secret smallstep.totp
 
 ### Sign and Encrypt Arbitrary Data
 
-You can use the [`step crypto nacl`](../step-cli/reference/crypto/nacl) command group to sign or encrypt arbitrary data for internal use. This command group uses the [NaCl library](https://nacl.cr.yp.to/)'s high-speed crypto primitives.
+You can use the [`step crypto nacl`](./reference/crypto/nacl) command group to sign or encrypt arbitrary data for internal use. This command group uses the [NaCl library](https://nacl.cr.yp.to/)'s high-speed crypto primitives.
 
 ### Work with SSH Certificates
 
-The [`step ssh`](../step-cli/reference/ssh/) command group is usually used in conjunction with `step-ca`'s SSH CA functionality. But not all the subcommands require an SSH CA. You can inspect an SSH certificate:
+The [`step ssh`](./reference/ssh/) command group is usually used in conjunction with `step-ca`'s SSH CA functionality. But not all the subcommands require an SSH CA. You can inspect an SSH certificate:
 
 ```shell-session nocopy
 $ step ssh inspect < mycert.crt

@@ -1,0 +1,50 @@
+---
+layout: auto-doc
+category: reference
+title: step api token create
+menu:
+  docs:
+    parent: step api token
+---
+
+## Name
+**step api token create** -- create a new token
+
+## Usage
+
+```raw
+step api token create <team-id> <crt-file> <key-file>
+[--api-url=<url>] [--audience=<name>]
+
+```
+
+## Description
+
+**step ca api token create** creates a new token for connecting to the Smallstep API.
+
+## Positional arguments
+
+`team-id`
+UUID of the team the API token will be issued for. This is available in the Smallstep dashboard.
+
+`crt-file`
+File to read the certificate (PEM format). This certificate must be signed by a trusted root configured in the Smallstep dashboard.
+
+`key-file`
+File to read the private key (PEM format).
+
+## Options
+
+
+**--api-url**=`value`
+URL where the Smallstep API can be found
+
+**--audience**=`value`
+Request a token for an audience other than the API Gateway
+
+## Examples
+Use a certificate to get a new API token:
+```shell
+$ step api token create ff98be70-7cc3-4df5-a5db-37f5d3c96e23 internal.crt internal.key
+```
+

@@ -69,6 +69,10 @@
               "path": "/ssh/hosts.mdx"
             },
             {
+              "title": "Access Control Guide",
+              "path": "/ssh/acls.mdx"
+            },
+            {
               "title": "Azure AD Quickstart Guide",
               "path": "/ssh/azure-ad.mdx"
             },
@@ -79,10 +83,6 @@
             {
               "title": "Okta Quickstart Guide",
               "path": "/ssh/okta.mdx"
-            },
-            {
-              "title": "Access Control Guide",
-              "path": "/ssh/acls.mdx"
             },
             {
               "title": "Okta UID GID Sync Guide",

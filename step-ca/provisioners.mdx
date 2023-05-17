@@ -89,7 +89,7 @@ Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
 </Alert>
 
 Some provisioner options override global defaults for your CA.
-For a list of global options, see the [configuration guide](../step-ca/configuration.mdx) section for the `authority` configuration block.
+For a list of global options, see the [configuration guide](./configuration.mdx) section for the `authority` configuration block.
 
 A remote provisioner management API can be enabled in `step-ca`.
 It is disabled by default.
@@ -97,7 +97,7 @@ With remote provisioner management, the CA's provisioner configuration is stored
 
 This feature can be useful if you
 have multiple CA administrators,
-[run several load-balanced](../step-ca/certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+[run several load-balanced](./certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
 or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)).
 
 See [Remote Provisioner Management](#remote-provisioner-management) for more.
@@ -854,7 +854,7 @@ The [ACME Protocol](https://tools.ietf.org/html/rfc8555) can authenticate Certif
 
 ACME clients must answer challenges presented by the ACME server to prove to the CA that they control the identifiers listed in the CSR.
 ACME supports four different types of challenges: `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01`. These are designed for operability in different environments.
-See [ACME Basics](../step-ca/acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
+See [ACME Basics](./acme-basics.mdx#acme-challenges) for a description of each challenge type and their tradeoffs.
 
 In a typical setup, an ACME server might issue server certificates via the `http-01`, `dns-01`, `tls-alpn-01` challenge types, and client certificates via the `device-attest-01` challenge type.
 
@@ -880,6 +880,20 @@ An example of an ACME provisioner in the `ca.json`:
         "maxTLSCertDuration": "8h",
         "defaultTLSCertDuration": "2h"
 	},
+    "termsOfService": "",
+    "website": "",
+    "caaIdentities": [],
+    "challenges": [
+        "http-01",
+        "dns-01",
+        "tls-alpn-01"
+    ],
+    "attestationFormats": [
+        "apple",
+        "step",
+        "tpm"
+    ],
+    "attestationRoots": [],
     "options": {
         "x509": {
             "templateFile": "templates/certs/x509/default.tpl"
@@ -900,11 +914,23 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 - **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
 
+- **termsOfService**<Reference id="star6" marker="*" />: contains a URL pointing to the ACME server's terms of service. Defaults to empty.
+
+- **website**<Reference id="star6" marker="*" />: contains a URL pointing to more information about the ACME server. Defaults to empty.
+
+- **caaIdentities**<Reference id="star6" marker="*" />: an array of hostnames that the ACME server identifies itself with. These hostnames can be used by ACME clients to determine the correct issuer domain name to use when configuring CAA records. Defaults to empty array.
+
+- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. Note that `device-attest-01` is disabled by default.
+
+- **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. The `apple` format is for Apple devices, and adds trust for Apple's CAs. The `step` format is for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for Yubico's root CA. The `tpm` format is for TPMs. It does not trust any TPM vendor CAs by default.
+
+- **attestationRoots**<Reference id="star6" marker="*" />: contains a trust bundle of root certificates in PEM format that will be used to verify attestation certificates. The default value depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA trust established by setting **attestationFormats**.
+
 <Footnote id="star6" marker="*">Optional</Footnote>
 
 <br /><br />
 
-See [ACME Basics](../step-ca/acme-basics.mdx)
+See [ACME Basics](./acme-basics.mdx)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 #### ACME for Device Attestation
@@ -992,7 +1018,7 @@ The SCEP provisioner can sign and renew certificates using the SCEP protocol ([R
 SCEP is very popular for use in network equipment and mobile device management (MDM). 
 It runs over HTTP using POSTed binary data or base64-encoded GET parameters, 
 using CMS (PKCS#7) and CSR (PKCS#10) data formats. 
-A shared secret authenticates clients to the CA.
+A (shared) secret authenticates clients to the CA.
 
 #### Requirements
 
@@ -1043,6 +1069,10 @@ It behaves the same as `forceCN` in the ACME provisioner, and it defaults to fal
 - The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
 - When `includeRoot` is set to true, the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
 - The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
+
+If you don't want to rely on a single, static secret, you can [configure a `SCEPCHALLENGE` webhook](./webhooks.mdx#x509-request-body) instead.
+When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the SCEP request.
+The webhook server can then decide if the request is allowed or not.
 
 #### Enable the HTTP Server
 

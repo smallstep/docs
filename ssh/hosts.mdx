@@ -36,8 +36,8 @@ description: Smallstep SSH Host Quickstart | Smallstep Documentation
 
 **This section only applies to multi-user environments.**
 
-**Host Tags** (key-value pairs) are the pillar of our access control model. 
-Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups. o
+**Host Tags** (key-value pairs) are the pillar of our [access control](./acls.mdx) model. 
+Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups.
 First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`. 
 Then, you'll grant user groups access to all hosts with a specific tag combination. 
 Finally, you'll choose which user group tag combinations will allow `sudo` privileges on any matching hosts.
@@ -52,6 +52,8 @@ Let's look at an example:
 
 Of course, hosts and groups can have as many tag combinations as you like.
 Take a minute to think about how you'd like to use Host Tags in your environment.
+
+For a deeper dive, see our [Access Control Guide](./acls.mdx).
 
 ## Quick Installation Instructions
 
@@ -130,7 +132,7 @@ You should see your host listed under the "**Hosts**" tab.
 ## Manual Instructions
 
 If you wish to enroll your host without using our script,
-you can follow our [step-by-step installation instructions](../ssh/hosts-step-by-step.mdx) instead.
+you can follow our [step-by-step installation instructions](./hosts-step-by-step.mdx) instead.
 
 ## Need to remove a host?
 

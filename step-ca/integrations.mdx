@@ -41,7 +41,7 @@ is a fully functional private ACME server that works with all popular ACME clien
 Learn more about how to [setup your own private ACME server][private-acme-server] and [configure 
 popular ACME clients to use that server][configure-acme].
 
-[private-acme-server]: ../step-ca/acme-basics.mdx
+[private-acme-server]: ./acme-basics.mdx
 [configure-acme]: ../tutorials/acme-protocol-acme-clients.mdx
 
 ### SCEP
@@ -49,7 +49,7 @@ popular ACME clients to use that server][configure-acme].
 The `step-ca` server includes support for certificate enrollment using the [SCEP protocol][scep-rfc]. See our [SCEP provisioner documentation][scep-docs] for details.
 
 [scep-rfc]: https://datatracker.ietf.org/doc/rfc8894/
-[scep-docs]: ../step-ca/provisioners.mdx#scep
+[scep-docs]: ./provisioners.mdx#scep
 
 ### OIDC
 
@@ -58,7 +58,7 @@ credentials in exchange for OIDC tokens.
 
 Learn more about how to [configure an OIDC provisioner][configure-oidc].
 
-[configure-oidc]: ../step-ca/provisioners.mdx#oauthoidc-single-sign-on
+[configure-oidc]: ./provisioners.mdx#oauthoidc-single-sign-on
 
 ### Cloud Instance Identity
 
@@ -71,7 +71,7 @@ credentials in exchange for IIDs from AWS, GCP, and Azure.
 
 Learn more about how to [configure a cloud identity document provisioner][configure-iid].
 
-[configure-iid]: ../step-ca/provisioners.mdx#cloud-provisioners
+[configure-iid]: ./provisioners.mdx#cloud-provisioners
 
 ### Kubernetes
 
@@ -87,7 +87,7 @@ We have two integration options with `cert-manager`:
 
 The [Nebula](https://github.com/slackhq/nebula) networking service supports encrypted overlay networks. Nebula uses certificates to authenticate clients joining the network. Nebula has its own custom certificate format (it's not X.509).
 
-`step-ca` has a [Nebula provisioner](../step-ca/provisioners.mdx) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
+`step-ca` has a [Nebula provisioner](./provisioners.mdx) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
 
 ### Envoy Secret Discovery Service (SDS)
 
@@ -107,16 +107,16 @@ Learn more about how to [install and configure `step-sds`][step-sds].
 Cloud Key Management Services allow users to store cryptographic keys and sign certificates
 using cloud storage and APIs.
 Integrations with Google Cloud KMS, Amazon AWS KMS, and Azure Key Vault are currently supported.
-[Learn more.](../step-ca/configuration.mdx#cryptographic-protection)
+[Learn more.](./configuration.mdx#cryptographic-protection)
 
 ### YubiKey PIV
 
 Want to store your CA locally on a YubiKey? `step-ca` supports the YubiKey PIV application.
-[Learn more.](../step-ca/configuration.mdx#yubikey-piv)
+[Learn more.](./configuration.mdx#yubikey-piv)
 
 ### PKCS#11 HSMs
 
 `step-ca` supports PKCS#11 hardware security modules (HSMs).
-[Learn more.](../step-ca/configuration.mdx#pkcs-11)
+[Learn more.](./configuration.mdx#pkcs-11)
 
 

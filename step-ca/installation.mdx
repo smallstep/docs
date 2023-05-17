@@ -5,7 +5,7 @@ description: Learn how to install step-ca
 ---
 
 
-It's trivial to install the `step-ca` binary on your local machine.
+Learn how to to install the `step-ca` binary on your local machine.
 
 <Alert severity="info">
   <AlertTitle>Building from source?</AlertTitle>
@@ -19,6 +19,8 @@ It's trivial to install the `step-ca` binary on your local machine.
 
 - [macOS](#macos)
 - [Windows](#windows)
+  - [Winget Package](#winget-package)
+  - [Scoop Package](#scoop-package)
 - [Linux Packages](#linux-packages-amd64)
   - [Debian](#debian)   
   - [Arch Linux](#arch-linux)
@@ -33,7 +35,7 @@ It's trivial to install the `step-ca` binary on your local machine.
 
 ### macOS
 
-Install `step` and `step-ca` together, via [Homebrew](https://brew.sh/):
+To install `step` and `step-ca` together via [Homebrew](https://brew.sh/), run:
 
 ```shell
 brew install step
@@ -44,16 +46,17 @@ brew install step
 #### Winget package
 
 We publish a [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
-package for `Smallstep.step-ca`. To install both `step-ca.exe` and `step.exe`, run:
+package for `Smallstep.step-ca`. 
+
+To install both `step-ca.exe` and `step.exe`, run:
 
 ```
 winget install Smallstep.step-ca
 ```
 
-To uninstall, you can use `winget uninstall`.
-Then, remove the `$HOME/.step` configuration directory.
+To uninstall, run `winget uninstall`, then remove the configuration directory `$HOME/.step`.
 
-### Scoop package
+#### Scoop package
 
 We also publish a [Scoop package](https://scoop.sh/):
 
@@ -63,8 +66,7 @@ scoop install smallstep/step
 scoop install smallstep/step-ca
 ```
 
-To remove it, you can use `scoop uninstall`.
-Then, remove the `$HOME/.step` configuration directory.
+To uninstall, run `scoop uninstall`, then remove the configuration directory `$HOME/.step`.
 
 ### Linux Packages (amd64)
 
@@ -72,25 +74,21 @@ Then, remove the `$HOME/.step` configuration directory.
   <AlertTitle>Install both <Code>step-ca</Code> and the <Code>step</Code> CLI tool.</AlertTitle>
   <div>
     The <a href="https://smallstep.com/docs/step-cli"><Code>step</Code> CLI tool</a> is the easiest way to
-    initialize, configure, and control <Code>step-ca</Code>. While <Code>step</Code> is not
-    technically required to run <Code>step-ca</Code>, it is very much recommended.
+    initialize, configure, and control <Code>step-ca</Code>. 
+    While <Code>step</Code> is not required to run <Code>step-ca</Code>, we recommend installing it.
   </div>
 </Alert>
 
 #### Debian
 
-1. Install `step`
-
-    Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
+To install `step`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
     wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.2/step-cli_0.23.2_amd64.deb
     sudo dpkg -i step-cli_0.23.2_amd64.deb
     ```
 
-2. Install `step-ca`
-
-    Download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
+To install `step-ca`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
     wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.2/step-ca_0.23.2_amd64.deb
@@ -99,13 +97,13 @@ Then, remove the `$HOME/.step` configuration directory.
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
 
-To uninstall, run `dpkg -r step-cli step-ca` and remove the configuration directory `$HOME/.step`.
+To uninstall, run `dpkg -r step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
 
 #### Arch Linux
 
-There are community-driven Arch Linux packages.
+There are community-maintained Arch Linux packages.
 
-You can use [pacman](https://www.archlinux.org/pacman/) to install the packages.
+To install with [pacman](https://www.archlinux.org/pacman/), run: 
 
 ```shell
 pacman -S step-cli step-ca
@@ -115,24 +113,20 @@ The binary tarballs can be found here:
 - [`step-ca`](https://archlinux.org/packages/community/x86_64/step-ca/)
 - [`step-cli`](https://archlinux.org/packages/community/x86_64/step-cli/)
 
-Big shout out to the maintainers of these packages! We appreciate you.
+To uninstall, run `pacman -R step-ca step-cli`, then remove the configuration directory `$HOME/.step`.
 
-To uninstall, run `pacman -R step-ca step-cli` and remove the configuration directory `$HOME/.step`.
+Big shout out to the maintainers of these packages! We appreciate you.
 
 #### RedHat
 
-1. Install `step`
-
-    Download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
+To install `step`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
     wget https://dl.step.sm/gh-release/cli/docs-ca-install/v0.23.2/step-cli_0.23.2_amd64.rpm
     sudo dnf install step-cli_0.23.2_amd64.rpm
     ```
 
-2. Install `step-ca`
-
-    Download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
+To install `step-ca`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
     wget https://dl.step.sm/gh-release/certificates/docs-ca-install/v0.23.2/step-ca_0.23.2_amd64.rpm
@@ -141,34 +135,27 @@ To uninstall, run `pacman -R step-ca step-cli` and remove the configuration dire
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
 
-To uninstall, run `dnf remove step-cli step-ca` and remove the configuration directory `$HOME/.step`.
+To uninstall, run `dnf remove step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
 
 
 #### Alpine Linux
 
-<Alert severity="info">
-    <AlertTitle>
-        This package is in a testing repository.
-    </AlertTitle>
-    <div>
-      To install it, you'll need to append <code>http://dl-cdn.alpinelinux.org/alpine/edge/testing</code> to <code>/etc/apk/repositories</code>.
-      Alternatively, see <a href="#linux-binaries">Linux (other)</a>.
-    </div>
-</Alert>
+There are community-maintained Alpine Linux Packages for `step` and `step-ca`.
 
-There are community driven Alpine Linux Packages for `step` and `step-ca`.
+**These packages are in a testing repository.**
+To use the testing repository, append <code>http://dl-cdn.alpinelinux.org/alpine/edge/testing</code> to <code>/etc/apk/repositories</code>, or see <a href="#linux-binaries">Linux (other)</a>.
 
-Use [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management) to install `step`:
+To install `step` with [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management), run:
 
 ```
 apk add step-cli step-certificates
 ```
 
-To uninstall, run `apk del step-cli step-certificates` and remove the `$HOME/.step` configuration directory.
-
 The binary tarballs can be found here:
 - [`step-cli`](https://pkgs.alpinelinux.org/package/edge/community/x86/step-cli)
 - [`step-certificates`](https://pkgs.alpinelinux.org/package/edge/testing/x86/step-certificates)
+
+To uninstall, run `apk del step-cli step-certificates`, then remove the configuration directory `$HOME/.step` .
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
@@ -184,21 +171,21 @@ There are community-maintained packages for FreeBSD:
 - [`step-certificates`](https://www.freshports.org/security/step-certificates/)
 - [`step-cli`](https://www.freshports.org/security/step-cli/)
 
-Here's an [installation transcript](https://github.com/smallstep/certificates/discussions/572#discussioncomment-751271) for installing both packages in a FreeBSD jail.
+To install both packages in a FreeBSD jail, follow the steps in this [installation transcript](https://github.com/smallstep/certificates/discussions/572#discussioncomment-751271).
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
 ### Linux Binaries
 
-We distribute pre-compiled binaries for amd64, arm64, armv6, armv7, mips, mips64, ppc64le, and 386.
-See the [latest release](https://github.com/smallstep/cli/releases/latest) page.
+We distribute pre-compiled binaries for amd64, arm64, armv6, armv7, mips, mips64, ppc64le, and 386. 
 
-We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
-See [Binary Signatures](#binary-signature-verification) for details.
+For more, see our [latest release page](https://github.com/smallstep/cli/releases/latest).
 
-Here's how to download and install the `step` and `step-ca` binaries on an amd64 machine:
+We use [cosign](https://github.com/sigstore/cosign) to sign and verify release artifacts. For more: [Binary Signatures](#binary-signature-verification).
 
-1. Install `step`
+To download and install the `step` and `step-ca` binaries on an amd64 machine:
+
+1. Install `step`.
 
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
@@ -209,7 +196,7 @@ Here's how to download and install the `step` and `step-ca` binaries on an amd64
     sudo cp step_0.23.2/bin/step /usr/bin
     ```
 
-2. Install `step-ca`
+2. Install `step-ca`.
 
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
@@ -226,11 +213,12 @@ To configure `step-ca` as a daemon, see our [systemd configuration guide][system
 
 #### Binary Signature Verification
 
-We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
+We use [cosign](https://github.com/sigstore/cosign) to sign and verify release artifacts.
+
 To verify the signature of the `step-ca` binary:
 
-1. [Install cosign](https://docs.sigstore.dev/cosign/installation/)
-2. Download the binary signature (`.sig`) and certificate (`.pem`) files from the Assets section of our [GitHub Releases page](https://github.com/smallstep/certificates/releases/latest)
+1. [Install cosign](https://docs.sigstore.dev/cosign/installation/).
+2. Download the binary signature (`.sig`) and certificate (`.pem`) files from the Assets section of our [GitHub Releases page](https://github.com/smallstep/certificates/releases/latest).
 3. Run:
    
    ```
@@ -244,7 +232,7 @@ To verify the signature of the `step-ca` binary:
 
 ### Kubernetes
 
-We publish [Helm charts](https://smallstep.github.io/helm-charts/) for easy installation on kubernetes:
+We publish [Helm charts](https://smallstep.github.io/helm-charts/) for easy installation on Kubernetes:
 
 ```shell
 helm repo add smallstep https://smallstep.github.io/helm-charts/
@@ -257,8 +245,8 @@ You can see all the configuration options at https://hub.helm.sh/charts/smallste
 <Alert severity="info">
   <AlertTitle>Autocert</AlertTitle>
   <div>
-    If you're using Kubernetes, make sure you [check out autocert](https://github.com/smallstep/autocert): a
-    kubernetes add-on that builds on `step-ca` to automatically inject
+    If you're using Kubernetes, make sure you check out <a href="https://github.com/smallstep/autocert">autocert</a>, a
+    Kubernetes add-on that builds on `step-ca` to automatically inject
     TLS/HTTPS certificates into your containers.
   </div>
 </Alert>
@@ -283,6 +271,6 @@ Release Date: 2019-04-30 19:02 UTC
 
 ### Next Steps
 
-- Learn about the [core concepts and design principles](../step-ca/certificate-authority-core-concepts.mdx) behind `step-ca`.
-- Read the [Getting Started guide](../step-ca/getting-started.mdx) to set up a CA and get your first certificate.
+- Learn about the [core concepts and design principles](./certificate-authority-core-concepts.mdx) behind `step-ca`.
+- Read the [Getting Started guide](./getting-started.mdx) to set up a CA and get your first certificate.
 

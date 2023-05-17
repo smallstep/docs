@@ -48,9 +48,9 @@ With an SSH certificate in place, smallstep interacts with SSHD, PAM, and NSS UN
 
 ### Host Tags and ACLs
 
-Host tags are similar to EC2 Instance Tags. They’re used to define collections of hosts for access control. You might assign tags identifying a host’s role (e.g., bastion, web, database), region (e.g., us-east), environment (e.g., staging, production), or any other relevant attribute. Let's look at an example:
+Host tags are similar to EC2 Instance Tags. They’re used to define collections of hosts for [access control](./acls.mdx). You might assign tags identifying a host’s role (e.g., bastion, web, database), region (e.g., us-east), environment (e.g., staging, production), or any other relevant attribute. Let's look at an example:
 
-![](/graphics/acl-tag-example.png 'Host tags example')
+![image](/graphics/quickstart/host-tags-example.png 'Host tags example')
 
 - A host tag combination of `db`: `dev` gives you access to `myserver #1`.
 - A host tag combination of `db`: `prod` gives you access to `myserver #2` and `myserver #3`.
@@ -61,6 +61,7 @@ Host tags are used along with IdP user groups in grants. Grants give users in a 
 
 With User information synced from the identity provider and the Hosts registered, the smallstep administrator can configure access control. IdP User groups are mapped to Host Tags and given standard SSH access or root access via sudo. Access grants synchronize automatically to all Managed Hosts, and the corresponding NSS and PAM modules are updated.
 
+Read more: [Access Control Guide](./acls.mdx)
 
 ### SSH Handshake and Host ACL Enforcement
 

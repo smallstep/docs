@@ -11,7 +11,7 @@ description: The `step` Command
 `step` ships with extensive built-in help. To list available options and command groups, run `step` by itself. For help, use `step help <command>` or `step help <command> <subcommand>`.
 
 ## Environment variables
-- `STEPPATH` The path where `step` stores configuration and state. This directory also holds `step-ca` state created with [`step ca init`](../step-cli/reference/ca/init), including CA configuration, keys, certificates, and templates. Defaults to `$HOME/.step`.
+- `STEPPATH` The path where `step` stores configuration and state. This directory also holds `step-ca` state created with [`step ca init`](./reference/ca/init), including CA configuration, keys, certificates, and templates. Defaults to `$HOME/.step`.
 - `STEPDEBUG` When set to `1`, `step` will provide extra diagnostic information for debugging. This variable can also be used with `step-ca`.
 - `HTTPS_PROXY` and `NO_PROXY` Configure proxies for outbound HTTPS traffic. See [net/http.ProxyFromEnvironment](https://golang.org/pkg/net/http/#ProxyFromEnvironment) documentation for details. Note that the system trust store is _not_ trusted by `step` for the TLS handshake with the proxy server.
   - The proxy server will need to be configured to trust the CA.
@@ -69,17 +69,17 @@ $ step path
 ```
 
 Contexts are enabled, and a new context is created, if `--context [name]` is passed to any of the following:
-- CA client bootstrap: [`step ca bootstrap`](../step-cli/reference/ca/bootstrap)
-- CA server init: [`step ca init`](../step-cli/reference/ca/init)
+- CA client bootstrap: [`step ca bootstrap`](./reference/ca/bootstrap)
+- CA server init: [`step ca init`](./reference/ca/init)
 - CA server startup: `step-ca`
-- SSH client bootstrap: [`step ssh config`](../step-cli/reference/ssh/config)
+- SSH client bootstrap: [`step ssh config`](./reference/ssh/config)
 
 When contexts are enabled:
 - Client configuration is stored in the `profiles` directory, and CA server configuration and data is stored in `authorities` directory.
 - Context configuration files `contexts.json` and `current-context.json` are created in the top-level `$STEPPATH`.
-- There is always a currently active context ([`step context current`](../step-cli/reference/context/current)), but you can pass a `--context` name to any [`step ca`](../step-cli/reference/ca), [`step ssh`](../step-cli/reference/ssh/), or `step-ca` command to temporarily select a context for a single operation.
-- Use the [`step context`](../step-cli/reference/context/) command group to switch contexts, remove a context and its associated configuration, and view the current context.
-- The [`step path`](../step-cli/reference/path/) command will show the current context's path. To display the top-level configuration directory name (`$STEPPATH`) when contexts are enabled, use `step path --base`.
+- There is always a currently active context ([`step context current`](./reference/context/current)), but you can pass a `--context` name to any [`step ca`](./reference/ca), [`step ssh`](./reference/ssh/), or `step-ca` command to temporarily select a context for a single operation.
+- Use the [`step context`](./reference/context/) command group to switch contexts, remove a context and its associated configuration, and view the current context.
+- The [`step path`](./reference/path/) command will show the current context's path. To display the top-level configuration directory name (`$STEPPATH`) when contexts are enabled, use `step path --base`.
 - Two [`defaults.json`](#configuration-file) files are created: One in the `profiles` tree, and one in the `authorities` tree. They are merged, and the one in `profiles` takes precedence.
 - Context configuration files `contexts.json` and `current-context.json` are created in the top-level `$STEPPATH`.
 
@@ -98,4 +98,4 @@ If you're writing a plugin, please follow our convention for CLI help by impleme
 
 ## Next Steps
 
-* [Basic Crypto Operations](../step-cli/basic-crypto-operations.mdx)
+* [Basic Crypto Operations](./basic-crypto-operations.mdx)
