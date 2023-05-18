@@ -219,6 +219,7 @@
             {
               "title": "Command Reference",
               "isStepReference": true,
+              "path": "/step-cli/reference/README.mdx",
               "routes": [
                 {
                   "hideFromSidebar": true,
