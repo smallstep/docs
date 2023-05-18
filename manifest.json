@@ -222,1217 +222,1232 @@
               "routes": [
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/acme/eab/remove",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/acme/eab/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/acme/eab",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/acme/eab/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/acme/eab/add",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/acme/eab/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/acme/eab/list",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/acme/eab/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/acme",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/acme/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/admin/remove",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/admin/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/admin/update",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/admin/update/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/admin",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/admin/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/admin/add",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/admin/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/admin/list",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/admin/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/provisioner/remove",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/provisioner/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/provisioner/update",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/provisioner/update/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/provisioner/get",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/provisioner/get/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/provisioner",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/provisioner/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca/provisioner/add",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/provisioner/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta/ca",
+                  "title": "",
                   "path": "/step-cli/reference/beta/ca/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/beta",
+                  "title": "",
                   "path": "/step-cli/reference/beta/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jws/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jws/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jws/verify",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jws/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jws",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jws/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jws/sign",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jws/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/kdf/hash",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/kdf/hash/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/kdf",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/kdf/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/kdf/compare",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/kdf/compare/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwt/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwt/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwt/verify",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwt/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwt",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwt/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwt/sign",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwt/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/hash/digest",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/hash/digest/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/hash",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/hash/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/hash/compare",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/hash/compare/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/otp/verify",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/otp/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/otp",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/otp/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/otp/generate",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/otp/generate/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/change-pass",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/change-pass/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/fingerprint",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/fingerprint/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/verify",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/public",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/public/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/format",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/format/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/key/sign",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/key/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jose",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jose/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jose/format",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jose/format/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/public",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/public/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/thumbprint",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/thumbprint/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/create",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/create/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/keyset/remove",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/keyset/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/keyset",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/keyset/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/keyset/add",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/keyset/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/keyset/list",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/keyset/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwk/keyset/find",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwk/keyset/find/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwe",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwe/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwe/encrypt",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwe/encrypt/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/jwe/decrypt",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/jwe/decrypt/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/keypair",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/keypair/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/box/seal",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/box/seal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/box",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/box/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/box/keypair",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/box/keypair/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/box/open",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/box/open/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/auth/verify",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/auth/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/auth/digest",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/auth/digest/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/auth",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/auth/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/secretbox/seal",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/secretbox/seal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/secretbox",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/secretbox/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/secretbox/open",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/secretbox/open/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/sign",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/sign/keypair",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/sign/keypair/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/sign/sign",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/sign/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/nacl/sign/open",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/nacl/sign/open/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/winpe",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/winpe/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crypto/winpe/extract",
+                  "title": "",
                   "path": "/step-cli/reference/crypto/winpe/extract/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/context/remove",
+                  "title": "",
                   "path": "/step-cli/reference/context/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/context",
+                  "title": "",
                   "path": "/step-cli/reference/context/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/context/current",
+                  "title": "",
                   "path": "/step-cli/reference/context/current/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/context/list",
+                  "title": "",
                   "path": "/step-cli/reference/context/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/context/select",
+                  "title": "",
                   "path": "/step-cli/reference/context/select/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/oauth",
+                  "title": "",
                   "path": "/step-cli/reference/oauth/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/lint",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/lint/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/install",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/install/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/fingerprint",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/fingerprint/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/verify",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/verify/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/needs-renewal",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/needs-renewal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/bundle",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/bundle/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/key",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/key/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/uninstall",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/uninstall/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/format",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/format/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/p12",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/p12/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/create",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/create/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/certificate/sign",
+                  "title": "",
                   "path": "/step-cli/reference/certificate/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crl/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/crl/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/crl",
+                  "title": "",
                   "path": "/step-cli/reference/crl/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/path",
+                  "title": "",
                   "path": "/step-cli/reference/path/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/token",
+                  "title": "",
                   "path": "/step-cli/reference/ca/token/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/init",
+                  "title": "",
                   "path": "/step-cli/reference/ca/init/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/roots",
+                  "title": "",
                   "path": "/step-cli/reference/ca/roots/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/renew",
+                  "title": "",
                   "path": "/step-cli/reference/ca/renew/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/bootstrap",
+                  "title": "",
                   "path": "/step-cli/reference/ca/bootstrap/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/certificate",
+                  "title": "",
                   "path": "/step-cli/reference/ca/certificate/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/acme/eab/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/acme/eab/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/acme/eab",
+                  "title": "",
                   "path": "/step-cli/reference/ca/acme/eab/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/acme/eab/add",
+                  "title": "",
                   "path": "/step-cli/reference/ca/acme/eab/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/acme/eab/list",
+                  "title": "",
                   "path": "/step-cli/reference/ca/acme/eab/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/acme",
+                  "title": "",
                   "path": "/step-cli/reference/ca/acme/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/revoke",
+                  "title": "",
                   "path": "/step-cli/reference/ca/revoke/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/health",
+                  "title": "",
                   "path": "/step-cli/reference/ca/health/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/admin/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/admin/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/admin/update",
+                  "title": "",
                   "path": "/step-cli/reference/ca/admin/update/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/admin",
+                  "title": "",
                   "path": "/step-cli/reference/ca/admin/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/admin/add",
+                  "title": "",
                   "path": "/step-cli/reference/ca/admin/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/admin/list",
+                  "title": "",
                   "path": "/step-cli/reference/ca/admin/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/webhook/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/webhook/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/webhook/update",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/webhook/update/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/webhook",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/webhook/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/webhook/add",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/webhook/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/jwe-key",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/jwe-key/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/update",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/update/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/add",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/add/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/provisioner/list",
+                  "title": "",
                   "path": "/step-cli/reference/ca/provisioner/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca",
+                  "title": "",
                   "path": "/step-cli/reference/ca/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/federation",
+                  "title": "",
                   "path": "/step-cli/reference/ca/federation/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/root",
+                  "title": "",
                   "path": "/step-cli/reference/ca/root/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/sign",
+                  "title": "",
                   "path": "/step-cli/reference/ca/sign/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/wildcards/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/wildcards/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/wildcards",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/wildcards/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/wildcards/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/wildcards/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/x509/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/x509/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/acme/view",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/acme/view/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/wildcards/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/wildcards/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/wildcards",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/wildcards/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/wildcards/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/wildcards/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/x509/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/x509/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/allow/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/allow/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/allow/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/allow/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/deny/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/deny/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/deny/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/deny/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/host/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/host/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/allow/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/allow/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/deny/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/deny/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh/user/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/user/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/ssh",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/ssh/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/provisioner/view",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/provisioner/view/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/remove",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/remove/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/wildcards/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/wildcards/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/wildcards",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/wildcards/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/wildcards/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/wildcards/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny/cn",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/cn/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny/ip",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/ip/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny/uri",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/uri/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/x509/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/x509/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/allow/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/allow/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/allow/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/allow/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/deny/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/deny/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/deny/dns",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/deny/dns/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/host/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/host/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/allow/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/allow/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/allow",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/allow/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/allow/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/allow/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/deny/principal",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/deny/principal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/deny",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/deny/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh/user/deny/email",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/user/deny/email/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/ssh",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/ssh/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/policy/authority/view",
+                  "title": "",
                   "path": "/step-cli/reference/ca/policy/authority/view/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ca/rekey",
+                  "title": "",
                   "path": "/step-cli/reference/ca/rekey/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/base64",
+                  "title": "",
                   "path": "/step-cli/reference/base64/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/completion",
+                  "title": "",
                   "path": "/step-cli/reference/completion/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/fileserver",
+                  "title": "",
                   "path": "/step-cli/reference/fileserver/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/inspect",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/inspect/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/renew",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/renew/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/fingerprint",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/fingerprint/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/check-host",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/check-host/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/certificate",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/certificate/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/config",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/config/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/revoke",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/revoke/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/needs-renewal",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/needs-renewal/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/logout",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/logout/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/list",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/list/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/proxycommand",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/proxycommand/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/hosts",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/hosts/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/login",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/login/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/ssh/rekey",
+                  "title": "",
                   "path": "/step-cli/reference/ssh/rekey/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/version",
+                  "title": "",
                   "path": "/step-cli/reference/version/README.mdx"
                 },
                 {
                   "hideFromSidebar": true,
-                  "title": "step-cli/reference/help",
+                  "title": "",
+                  "path": "/step-cli/reference/api/token/README.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "",
+                  "path": "/step-cli/reference/api/token/create/README.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "",
+                  "path": "/step-cli/reference/api/README.mdx"
+                },
+                {
+                  "hideFromSidebar": true,
+                  "title": "",
                   "path": "/step-cli/reference/help/README.mdx"
                 }
               ]
