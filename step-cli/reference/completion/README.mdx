@@ -23,12 +23,17 @@ step completion <shell>
 ## Positional arguments
 
 `shell`
-The shell program. Either bash or zsh.
+The shell program. Supports bash, zsh, and fish.
 
 ## Examples
 
 Add bash completion for the current user.
 ```shell
 $ step completion bash >> ~/.bash_completion
+```
+
+Add fish completions for the current user.
+```shell
+$ step completion fish | source
 ```
 

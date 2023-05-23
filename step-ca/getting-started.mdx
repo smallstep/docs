@@ -6,10 +6,10 @@ description: Learn about step-ca and where to begin
 ---
 
 
-One could write several telephone books about the innards of X.509, asn.1 and the vast topics of infosec, netsec, and public key cryptography that are implicated in the design of a PKI. It's daunting. So let's begin at the beginning, with a CA server and a TLS-enabled "Hello World" application.
+You could write several telephone books about the innards of X.509, asn.1, and the vast topics of infosec, netsec, and public key cryptography that are all part of the design of a Public Key Infrastructure (PKI). It can be a daunting process. To introduce you to the workflow, you can start by setting up a CA server and a TLS-enabled "Hello World" application.
 
 
-In this guide we will:
+In this guide, you will:
 
 - [Initialize your certificate authority](#initialize-your-certificate-authority)
 - [Run your certificate authority](#run-your-certificate-authority)
@@ -17,15 +17,15 @@ In this guide we will:
 
 ## Requirements
 
-You will need [`step`](../step-cli) and [`step-ca`](.) installed on your system.
+You need [`step`](../step-cli) and [`step-ca`](.) installed on your system.
 
-## Initialize your certificate authority
+## Initialize your certificate authority (CA)
 
-The certificate authority is what you’ll be using to issue and sign certificates, knowing that you can trust anything using a certificate signed by the root certificate.
+The certificate authority (CA) is what you’ll be using to issue and sign certificates, knowing that you can trust anything using a certificate signed by the root certificate.
 
-Run the command [`step ca init`](../step-cli/reference/ca/init) in a terminal to configure your CA. You'll be asked about your project, DNS setup, etc.
+Run the command [`step ca init`](../step-cli/reference/ca/init) in a terminal to configure your CA. You'll be asked about your project, DNS setup, and other information.
 
-The [`step ca init`](../step-cli/reference/ca/init) command has a lot of flags.
+The [`step ca init`](../step-cli/reference/ca/init) command supports several arguments that allow you to tailor your commands.
 Here are some of the most popular options:
 * Pass `--ssh` if you want to use SSH certificates (in addition to X.509)
 * Pass separate `--password-file` and `--provisioner-password-file` flags to set different signing CA and provisioner passwords.
@@ -69,7 +69,7 @@ all done!
 Your PKI is ready to go.
 ```
 
-**Make a note of the root fingerprint!** You'll need it to establish trust with your CA from other environments or hosts.
+**Make a note of the root fingerprint!** You'll need it in future steps to establish trust with your CA from other environments or hosts.
 
 ## Run your certificate authority
 
@@ -83,20 +83,20 @@ Please enter the password to decrypt /Users/bob/.step/secrets/intermediate_ca_ke
 2019/02/18 13:28:58 Serving HTTPS on 127.0.0.1:8443 ...
 ```
 
-### Accessing your Certificate Authority
+### Access your Certificate Authority
 
-#### Accessing your CA
+#### Access your CA
 
 You can use [`step ca`](../step-cli/reference/ca) and [`step ssh`](../step-cli/reference/ssh) command groups to interact with the CA. See [Basic CA Operations](./basic-certificate-authority-operations.mdx) for an overview of common operations.
 
-#### Accessing your CA remotely
+#### Access your CA remotely
 
 To access your CA remotely, install and use the [`step`](../step-cli) command on clients.
 Or you can [use any ACME client to get certificates](../tutorials/acme-protocol-acme-clients.mdx).
 
 Because your CA root certificate is a self-signed certificate, it is not automatically trusted by clients.
-Any new `step` client will need to establish a trust relationship with your CA.
-You can do this by supplying your CA fingerprint to [`step ca bootstrap`](../step-cli/reference/ca/bootstrap).
+Any new `step` client must establish a trust relationship with your CA.
+You can establish a trust relationship by supplying your CA fingerprint to [`step ca bootstrap`](../step-cli/reference/ca/bootstrap).
 Your CA fingerprint is a cryptographic signature identifying your root CA certificate.
 
 To configure `step` to access your CA from a new machine, run:
@@ -107,7 +107,7 @@ The root certificate has been saved in /home/alice/.step/certs/root_ca.crt.
 Your configuration has been saved in /home/alice/.step/config/defaults.json.
 ```
 
-This command will download the root CA certificate and write CA connection details to `$HOME/.step/config/defaults.json`. The `step` command will now trust your CA. See [Basic CA Operations](./basic-certificate-authority-operations.mdx) for an overview of common operations.
+This command downloads the root CA certificate and writes CA connection details to `$HOME/.step/config/defaults.json`. The `step` command will now trust your CA. See [Basic CA Operations](./basic-certificate-authority-operations.mdx) for an overview of common operations.
 
 <Alert severity="info">
     <AlertTitle>
@@ -135,13 +135,13 @@ X.509v3 Root CA Certificate (ECDSA P-256) [Serial: 2282...6360]
 
 ## Example: Run A Local Web Server Using TLS
 
-Now that the certificate authority is running, let's create an example server and use our new certificate authority to issue an X.509 certificate and connect to the server using HTTP over TLS.
+Now that the certificate authority is running, you can create an example server and use the new certificate authority to issue an X.509 certificate and connect to the server using HTTP over TLS.
 
 For this example, you'll need to have [`go`](https://golang.org/) installed.
 
 ### Get a certificate 
 
-First, let's ask the CA for a certificate (`srv.crt`) and private key (`srv.key`) for our example server on `localhost`:
+First, you must ask the CA for a certificate (`srv.crt`) and private key (`srv.key`) for the example server on `localhost`:
 
 ```shell-session nocopy
 $ step ca certificate localhost srv.crt srv.key
@@ -155,7 +155,7 @@ $ step ca certificate localhost srv.crt srv.key
 
 ### Run a hello world example server configured for TLS connections
 
-We've got our certificate. Now let's create an example server that will run on localhost and use TLS.
+Now you've got your certificate. Next, you can create an example server that runs on localhost and uses TLS.
 
 This example server listens to port `9443` and serves _Hello, world!_ to any client that accepts the server certificate as trusted.
 
@@ -186,15 +186,15 @@ Run the server as a background process:
   {`$ go run srv.go &`}
 </CodeBlock>
 
-### Connecting to the example server
+### Connect to the example server
 
-First, let's try making a curl request to our example server. In a new terminal, run:
+First, try making a curl request to the example server. In a new terminal, run:
 
 ```shell-session nocopy
 $ curl https://localhost:9443/hi
 ```
 
-If you already ran [`step certificate install`](../step-cli/reference/certificate/install) to install your root CA into your system's trust store, this command will work and you'll see "Hello, World!".
+If you already ran [`step certificate install`](../step-cli/reference/certificate/install) to install your root CA into your system's trust store, this command works and you'll see "Hello, World!".
 
 If not, you'll see this error:
 
@@ -208,7 +208,7 @@ how to fix it, please visit the web page mentioned above.
 
 In this case, `curl` does not yet trust your root CA.
 
-Let's download the CA's root certificate and pass it into `curl` to establish trust.
+Download the CA's root certificate and pass it into `curl` to establish trust.
 
 ```shell-session nocopy
 $ step ca root root.crt
@@ -216,7 +216,7 @@ $ step ca root root.crt
 The root certificate has been saved in root.crt.
 ```
 
-Now you can make a curl request using the root certificate you just downloaded. When you add `--cacert root.crt` to the curl command, it will verify that the server certificate was signed by the CA, and at that point you will see _Hello, world!_
+Now you can make a curl request using the root certificate you just downloaded. When you add `--cacert root.crt` to the curl command, it verifies that the server certificate was signed by the CA, and at that point you will see _Hello, world!_
 
 ```shell-session nocopy
 $ curl --cacert root.crt https://localhost:9443/hi
@@ -224,7 +224,7 @@ $ curl --cacert root.crt https://localhost:9443/hi
 Hello, world!
 ```
 
-Nice! You've just generated and integrated our first certificate using `step-ca`. 
+Congratulations! You've just generated and integrated your first certificate using `step-ca`. 
 
 ## Next Steps
 

@@ -14,7 +14,7 @@ menu:
 
 ```raw
 step api token create <team-id> <crt-file> <key-file>
-[--api-url=<url>]
+[--api-url=<url>] [--audience=<name>]
 
 ```
 
@@ -38,6 +38,9 @@ File to read the private key (PEM format).
 
 **--api-url**=`value`
 URL where the Smallstep API can be found
+
+**--audience**=`value`
+Request a token for an audience other than the API Gateway
 
 ## Examples
 Use a certificate to get a new API token:
