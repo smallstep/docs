@@ -5,11 +5,10 @@ description: Learn about the important production considerations and sane crypto
 ---
 
 
-`step-ca` is built for robust certificate management in distributed systems. As
-with any entity in your infrastructure, running `step-ca` effectively in
-production requires some knowledge of its strengths and limitations. This
-document addresses the important production considerations that operators
-should know about when running `step-ca` as a certificate authority server.
+`step-ca` is built for robust certificate management in distributed systems.
+Running `step-ca` effectively in production requires some knowledge of its strengths and limitations.
+This document aims to illuminate and simplify the process of deploying `step-ca`
+safely and securely in a production environment.
 
 ## Overview
 
@@ -22,12 +21,15 @@ should know about when running `step-ca` as a certificate authority server.
   - [Enable Active Revocation On Your Intermediate CA](#enable-active-revocation-on-your-intermediate-ca)
   - [Use Templates With Care](#use-templates-with-care)
   - [Create a Service User to Run `step-ca`](#create-a-service-user-to-run-step-ca)
-- [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
-- [High Availability](#high-availability)
-- [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
-- [Automate X.509 Certificate Lifecycle Management](#automate-x509-certificate-lifecycle-management)
-- [X.509 Certificate Revocation](#x509-certificate-revocation)
-- [Rotating CA certificates](#rotating-ca-certificates)
+- [Operational Concerns](#operational-concerns)
+  - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
+  - [High Availability](#high-availability)
+  - [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
+  - [Exposing `step-ca` to the internet](#exposing-step-ca-to-the-internet)
+- [Certificate Lifecycle Management](#certificate-lifecycle-management)
+  - [Automate Renewals](#automate-x509-certificate-lifecycle-management)
+  - [Certificate Revocation](#x509-certificate-revocation)
+  - [Rotate CA Certificates](#rotating-ca-certificates)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
   - [Key Types and Ciphers](#key-types-and-ciphers)
@@ -293,6 +295,8 @@ Make sure that the configuration folders, private keys, and password file used b
 accessible by this user. If you're running `step-ca` on port 443, you'll need the `step-ca` binary
 to be able to bind to that port. See [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon) for details.
 
+## Operational Concerns
+
 ## Running `step-ca` as a Daemon
 
 Note: _This section requires a Linux OS running `systemd` version 245 or greater._
@@ -506,35 +510,41 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
 
 With some precautions,
 `step-ca` can be exposed to the public internet.
-This can be useful for issuing network access certificates, in particular.
+This can be necessary for issuing network access certificates, in particular.
 
-Here are some guidelines for exposing a CA to the internet:
-- Consider alternatives.
-  - If you are using hardware-bound private keys in your clients,
-    you could issue longer-lived certificates
-    so that renewal from the public internet is never needed.
-  - When your clients are spread across differenet networks—
-    eg. in multi-cloud environments—
-    you can use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx).
 - Rather than exposing your entire CA to the internet,
   use a reverse proxy to expose only the necessary CA endpoints:
   - `/root/*` will allow clients to bootstrap with `step ca bootstrap`
   - `/renew` for mutual TLS or token-based renewals
   - `/sign` for JWK issuance
   - `/provisioners` enumerates all provisioners and allows remote access to encrypted JWKs — it is not necessary to expose this endpoint.
-- You may expose ACME provisioners (`/acme/*`), with precautions:
-  - The default ACME provisioner will issue certificates to any client, including clients from the public internet, just as Let's Encrypt does.
-  - Use [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
-  - Do not expose `/provisioners`, so the ACME provisioner cannot be discovered
-  - Obscure your ACME provisioner name, so that the directory URL is unguessable:
+
+### Use federation instead
+
+If your clients are spread across differenet networks—
+eg. in multi-cloud environments—
+you can use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx)
+instead of exposing a single CA.
+
+### How to Expose ACME provisioners
+
+You may expose ACME provisioners (`/acme/*`), with precautions:
+- The default ACME provisioner will issue certificates to any client, including clients from the public internet, just as Let's Encrypt does.
+- Use [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
+
+#### Hiding your ACME provisioner
+
+1. Obscure your ACME provisioner name, so that the directory URL is unguessable:
 
     ```
     {
     PROVISIONER_NAME=$(< /dev/urandom  LC_ALL=C tr -dc A-Za-z0-9 | head -c80)
-    step ca provisioner update acme-da --name $PROVISIONER_NAME
+    step ca provisioner update acme --name $PROVISIONER_NAME
     echo https://ca.example.com/acme/$PROVISIONER_NAME/directory
     }
     ```
+
+2. Do not expose the provisioner discovery endpoint. Run a reverse proxy in front of `step-ca`, and do not expose `/provisioners` to the internet. The ACME provisioner URL cannot be discovered.
 
 ## Automate X.509 Certificate Lifecycle Management
 
