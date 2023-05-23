@@ -137,7 +137,7 @@ kubectl create secret generic eab-secret --from-literal \
 
 Next, see [cert-manager's documentation](https://cert-manager.io/docs/configuration/acme/#external-account-bindings) for details on configure your EAB key and secret in your `Issuer`. 
 
-### 6. Apply your Issuer
+### 5. Apply your Issuer
 
 Finally, apply your `Issuer` configuration:
 
@@ -147,7 +147,7 @@ $ kubectl apply -f acme-issuer.yaml
 
 You now have an automated ACME certificate manager running inside your Kubernetes cluster.
 
-### 7. Issue a test certificate
+### 6. Issue a test certificate
 
 Let's get a test certificate from our ACME CA, using a Certificate object. Create a file called `tls-certificate.yaml`:
 
