@@ -506,45 +506,53 @@ Layer 7 proxying is _not recommended_, becase the `step` toolchain is built arou
   See [this blog post](https://fedingo.com/how-to-configure-ssl-tls-passthrough-in-nginx/) for an example of TLS passthrough.
 - Caddy doesn't natively support TLS passthrough, but there is an experimental [`caddy-l4`](https://github.com/mholt/caddy-l4) module that can do it.
 
-## Exposing `step-ca` To The Internet
+## Exposing `step-ca` to the internet
 
 With some precautions,
-`step-ca` can be exposed to the public internet.
-This can be necessary for issuing network access certificates, in particular.
+`step-ca` may be exposed to the public internet.
 
-- Rather than exposing your entire CA to the internet,
-  use a reverse proxy to expose only the necessary CA endpoints:
-  - `/root/*` will allow clients to bootstrap with `step ca bootstrap`
-  - `/renew` for mutual TLS or token-based renewals
-  - `/sign` for JWK issuance
-  - `/provisioners` enumerates all provisioners and allows remote access to encrypted JWKs — it is not necessary to expose this endpoint.
+If you choose to expose a CA to the internet, consider these potential risks:
+- Enumeration of CA provisioners. The `/provisioners` endpoint lists all provisioners and is included for client convenience. Without it, clients will need to know a provisioner name to use and, for JWK provisioners, the provisioner's private key.
+- Exposed, unauthenticated ACME provisioners. By default, any ACME client that can reach the CA and satisfy an ACME challenge can enroll in your PKI.
+- Enumeration of SSH infrastructure. The `/ssh/hosts` endpoint lists all enrolled hosts.
 
-### Use federation instead
+### Approach: Run A Reverse Proxy
+
+Rather than expose your entire CA to the internet,
+use a reverse proxy to expose only the necessary CA endpoints:
+- `/root/*` will allow clients to bootstrap with `step ca bootstrap`
+- `/renew` for mutual TLS or token-based renewals
+- `/1.0/sign` for JWK certificate issuance
+
+Generally speaking,
+it makes sense to create an allowlist of endpoints in a reverse proxy server
+—the minimum to allow your clients to enroll—
+and only forward those requests to step-ca.
+
+#### Safely Proxying an ACME Provisioner
+
+By default, the ACME provisioner issues certificates to any client that can satisfy an ACME client.
+So, if you are connecting an ACME provisioner to the internet, take precautions:
+- Use explicit [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
+- Hide your ACME provisioner:
+  1. Use an unguessable shared secret as your ACME provisioner name:
+  
+      ```
+      {
+      PROVISIONER_NAME=$(< /dev/urandom  LC_ALL=C tr -dc A-Za-z0-9 | head -c80)
+      step ca provisioner update acme --name $PROVISIONER_NAME
+      echo https://ca.example.com/acme/$PROVISIONER_NAME/directory
+      }
+      ```
+  
+  2. Block internet traffic to `/provisioners`, and the ACME provisioner URL cannot be discovered.
+
+### Approach: Use Federation
 
 If your clients are spread across differenet networks—
 eg. in multi-cloud environments—
 you can use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx)
 instead of exposing a single CA.
-
-### How to Expose ACME provisioners
-
-You may expose ACME provisioners (`/acme/*`), with precautions:
-- The default ACME provisioner will issue certificates to any client, including clients from the public internet, just as Let's Encrypt does.
-- Use [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
-
-#### Hiding your ACME provisioner
-
-1. Obscure your ACME provisioner name, so that the directory URL is unguessable:
-
-    ```
-    {
-    PROVISIONER_NAME=$(< /dev/urandom  LC_ALL=C tr -dc A-Za-z0-9 | head -c80)
-    step ca provisioner update acme --name $PROVISIONER_NAME
-    echo https://ca.example.com/acme/$PROVISIONER_NAME/directory
-    }
-    ```
-
-2. Do not expose the provisioner discovery endpoint. Run a reverse proxy in front of `step-ca`, and do not expose `/provisioners` to the internet. The ACME provisioner URL cannot be discovered.
 
 ## Automate X.509 Certificate Lifecycle Management
 
