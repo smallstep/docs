@@ -86,36 +86,40 @@ It's important to understand the capabilities and limitations when selecting a
 provisioner for a given workload.
 
 ## Provisioner Management
+By default, provisioner configurations reside in the `$(step path)/config/ca.json` file. 
+However, if Remote Provisioner Management is enabled, 
+provisioner configurations are stored in the database instead of `ca.json`, 
+while the global CA configuration remains in `ca.json`.
 
-To add, remove, or modify provisioner configurations, 
-use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group. 
-You must run these commands directly on your CA machine, 
+Remote Provisioner Management is ideal if you have multiple CA administrators,
+[run several load-balanced](./certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
+or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)). 
+See [Remote Provisioner Management](#remote-provisioner-management) for more info on tradeoofs and benefits.
+
+The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group are used for provisioner management.
+They can be used to add, remove, or modify provisioner configurations. 
+Note, you must run these commands directly on your CA machine, 
 as they need to modify the `$(step path)/config/ca.json` configuration file.
+
+When you run any step ca provisioner command, it will try to detect where the provisioner configuration is stored. 
+It will either modify the `ca.json` file or it will update the database, 
+depending on whether you have enabled Remote Provisioner Management.
 
 <Alert severity="warning">
   <div>
     <p><b>May I edit <Code>ca.json</Code> directly?</b></p>
-    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
-Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
+    <p>You may edit your <Code>ca.json</Code> configuration file directly, 
+       but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
+       Fields in <Code>ca.json</Code> may be encoded differently than you expect.
+    </p>
   </div>
 </Alert>
 
-Within `ca.json` you can define an optional claims property for each provisioner. 
+Within `ca.json` you can define an optional `claims` property for each provisioner. 
 The settings defined in the `claims` property of individual provisioners under an authority 
 override the global defaults set for that authority. 
 For a list of global options, 
 see the `claims` object under the authority configuration block in the [configuration guide](./configuration/#example-configuration).
-
-If you
-have multiple CA administrators,
-[run several load-balanced](./certificate-authority-server-production.mdx#load-balancing-or-proxying-step-ca-traffic) `step-ca` instances,
-or if you want to manage your provisioners remotely (eg. with Infrastructure as Code (IaC) tools; [see below](#unattended-remote-provisioner-management)), you can enable the remote provisioner management API, which is disabled by default. 
-
-With remote provisioner management enabled, 
-provisioner configurations are stored in the database instead of `ca.json`, 
-while the global CA configuration remains in `ca.json`.
-
-See [Remote Provisioner Management](#remote-provisioner-management) for more.
 
 ### Common Provisioner Operations
 
@@ -171,7 +175,7 @@ The example above modifies the minumum, maximum, and default durations for X.509
 However, the `update` command can be used to modify the lifetimes, extensions, and templates of both X.509 and SSH certificates.
 
 Additionally, there are some provisioner-specific options,
-which are covered by the documentation for each provisioner type [below](./provisioners/#provisioner-types).
+which are covered by the [documentation for each provisioner type](./provisioners/#provisioner-types).
 
 ## Remote Provisioner Management
 
@@ -181,7 +185,7 @@ When remote provisioner management is enabled,
 your provisioner configuration is stored in the database instead of in ca.json. 
 You can manage the provisioner configuration by running [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands, 
 either locally or remotely. 
-However, you must sign in as an Admin user.
+However, ***you must sign in as an Admin user***.
 
 ### Enable Remote Provisioner Management
 
@@ -213,7 +217,8 @@ To enable remote provisioner management on an existing CA and migrate your `ca.j
    When `step-ca` starts up, it will:
    
    * Migrate the provisioners from your `ca.json` to the database
-   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner key.
+   * Repurpose the first JWK provisioner in your `ca.json` as an administrative provisioner. 
+If no JWK provisioner exists, it will add a [JWK](#jwk) provisioner called Admin JWK to the database. You will be prompted for a password that will encrypt the new provisioner key.
    * Create an initial Super Admin user, with username `step`, and link it to the administrative provisioner.
   
 4. Remove old provisioner configurations from `ca.json`.
@@ -228,9 +233,10 @@ To enable remote provisioner management on an existing CA and migrate your `ca.j
   
 ### Managing Admin Users
 
-With remote provisioner management,  
-"Admins" can remotely manage provisioners.  
-"Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](../step-cli/reference/ca/admin).
+With remote provisioner management, there are two categories of admin users: "Admins" and "Super Admins". 
+
+"Admins" can remotely manage provisioners. 
+Then, "Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](../step-cli/reference/ca/admin).
 
 #### Create An Admin User
 
