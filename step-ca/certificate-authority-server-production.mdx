@@ -512,11 +512,14 @@ With some precautions,
 `step-ca` may be exposed to the public internet.
 
 If you choose to expose a CA to the internet, consider these potential risks:
-- Exposed, unauthenticated ACME provisioners. By default, any ACME client that can reach the CA and satisfy an ACME challenge can enroll in your PKI.
-- Enumeration of SSH infrastructure. The `/ssh/hosts` endpoint lists all enrolled hosts.
-- Enumeration of CA provisioners. The `/provisioners` exposes provisioner configuration and is included for client convenience. It includes JWK encrypted private keys, OIDC endpoint URLs, and more. Without it, clients will need to pass more configuration flags into `step ca certificate`.
+- **Exposed, unauthenticated ACME provisioners**  
+  By default, any ACME client that can reach the CA and satisfy an ACME challenge can enroll in your PKI.
+- **Enumeration of SSH infrastructure**  
+  The `/ssh/hosts` endpoint lists all enrolled hosts.
+- **Enumeration of CA provisioners**  
+  The `/provisioners` exposes provisioner configuration and is included for client convenience. It includes JWK encrypted private keys, OIDC endpoint URLs, and more. Without it, clients will need to pass more configuration flags into `step ca certificate`.
 
-### Approach: Run A Reverse Proxy
+### Run A Reverse Proxy
 
 Rather than expose your entire CA to the internet,
 use a reverse proxy to expose only the necessary CA endpoints:
@@ -528,10 +531,18 @@ Expose the minimum endpoints required by your clients for enrollment.
 
 #### Proxying an ACME Provisioner
 
-By default, the ACME provisioner issues certificates to any client that can satisfy an ACME client.
-When connecting an ACME provisioner to the internet, take precautions:
+<Alert severity="warning">
+  <AlertTitle>Restrict your ACME provisioners</AlertTitle>
+  <div>
+    By default, ACME provisioners will issue certificates to <b>any client</b> that can satisfy an ACME challenge.
+    Do not expose an ACME provisioner to the internet without precautions.
+    This warning applies to all challenge types, including ACME `device-attest-01`.
+  </div>
+</Alert>
+
+When connecting an ACME provisioner to the internet, you will need to take precautions:
 - Use explicit [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
-- Hide your ACME provisioner:
+- Hide your ACME provisioner  
   1. Use an unguessable shared secret as your ACME provisioner name:
   
       ```
@@ -544,7 +555,7 @@ When connecting an ACME provisioner to the internet, take precautions:
   
   2. Block internet traffic to `/provisioners`, and the ACME provisioner URL cannot be discovered.
 
-### Approach: Use Federation
+### Alternative: Use Federation
 
 If your clients are spread across differenet private networks—
 eg. in multi-cloud environments—
