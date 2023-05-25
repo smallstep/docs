@@ -75,7 +75,7 @@ and can be configured in the <a href="#oauthoidc-single-sign-on">OIDC provisione
 To illustrate how to interpret this table, let's take the `JWK` and `SSHPOP` provisioner. 
 
 A `JWK` provisioner _can_ sign, renew, and revoke X.509 certificates, as well as sign user and host SSH certificates. 
-However, it _cannot_ renew or rekey SSH certificates.
+However, it _cannot_ renew SSH user certificates.<Reference id="f1" marker="1"/>
 
 On the other hand, an `SSHPOP` provisioner _can_ revoke and rekey SSH certificates 
 and renew SSH host certificates. 
