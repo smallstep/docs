@@ -350,24 +350,25 @@ These include things like:
 
 ## Databases
 
-`step-ca` uses a simple key-value interface over popular database
-implementations to store persistent certificate management metadata.
-Our recommended default database implementation is nosql-Badger,
-a NoSQL interface over the popular [Badger](https://github.com/dgraph-io/badger) database.
-The database layer stores every certificate
-(along with metadata surrounding the provisioning of the certificate) and
-revocation data used to enforce passive revocation.
+To store state, `step-ca` uses a simple [NoSQL](https://github.com/smallstep/nosql/) key-value interface over popular database systems.
 
-Configuring `step-ca` to use a database is as simple as adding a top-level `db`
-stanza to your `ca.json` file. Below users can find documentation and examples
-for supported databases:
+The database stores things like:
+- Issued certificates and certificate metadata, to facilitate passive revocation
+- ACME accounts
+- Used one-time-use tokens
+
+The database for `step-ca` is configured in a top-level `db` stanza in your `ca.json`.
 
 - [Badger](#badger)
 - [BoltDB](#boltdb)
 - [MySQL](#mysql)
 - [PostgreSQL](#postgresql)
 
+Because Badger and BoltDB are embedded, only MySQL and PostgreSQL are appropriate for load balanced, high availability deployments of `step-ca`.
+
 ### Badger
+
+[Badger](https://github.com/dgraph-io/badger) is a key-value database embedded in `step-ca`.
 
 ```json
 {
@@ -386,7 +387,7 @@ for supported databases:
 
 - `type`
 
-  - **badger**: currently refers to Badger V1. Some day, when Badger V1 is deprecated, this will refer to Badger V2.
+  - **badger**: currently refers to Badger V1. This is subject to change.
   - **badgerV1**: explicitly select Badger V1.
   - **badgerV2**: explicitly select Badger V2.
 
@@ -397,6 +398,8 @@ for supported databases:
   - **FileIO**: This can be useful in environments with low RAM.
 
 ### BoltDB
+
+[Bolt](https://github.com/etcd-io/bbolt) (etcd fork) is a key-value database embedded in `step-ca`.
 
 ```json
 {
@@ -415,6 +418,8 @@ for supported databases:
 - `dataSource`: path, database directory.
 
 ### MySQL
+
+`step-ca` uses MySQL as a simple key-value store, not as a relational database.
 
 ```json
 {
@@ -440,6 +445,8 @@ for supported databases:
 </Alert>
 
 ### PostgreSQL
+
+`step-ca` uses PostgreSQL as a simple key-value store, not as a relational database.
 
 ```json
 {
@@ -475,7 +482,7 @@ An example database configuration that enables TLS server hostname verification 
   ...
   "db": {
     "type": "postgresql",
-    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full"
   },
   ...
 },
@@ -490,14 +497,15 @@ You can override the locations for these files by providing them in the DSN:
   ...
   "db": {
     "type": "postgresql",
-    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full&sslrootcert=/path/to/roots.pem&sslcert=/path/to/client.pem&sslkey=/path/to/client.key",
+    "dataSource": "postgresql://user:password@127.0.0.1:5432/dbname?sslmode=verify-full&sslrootcert=/path/to/roots.pem&sslcert=/path/to/client.pem&sslkey=/path/to/client.key"
   },
   ...
 },
 ```
 
 The behavior of the PostgreSQL database driver mimics that of `libpq` and also encompasses handling of other default settings and environment variables.
-The [`libpq` docs](https://www.postgresql.org/docs/current/libpq-ssl.html) cover TLS options and the DSN query parameters for `libpq`.
+
+The [`libpq` docs](https://www.postgresql.org/docs/current/libpq-ssl.html) cover TLS options and the DSN query parameters for `libpq` in more detail.
 
 ### Schema
 
