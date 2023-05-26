@@ -88,7 +88,7 @@ provisioner for a given workload.
 ## Provisioner Management
 By default, provisioner configurations reside in the `$(step path)/config/ca.json` file. 
 However, if Remote Provisioner Management is enabled, 
-provisioner configurations are stored in the database instead of `ca.json`, 
+provisioner configurations are stored in [the database](./configuration/#databases) instead of `ca.json`, 
 while the global CA configuration remains in `ca.json`.
 
 Remote Provisioner Management is ideal if you have multiple CA administrators,
@@ -488,9 +488,11 @@ Please enter the password to decrypt the content encryption key:
 
 #### Removing the encrypted private key from a JWK provisioner
 
-The encrypted private key stored in the JWK provisioner configuration 
-and published to the public `/provisioners` endpoint is provided for client convenience.
-However,`step-ca` does not require it to operate, so it can be removed. 
+The `/provisioners` endpoint is not a protected resource, 
+so anyone with access to the URL can view the list of all provisioners as well as the encrypted private key of any JWK provisioner.
+
+While the exposed encrypted key poses no real danger, you can remove it if you're concerned. 
+`step-ca` does not require it to function, as it is only provided for the client's convenience.
 
 To remove this key:
 
