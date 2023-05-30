@@ -526,6 +526,7 @@ use a reverse proxy to expose only the necessary CA endpoints:
 - `/root/*` will allow clients to bootstrap with `step ca bootstrap`
 - `/renew` for mutual TLS or token-based renewals
 - `/1.0/sign` for JWK certificate issuance
+- `/provisioners` adds client conveniences—without it, clients will need a copy of the JWK private key to sign JWTs
 
 Expose the minimum endpoints required by your clients for enrollment.
 
@@ -543,7 +544,8 @@ Expose the minimum endpoints required by your clients for enrollment.
 When connecting an ACME provisioner to the internet, you will need to take precautions:
 - Use explicit [policies](./policies.mdx) to limit which subject names can request certificates via ACME.
 - Hide your ACME provisioner  
-  1. Use an unguessable shared secret as your ACME provisioner name:
+  1. Block internet traffic to `/provisioners`, and the ACME provisioner URL cannot be discovered.
+  2. Then, use an unguessable shared secret as your ACME provisioner name:
   
       ```
       {
@@ -553,7 +555,6 @@ When connecting an ACME provisioner to the internet, you will need to take preca
       }
       ```
   
-  2. Block internet traffic to `/provisioners`, and the ACME provisioner URL cannot be discovered.
 
 ### Alternative: Use Federation
 
