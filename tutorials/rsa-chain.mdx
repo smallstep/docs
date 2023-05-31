@@ -4,14 +4,18 @@ html_title: Create a root and intermediate CA chain that uses RSA keys
 description: Configure step-ca with an RSA certificate chain to create a root and intermediate CA chain that uses RSA keys.
 ---
 
+## Introduction
+
+For legacy and compliance reasons, some applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
+
+This tutorial uses RSA-PSS and SHA256 for the signature algorithm. RSA-PSS appeared in 2003 in [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447). Both [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447) and the updated [RFC 8017](https://www.rfc-editor.org/rfc/rfc8017) recommend RSA-PSS (aka RSASSA-PSS) over RSA PKCS#1 v1.5. RSA-PSS has a security proof and is (in theory) more robust than RSA PKCS #1 v1.5. Nevertheless, PKCS #1 v1.5 has no known security weaknesses as of May 2023.
+
 ## Requirements
 
 - **Open Source -** This tutorial assumes you have installed the `step` and `step-ca` software, and that you've just initialized a CA using the steps in [Getting Started](../step-ca/getting-started.mdx).
 - **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please get in touch with [Smallstep Customer Success](mailto:support@smallstep.com) if you want to use a RSA certificate chain.
 
 ## Instructions
-
-For legacy or compliance reasons, some applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
 
 First, stop your `step-ca` server if it is running.
 
