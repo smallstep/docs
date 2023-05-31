@@ -517,7 +517,7 @@ If you choose to expose a CA to the internet, consider these potential risks:
 - **Enumeration of SSH infrastructure**  
   The `/ssh/hosts` endpoint lists all enrolled hosts.
 - **Enumeration of CA provisioners**  
-  The `/provisioners` exposes provisioner configuration and is included for client convenience. It includes JWK encrypted private keys, OIDC endpoint URLs, and more. Without it, clients will need to pass more configuration flags into `step ca certificate`.
+  The `/provisioners` exposes provisioner configuration and is included for client convenience. It includes JWK encrypted private keys, OIDC client credentials and endpoint URLs, and more. Without it, clients will need to pass more configuration flags into `step ca certificate`.
 
 ### Run A Reverse Proxy
 
