@@ -11,7 +11,7 @@ description: Configure step-ca with an RSA certificate chain to create a root an
 
 ## Instructions
 
-Some legacy applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
+For legacy or compliance reasons, some applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
 
 First, stop your `step-ca` server if it is running.
 
@@ -19,18 +19,50 @@ Next, delete your existing PKI and create RSA root and intermediate certificates
 **This step will overwrite your existing CA.**
 
 ```bash
+cat <<EOF > rsa_root_ca.tpl
+{
+	"subject": {{ toJson .Subject }},
+	"issuer": {{ toJson .Subject }},
+	"keyUsage": ["certSign", "crlSign"],
+	"basicConstraints": {
+		"isCA": true,
+		"maxPathLen": 1
+	}
+	{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+  	, "signatureAlgorithm": "SHA256-RSAPSS"
+	{{- end }}
+}
+EOF
+cat <<EOF > rsa_intermediate_ca.tpl
+{
+	"subject": {{ toJson .Subject }},
+	"issuer": {{ toJson .Subject }},
+	"keyUsage": ["certSign", "crlSign"],
+	"basicConstraints": {
+		"isCA": true,
+		"maxPathLen": 0
+	}
+	{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+  	, "signatureAlgorithm": "SHA256-RSAPSS"
+	{{- end }}
+}
+EOF
 step certificate create "Example Root CA" \
-	$(step path)/certs/root_ca.crt \
-	$(step path)/secrets/root_ca_key \
-	--profile root-ca \
-	--kty RSA
+    $(step path)/certs/root_ca.crt \
+    $(step path)/secrets/root_ca_key \
+    --template rsa_root_ca.tpl \
+    --kty RSA \
+    --not-after 87660h \
+    --size 3072
 step certificate create "Example Intermediate CA" \
-	$(step path)/certs/intermediate_ca.crt \
-	$(step path)/secrets/intermediate_ca_key \
-	--profile intermediate-ca \
-	--ca $(step path)/certs/root_ca.crt \
-	--ca-key $(step path)/secrets/root_ca_key \
-	--kty RSA
+    $(step path)/certs/intermediate_ca.crt \
+    $(step path)/secrets/intermediate_ca_key \
+    --ca $(step path)/certs/root_ca.crt \
+    --ca-key $(step path)/secrets/root_ca_key \
+    --template rsa_intermediate_ca.tpl \
+    --kty RSA \
+    --not-after 87660h \
+    --size 3072
 ```
 
 Change the certificate subject names as desired.
