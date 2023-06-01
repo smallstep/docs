@@ -545,7 +545,7 @@ cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
 })' $(step path)/config/ca.json) > $(step path)/config/ca.json
 ```
 
-`config` options for [type=`vaultcas`]:
+Here are the `config` options for `vaultcas` authorities:
 
 - **pkiMountPath**: the vault mount path for the pki engine you want to use, defaults to `pki`
 
