@@ -536,6 +536,7 @@ cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
                           "pkiRoleEd25519": "ed25519-role",
                           "authType": "approle",
                           "authMountPath": "approle",
+                          "namespace": "custom/vault/enterprise/namespace",
                           "authOptions": {
                                 "roleID": $vault_role_id,                            
                                 "secretID": $vault_secret_id,
@@ -560,6 +561,8 @@ cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
 - **authType**: required. the authentication method used to login to the vault, one of `approle` or `kubernetes`
 
 - **authMountPath**: the vault mount path for the auth method you want to use, if not set the default mount path for that auth type is used (usually the same name as the auth method)
+
+- **namespace**: optional. if using Vault Enterprise, the [namespace](https://developer.hashicorp.com/vault/docs/enterprise/namespaces) to which requests should be scoped. Note: this value will apply to both the `pkiMountPath` and the `authMountPath`, effectively prefixing them
 
 - **authOptions**: required. a set of options specific to the selected auth method type
 
