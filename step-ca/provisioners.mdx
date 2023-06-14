@@ -672,9 +672,16 @@ Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted
 ### X5C - X.509 Certificate
 
 With the X5C provisioner, a client can authenticate a certificate request
-using an existing X.509 certificate. Configure this provisioner with a root
-CA certificate, and any certificate bundle that chains up to that root can
-be used in a certificate request.
+using an existing X.509 certificate from a different CA.
+It allows clients to use a different PKI to bootstrap trust.
+Configure this provisioner with a root CA certificate, and any certificate that chains up to that root can be used in a certificate request.
+
+<Alert severity="warning">
+  <div>
+	<p><b>May I configure my CA's X5C provisioner accept its own root?</b></p>
+    <p>We do not recommend it, because it will allow any user with a valid certificate from your PKI to get any kind of certificate. Configure X5C with the root of a more restricted CA, to ensure only specific people or machines can use the provisioner.</p>
+	</div>
+</Alert>
 
 - Clients may request an X.509 or SSH certificate
 - Clients must provide an X.509 certificate bundle whose root is trusted by the provisioner
