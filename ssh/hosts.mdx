@@ -10,16 +10,11 @@ description: Smallstep SSH Host Quickstart | Smallstep Documentation
 * You'll need the **enrollment token** you received upon signup.
 * We support `amd64` and `arm64` architectures
 * We support the following host platforms:
-  * RHEL 8
-  * CentOS 8
-  * CentOS 7
+  * RHEL 8 or greater
+  * CentOS 7 or greater
+  * Ubuntu 16.04 LTS or greater
+  * Debian 8 or greater
   * Amazon Linux 2
-  * Ubuntu 20.04 LTS (Focal)
-  * Ubuntu 18.04 LTS (Bionic)
-  * Ubuntu 16.04 LTS (Xenial)
-  * Debian 10 (Buster)
-  * Debian 9 (Stretch)
-  * Debian 8 (Jessie)
 * Running this quickstart will modify config files related to `systemd`, PAM, NSS, and SSHD:
   * We add `step-ssh-renew` and `step-ssh-metadata` services to `systemd`:
     * `step-ssh-renew` rotates the SSH host certificate every eight hours.
