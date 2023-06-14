@@ -520,7 +520,7 @@ Run:
 
 ```bash
 VAULT_URI=http://127.0.0.1:8200
-VAULT_CA_FINGERPRINT=$(step certificate fingerprint root_ca.crt)
+VAULT_CA_FINGERPRINT=$(step certificate fingerprint `step path`/certs/root_ca.crt)
 cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
             --arg vault_secret_id "$VAULT_SECRET_ID" \
             --arg vault_uri "$VAULT_URI" \
@@ -546,7 +546,7 @@ cat <<< $(jq --arg vault_role_id "$VAULT_ROLE_ID" \
 })' $(step path)/config/ca.json) > $(step path)/config/ca.json
 ```
 
-`config` options for [type=`vaultcas`]:
+Here are the `config` options for `vaultcas` authorities:
 
 - **pkiMountPath**: the vault mount path for the pki engine you want to use, defaults to `pki`
 
