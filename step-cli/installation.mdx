@@ -61,10 +61,17 @@ There is a community-maintained [`step-cli` package](https://archlinux.org/packa
 Use [pacman](https://www.archlinux.org/pacman/) to install `step`:
 
 ```shell
-pacman -S step-cli
+sudo pacman -S step-cli
 ```
 
-To uninstall, run `pacman -R step-cli` and remove the `$HOME/.step` configuration directory.
+The Arch package installs `step` as `step-cli`.
+Add a symlink to address this:
+
+```shell
+sudo ln -s /usr/bin/step-cli /usr/local/bin/step
+```
+
+To uninstall, run `sudo pacman -R step-cli` and remove the `$HOME/.step` configuration directory.
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
