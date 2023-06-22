@@ -6,7 +6,17 @@ description: Configure step-ca with an RSA certificate chain to create a root an
 
 ## Introduction
 
-For legacy and compliance reasons, some applications require a certificate chain that uses RSA keys, but  `step ca init` creates a PKI that uses ECDSA keys by default. In this tutorial, you will replace the default ECDSA chain with an RSA chain.
+The `step ca init` command creates a PKI with ECDSA CA keys.
+However, for legacy and compliance reasons,
+some applications require a CA chain that uses RSA keys.
+In this tutorial, you will replace the default ECDSA CA certificates with an RSA chain.
+
+Note that the `step-ca` server will alway issue an ECDSA P-256 key
+for its own internal TLS leaf certificate—
+even if you have an RSA intermediate and root.
+However, the CA can sign leaf certificates
+using RSA, ECDSA, or Ed25519 key types,
+regardless of the key types of the root and intermediate CA.
 
 This tutorial uses RSA-PSS and SHA256 for the signature algorithm. RSA-PSS appeared in 2003 in [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447). Both [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447) and the updated [RFC 8017](https://www.rfc-editor.org/rfc/rfc8017) recommend RSA-PSS (aka RSASSA-PSS) over RSA PKCS#1 v1.5. RSA-PSS has a security proof and is (in theory) more robust than RSA PKCS #1 v1.5. Nevertheless, PKCS #1 v1.5 has no known security weaknesses as of May 2023.
 
@@ -25,30 +35,30 @@ Next, delete your existing PKI and create RSA root and intermediate certificates
 ```bash
 cat <<EOF > rsa_root_ca.tpl
 {
-	"subject": {{ toJson .Subject }},
-	"issuer": {{ toJson .Subject }},
-	"keyUsage": ["certSign", "crlSign"],
-	"basicConstraints": {
-		"isCA": true,
-		"maxPathLen": 1
-	}
-	{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
-  	, "signatureAlgorithm": "SHA256-RSAPSS"
-	{{- end }}
+  "subject": {{ toJson .Subject }},
+  "issuer": {{ toJson .Subject }},
+  "keyUsage": ["certSign", "crlSign"],
+  "basicConstraints": {
+    "isCA": true,
+    "maxPathLen": 1
+  }
+  {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+    , "signatureAlgorithm": "SHA256-RSAPSS"
+  {{- end }}
 }
 EOF
 cat <<EOF > rsa_intermediate_ca.tpl
 {
-	"subject": {{ toJson .Subject }},
-	"issuer": {{ toJson .Subject }},
-	"keyUsage": ["certSign", "crlSign"],
-	"basicConstraints": {
-		"isCA": true,
-		"maxPathLen": 0
-	}
-	{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
-  	, "signatureAlgorithm": "SHA256-RSAPSS"
-	{{- end }}
+  "subject": {{ toJson .Subject }},
+  "issuer": {{ toJson .Subject }},
+  "keyUsage": ["certSign", "crlSign"],
+  "basicConstraints": {
+    "isCA": true,
+    "maxPathLen": 0
+  }
+  {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+    , "signatureAlgorithm": "SHA256-RSAPSS"
+  {{- end }}
 }
 EOF
 step certificate create "Example Root CA" \
@@ -74,3 +84,24 @@ You'll be prompted to supply a password to encrypt your private keys.
 
 You can now restart `step-ca` server.
 
+## Optional: Restricting issuance to RSA
+
+By default, the CA will sign certificate requests for RSA, ECDSA, or Ed25519 keys.
+You may want to restrict the CA to issuing RSA leaf certificates only.
+
+Create a [CA template](../step-ca/templates.mdx) called `rsa.tpl`:
+
+```
+{
+  "subject": {{ toJson .Subject }},
+  "sans": {{ toJson .SANs }},
+{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+  "keyUsage": ["dataEncipherment", "digitalSignature"],
+{{- else }}
+  {{ fail "Key type must be RSA. Try again with --kty=RSA" }}
+{{- end }}
+  "extKeyUsage": ["serverAuth", "clientAuth"]
+}
+```
+
+Finally, [configure `step-ca` to use the template](https://smallstep.com/docs/step-ca/templates/#configuring-step-ca-to-use-templates).
