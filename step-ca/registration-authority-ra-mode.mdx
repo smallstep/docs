@@ -476,7 +476,8 @@ vault policy write smallstep policy.hcl
 ```
 
 In this example, Vault will sign certificates of all three key types for the RA server: EC, RSA, and Ed25519.
-Please limit this policy if your PKI will only use a subset of these key types.
+EC must always be enabled, because it's required for `step-ca`'s internal TLS certificate.
+However, if your PKI will not use RSA or Ed25519, please restrict your Vault policy to the key types you will use.
 Vault's [Policy documentation](https://www.vaultproject.io/docs/concepts/policies) describes the policy langauge used by Vault.
 
 #### 4. Enable Vault authentication for your RA.
