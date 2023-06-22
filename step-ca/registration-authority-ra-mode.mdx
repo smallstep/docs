@@ -176,7 +176,7 @@ Finally, use `--issuer-password-file` to provide a private key password file whe
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
-* [`step ca renew`](../step-cli/reference/ca/renew) typically uses mutual TLS authentication, but with a StepCAS RA it must use X5C authentication. Pass `--mtls=false` to [`step ca renew`](../step-cli/reference/ca/renew) when working with RAs.
+* [`step ca renew`](../step-cli/reference/ca/renew) typically uses mutual TLS authentication, but with a StepCAS RA it must use X5C authentication. Pass `--mtls=false` to [`step ca renew`](../step-cli/reference/ca/renew) when working with RAs. Vault RA mode does not support renewal.
 * [`step ca rekey`](../step-cli/reference/ca/rekey) is not supported.
 * SSH is not supported.
 * ACME load balancing across StepCAS RAs is not officially supported, but it may work just fine if you use a shared `mysql` or `postgresql` database for your RAs.
@@ -338,6 +338,10 @@ From the [Vault Documentation](https://www.vaultproject.io/docs/secrets/pki):
 
 In this tutorial, we'll create a PKI and a Certificate Authority in Vault.
 Then we'll configure `step-ca`'s RA mode to use Vault to sign certificates.
+
+### Limitations
+
+Hashicorp Vault RA mode does not support certificate renewal.
 
 ### Requirements
 
