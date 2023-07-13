@@ -101,7 +101,7 @@ Here are some common variables available in X.509 certificate template:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
   this is the certificate used to authorize the current certificate request with the CA.
   The client has proven posession of this certificate's private key.
-  The `.AuthorizationCrt` will have the following properties: `Nonce`, `Serial`, `Type`, `KeyID`, `Principals`, `ValidBefore`, `ValidAfter`, `CriticalOptions`, `Extensions`, and `Reserved` (See [the Certificate struct shown here](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16)).
+  The `.AuthorizationCrt` will have the following properties (a.o.): `Subject`, `Subject.CommonName`, `SerialNumber`, `DNSNames`, `EmailAddresses`, `IPAddresses`, `URIs`, `SANs` and `Extensions` (See [the Certificate struct shown here](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16)).
 
 - **.AuthorizationChain**:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
