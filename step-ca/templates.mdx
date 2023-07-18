@@ -69,6 +69,10 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
 }
 ```
 
+### X.509 Template Fields
+
+The fields in an X.509 template map to [X.509 v3 certificate fields](https://datatracker.ietf.org/doc/html/rfc5280). See [the complete list of fields supported in `step-ca` templates](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16).
+
 ### X.509 Template Variables
 
 <Alert severity="info" id="star11">
@@ -81,7 +85,8 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
   </div>
 </Alert>
 
-Here are some common variables available in X.509 certificate template:
+Here are some common variables available in X.509 certificate templates:
+
 - **.Subject**:
   This is the subject that was passed in to `step certificate` or `step ca certificate`. Specifically,
   `.Subject.CommonName` contains the Common Name for the certificate.
@@ -270,8 +275,11 @@ Here is `step-ca`'s default [SSH certificate template](https://github.com/smalls
 }
 ```
 
-The [OpenSSH certificate protocol spec](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys) defines the available Critical Options and Extensions.
+### SSH Template Fields
+
+The [OpenSSH certificate protocol spec](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys) defines SSH certificate fields and the available Critical Options and Extensions.
 Third parties can also add custom extensions.
+See [the complete list of fields supported by `step-ca` SSH template](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16).
 
 ### SSH Template Variables
 
