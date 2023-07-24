@@ -632,13 +632,13 @@ Hello TLS!
 
 ### Certify The Web
 
-Certify The Web is a popular ACME Certificate Manager for Windows. It provides a full UI for managing thousands of certificates and supports a wide range of built in deployment tasks (to key vaults etc) plus many DNS API providers. Commercial licensing and support is also available.
+Certify The Web is a popular ACME Certificate Manager for Windows. It provides a full UI for managing thousands of certificates, supports a wide range of built in deployment tasks and integrates with many DNS API providers. Commercial licensing and support is also available.
 
 To use with `step-ca`:
-- Add your CA root certificate to *Local Machine > Trusted Certificate Authorities* and your CA intermediate to *Local Machine > Interemediate Certification Authorities*. This will make your endpoint certificate (and the other ACME certificates you issue from your CA) trusted on this machine.
+- Add your CA root certificate to *Local Machine > Trusted Certificate Authorities* and your CA intermediate to *Local Machine > Intermediate Certification Authorities*. This will make your endpoint certificate (and the other ACME certificates you issue from your CA) trusted on this machine.
 - Add your `step-ca` instance details as a new Certificate Authority under *Settings > Certificate Authorities*. You can set the Production and Staging API urls either to the same directory endpoint or point them to different instances if you are operating a split staging and production configuration.
-- Add a CA account against your new CA under *Settings > Certificate Authorities > New Account*, selecting your new CA from the list.
-- Select *New Certificate* to begin ordering a new certicate from your CA, make sure to set your CA preference under Certificate > Advanced > Certificate Authority (or you can set this as a global setting). You can use HTTP or DNS validation. Select *Request Certificate* to perform your certificate order. Subsequent renewals are automatic.
-- By default the certificate will be added to the local machine certificate store, it can also be automatically deployed to IIS sites on the same machine, or you can use [Deployment Tasks](https://docs.certifytheweb.com/docs/deployment/tasks_intro) to push certificates to secrets vaults or to remote machines via SFTP (windows or linux etc) or to UNC shares etc.
+- Add a CA account for your new CA under *Settings > Certificate Authorities > New Account*, selecting your new CA from the list.
+- Select *New Certificate* to begin ordering a new certicate from your CA. Make sure to set your CA preference under Certificate > Advanced > Certificate Authority (or you can set this as a global setting). You can use HTTP or DNS validation. Select *Request Certificate* to perform your certificate order. Subsequent renewals are automatic.
+- By default the certificate will be added to the local machine certificate store. It can also be automatically deployed to IIS sites on the same machine, or you can use [Deployment Tasks](https://docs.certifytheweb.com/docs/deployment/tasks_intro) to push certificates to secrets vaults or to remote machines via SFTP (windows or linux etc) or to UNC shares etc.
 
 [Certify The Web]:https://certifytheweb.com
