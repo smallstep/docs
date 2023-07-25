@@ -26,7 +26,6 @@ Issues and pull requests are welcome!
 - Use [semantic linefeeds](https://rhodesmill.org/brandon/2012/one-sentence-per-line/) when possible.
 - Follow the conventions outlined in Google's [Technical Writing](https://developers.google.com/tech-writing/one) classes.
 - Further reading:
-  - [Writing Tools I Learned from The Economist](https://www.solimanwrites.com/writing-tools-i-learned-from-the-economist-2/)
   - [Common Bugs in Writing](https://www.cs.columbia.edu/~hgs/etc/writing-bugs.html)
 
 ## Updating the `step` CLI reference docs
