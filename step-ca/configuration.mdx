@@ -488,7 +488,7 @@ An example database configuration that enables TLS server hostname verification 
 },
 ```
 
-The database driver looks in `$HOME/.postgresql/root.crt` for a PEM bundle of root CAs to trust. When that file is not found, it uses the system CA trust store.
+The database driver looks in `$HOME/.postgresql/root.crt` for a PEM bundle of root CAs to trust. When that file is not found, it uses the system's default trust store.
 Similarly, `$HOME/.postgresql/postgresql.crt` and the corresponding `$HOME/.postgresql/postgresql.key` is used for mutual TLS authentication if these files exist, and if the PostgreSQL server requests a client certificate.
 You can override the locations for these files by providing them in the DSN:
 

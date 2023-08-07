@@ -13,7 +13,7 @@ description: The `step` Command
 ## Environment variables
 - `STEPPATH` The path where `step` stores configuration and state. This directory also holds `step-ca` state created with [`step ca init`](./reference/ca/init), including CA configuration, keys, certificates, and templates. Defaults to `$HOME/.step`.
 - `STEPDEBUG` When set to `1`, `step` will provide extra diagnostic information for debugging. This variable can also be used with `step-ca`.
-- `HTTPS_PROXY` and `NO_PROXY` Configure proxies for outbound HTTPS traffic. See [net/http.ProxyFromEnvironment](https://golang.org/pkg/net/http/#ProxyFromEnvironment) documentation for details. Note that the system trust store is _not_ trusted by `step` for the TLS handshake with the proxy server.
+- `HTTPS_PROXY` and `NO_PROXY` Configure proxies for outbound HTTPS traffic. See [net/http.ProxyFromEnvironment](https://golang.org/pkg/net/http/#ProxyFromEnvironment) documentation for details. Note that the system's default trust store is _not_ trusted by `step` for the TLS handshake with the proxy server.
   - The proxy server will need to be configured to trust the CA.
   - Only `HTTPS_PROXY` is needed; `step`'s outbound connections are all HTTPS.
   - Add a `--root` or `STEP_ROOT` These files contain both the step CA certificate, and the proxy CA certificate will be trusted by step.

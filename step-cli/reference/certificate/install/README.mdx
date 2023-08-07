@@ -8,7 +8,7 @@ menu:
 ---
 
 ## Name
-**step certificate install** -- install a root certificate in the system truststore
+**step certificate install** -- install a root certificate in the supported trust stores
 
 ## Usage
 
@@ -20,21 +20,20 @@ step certificate install <crt-file>
 
 ## Description
 
-**step certificate install** installs a root certificate in the system
-truststore.
+**step certificate install** installs a root certificate in supported trust stores.
 
-Java and Firefox truststores are also supported via the respective flags.
+Java's and Firefox's trust stores are also supported via the respective flags.
 
 ## Positional arguments
 
 `crt-file`
-Certificate to install in the system truststore
+Root certificate to install in the specified trust stores.
 
 ## Options
 
 
 **--prefix**=`name`
-The prefix used to `name` the CA in the truststore. Defaults to the
+The prefix used to `name` the CA in the trust store. Defaults to the
 certificate common name.
 
 **--java**
@@ -44,34 +43,34 @@ install on the Java key store
 install on the Firefox NSS security database
 
 **--no-system**
-disables the install on the system truststore
+disables the install on the system's default trust store
 
 **--all**
-install on the system, Firefox and Java truststores
+install in Firefox's, Java's, and the system's default trust store
 
 ## Examples
 
-Install a certificate in the system truststore:
+Install a root certificate in the system's default trust store:
 ```shell
 $ step certificate install root-ca.pem
 ```
 
-Install a certificate in all the supported truststores:
+Install a root certificate in all the supported trust stores:
 ```shell
 $ step certificate install --all root-ca.pem
 ```
 
-Install a certificate in Firefox and the system truststore:
+Install a root certificate in Firefox's and the system's default trust store:
 ```shell
 $ step certificate install --firefox root--ca.pem
 ```
 
-Install a certificate in Java and the system truststore:
+Install a root certificate in Java's and the system's default trust store:
 ```shell
 $ step certificate install --java root-ca.pem
 ```
 
-Install a certificate in Firefox, Java, but not in the system truststore:
+Install a root certificate in Firefox's and Java's trust store, but not in the system's default trust store:
 ```shell
 $ step certificate install --firefox --java --no-system root-ca.pem
 ```

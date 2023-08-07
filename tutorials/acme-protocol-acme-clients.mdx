@@ -82,7 +82,7 @@ Once your root certificate is installed, no additional client configuration is n
 
 <Alert severity="warning">
   <AlertTitle>A Word of Caution</AlertTitle>
-  Adding a root certificate to your system’s trust store is a global operation. Certificates issued by your CA will be trusted everywhere, including in many web browsers.
+  Adding a root certificate to your system’s default trust store is a global operation. Certificates issued by your CA will be trusted everywhere, including in many web browsers.
 </Alert>
 
 
@@ -544,7 +544,7 @@ Hello, mike@smallstep.com!`}
 
 It's easy to get a certificate from `step-ca` in Traefik v2, using the `tls-alpn-01` ACME challenge type.
 
-Most importantly, Traefik will need to trust your root CA certificate. Either use the `LEGO_CA_CERTIFICATES` environment variable to provide the full path to your `root_ca.crt` when running `traefik`, or install your root certificate in your system's trust store by running `step certificate install root_ca.crt`.
+Most importantly, Traefik will need to trust your root CA certificate. Either use the `LEGO_CA_CERTIFICATES` environment variable to provide the full path to your `root_ca.crt` when running `traefik`, or install your root certificate in your system's default trust store by running `step certificate install root_ca.crt`.
 
 In your Traefik static configuration, you'll need to add a `certificatesResolvers` block:
 
