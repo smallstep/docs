@@ -121,7 +121,7 @@ This command downloads the root CA certificate and writes CA connection details 
 	</div>
 </Alert>
 
-You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`](../step-cli/reference/certificate/install) command to install your root CA certificate into your system's trust store:
+You may also wish to establish system-wide trust of your CA, so your certificates will be trusted by `curl` and other programs. Use the [`step certificate install`](../step-cli/reference/certificate/install) command to install your root CA certificate into your system's default trust store:
 
 ```shell-session
 $ step certificate install $(step path)/certs/root_ca.crt
@@ -194,7 +194,7 @@ First, try making a curl request to the example server. In a new terminal, run:
 $ curl https://localhost:9443/hi
 ```
 
-If you already ran [`step certificate install`](../step-cli/reference/certificate/install) to install your root CA into your system's trust store, this command works and you'll see "Hello, World!".
+If you already ran [`step certificate install`](../step-cli/reference/certificate/install) to install your root CA into your system's default trust store, this command works and you'll see "Hello, World!".
 
 If not, you'll see this error:
 

@@ -81,7 +81,7 @@ $ step certificate verify example.com.crt --roots root_ca.crt
 To get TLS working from here, you'll need to do two things:
 <ul>
 <li>Install the leaf certificate bundle <Code>example.com-bundle.crt</Code> into your server configuration</li>
-<li>Get all of your clients to trust the <Code>root_ca.crt</Code> certificate. You can install the certificate into the system trust store by running <Code>step certificate install root_ca.crt</Code></li>
+<li>Get all of your clients to trust the <Code>root_ca.crt</Code> certificate. You can install the certificate into the system's default trust store by running <Code>step certificate install root_ca.crt</Code></li>
 </ul>
 </Aside>
 
