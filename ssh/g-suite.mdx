@@ -68,10 +68,13 @@ The following provisioning features are supported:
 
 ### Step 3. Set up API Client Access
 
-1. In Google Admin, visit [Domain-wide Delegation](https://admin.google.com/ac/owl/domainwidedelegation).
+In Google Admin, you'll need to do a [Domain-wide Delegation](https://support.google.com/a/answer/162106).
+
+1. From the Google Admin console, go to **Security > Access and data control > API controls**.
+2. In the Domain wide delegation pane, select **Manage Domain Wide Delegation**.
 3. Under API clients, choose **Add new**.
-4. For **Client ID**, fill in the Client ID (a 21-digit number) given to you by smallstep.
-5. For **OAuth Scopes**, enter the comma-delimited API Scopes given to you by smallstep.
+4. For **Client ID**, fill in the Client ID (a 21-digit number) given to you by Smallstep.
+5. For **OAuth Scopes**, enter the comma-delimited API Scopes given to you by Smallstep.
 6. Choose **Authorize**.
 
 When you're finished, the Manage API Client Access screen page should resemble this:
