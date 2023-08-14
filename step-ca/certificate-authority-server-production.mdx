@@ -448,56 +448,73 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
 
 ## High Availability
 
-<Alert severity="warning">
-  <div> 
-    <Code>step-ca</Code> is built to scale horizontally. However, the creators
-    and maintainers do not regularly test in an HA environment using multiple
-    instances. You may run into issues we did not plan for. If this happens, please
-    <a href="https://github.com/smallstep/certificates/issues"> open an issue</a>.
-  </div>
-</Alert>
+Whether your goal is load balancing or high availability, `step-ca` is built to scale horizontally.
+Our [Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates) is a popular approach for HA deployments in Kubernetes.
 
-A few things to consider / implement when running multiple instances of `step-ca`:
+A few things to consider when running multiple concurrent instances of `step-ca`:
 
-- **Use a MySQL database.** The default Badger database has no concurrency support.
-  The only integrated DB that can support multiple instances is MySQL.
-  See the [database documentation][db-ref] to learn how to configure `step-ca` for MySQL.
+- **Use a MySQL or Postgres database.** The default Badger database has no concurrency support.
+  Our MySQL and Postgres drivers support multiple instances.
+  See our [database documentation][db-ref].
 - **Respect concurrency limits.** The ACME server has known concurrency limitations when using the same account to
   manage multiple orders. The recommended temporary workaround is to generate
   an ephemeral account keypair for each new ACME order, or to ensure that ACME
   orders owned by the same account are managed serially. The issue tracking
   this limitation can be found [here](https://github.com/smallstep/certificates/issues/341).
+- **Enable [remote provisioner management](./provisioners.mdx#remote-provisioner-management).*** With remote provisoiner management, your provisioner configuration is stored in the database and can be shared by all `step-ca` instances.
 - **Synchronize `ca.json` across instances.** `step-ca` reads all of it's
   configuration (and all of the provisioner configuration) from the `ca.json` file
-  specified on the command line. If the `ca.json` of one instance is modified
-  (either manually or using a command like `step ca provisioner (add | remove)`)
+  specified on the command line. If the `ca.json` of one instance is modified,
   the other instances will not pick up on this change until the `ca.json` is
   copied over to the correct location for each instance and the instance is 
-  sent `SIGHUP` or restarted. It's recommended to use a configuration management
-  tool (ansible, chef, salt, puppet, etc.) to synchronize `ca.json` across instances.
+  sent `SIGHUP` or restarted. Use a configuration management
+  tool like Ansible or Puppet to synchronize `ca.json` across instances.
 
 [db-ref]: ./configuration.mdx#databases
 
-## Load balancing or proxying `step-ca` traffic
+## Proxying `step-ca` traffic
 
-If you need to place a load balancer or reverse proxy downstream from the CA, we recommend using layer 4 (TCP)
-load balancing or proxying (aka "TLS passthrough").
+You can reverse proxy `step-ca` traffic, using either a layer 4 (network or "TLS passthrough") or layer 7 (application) proxy server.
 
-We also recommend enabling [remote provisioner management](./provisioners.mdx#remote-provisioner-management) so that your provisioner configuration can be shared by all `step-ca` instances.
-
-Layer 7 proxying is _not recommended_, becase the `step` toolchain is built around TLS:
+There's a few things you should know before you deploy this setup:
 - `step` expects to be able to perform a TLS handshake with `step-ca`, using the CA's root certificate
-  to complete the trust chain.
-- Certificate renewal uses mutual TLS by default.
-  `step-ca` authenticates the client using the expiring certificate, in order to issue a new one.
-  Mutual TLS requires a direct, end-to-end TLS handshake between `step` and `step-ca`.
+  to complete the trust chain. For application-layer proxying, your proxy should request a leaf certificate from `step-ca` that it will use with `step-ca` traffic.
+- Certificate renewal via `step ca renew` uses mutual TLS authentication by default.
+  Mutual TLS is incompatible with application-layer reverse proxying.
+  When proxying traffic, pass `--mtls false` to `step ca renew`
+  (or set `STEP_MTLS` to `false`).
+  This will trigger an alternative renewal flow that employs authentication tokens.
   (See `step ca renew --help` for more details.)
 - By design, `step-ca` does not have an option to run in HTTP only.
-  Philosophically, we value perimeterless security and we believe people should use authenticated encryption (e.g. mutual TLS) everywhere.
-  Making mTLS easy, and helping people get away from the "perimeter security" anti-pattern, are motivating goals behind the project.
+  Philosophically, we value perimeterless security
+  and we believe people should use encryption everywhere.
+  Your proxy server should be configured to trust the `step-ca` root, to establish a verified TLS connection with your CA.
+  Our design decision to require TLS in `step-ca` is detailed in [certificates#246](https://github.com/smallstep/certificates/issues/246).
 
-  That said, lots of folks have legacy issues to contend with, some of these decisions are out of their control, and every threat model is different.
-  See [certificates#246](https://github.com/smallstep/certificates/issues/246) for more details.
+Here's an example of a Caddy reverse proxy configuration that uses ACME to get a leaf certificate from `step-ca`, for use with client connections into the proxy:
+
+```
+https://tinyca.lab.step.toys {
+  # Frontend TLS connection configuration
+  tls {
+    # Configure Caddy's internal ACME client
+    issuer acme {
+      dir https://127.0.0.1:4443/acme/acme/directory
+      email carl@smallstep.com
+      trusted_roots /etc/caddy/root_ca.crt
+      disable_tlsalpn_challenge
+    }
+  }
+  # Backend TLS connection to step-ca
+  reverse_proxy https://127.0.0.1:4443 {
+    transport http {
+      # This allows the proxy to complete a trust
+      # chain by trusting step-ca's root.
+      tls_trusted_ca_certs /etc/caddy/root_ca.crt
+    }
+  }
+}
+```
 
 ### Further Reading
 

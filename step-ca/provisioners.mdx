@@ -644,7 +644,7 @@ $ STEP_CONSOLE_FLOW=oob step ca certificate foo foo.crt foo.key --console
     <b>Why is the OAuth client secret unprotected?</b>
 
 When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
-Counterintuitively, this a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+Counterintuitively, this is a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
 And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
 So, what makes it secure?
