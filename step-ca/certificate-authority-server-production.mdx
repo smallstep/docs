@@ -483,8 +483,6 @@ There's a few things you should know before you deploy this setup:
   So, for inbound TLS connections,
   the proxy should use a server certificate issued by `step-ca`.
   See below for an example.
-  Note: It is possible to [proxy `step-ca` traffic using a Web PKI server certificate](https://github.com/smallstep/certificates/discussions/1017).
-  This approach is not recommended and is not future-proof.
 - Certificate renewal via `step ca renew` uses mutual TLS authentication by default.
   Mutual TLS is incompatible with application-layer reverse proxying.
   When proxying traffic, pass `--mtls false` to `step ca renew`
