@@ -24,7 +24,7 @@ safely and securely in a production environment.
 - [Operational Concerns](#operational-concerns)
   - [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon)
   - [High Availability](#high-availability)
-  - [Load balancing or proxying `step-ca` traffic](#load-balancing-or-proxying-step-ca-traffic)
+  - [Proxying `step-ca` traffic](#proxying-step-ca-traffic)
   - [Exposing `step-ca` to the internet](#exposing-step-ca-to-the-internet)
 - [Certificate Lifecycle Management](#certificate-lifecycle-management)
   - [Automate Certificate Renewal](#automate-x509-certificate-lifecycle-management)
@@ -450,6 +450,7 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
 
 Whether your goal is load balancing or high availability, `step-ca` is built to scale horizontally.
 Our [Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates) is a popular approach for HA deployments in Kubernetes.
+We also have community-contributed [Ansible, Salt, and Puppet examples](https://github.com/smallstep/certificates/discussions/765) for `step-ca` deployments.
 
 A few things to consider when running multiple concurrent instances of `step-ca`:
 
@@ -477,8 +478,13 @@ A few things to consider when running multiple concurrent instances of `step-ca`
 You can reverse proxy `step-ca` traffic, using either a layer 4 (network or "TLS passthrough") or layer 7 (application) proxy server.
 
 There's a few things you should know before you deploy this setup:
-- `step` expects to be able to perform a TLS handshake with `step-ca`, using the CA's root certificate
-  to complete the trust chain. For application-layer proxying, your proxy should request a leaf certificate from `step-ca` that it will use with `step-ca` traffic.
+- `step` will expect to be able to perform a TLS handshake with the proxy,
+  and use the CA's root certificate to complete the trust chain.
+  So, for inbound TLS connections,
+  the proxy should use a server certificate issued by `step-ca`.
+  See below for an example.
+  Note: It is possible to [proxy `step-ca` traffic using a Web PKI server certificate](https://github.com/smallstep/certificates/discussions/1017).
+  This approach is not recommended and is not future-proof.
 - Certificate renewal via `step ca renew` uses mutual TLS authentication by default.
   Mutual TLS is incompatible with application-layer reverse proxying.
   When proxying traffic, pass `--mtls false` to `step ca renew`
@@ -491,13 +497,14 @@ There's a few things you should know before you deploy this setup:
   Your proxy server should be configured to trust the `step-ca` root, to establish a verified TLS connection with your CA.
   Our design decision to require TLS in `step-ca` is detailed in [certificates#246](https://github.com/smallstep/certificates/issues/246).
 
-Here's an example of a Caddy reverse proxy configuration that uses ACME to get a leaf certificate from `step-ca`, for use with client connections into the proxy:
+Here's an example of a [Caddy](https://caddyserver.com/) reverse proxy configuration that uses ACME to get a server certificate from `step-ca`, for use with inbound connections to the proxy. In this setup, `step-ca` runs on the same machine as Caddy, on localhost:4443.
 
 ```
-https://tinyca.lab.step.toys {
-  # Frontend TLS connection configuration
+https://ca.example.com {
+  # Inbound TLS connection configuration
   tls {
     # Configure Caddy's internal ACME client
+    # to get a server certificate from `step-ca`
     issuer acme {
       dir https://127.0.0.1:4443/acme/acme/directory
       email carl@smallstep.com
