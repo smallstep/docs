@@ -479,16 +479,17 @@ You can reverse proxy `step-ca` traffic, using either a layer 4 (network or "TLS
 There's a few things you should know before you deploy this setup:
 - `step` expects to be able to perform a TLS handshake with `step-ca`, using the CA's root certificate
   to complete the trust chain. For application-layer proxying, your proxy should request a leaf certificate from `step-ca` that it will use with `step-ca` traffic.
-- Certificate renewal via `step ca renew` uses mutual TLS by default.
-  Becayse mutual TLS requires a direct, end-to-end TLS handshake between `step` and `step-ca`.
-  application-layer proxying is incompatible with mutual TLS.
-  Therefore, you'll need to pass `--mtls false` to `step ca renew`.
+- Certificate renewal via `step ca renew` uses mutual TLS authentication by default.
+  Mutual TLS is incompatible with application-layer reverse proxying.
+  When proxying traffic, pass `--mtls false` to `step ca renew`
+  (or set `STEP_MTLS` to `false`).
   This will trigger an alternative renewal flow that employs authentication tokens.
   (See `step ca renew --help` for more details.)
 - By design, `step-ca` does not have an option to run in HTTP only.
-  Philosophically, we value perimeterless security and we believe people should use authenticated encryption (e.g. mutual TLS) everywhere.
-  Your proxy server should be configured to trust the step-ca root, to establish a verified TLS connection with the CA.
-  Our design decision to require TLS in step-ca is detailed in [certificates#246](https://github.com/smallstep/certificates/issues/246).
+  Philosophically, we value perimeterless security
+  and we believe people should use encryption everywhere.
+  Your proxy server should be configured to trust the `step-ca` root, to establish a verified TLS connection with your CA.
+  Our design decision to require TLS in `step-ca` is detailed in [certificates#246](https://github.com/smallstep/certificates/issues/246).
 
 Here's an example of a Caddy reverse proxy configuration that uses ACME to get a leaf certificate from `step-ca`, for use with client connections into the proxy:
 
