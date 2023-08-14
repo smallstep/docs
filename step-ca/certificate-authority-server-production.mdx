@@ -497,7 +497,7 @@ There's a few things you should know before you deploy this setup:
   Your proxy server should be configured to trust the `step-ca` root, to establish a verified TLS connection with your CA.
   Our design decision to require TLS in `step-ca` is detailed in [certificates#246](https://github.com/smallstep/certificates/issues/246).
 
-Here's an example of a [Caddy](https://caddyserver.com/) reverse proxy configuration that uses ACME to get a leaf certificate from `step-ca`, for use with client connections into the proxy. In this setup, `step-ca` runs on the same machine, on localhost port 4443.
+Here's an example of a [Caddy](https://caddyserver.com/) reverse proxy configuration that uses ACME to get a server certificate from `step-ca`, for use with inbound connections to the proxy. In this setup, `step-ca` runs on the same machine, on localhost port 4443.
 
 ```
 https://ca.example.com {
