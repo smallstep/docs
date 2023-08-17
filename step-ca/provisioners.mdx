@@ -482,7 +482,7 @@ To remove this key:
 
 Sometimes it's useful to issue certificates to people.
 So `step-ca` supports single sign-on with identity providers (IdPs) like Google, Okta, Azure Active Directory, Keycloak, 
-or any other provider that supports OAuth's [OpenID Connect extension](https://openid.net/connect/)..
+or any other provider that supports OAuth's [OpenID Connect extension](https://openid.net/connect/).
 
 OpenID Connect is an extension to OAuth 2.0 that adds an identity layer.
 Providers that support OIDC can issue identity tokens ("ID tokens") to OAuth clients.
@@ -621,9 +621,11 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 #### Browserless Console Mode
 
-Sometimes it's helpful to use OAuth in an input-constrained environment where a web browser is not available.
-The Device Authorization Grant flow is an OAuth 2.0 extension designed for this scenario.
-The `step-ca` OIDC provisioner supports the Device Authorization Grant flow.
+For OpenID Connect, by default, `step` opens a web browser to run the Authorization Code flow with PKCE.
+
+Sometimes it's helpful to use OAuth in an input-constrained environment where no web browser is available.
+The Device Authorization Grant flow (aka "Device Flow") is an OAuth 2.0 extension designed for this scenario.
+The `step` client supports the Device Authorization Grant flow.
 
 To use the Device Authorization Grant flow for input-constrained devices, run:
 
@@ -631,11 +633,10 @@ To use the Device Authorization Grant flow for input-constrained devices, run:
 $ step ca certificate foo foo.crt foo.key --console
 ```
 
-To specify a flow other than the default (for example Google's deprecated Out of Band flow), run:
+or
 
 ```shell-session
-$ STEP_CONSOLE_FLOW=oob step ca certificate foo foo.crt foo.key --console
-```
+$ STEP_CONSOLE=true step ssh certificate carl carl.crt
 
 #### Notes
 
@@ -972,6 +973,7 @@ step ca provisioner add acme-da \
 In your Apple MDM profile, you will need:
 * A [`CertificateRoot`](https://developer.apple.com/documentation/devicemanagement/certificateroot) payload, containing your root CA certificate PEM block, so that it's trusted by the device. 
 * An [`ACMECertificate`](https://developer.apple.com/documentation/devicemanagement/acmecertificate) payload. For this one, set the `ClientIdentifier` to the UDID or serial number of the device. 
+* Set `HardwareBound` to `true`
 
 ##### Device Attestation for YubiKeys
 
