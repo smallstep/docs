@@ -873,16 +873,22 @@ The ACME provisioner in `step-ca` supports issuing X.509 certificates using IP, 
 Add an ACME provisioner:
 
 ```shell
-step ca provisioner add acme --type ACME
+step ca provisioner add acme-example --type ACME
 ```
 
-An example of an ACME provisioner in the `ca.json`:
+This will add an ACME server to step-ca.
+ACME clients are commonly configured with an **ACME directory URL**.
+If your CA is hosted at `ca.internal`, and you run the above command, your ACME server directory URL will be `https://ca.internal/acme/acme-example/directory`.
+
+To configure popular ACME clients to use `step-ca`, see [our tutorial on the subject](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients/).
+
+Here's an example of an ACME provisioner configuration in `ca.json`:
 
 ```json
 ...
 {
     "type": "ACME",
-    "name": "acme",
+    "name": "acme-example",
     "forceCN": true,
     "claims": {
         "maxTLSCertDuration": "8h",
