@@ -97,7 +97,7 @@ To inspect the certificate you just made, run:
           to:  2021-09-02T20:48:40Z`}
 </CodeBlock>
 
-You can get a certificate in JSON format by calling [`step certificate inspect`](./reference/certificate/inspect) with `--format json`. This example [uses jq](https://stedolan.github.io/jq/) to parse the JSON and extract a specific value:
+You can get a certificate in JSON format by calling [`step certificate inspect`](./reference/certificate/inspect) with `--format json`. This example [uses jq](https://jqlang.github.io/jq/) to parse the JSON and extract a specific value:
 
 ```shell-session nocopy
 $ step certificate inspect example.com.crt --format json | jq -r .validity.end
