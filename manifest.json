@@ -145,32 +145,32 @@
             },
             {
               "title": "Kubernetes TLS",
-              "path": "/certificate-manager/kubernetes-tls.mdx",
+              "path": "/certificate-manager/kubernetes-tls/README.mdx",
               "routes": [
                 {
                   "hideFromSidebar": true,
                   "title": "Kubernetes autocert",
-                  "path": "/certificate-manager/kubernetes-autocert.mdx"
+                  "path": "/certificate-manager/kubernetes-tls/kubernetes-autocert.mdx"
                 },
                 {
                   "hideFromSidebar": true,
                   "title": "Kubernetes container tls",
-                  "path": "/certificate-manager/kubernetes-container-tls.mdx"
+                  "path": "/certificate-manager/kubernetes-tls/kubernetes-container-tls.mdx"
                 },
                 {
                   "hideFromSidebar": true,
                   "title": "Kubernetes ingress tls",
-                  "path": "/certificate-manager/kubernetes-ingress-tls.mdx"
+                  "path": "/certificate-manager/kubernetes-tls/kubernetes-ingress-tls.mdx"
                 },
                 {
                   "hideFromSidebar": true,
                   "title": "Kubernetes install",
-                  "path": "/certificate-manager/kubernetes-install.mdx"
+                  "path": "/certificate-manager/kubernetes-tls/kubernetes-install.mdx"
                 },
                 {
                   "hideFromSidebar": true,
                   "title": "Kubernetes step issuer",
-                  "path": "/certificate-manager/kubernetes-step-issuer.mdx"
+                  "path": "/certificate-manager/kubernetes-tls/kubernetes-step-issuer.mdx"
                 }
               ]
             }
