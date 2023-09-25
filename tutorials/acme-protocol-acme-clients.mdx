@@ -204,7 +204,7 @@ Renewals are slightly easier since `acme.sh` remembers to use the right root cer
 
 To use `win-acme` with `step-ca`, you'll need to do the following:
 - Add your root CA certificate (`root_ca.crt`) to the Windows trust store.
-- Change the ACMEv2 endpoint used by `win-acme` (in the `settings.json` file that comes with the program) to point to your CA's ACME provisioner (eg. `https://ca.internal/acme/acme/`). Or pass the `--baseuri` flag with your ACME provisioner's endpoint.
+- Change the ACMEv2 endpoint used by `win-acme` (in the `settings.json` file that comes with the program) to point to your CA's ACME provisioner (eg. `https://ca.internal/acme/acme/directory`). Or pass the `--baseuri` flag with your ACME provisioner's endpoint.
 - We recommend using the `tls-alpn-01` challenge type to prove ownership.
 
 [win-acme]:https://www.win-acme.com/
