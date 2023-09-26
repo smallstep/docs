@@ -318,8 +318,8 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
 
 2. Move your CA configuration into a system-wide location. Run:
 
-  <CodeBlock language="shell-session" copyText="sudo mv $(step path) /etc/step-ca">
-  {`$ sudo mv $(step path) /etc/step-ca`}
+  <CodeBlock language="shell-session" copyText="sudo mv $(step path)/* /etc/step-ca">
+  {`$ sudo mv $(step path)/* /etc/step-ca`}
   </CodeBlock>
 
   Make sure your CA password is located in `/etc/step-ca/password.txt`,
