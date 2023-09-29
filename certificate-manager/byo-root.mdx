@@ -38,7 +38,7 @@ To find it,
 Here, you can upload the PEM file for your existing root CA certificate.
 **Do not upload your root private key to Smallstep.**
 
-## Signing the Certificate Signing Request
+## How to Sign the Certificate Signing Request
 
 Smallstep will send a CSR file for you to download and sign.
 
@@ -61,7 +61,7 @@ Use the `certreq` tool.
 certreq -submit -attrib "CertificateTemplate:SubCA" csr-9e63a172-EXAMPLE-5b0c7.csr intermediate.crt
 ```
 
-#### AWS Certificate Manager Private CA
+### AWS Certificate Manager Private CA
 
 You can now use the following python script that uses issue-certificate to process the CSR:
 
@@ -104,7 +104,7 @@ To run it, fill in the ARN of your CA and run:
 $ python issue_certificate.py < csr-9e63a172-EXAMPLE-5b0c7.csr > intermediate.crt
 ```
 
-#### OpenSSL
+### OpenSSL
 
 ```shell-session nocopy
 openssl ca -config [ROOT_CA_CONFIG_FILE] \
@@ -114,7 +114,7 @@ openssl ca -config [ROOT_CA_CONFIG_FILE] \
   -out intermediate.crt
   ```
 
-#### CFSSL
+### CFSSL
 
 For CFSSL you'll need a signing profile that specifies a 10-year expiry:
 ``` shell-session nocopy
@@ -144,7 +144,7 @@ $ cfssl sign -ca ca.pem \
 
 This process will yield a signed intermediate.crt certificate (or cert.pem for CFSSL).
 
-### 4. Upload the certificate to Smallstep
+## Conclusion
 
 You can now upload your signed certificate to Smallstep, and we'll create your new CA.
 
