@@ -43,14 +43,18 @@ Here, you can upload the PEM file for your existing root CA certificate.
 Smallstep will send a CSR file for you to download and sign.
 
 You will need to transfer the CSR file to your existing root CA and get it signed. Below we have examples of
-how to do this using `step`, Active Directory Certificate Services, AWS Certificate Manager Private CA, OpenSSL, and CFSSL.
+how to do this using PEM files, Active Directory Certificate Services, AWS Certificate Manager Private CA, OpenSSL, and CFSSL.
 
-### Use `step` to sign your intermediate CSR
+### Root PEM certificate and key
 
-The `step` CLI can be used to sign an intermediate CSR using your existing root.
+If you have your root CA key and certificate files, the `step` CLI can be used to sign an intermediate CSR using your existing root.
 
 ```shell
-step certificate sign --not-after 87600h --profile intermediate-ca --path-len 0 csr-9e63a172-EXAMPLE-5b0c7.csr root_ca.crt root_ca_key
+step certificate sign \
+   --not-after 87600h \
+   --profile intermediate-ca \
+   --path-len 0 \
+   csr-9e63a172-EXAMPLE-5b0c7.csr root_ca.crt root_ca_key
 ```
 
 ### Active Directory Certificate Services
@@ -102,6 +106,20 @@ To run it, fill in the ARN of your CA and run:
 
 ```shell-session nocopy
 $ python issue_certificate.py < csr-9e63a172-EXAMPLE-5b0c7.csr > intermediate.crt
+```
+
+### Hashicorp Vault
+
+You will need [`jq`](https://jqlang.github.io/jq/) installed, to extract the certificate PEM programmatically.
+
+Run:
+
+```
+INTERMEDIATE_CA_TTL="87600h"
+vault write -format=json pki/root/sign-intermediate \
+	csr=@csr-9a63a172-EXAMPLE-5b0c7.csr \
+	format=pem_bundle \
+	ttl=$INTERMEDIATE_CA_TTL | jq -r .data.certificate > intermediate.crt
 ```
 
 ### OpenSSL
