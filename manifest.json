@@ -20,28 +20,20 @@
           "title": "Platform",
           "routes": [
             {
-              "title": "Introduction",
+              "title": "Overview",
               "path": "/platform/README.mdx"
             },
             {
-              "title": "Authorities",
-              "path": "/platform/authorities.mdx"
+              "title": "Use Cases",
+              "path": "/platform/use-cases.mdx"
             },
             {
-              "title": "Provisioners",
-              "path": "/platform/provisioners.mdx"
+              "title": "How It Works",
+              "path": "/platform/how-it-works.mdx"
             },
             {
-              "title": "Inventories",
-              "path": "/platform/inventories.mdx"
-            },
-            {
-              "title": "Templates",
-              "path": "/platform/templates.mdx"
-            },
-            {
-              "title": "Events",
-              "path": "/platform/events.mdx"
+              "title": "Getting Started",
+              "path": "/platform/getting-started.mdx"
             }
           ]
         },
@@ -115,8 +107,16 @@
               "path": "/certificate-manager/custom-certs.mdx"
             },
             {
+              "title": "Core Concepts",
+              "path": "/certificate-manager/core-concepts.mdx"
+            },
+            {
               "title": "How It Works",
               "path": "/certificate-manager/how-it-works.mdx"
+            },
+            {
+              "title": "Webhook Events",
+              "path": "/certificate-manager/webhook-events.mdx"
             },
             {
               "title": "ACME Server",
