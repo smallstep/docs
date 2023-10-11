@@ -1,0 +1,171 @@
+---
+title: "Smallstep Certificate Manager: Bring Your Own Root"
+html_title: "Smallstep Certificate Manager: Bring Your Own Root"
+description: Use your existing root to sign an intermediate certificate for use in Smallstep
+---
+
+
+With the Smallstep platform, you can bring your existing PKI to us by signing a Smallstep intermediate CA from your existing root.
+
+Intermediate CAs (also called subordinate CAs) are used to sign and issue leaf certificates to subscribers. Intermediates aren't generally included in trust stores, making them easier to revoke and rotate. This is why they are commonly used for online CAs like Smallstep Certificate Manager.
+
+This tutorial will walk you through importing your root CA certificate to Smallstep, and signing an intermediate CA that we'll use to issue certificates on your behalf.
+
+The steps are:
+1. Upload your root CA certificate to Smallstep.
+2. Customize your intermediate CA certificate properties. Smallstep will create an intermediate private key and a Certificate Signing Request (CSR) for you.
+3. Download the CSR and use your root CA to sign in.
+4. Upload the signed certificate to Smallstep, and we will finish creating your Authority.
+
+## Requirements
+
+All you need is a [Smallstep Certificate Manager](https://smallstep.com/signup) account and access to your existing root CA.
+This feature requires an Advanced Authority.
+It is recommended to use an airgapped machine to sign the CSR.
+
+## Overview
+
+The Smallstep app has a workflow for bringing your own root.
+To find it,
+
+1. Sign into your Smallstep team.
+2. Then, choose **Authorities** under **Certificate Manager** in the menu menu.
+3. Select **Add an Authority**.
+4. Select the **Default Authority** workflow.
+5. Give your new CA a name and subdomain, and change the Authority Type to Advanced Authority.
+6. On the next page, select "Upload external root."
+
+Here, you can upload the PEM file for your existing root CA certificate.
+**Do not upload your root private key to Smallstep.**
+
+## How to Sign the Certificate Signing Request
+
+Smallstep will send a CSR file for you to download and sign.
+
+You will need to transfer the CSR file to your existing root CA and get it signed. Below we have examples of
+how to do this using the [`step` CLI](../step-cli), Active Directory Certificate Services, HashiCorp Vault, AWS Certificate Manager Private CA, OpenSSL, and CFSSL.
+
+### Root PEM certificate and key
+
+If you have your root CA key and certificate files, the [`step` CLI](../step-cli) can be used to sign an intermediate CSR using your existing root.
+
+```shell
+step certificate sign \
+   --not-after 87600h \
+   --profile intermediate-ca \
+   --path-len 0 \
+   csr-9e63a172-EXAMPLE-5b0c7.csr root_ca.crt root_ca_key
+```
+
+### Active Directory Certificate Services
+
+Use the `certreq` tool.
+
+```shell
+certreq -submit -attrib "CertificateTemplate:SubCA" csr-9e63a172-EXAMPLE-5b0c7.csr intermediate.crt
+```
+
+### AWS Certificate Manager Private CA
+
+You can now use the following python script that uses issue-certificate to process the CSR:
+
+```python nocopy
+import boto3
+import sys
+
+AWS_CA_ARN = '[YOUR_PRIVATE_CA_ARN]'
+
+csr = ''.join(sys.stdin.readlines())
+
+client = boto3.client('acm-pca')
+response = client.issue_certificate(
+    CertificateAuthorityArn=AWS_CA_ARN,
+    Csr=csr,
+    SigningAlgorithm='SHA256WITHRSA',
+    TemplateArn='arn:aws:acm-pca:::template/SubordinateCACertificate_PathLen1/V1',
+    Validity={
+        'Value': 5,
+        'Type': 'YEARS'
+    }
+)
+print(f"Creating certificate with ARN {response['CertificateArn']}...", file=sys.stderr, end='')
+waiter = client.get_waiter('certificate_issued')
+waiter.wait(
+    CertificateAuthorityArn=AWS_CA_ARN,
+    CertificateArn=response['CertificateArn']
+)
+print('done.', file=sys.stderr)
+response = client.get_certificate(
+   CertificateArn=response['CertificateArn'],
+   CertificateAuthorityArn=AWS_CA_ARN
+)
+print(response['Certificate'])
+```
+
+To run it, fill in the ARN of your CA and run:
+
+```shell-session nocopy
+$ python issue_certificate.py < csr-9e63a172-EXAMPLE-5b0c7.csr > intermediate.crt
+```
+
+### Hashicorp Vault
+
+You will need [`jq`](https://jqlang.github.io/jq/) installed, to extract the certificate PEM programmatically.
+
+Run:
+
+```
+INTERMEDIATE_CA_TTL="87600h"
+vault write -format=json pki/root/sign-intermediate \
+	csr=@csr-9a63a172-EXAMPLE-5b0c7.csr \
+	format=pem_bundle \
+	ttl=$INTERMEDIATE_CA_TTL | jq -r .data.certificate > intermediate.crt
+```
+
+### OpenSSL
+
+```shell-session nocopy
+openssl ca -config [ROOT_CA_CONFIG_FILE] \
+  -extensions v3_intermediate_ca \
+  -days 3650 -notext -md sha512 \
+  -in csr-9e63a172-EXAMPLE-5b0c7.csr \
+  -out intermediate.crt
+  ```
+
+### CFSSL
+
+For CFSSL you'll need a signing profile that specifies a 10-year expiry:
+``` shell-session nocopy
+$ cat > ca-smallstep-config.json <<EOF
+{
+  "signing": {
+    "profiles": {
+      "smallstep": {
+        "expiry": "87600h",
+        "usages": ["signing"]
+      }
+    }
+  }
+}
+EOF
+```
+
+Now use that config to sign the intermediate certificate:
+
+``` shell-session nocopy
+$ cfssl sign -ca ca.pem \
+    -ca-key ca-key.pem \
+    -config ca-smallstep-config.json \
+    -profile smallstep
+    -csr intermediate.csr | cfssljson -bare
+```
+
+This process will yield a signed intermediate.crt certificate (or cert.pem for CFSSL).
+
+## Conclusion
+
+You're all set! 🎉  
+You can now upload your signed certificate to Smallstep, and we'll create your new CA.  
+All of your clients that trust you existing root CA will now trust your Smallstep CA as well.  
+And, you can continue to use your existing CA infrastructure to issue certificates as needed.  
+

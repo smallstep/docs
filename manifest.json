@@ -144,6 +144,10 @@
               "path": "/certificate-manager/oidc.mdx"
             },
             {
+              "title": "Bring Your Own Root",
+              "path": "/certificate-manager/byo-root.mdx"
+            },
+             {
               "title": "Kubernetes TLS",
               "path": "/certificate-manager/kubernetes-tls/README.mdx",
               "routes": [
