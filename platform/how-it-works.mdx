@@ -1,0 +1,73 @@
+---
+title: How It Works
+html_title:  How It Works
+description: The Smallstep platform is used across security, IT, and DevOps teams to enable end-to-end network encryption, priviledged access management, passwordless authentication, and much more.
+---
+
+![Device and Workload Management Setup](/graphics/workload-management-setup.png "This image describes the process of bringing a workload under management on the Smallstep Platform. First, you register your device and install the Smallstep agent on it. Next you'll select the workloads on that device that you wish you to encrypt. Then you'll follow the resulting configuration instructions provided by Smallstep. Finally, the agent issues a certificate for the workload, and will automatically renew the certificate every 24 hours ")
+
+With Smallstep, your PKI can become a unified foundation for encryption and authentication for all your devices, people and workloads: from web apps and databases to Kubernetes clusters to GitHub Actions, SSH, VPN and WiFi.
+
+We don’t do this by trying to become your identity provider, user or asset database, MDM provider, or network gateway. Instead, we leverage roots of trust that are already around you, integrate with your existing resources, and provide a platform for managing encryption everywhere in your network.
+
+## Device Trust Zone
+
+All devices registering with your Smallstep team are first added to your device trust zone (or device PKI). To register, devices can leverage existing roots of trust: a Trusted Platform Module (TPM) in Linux, an Instance Identity document or attestation token from any cloud provider, or an attestation certificate.
+
+We rely on hardware roots of trust wherever possible, so that *only* your devices can register with Smallstep. The Smallstep [API](https://gateway.smallstep.com/) and [IaC integrations](https://github.com/smallstep/ansible-collection-agent/) make it easy to sync your device inventory to Smallstep. The device trust zone is a privileged trust zone. It offers an authentication factor, and it becomes a foundation for creating other trust zones.
+
+## People and Workload Trust Zones
+
+Built on top of the device trust zone, the people and workloads trust zone is dedicated to infrastructure access. Smallstep can issue certificates to your people and applications by leveraging a device certificate from the device trust zone, a Single Sign-on (SSO) token, or another authentication method. Keep managing your own user directory, and Smallstep will ensure all the right attributes end up on your user certificates for the applications you need to access.
+
+Smallstep can monitor and manage all the certificates it issues to your workloads, seamlessly renewing them as needed and updating the affected services. User certificates are short-lived and can be issued on-demand.
+
+## The Smallstep Agent
+
+The Smallstep agent is a Go binary package that is installed and runs locally as a background service on devices with workloads to be managed. The agent is the backbone of the entire process and provides services such as:
+
+- **Automated certificate renewal and management for devices and workloads**. The agent renews the certificate every 24 hours and will reload the service to activate the new certificate.
+- **Telemetry monitoring to aid troubleshooting**. The agent relays essential information about its host machine, including architecture, OS, and agent version, enabling visibility on the Smallstep UI. It also relays information about certificate permissions and configuration correctness, validating certificate validity and proper workload setup. Users can easily spot and address configuration issues, such as certificate storage errors, incorrect permissions, server key access problems, or agent interruptions due to device settings.
+- **Remote configuration**: The agent actively monitors configuration changes made either through the UI or API and promptly synchronizes them with the managed devices and workloads. For instance, when a new workload is added to a device, the agent on that device immediately fetches the updated configuration and initiates certificate issuance for the new workload. Similarly, if any changes are made to the workload, such as altering the key type, the agent will reissue certificates to align with the modified settings.
+
+## Example: Redis on Linux
+
+This demo shows the process of registering a Linux device into the device trust zone, and deploying TLS server authentication for a Redis server.
+
+<iframe 
+   width="560" 
+   height="315" 
+   src="https://www.youtube.com/embed/mFdJAMOEr5Y?si=V_dVAivihrMGy71i" 
+   title="Redis TLS" 
+   frameborder="0" 
+   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen>
+</iframe>
+
+For walk through guides for other workloads, see [Getting Started](./getting-started).
+
+## Supported Device Types
+
+- Linux devices or cloud VMs running any of the following:
+    - Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
+    - Ubuntu (Current Stable and LTS releases)
+    - Debian (Current Releases)
+    - Fedora (Current Releases)
+- iPhones running iOS 16 or newer (ACME device attestation)
+- macOS Sonoma (ACME device attestation)
+- macOS Ventura, with any MDM that supports SCEP
+- Windows devices, with any MDM that supports SCEP (eg. Intune, Workspace One)
+
+## Supported Workload Types
+
+- Redis
+- PostgreSQL
+- MySQL
+- Apache httpd
+- Apache Tomcat
+- HAProxy
+- NGINX
+- SSH (clients and servers)
+- GitHub Actions
+- Any custom app that uses TLS
+
+Don’t see your workload type listed? [Ask us](https://support.smallstep.com/kb-tickets/new).
