@@ -65,11 +65,11 @@
               "path": "/ssh/acls.mdx"
             },
             {
-              "title": "Azure AD Quickstart Guide",
+              "title": "Microsoft Entra ID Quickstart Guide",
               "path": "/ssh/azure-ad.mdx"
             },
             {
-              "title": "G Suite Quickstart Guide",
+              "title": "Google Workspace Quickstart Guide",
               "path": "/ssh/g-suite.mdx"
             },
             {

@@ -481,7 +481,7 @@ To remove this key:
 ### OAuth/OIDC Single Sign-on
 
 Sometimes it's useful to issue certificates to people.
-So `step-ca` supports single sign-on with identity providers (IdPs) like Google, Okta, Azure Active Directory, Keycloak, 
+So `step-ca` supports single sign-on with identity providers (IdPs) like Google, Okta, Microsoft Entra ID, Keycloak, 
 or any other provider that supports OAuth's [OpenID Connect extension](https://openid.net/connect/).
 
 OpenID Connect is an extension to OAuth 2.0 that adds an identity layer.
@@ -1437,7 +1437,7 @@ In the `ca.json`, an Azure provisioner looks like:
 - **name**: a string used to identify the provider when the CLI is used.
 
 - **tenantId**: the Azure account tenant id for this provisioner. This
-  id is the Directory ID available in the Azure Active Directory properties.
+  id is the Directory ID available in the Microsoft Entra ID properties.
 
 - **audience**<Reference id="star10" marker="*" />: defaults to `https://management.azure.com/` but it can
   be changed if necessary.
