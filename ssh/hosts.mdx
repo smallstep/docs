@@ -31,10 +31,10 @@ description: Smallstep SSH Host Quickstart | Smallstep Documentation
 
 **This section only applies to multi-user environments.**
 
-**Host Tags** (key-value pairs) are the pillar of our [access control](./acls.mdx) model. 
+**Host Tags** (key-value pairs) are the pillar of our [access control](./acls.mdx) model.
 Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups.
-First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`. 
-Then, you'll grant user groups access to all hosts with a specific tag combination. 
+First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`.
+Then, you'll grant user groups access to all hosts with a specific tag combination.
 Finally, you'll choose which user group tag combinations will allow `sudo` privileges on any matching hosts.
 
 Let's look at an example:
@@ -88,7 +88,7 @@ $ bash ssh-host.sh --bastion=<bastion hostname>
 As `root`, run:
 
 ```shell
-curl -sSf https://files.smallstep.com/ssh-host.sh | bash
+bash <(curl -sSf https://files.smallstep.com/ssh-host.sh)
 ```
 
 You'll be prompted for
@@ -210,7 +210,7 @@ Match User *,!ubuntu
 
 * The following endpoints are being used to deliver the SSH service
 
-  
+
   * `ssh-test.app.smallstep.com` — For SSH test sessions
   * `https://ssh.<team-name>.ca.smallstep.com` — The CA internal PKI APIs (protected by mTLS)
   * `https://smallstep.com/app/teams/sso/success` — Single sign-on success page
