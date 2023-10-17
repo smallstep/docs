@@ -8,7 +8,7 @@ User certificates enable mutual TLS authentication between humans and APIs, VPNs
 Add single sign-on to to the mix, and you get a layer of strong authentication from your existing identity provider (IdP), using tools familiar to your team.
 It works for designated admininistrators, too: Admins can get certificates with any name or SAN, simplifying human approval workflows for security teams. 
 
-Certificate Manager supports any OAuth [OpenID connect](https://openid.net/connect/) IdP for single sign-on, including Google, Okta, Azure Active Directory, and Keycloak.
+Certificate Manager supports any OAuth [OpenID connect](https://openid.net/connect/) IdP for single sign-on, including Google, Okta, Microsoft Entra ID, and Keycloak.
 
 ### Connect your identity provider to Certificate Manager in a few steps
 1. Create an OIDC application integration with your IdP
@@ -40,7 +40,7 @@ First, create an OIDC application in your IdP. Be sure to set the following valu
 
 <Alert severity="info">
   <div>
-    For Azure AD you may need to create or update the native application from the command line to specify the redirect URI. The web interface may reject a <code>http://127.0.0.1</code> value. Contact <a href="mailto:support@smallstep.com">Customer Success</a> if you have any questions.
+    For Microsoft Entra ID you may need to create or update the native application from the command line to specify the redirect URI. The web interface may reject a <code>http://127.0.0.1</code> value. Contact <a href="mailto:support@smallstep.com">Customer Success</a> if you have any questions.
   </div>
 </Alert>
 
