@@ -69,41 +69,42 @@ Output:
 
 Here’s the most common workflow for using the Smallstepi API, either directly or via the Terraform or Ansible integrations:
 
-1. [Create a device collection](https://gateway.smallstep.com/operations/PutDeviceCollection).
+#### 1. [Create a device collection](https://gateway.smallstep.com/operations/PutDeviceCollection).
     
-    Set the device type according to your deployment. Note that each device type is going to have its own `deviceTypeConfiguration` as well. For example, an Azure VM device will require you to set your Azure tenant ID, for access control.
+Set the device type according to your deployment. Note that each device type is going to have its own `deviceTypeConfiguration` as well. For example, an Azure VM device will require you to set your Azure tenant ID, for access control.
     
-    You’ll register your individual devices in step 3.
+You’ll register your individual devices in step 3.
     
-2. [Add workloads](https://gateway.smallstep.com/operations/PutWorkload).
+#### 2. [Add workloads](https://gateway.smallstep.com/operations/PutWorkload).
     
-    This is where you set up your workload configuration. You can specify things like certificate SANs and duration, certificate and key file ownership and permissions, reload options for the workload, and so on.
+This is where you set up your workload configuration. You can specify things like certificate SANs and duration, certificate and key file ownership and permissions, reload options for the workload, and so on.
+
+A single workload can be associated with multiple devices.
+
+Have three HAProxy hosts in front of a fleet of `internal.example.com` web servers? That’s one workload.
+
+Have a PostgreSQL server with several hot standby servers? That’s one workload.
+
+Have an etcd cluster comprised of three hosts? That’s one workload.
+
+On this endpoint, you can use the `deviceMetadataKeySANs` property to dynamically map certificate SANs for each device that’s running a workload. Or, statically assign SANs for every certificate in the workload, using `staticSANs`.
     
-    A single workload can be associated with multiple devices.
+#### 3. [Add devices to collection](https://gateway.smallstep.com/operations/PutCollectionInstance).
+     
+Each device’s `instanceID` should be set according to the device type:
+ 
+- For AWS EC2 instances, use the EC2 instance ID (eg. [`i-0d460b88a96dfdd08`](https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#InstanceDetails:instanceId=i-0d460b88a96dfdd08))
+- For Azure VMs, use the managed identity principal object ID
+- For Compute Engine VMs, use the instance ID (eg. `16979701088048819`)
+- For TPM devices, use the TPM’s EKpub URI (see our [TPM documentation](https://www.notion.so/Bootstrap-device-trust-using-device-attestation-with-Smallstep-f1dc366a17bf4e628520aabfa18b5b80?pvs=21) for details)
+ 
+Use the `data` field to store any relevant instance metadata, such as:
+ 
+- an instance’s region, name, or role(s)
+- DNS names (these can be mapped to a SANs using `deviceMetadataKeySANs`, above)
+
+#### 4. Install the Smallstep agent on each device.
     
-    Have three HAProxy hosts in front of a fleet of `internal.example.com` web servers? That’s one workload.
-    
-    Have a PostgreSQL server with several hot standby servers? That’s one workload.
-    
-    Have an etcd cluster comprised of three hosts? That’s one workload.
-    
-    On this endpoint, you can use the `deviceMetadataKeySANs` property to dynamically map certificate SANs for each device that’s running a workload. Or, statically assign SANs for every certificate in the workload, using `staticSANs`.
-    
-3. [Add devices to collection](https://gateway.smallstep.com/operations/PutCollectionInstance).
-    
-    Each device’s `instanceID` should be set according to the device type:
-    
-    - For AWS EC2 instances, use the EC2 instance ID (eg. [`i-0d460b88a96dfdd08`](https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#InstanceDetails:instanceId=i-0d460b88a96dfdd08))
-    - For Azure VMs, use the managed identity principal object ID
-    - For Compute Engine VMs, use the instance ID (eg. `16979701088048819`)
-    - For TPM devices, use the TPM’s EKpub URI (see our [TPM documentation](https://www.notion.so/Bootstrap-device-trust-using-device-attestation-with-Smallstep-f1dc366a17bf4e628520aabfa18b5b80?pvs=21) for details)
-    
-    Use the `data` field to store any relevant instance metadata, such as:
-    
-    - an instance’s region, name, or role(s)
-    - DNS names (these can be mapped to a SANs using `deviceMetadataKeySANs`, above)
-4. Install the Smallstep agent on each device.
-    
-    The agent will only need your `team` name and `fingerprint` for bootstrapping.
-    
-    See [Smallstep Agent Quickstart](https://www.notion.so/Smallstep-agent-quickstart-124d5474fdf34ebab4f86b4bb6b0aaad?pvs=21) for details.
+The agent will only need your `team` name and `fingerprint` for bootstrapping.
+
+See [Smallstep Agent Quickstart](https://www.notion.so/Smallstep-agent-quickstart-124d5474fdf34ebab4f86b4bb6b0aaad?pvs=21) for details.
