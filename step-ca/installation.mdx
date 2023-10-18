@@ -194,8 +194,7 @@ To download and install the `step` and `step-ca` binaries on an amd64 machine:
     ```shell
     curl -L -o step.tar.gz https://dl.smallstep.com/cli/docs-ca-install/latest/step_linux_amd64.tar.gz
     tar -xf step.tar.gz
-    cd step_*
-    sudo cp bin/step /usr/bin
+    sudo cp step/bin/step /usr/bin
     ```
 
 2. Install `step-ca`.
@@ -205,8 +204,7 @@ To download and install the `step` and `step-ca` binaries on an amd64 machine:
     ```shell
     curl -L -o step-ca.tar.gz https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_linux_amd64.tar.gz
     tar -xf step-ca.tar.gz
-    cd step-ca_*
-    sudo cp step-ca /usr/bin
+    sudo cp step-ca/step-ca /usr/bin
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
