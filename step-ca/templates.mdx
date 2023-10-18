@@ -214,7 +214,7 @@ asn1Enc "foo"
 asn1Enc .Subject.CommonName
 ```
 
-This function supports the data types described [here](https://github.com/smallstep/crypto/blob/878092791d7e5ef8530dfa949cfe3cde61373d77/x509util/extensions.go#L486):
+This function supports the data types described [here](https://github.com/smallstep/crypto/blob/afcd4fc89b2cc36c590909908fa6ac1523fdcc61/x509util/extensions.go#L525):
 
 - **printable**: "printable:abcfoo" (or just "abcfoo")
 - **int**: "int:12324"
@@ -224,6 +224,7 @@ This function supports the data types described [here](https://github.com/smalls
 - **numeric**: "numeric:01 02 03345" (multiple space-separated ints)
 - **utc**: "utc:2023-03-29T02:03:57Z" or "utc:2023-04-20 15:28:27.909088 -0700 PDT"
 - **generalized**: "generalized:2023-03-29T02:03:57Z" or "generalized:2023-04-20 15:28:27.909088 -0700 PDT"
+- **bool**: "bool:true" or "bool:false"
 - **raw**: a special type that accepts a Base64 string
 
 For more details on ASN.1 types and their meanings, see [ASN.1 Types](https://www.oss.com/asn1/resources/asn1-made-simple/asn1-quick-reference.html#Types).
