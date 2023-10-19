@@ -139,13 +139,9 @@ To configure `step-ca` as a daemon, see our [systemd configuration guide][system
 
 To uninstall, run `dnf remove step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
 
-
 #### Alpine Linux
 
 There are community-maintained Alpine Linux Packages for `step` and `step-ca`.
-
-**These packages are in a testing repository.**
-To use the testing repository, append <code>http://dl-cdn.alpinelinux.org/alpine/edge/testing</code> to <code>/etc/apk/repositories</code>, or see <a href="#linux-binaries">Linux (other)</a>.
 
 To install `step` with [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management), run:
 
@@ -154,8 +150,8 @@ apk add step-cli step-certificates
 ```
 
 The binary tarballs can be found here:
-- [`step-cli`](https://pkgs.alpinelinux.org/package/edge/community/x86/step-cli)
-- [`step-certificates`](https://pkgs.alpinelinux.org/package/edge/testing/x86/step-certificates)
+- [`step-cli`](https://pkgs.alpinelinux.org/packages?name=step-cli&branch=edge&repo=&arch=&maintainer=)
+- [`step-certificates`](https://pkgs.alpinelinux.org/packages?name=step-certificates&branch=edge&repo=&arch=&maintainer=)
 
 To uninstall, run `apk del step-cli step-certificates`, then remove the configuration directory `$HOME/.step` .
 
