@@ -14,7 +14,7 @@ We don’t do this by trying to become your identity provider, user or asset dat
 
 All devices registering with your Smallstep team are first added to your device trust zone (or device PKI). To register, devices can leverage existing roots of trust: a Trusted Platform Module (TPM) in Linux, an Instance Identity document or attestation token from any cloud provider, or an attestation certificate.
 
-We rely on hardware roots of trust wherever possible, so that *only* your devices can register with Smallstep. The Smallstep [API](https://gateway.smallstep.com/) and [IaC integrations](https://github.com/smallstep/ansible-collection-agent/) make it easy to sync your device inventory to Smallstep. The device trust zone is a privileged trust zone. It offers an authentication factor, and it becomes a foundation for creating other trust zones.
+We rely on hardware roots of trust wherever possible, so that *only* your devices can register with Smallstep. The Smallstep [API](smallstep-api.mdx) and IaC integrations make it easy to sync your device inventory to Smallstep. The device trust zone is a privileged trust zone. It offers an authentication factor, and it becomes a foundation for creating other trust zones.
 
 ## People and Workload Trust Zones
 
