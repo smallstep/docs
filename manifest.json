@@ -45,8 +45,12 @@
           "title": "Tutorials",
           "routes": [
             {
-              "title": "Jamf Pro + Smallstep MDM Setup Guide",
+              "title": "Jamf Pro + Smallstep Setup Guide",
               "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
+            },
+            {
+              "title": "Intune + Smallstep Setup Guide",
+              "path": "/tutorials/intune-mdm-setup-guide.mdx"
             }
           ]
         },
