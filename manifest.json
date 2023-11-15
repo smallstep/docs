@@ -42,6 +42,15 @@
           ]
         },
         {
+          "title": "Tutorials",
+          "routes": [
+            {
+              "title": "Jamf Pro + Smallstep MDM Setup Guide",
+              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
+            }
+          ]
+        },
+         {
           "heading": true,
           "title": "Products"
         },
@@ -1562,10 +1571,6 @@
             {
               "title": "Issue X.509 user certificates via your identity provider",
               "path": "/tutorials/user-authentication.mdx"
-            },
-            {
-              "title": "Jamf Pro + Smallstep MDM Setup Guide",
-              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
             },
             {
               "title": "Create a CA that uses RSA keys",
