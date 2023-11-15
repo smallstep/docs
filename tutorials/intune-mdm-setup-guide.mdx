@@ -1,0 +1,213 @@
+---
+title: Deploy MDM client certificates to Windows devices with Smallstep and Intune
+html_title: Deploy MDM client certificates to Windows devices with Smallstep and Intune
+description: In this tutorial, you will configure Smallstep and Microsoft Intune to establish device trust with your CA and to issue a Wi-Fi, VPN, or other client certificate to your devices.
+---
+
+
+# Introduction
+
+In this tutorial, you will configure Smallstep and Microsoft Intune to establish device trust with your CA and to orchestrate the issuance of TLS certificates for Enterprise Wi-Fi (EAP-TLS / WPA3 Enterprise), VPN, web browsers, or other applications on Windows devices.
+
+You will:
+
+- Connect Microsoft Entra ID to Smallstep via an Entra ID App Registration.
+- Create and configure an Intune Device Collection in Smallstep
+- Configure Intune to use Smallstep as a CA
+
+Once you've completed this tutorial, your Intune certificate enrollment process will look like this:
+
+![](/graphics/Intune_flow_diagram.png)
+
+# Prerequisites
+
+You will need:
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Microsoft Azure / Entra ID](https://azure.microsoft.com/en-us/free/) Tenant
+- A [Microsoft Intune](https://www.microsoft.com/en-us/security/business/microsoft-intune) Tenant
+- A test device to enroll for management by Intune
+    - This can be a Windows VM, but you may need a physical device or additional Wi-Fi adapter for testing an Enterprise Wi-Fi connection
+- An Entra ID user for enrollment, that is known in Intune
+
+# Step-by-step instructions
+
+## 0. Gather Entra ID tenant details
+
+In your [Entra ID Tenant Overview](https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView),  copy your tenant’s Primary Domain, eg. `contoso.onmicrosoft.com`. You will register this with Smallstep later.
+
+## 1. Register an Entra ID Application
+
+You’ll need to register an Application in Entra ID that connects Smallstep to Intune, for the purpose of exchanging SCEP tokens. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep.
+
+In the Entra Admin Center, [Register an Application](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade/quickStartType~/null/isMSAApp~/false) with the following properties:
+
+- Name the application “Smallstep SCEP Connector”
+- Select **Register**
+
+In your new App Registration, copy the **Application (client) ID** value, which you will register with Smallstep later.
+
+Next, visit the **Certificates & secrets** blade.
+
+Select **＋ New client secret**, and use the following properties:
+
+- Name the secret “Smallstep SCEP Secret”
+- Select **Add** to create the secret
+
+Copy the **Client Secret Value**, which you will register with Smallstep later.
+
+
+## 2. Grant API Permissions
+
+Now we’ll connect the App Registration to Intune by adding application permissions.
+
+In the App Registration, visit the **API Permissions** blade.
+
+Add the following two permissions:
+
+- Microsoft Graph → Application permissions → `Application.Read.All`
+- Intune → Application permissions → `scep_challenge_provider`
+
+Finally, select **✓ Grant admin consent** on the API permissions page.
+
+Here’s how the Configured permissions should look:
+
+![](/graphics/Intune_permissions.png)
+
+You’ve completed the App Registration setup.
+
+### 3. Configure Smallstep
+
+In your Smallstep dashboard,
+visit the **Devices** tab,
+create a **+ New Collection**,
+choose **Intune Windows Devices**,
+and choose **Submit**.
+
+Configure the Collection with the values you gathered above:
+
+- The tenant **Primary domain**
+- The App Registration **Application (client) ID**
+- The App Registration **Secret Value**
+
+Once the Collection is created, go to the **Settings** tab and gather your Intune configuration values:
+
+- Copy your SCEP URL
+- Download your Root CA Certificate
+- Download your Intermediate CA Certificate
+
+## 4. Configure Intune
+
+<Alert severity="info">
+  <div>
+[Microsoft recommends a staged approach to Intune enrollment](https://download.microsoft.com/download/e/6/2/e6233fdd-a956-4f77-93a5-1aa254ee2917/msft-intune-enrollment-options.pdf). Create an evaluation Group, if you don’t already have one, so that any breaking changes are limited to the  group.
+  </div>
+</Alert>
+
+In Intune, we’re going to create three Configuration Profiles to deploy to your devices:
+
+- **Trusted certificate** profile for your Root CA
+- **Trusted certificate** profile for your Intermediate CA
+- **SCEP Certificate** profile, for issuing device certificates from Smallstep
+
+### Create a Trusted certificate profile for your Root CA
+
+Create a [new Trusted certificate profile](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/CreatePolicyFullScreenBlade/policyId/00000000-0000-0000-0000-000000000000/policyType/Windows10TrustedCertificate/policyJourneyState~/0) with the following properties:
+
+- Name: **Smallstep Root CA**
+- Certificate file: Upload your Smallstep Root CA certificate
+- Destination store: **Computer certificate store - root**
+- Included groups: Include the users or groups you are using for your staged enrollment. As you roll out into production, you will expand this list.
+- Create the profile
+
+### Create a **Trusted certificate** profile for your Intermediate CA
+
+Create a [new Trusted certificate profile](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/CreatePolicyFullScreenBlade/policyId/00000000-0000-0000-0000-000000000000/policyType/Windows10TrustedCertificate/policyJourneyState~/0) with the following properties:
+
+- Name: **Smallstep Intermediate CA**
+- Certificate file: Upload your Smallstep Intermediate CA certificate
+- Destination store: **Computer certificate store - root**
+  
+  <Alert severity="warning">
+    <div>
+      **Careful!** Add your intermediate CA to the computer’s *root* store.
+      Do not choose the intermediate certificate store — it will cause enrollment errors.
+    </div>
+  </Alert>
+  
+- Included groups: Include the users or groups you are using for testing.
+- Create the profile
+
+### Create a **SCEP Certificate** profile
+
+Create [a new SCEP certificate profile](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/CreatePolicyFullScreenBlade/policyId/00000000-0000-0000-0000-000000000000/policyType/Windows10SCEP/policyJourneyState~/0) with the following properties:
+
+- Name: **Smallstep SCEP Certificate**
+- Certificate type: Device
+- The certificate properties may vary depending on your use case and threat model. Here are some good starting points:
+    - Subject name / SANs: For a test deployment, use the default values.
+    - Certificate validity period: Use the same duration you configured with Smallstep
+    - Key storage provider: **Enroll to TPM KSP if available, Software KSP if not**
+    - Key usage: **✓ Digital certificate** and **✓ Key encipherment**
+    - Key size: **2048**
+    - Hash algorithm: **SHA-2**
+    - Extended key usage: Under Predefined values, select **Client Authentication**
+    - Renewal Threshold (%): Select **20%**
+- Root Certificate: Select your **Intermediate CA**
+    
+  <Alert severity="warning">
+    <div>
+    **Careful!** Select your intermediate CA here. An enrolling device’s SCEP client will check the fingerprint of the intermediate, *not* the root.
+    </div>
+  </Alert>
+    
+- SCEP Server URL: Use the SCEP URL you copied from Smallstep
+
+## 4. Test and verify your profile
+
+Now try enrolling or syncing a device.
+
+These instructions may vary depending on your enrollment method.
+We assume you’ve enabled Automatic Enrollment in Intune’s [Windows enrollment blade](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesEnrollmentMenu/~/windowsEnrollment).
+
+- For a new device: Go to **Windows Settings → Accounts → Access work or school**. Then , under **Add a work or school account**, choose **Connect** to sign in to your tenant.
+- For a previously-enrolled device: Go to **Windows Settings → Accounts → Access work or school**. Expand the box for the signed-in account and select **Info**. Select **Sync**.
+
+After the sync completes, it may take a minute for the certificate to appear in your Windows trust store.
+
+Check the reports in Intune to ensure your devices have enrolled without errors.
+
+# Adding Wi-Fi Support
+
+Now that we have a basic working profile with CA trust and a client certificate, we’ll configure an EAP-TLS certificate Wi-Fi connection.
+
+For this section, you will need a RADIUS server that your users will authenticate against.
+
+1. In your Intune [Device Configuration Profiles](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesMenu/~/configurationProfiles), create a **+ New Policy**.
+2. Choose your Platform, select **Templates**, and choose the **Wi-Fi** template.
+3. Select **Create** to continue, and give your template a clear name.
+4. For **Wi-Fi type**, choose Enterprise.
+5. Configure your SSID and other basic network settings.
+6. For **EAP type**, choose **EAP - TLS**.
+7. Under the Certificate server names, enter the Common Name that's on your RADIUS server certificate.
+   Typically, thwill match the FQDN of your RADIUS server.
+8. Under the Trust tab, add a Trusted Certificate for your RADIUS server.
+
+    If your RADIUS server certificate is managed by Smallstep, add your Smallstep Root CA and Smallstep Intermediate CA here.
+
+    If your RADIUS server certificate is from a different PKI, you’ll need to add a new Certificate payload containing your RADIUS server’s Root CA certificate.
+9. Under **Client Authentication**, for **Authentication method** choose SCEP Certificate.
+10. Select the client certificate profile you created earlier.
+11. Choose **Review + save**.
+
+Once you've saved your profile, you'll be ready to test and verify your Wi-Fi connection.
+
+# Troubleshooting
+
+- Check the expected certificates have been deployed to the right stores on Windows: user vs. device; trusted roots; trusted intermediates; personal certificates.
+    - Intune does show states in the dashboard, and you can generate reports, but they don’t provide many details, and sometimes they’re not up-to-date.
+- On the client side, use **Settings → Accounts → Access work or school → Info** to check the last sync status.
+    - You can also trigger a Sync on this screen
+    - Sometimes restarting Windows is required to trigger (re-)enrollment / profile deployment. This can happen if the machine has been online for a while, has been suspended for a while, etc. It may have been disconnected from WNS in this case, resulting in no notifications being received.
+    - There’s an option to generate an MDM report with some basic information that describes which profiles are to be applied.
+- Use Windows Event Viewer to diagnose issues. SCEP related (error) logs can be found in **Applications and Services Logs** → **Microsoft** → **Windows** → **DeviceManagement-Enterprise-Diagnostics-Provider**.
+- See also: Microsoft’s [SCEP Troubleshooting Documentation](https://learn.microsoft.com/en-us/troubleshoot/mem/intune/certificates/troubleshoot-scep-certificate-profiles)
