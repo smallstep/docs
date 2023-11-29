@@ -86,15 +86,15 @@ To uninstall, run `scoop uninstall`, then remove the configuration directory `$H
 To install `step`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
-    wget https://dl.smallstep.com/gh-release/cli/docs-ca-install/v0.24.2/step-cli_0.24.2_amd64.deb
-    sudo dpkg -i step-cli_0.24.2_amd64.deb
+    wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.deb
+    sudo dpkg -i step-cli_amd64.deb
     ```
 
 To install `step-ca`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.smallstep.com/gh-release/certificates/docs-ca-install/v0.24.2/step-ca_0.24.2_amd64.deb
-    sudo dpkg -i step-ca_0.24.2_amd64.deb
+    wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.deb
+    sudo dpkg -i step-ca_amd64.deb
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -124,15 +124,15 @@ Big shout out to the maintainers of these packages! We appreciate you.
 To install `step`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
     
     ```shell
-    wget https://dl.smallstep.com/gh-release/cli/docs-ca-install/v0.24.2/step-cli_0.24.2_amd64.rpm
-    sudo dnf install step-cli_0.24.2_amd64.rpm
+    wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.rpm
+    sudo rpm -i step-cli_amd64.rpm
     ```
 
 To install `step-ca`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    wget https://dl.smallstep.com/gh-release/certificates/docs-ca-install/v0.24.2/step-ca_0.24.2_amd64.rpm
-    sudo dnf install step-ca_0.24.2_amd64.rpm
+    wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.rpm
+    sudo rpm -i step-ca_amd64.rpm
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -188,10 +188,9 @@ To download and install the `step` and `step-ca` binaries on an amd64 machine:
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/cli/releases/latest):
 
     ```shell
-    curl -L https://dl.smallstep.com/gh-release/cli/docs-ca-install/v0.24.2/step_linux_0.24.2_amd64.tar.gz \
-       -o step.tar.gz
-    tar -xf step.tar.gz
-    sudo cp step_0.24.2/bin/step /usr/bin
+    curl -LO https://dl.smallstep.com/cli/docs-ca-install/latest/step_linux_amd64.tar.gz
+    tar -xf step_linux_amd64.tar.gz
+    sudo cp step_linux_amd64/bin/step /usr/bin
     ```
 
 2. Install `step-ca`.
@@ -199,10 +198,9 @@ To download and install the `step` and `step-ca` binaries on an amd64 machine:
     Download and install the Linux tarball from our [latest release](https://github.com/smallstep/certificates/releases/latest):
 
     ```shell
-    curl -L https://dl.smallstep.com/gh-release/certificates/docs-ca-install/v0.24.2/step-ca_linux_0.24.2_amd64.tar.gz \
-       -o step-ca.tar.gz
-    tar -xf step-ca.tar.gz
-    sudo cp step-ca_0.24.2/step-ca /usr/bin
+    curl -L https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_linux_amd64.tar.gz
+    tar -xf step-ca_linux_amd64.tar.gz
+    sudo cp step-ca_linux_amd64/step-ca /usr/bin
     ```
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
@@ -221,11 +219,11 @@ To verify the signature of the `step-ca` binary:
    
    ```
    cosign verify-blob \
-     --certificate step-ca_linux_0.24.2_amd64.tar.gz.pem \
-     --signature step-ca_linux_0.24.2_amd64.tar.gz.sig \
-     --certificate-identity-regexp "https://github\.com/smallstep/certificates/.*" \
+     --certificate step-ca_linux_amd64.tar.gz.pem \
+     --signature step-ca_linux_amd64.tar.gz.sig \
+     --certificate-identity-regexp "https://github\.com/smallstep/workflows/.*" \
      --certificate-oidc-issuer https://token.actions.githubusercontent.com \
-     step-ca_linux_0.24.2_amd64.tar.gz
+     step-ca_linux_amd64.tar.gz
    ```
 
 ### Kubernetes
