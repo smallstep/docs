@@ -13,7 +13,7 @@ menu:
 ## Usage
 
 ```raw
-step api token create <team-id> <crt-file> <key-file>
+step api token create <team> <crt-file> <key-file>
 [--api-url=<url>] [--audience=<name>]
 
 ```
@@ -24,8 +24,8 @@ step api token create <team-id> <crt-file> <key-file>
 
 ## Positional arguments
 
-`team-id`
-UUID of the team the API token will be issued for. This is available in the Smallstep dashboard.
+`team`
+UUID or slug of the team the API token will be issued for. This is available in the Smallstep dashboard.
 
 `crt-file`
 File to read the certificate (PEM format). This certificate must be signed by a trusted root configured in the Smallstep dashboard.
@@ -47,4 +47,10 @@ Use a certificate to get a new API token:
 ```shell
 $ step api token create ff98be70-7cc3-4df5-a5db-37f5d3c96e23 internal.crt internal.key
 ```
+
+Get a token using the team slug:
+```shell
+$ step api token create teamfoo internal.crt internal.key
+```
+
 

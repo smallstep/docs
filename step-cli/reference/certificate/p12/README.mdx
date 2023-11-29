@@ -14,7 +14,8 @@ menu:
 
 ```raw
 step certificate p12 <p12-path> [<crt-path>] [<key-path>]
-[--ca=<file>] [--password-file=<file>]
+[--ca=<file>] [--password-file=<file>] [--legacy]
+[--force] [--no-password] [--insecure]
 ```
 
 ## Description
@@ -37,6 +38,9 @@ The path to the `file` containing the password to encrypt the .p12 file.
 **--no-password**
 Do not ask for a password to encrypt a private key. Sensitive key material will
 be written to disk unencrypted. This is not recommended. Requires **--insecure** flag.
+
+**--legacy**
+Encodes PKCS#12 files using the algorithms that were traditionally used, PBE+SHA1+RC2 for certificates and PBE+SHA1+3DES for keys.
 
 **-f**, **--force**
 Force the overwrite of files without asking.
@@ -73,4 +77,12 @@ Package a certificate and private key with an empty password:
 ```shell
 $ step certificate p12 --no-password --insecure foo.p12 foo.crt foo.key
 ```
+
+Package a certificate and private key using a legacy encoder,
+
+```shell
+$ step certificate p12 --legacy foo.p12 foo.crt foo.key
+```
+
+
 

@@ -14,14 +14,15 @@ menu:
 
 ```raw
 step certificate create <subject> <crt-file> <key-file>
-[--kms=<uri>] [--csr] [--profile=<profile>]
-[--template=<file>] [--set=<key=value>] [--set-file=<file>]
-[--not-before=<duration>] [--not-after=<duration>]
-[--password-file=<file>] [--ca=<issuer-cert>]
-[--ca-key=<issuer-key>] [--ca-password-file=<file>]
-[--san=<SAN>] [--bundle] [--key=<file>]
 [--kty=<type>] [--curve=<curve>] [--size=<size>]
-[--no-password] [--insecure]
+[--csr] [--profile=<profile>] [--template=<file>]
+[--set=<key=value>] [--set-file=<file>]
+[--not-before=<duration>] [--not-after=<duration>] [--san=<SAN>]
+[--ca=<issuer-cert>] [--ca-kms=<uri>]
+[--ca-key=<issuer-key>] [--ca-password-file=<file>]
+[--kms=<uri>] [--key=<file>] [--password-file=<file>]
+[--bundle] [--skip-csr-signature]
+[--no-password] [--subtle] [--insecure]
 ```
 
 ## Description
@@ -46,82 +47,6 @@ File to write private key to (PEM format). This argument is optional if **--key*
 
 ## Options
 
-
-**--kms**=`uri`
-The `uri` to configure a Cloud KMS or an HSM.
-
-**--csr**
-Generate a certificate signing request (CSR) instead of a certificate.
-
-**--profile**=`profile`
-The certificate profile sets various certificate details such as
-  certificate use and expiration. The default profile is 'leaf' which is suitable
-  for a client or server using TLS.
-
-`profile` is a case-sensitive string and must be one of:
-
-- **leaf**: Generate a leaf x.509 certificate suitable for use with TLS.
-
-- **intermediate-ca**: Generate a certificate that can be used to sign additional leaf certificates.
-
-- **root-ca**: Generate a new self-signed root certificate suitable for use as a root CA.
-
-- **self-signed**: Generate a new self-signed leaf certificate suitable for use with TLS.
-  This profile requires the **--subtle** flag because the use of self-signed leaf
-  certificates is discouraged unless absolutely necessary.
-
-**--template**=`file`
-The certificate template `file`, a JSON representation of the certificate to create.
-
-**--set**=`key=value`
-The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
-
-**--set-file**=`file`
-The JSON `file` with the template data variables.
-
-**--password-file**=`file`
-The path to the `file` containing the password to
-encrypt the new private key or decrypt the user submitted private key.
-
-**--ca**=`value`
-The certificate authority used to issue the new certificate (PEM file).
-
-**--ca-key**=`value`
-The certificate authority private key used to sign the new certificate (PEM file).
-
-**--ca-password-file**=`file`
-The path to the `file` containing the password to
-decrypt the CA private key.
-
-**--key**=`file`
-The `file` of the private key to use instead of creating a new one (PEM file).
-
-**--no-password**
-Do not ask for a password to encrypt the private key.
-Sensitive key material will be written to disk unencrypted. This is not
-recommended. Requires **--insecure** flag.
-
-**--not-before**=`time|duration`
-The `time|duration` set in the NotBefore property of the certificate. If a
-`time` is used it is expected to be in RFC 3339 format. If a `duration` is
-used, it is a sequence of decimal numbers, each with optional fraction and a
-unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
-"us" (or "µs"), "ms", "s", "m", "h".
-
-**--not-after**=`time|duration`
-The `time|duration` set in the NotAfter property of the certificate. If a
-`time` is used it is expected to be in RFC 3339 format. If a `duration` is
-used, it is a sequence of decimal numbers, each with optional fraction and a
-unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
-"us" (or "µs"), "ms", "s", "m", "h".
-
-**--san**=`value`
-Add DNS or IP Address Subjective Alternative Names (SANs). Use the '--san'
-flag multiple times to configure multiple SANs.
-
-**--bundle**
-Bundle the new leaf certificate with the signing certificate. This flag requires
-the **--ca** flag.
 
 **--kty**=`kty`
 The `kty` to build the certificate upon.
@@ -154,11 +79,93 @@ unset, default is P-256 for EC keys and Ed25519 for OKP keys.
 
 - **Ed25519**: Ed25519 Curve
 
+**--csr**
+Generate a certificate signing request (CSR) instead of a certificate.
+
+**--profile**=`profile`
+The certificate profile sets various certificate details such as
+  certificate use and expiration. The default profile is 'leaf' which is suitable
+  for a client or server using TLS.
+
+`profile` is a case-sensitive string and must be one of:
+
+- **leaf**: Generate a leaf x.509 certificate suitable for use with TLS.
+
+- **intermediate-ca**: Generate a certificate that can be used to sign additional leaf certificates.
+
+- **root-ca**: Generate a new self-signed root certificate suitable for use as a root CA.
+
+- **self-signed**: Generate a new self-signed leaf certificate suitable for use with TLS.
+  This profile requires the **--subtle** flag because the use of self-signed leaf
+  certificates is discouraged unless absolutely necessary.
+
+**--template**=`file`
+The certificate template `file`, a JSON representation of the certificate to create.
+
+**--set**=`key=value`
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
+
+**--set-file**=`file`
+The JSON `file` with the template data variables.
+
+**--not-before**=`time|duration`
+The `time|duration` set in the NotBefore property of the certificate. If a
+`time` is used it is expected to be in RFC 3339 format. If a `duration` is
+used, it is a sequence of decimal numbers, each with optional fraction and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--not-after**=`time|duration`
+The `time|duration` set in the NotAfter property of the certificate. If a
+`time` is used it is expected to be in RFC 3339 format. If a `duration` is
+used, it is a sequence of decimal numbers, each with optional fraction and a
+unit suffix, such as "300ms", "-1.5h" or "2h45m". Valid time units are "ns",
+"us" (or "µs"), "ms", "s", "m", "h".
+
+**--san**=`value`
+Add DNS or IP Address Subjective Alternative Names (SANs). Use the '--san'
+flag multiple times to configure multiple SANs.
+
+**--ca**=`value`
+The certificate authority used to issue the new certificate (PEM file).
+
+**--ca-kms**=`uri`
+The `uri` to configure the KMS used for signing the certificate
+
+**--ca-key**=`value`
+The certificate authority private key used to sign the new certificate (PEM file).
+
+**--ca-password-file**=`file`
+The path to the `file` containing the password to
+decrypt the CA private key.
+
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
+
+**--key**=`file`
+The `file` of the private key to use instead of creating a new one (PEM file).
+
+**--password-file**=`file`
+The path to the `file` containing the password to
+encrypt the new private key or decrypt the user submitted private key.
+
+**--no-password**
+Do not ask for a password to encrypt the private key.
+Sensitive key material will be written to disk unencrypted. This is not
+recommended. Requires **--insecure** flag.
+
+**--bundle**
+Bundle the new leaf certificate with the signing certificate. This flag requires
+the **--ca** flag.
+
+**--skip-csr-signature**
+Skip creating and signing a CSR.
+
 **-f**, **--force**
 Force the overwrite of files without asking.
 
 **--subtle**
-
+Allow delicate operations.
 
 ## Exit codes
 
@@ -177,7 +184,7 @@ Here's the default template used for generating a leaf certificate:
 {
   "subject": {{ toJson .Subject }},
   "sans": {{ toJson .SANs }},
-{{- if typeIs "*sa.PublicKey" .Insecure.CR.PublicKey }}
+{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
   "keyUsage": ["keyEncipherment", "digitalSignature"],
 {{- else }}
   "keyUsage": ["digitalSignature"],
@@ -438,10 +445,33 @@ $ step kms create \
   'pkcs11:id=4001;object=intermediate-key'
 $ step certificate create \
   --profile intermediate-ca \
-  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  --ca-kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password'
   --ca root_ca.crt --ca-key 'pkcs11:id=4000' \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
   --key 'pkcs11:id=4001' \
   'My KMS Intermediate' intermediate_ca.crt
+```
+
+Create an intermediate certificate for an RSA decryption key in Google Cloud KMS, signed by a root stored on disk, using `step-kms-plugin`:
+```shell
+$ step certificate create \
+  --profile intermediate-ca \
+  --ca root_ca.crt --ca-key root_ca_key \
+  --kms cloudkms: \
+  --key 'projects/myProjectID/locations/global/keyRings/myKeyRing/cryptoKeys/myKey/cryptoKeyVersions/1' \
+  --skip-csr-signature \
+  'My RSA Intermediate' intermediate_rsa_ca.crt
+```
+
+Create an intermediate certificate for an RSA signing key in Google Cloud KMS, signed by a root stored in an HSM, using `step-kms-plugin`:
+```shell
+$ step certificate create \
+  --profile intermediate-ca \
+  --ca-kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  --ca root_ca.crt --ca-key 'pkcs11:id=4000' \
+  --kms cloudkms: \
+  --key 'projects/myProjectID/locations/global/keyRings/myKeyRing/cryptoKeys/myKey/cryptoKeyVersions/1' \
+  'My RSA Intermediate' intermediate_rsa_ca.crt
 ```
 
 
