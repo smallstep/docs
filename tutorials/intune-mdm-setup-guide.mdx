@@ -42,6 +42,7 @@ You’ll need to register an Application in Entra ID that connects Smallstep to 
 In the Entra Admin Center, [Register an Application](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade/quickStartType~/null/isMSAApp~/false) with the following properties:
 
 - Name the application “Smallstep SCEP Connector”
+- Leave all other values alone
 - Select **Register**
 
 In your new App Registration, copy the **Application (client) ID** value, which you will register with Smallstep later.
@@ -75,7 +76,7 @@ Here’s how the Configured permissions should look:
 
 You’ve completed the App Registration setup.
 
-### 3. Configure Smallstep
+## 3. Configure Smallstep
 
 In your Smallstep dashboard,
 visit the **Devices** tab,
@@ -89,11 +90,18 @@ Configure the Collection with the values you gathered above:
 - The App Registration **Application (client) ID**
 - The App Registration **Secret Value**
 
-Once the Collection is created, go to the **Settings** tab and gather your Intune configuration values:
+Once the Collection is created, you'll need to make a new Account.
+Choose **+ Add Account**.
+Choose either Wi-Fi or VPN, depending on what you need, and select Create.
+This tutorial assumes you are configuring EAP-TLS Wi-Fi network access.
 
-- Copy your SCEP URL
+Once you've created the Account, open the Account details.
+You cna keep this tab open as you configure Intune.
+
+To prepare for the next section:
 - Download your Root CA Certificate
 - Download your Intermediate CA Certificate
+- Copy your SCEP URL
 
 ## 4. Configure Intune
 
@@ -162,7 +170,7 @@ Create [a new SCEP certificate profile](https://intune.microsoft.com/#view/Micro
     
 - SCEP Server URL: Use the SCEP URL you copied from Smallstep
 
-## 4. Test and verify your profile
+## 5. Test and verify your profile
 
 Now try enrolling or syncing a device.
 

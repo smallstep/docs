@@ -52,7 +52,7 @@ In this section, we will set up an MDM profile that instructs devices to establi
 
 Smallstep will provide the following values, which you’ll need later:
 
-- A Jamf webhook URL, username and password to be used when configuring your Jamf webhook.
+- A Jamf webhook URL, username and password to be used when configuring your Jamf webhook
 - Your root CA certificate, for configuring the `Certificate` payload
 - Your SCEP CA URL, for configuring the `SCEP` payload
 - Your intermediate CA fingerprint, for configuring the `SCEP` payload
@@ -192,6 +192,18 @@ For this section, you will need a RADIUS server that your users will authenticat
     If your RADIUS server certificate is from a different PKI, you’ll need to add a new Certificate payload containing your RADIUS server’s Root CA certificate.
     
 6. Under the Certificate Common Name, use the Common Name of your RADIUS server.
+
+## Changing Production Profiles
+
+As you plan changes to your configuration profile, it is recommended to stage your changes.
+Here's one approach:
+- Clone your production profile in Jamf
+- Exclude your test computer or device from your production profile
+- Add your test computer or device to the cloned profile
+- Make and test changes to the cloned profile
+- Apply your changes back to the production profile
+- Re-add your test device to the production profile scope
+- Finally, remove the cloned profile
 
 ### Troubleshooting
 
