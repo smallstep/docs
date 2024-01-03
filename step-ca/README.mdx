@@ -88,3 +88,23 @@ For strong protection of your CA signing keys, we've built [`step-ca` integratio
 ### Other Integrations
 
 `step-ca` plays well with Kubernetes cert-manager and Envoy Secret Discovery Service. For more information, see [Integrations](./integrations.mdx).
+
+## Limitations
+
+While we think `step-ca` is the best open source, online Certificate Authority on the internet, every piece of software comes with limitations and tradeoffs.
+
+`step-ca` is designed to favor a simple deployment of a scalable two-tiered X.509 PKI, with one Root CA and one Intermediate CA that issues end-entity certificates with passive revocation.
+
+Here are some limitations of `step-ca` that grew out of [our design choices](../design-document.mdx):
+- It issues X.509 certificates from a single configured Intermediate CA; multiple issuing CAs are not supported
+- Its root CA is always offline; a single-tier PKI is not supported
+- Issuance policies are authority-wide
+- Very limited options for active revocation (CRL, OCSP)
+- Very limited options for legacy CA protocols
+- Very limited options for device attestation
+- No integration with Certificate Transparency (CT) logs
+- No support for certificate issuance history or metrics
+- No support for ACME External Account Binding (EAB)
+
+If your use case demands these features, you should [talk to us](https://go.smallstep.com/request-demo) because you may be better served by our [commercial product](https://smallstep.com/product/).
+
