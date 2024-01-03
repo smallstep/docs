@@ -95,7 +95,7 @@ While we think `step-ca` is the best open source, online Certificate Authority o
 
 `step-ca` is designed to favor a simple deployment of a scalable two-tiered X.509 PKI, with one Root CA and one Intermediate CA that issues end-entity certificates with passive revocation.
 
-Here are some limitations of `step-ca` that grew out of our design choices:
+Here are some limitations of `step-ca` that grew out of [our design choices](../design-document.mdx):
 - It issues X.509 certificates from a single configured Intermediate CA; multiple issuing CAs are not supported
 - Its root CA is always offline; a single-tier PKI is not supported
 - Issuance policies are authority-wide
