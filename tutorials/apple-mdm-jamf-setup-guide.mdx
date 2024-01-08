@@ -44,28 +44,32 @@ In this section, we will set up an MDM profile that instructs devices to establi
 
 ### Configure Smallstep for Jamf
 
-1. In the **Devices** tab, add a device collection and choose **Jamf**
-2. Fill in the details related to your Jamf instance.
-3. In the Devices tab, create a collection
-4. Choose Jamf and select your Jamf instance and a Certificate Authority to use
-5. Click **Accounts** → **Add Account** → **Wifi**
+1. In the **Devices** tab, add a device collection and choose **Jamf Computers** for macOS devices, or **Jamf Devices** for other Apple devices
+2. Fill in your Jamf instance URL and choose **Confirm**
+3. Choose **WiFi**, then **Continue**
+4. Enter your public IP and Wi-Fi SSID. Smallstep needs your public IP address in order to identify your network requests.
+5. The other fields are optional. Select **Continue** when done.
+6. Choose the **Configuration Profile** link on the top right of the accounts page to download a `.mobileconfig` template that you'll import into Jamf.
 
+<Alert severity="info">
+  <div>
+     Resist the temptation to manually install the `.mobileconfig` file for testing; it won’t work.
+  </div>
+</Alert>
+
+Keep this page open.
 Smallstep will provide the following values, which you’ll need later:
 
-- A Jamf webhook URL, username and password to be used when configuring your Jamf webhook
-- Your root CA certificate, for configuring the `Certificate` payload
-- Your SCEP CA URL, for configuring the `SCEP` payload
-- Your intermediate CA fingerprint, for configuring the `SCEP` payload
+- **Jamf Settings**: A Jamf webhook URL, username and password to be used when configuring your Jamf webhook
+- **Configuration Profile** template: The `.mobileconfig` file you downloaded
 
 ### Configure Jamf to use Smallstep
 
-There are five steps to this part of the process:
+There are three steps to this part of the process:
 
-1. Configure a SCEP dynamic challenge webhook
-2. Create a configuration profile for testing
-3. Add a [`Certificate` payload](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/1/web/1.0) containing your root CA certificate
-4. Add a [`SCEP` payload](https://support.apple.com/guide/deployment/scep-payload-settings-dep495a6d79/1/web/1.0) for requesting a client certificate
-5. Complete and test your setup
+1. Configure a SCEP dynamic challenge webhook in Jamf
+2. Upload the Configuration Profile you downloaded from Smallstep
+3. Complete and test your setup
 
 ### 1. Configure a SCEP dynamic challenge webhook
 
@@ -84,116 +88,16 @@ There are five steps to this part of the process:
 
 4. Choose **Save** in the bottom right
 
-### 2. Create a Configuration Profile for testing
+### 2. Upload the Configuration Profile
 
-<Alert severity="warning">
-  <div>
-    Use a Device or Computer Level profile. These instructions do not apply to User Level profiles.
-  </div>
-</Alert>
+1. In the Jamf Dashboard, go to Configuration Profiles (for Computers or Devices)
+2. Choose **Upload**.
+3. **Choose File** and select the `.mobileconfig` template you downloaded from Smallstep
+4. Choose the Scope tab, and select a device or user for testing. For the device to appear, the device should already be enrolled with a basic Jamf MDM profile.
 
-To test your setup, you can create a computer or mobile device Configuration Profile—or both—as needed. Some of the settings below are not available on mobile.
+Enrolled devices will immediately receive the configuration profile updates from Jamf and will be ready to join the network.
 
-When you move from test into production, you’ll repeat the setup steps below in your production profiles.
-
-**2a. Add a `Certificate` Payload to the Configuration Profile**
-
-This payload configures the device to trust your Smallstep Root CA. The device needs CA trust in order to request a client certificate.
-
-Use the following payload properties:
-
-- Set a name, e.g. `Smallstep Root CA`
-- Select Certificate Option: `Upload`
-- Choose **Upload Certificate** and upload the PEM-formatted root CA certificate you received from Smallstep.
-
-<Alert severity="warning">
-  <div>
-    Jamf requires the file extension to be `.cer` for it to appear in the file chooser, so you may need to rename your CA certificate file. The extensions `.cer`, `.crt`, and `.pem` all generally refer to the same PEM certificate format.
-  </div>
-</Alert>
-
-- Password is not required; it’s just a certificate, after all.
-- Select ✅ **Allow all apps access**
-- ✅ **Allow export from keychain** can be enabled or disabled
-
-Choose Save in the bottom right to save the profile.
-
-**2b. Add a `SCEP` Payload to the Configuration Profile**
-
-The `SCEP` payload configures the device to get a client certificate from Smallstep, using Dynamic SCEP.
-
-In the Configuration Profile, create a `SCEP` Payload with the following properties:
-
-- Use the **SCEP URL** you received from Smallstep
-- **Name** is optional; the name you choose will appear in the macOS or iOS Profiles settings panel
-- **Redistribute Profile** can be used to request Jamf redistribute the profile a number of days before the certificate expires.
-    
-    Redistributing the profile renews the SCEP client certificate. The correct value for this field depends on the client certificate’s validity period.
-    
-    Because mobile devices and laptops are intermittently connected, we recommend redistribution at around 20% of the certificate lifetime.
-    
-    A good starting point is to use a 45 day certificate, redistributed 30 days before it expires.
-    
-- Fill in the **Subject** as you wish.
-    - When using Redistribute Profile, `$PROFILE_IDENTIFIER` must be somewhere in your subject name. Use any subject name field for this — `OU`, `O`, `L`, `ST`, etc.
-    - `CN=$COMPUTERNAME` or `CN=$UDID` can be used as dynamic value. Other possible variable names are available; see the [Jamf documentation](https://learn.jamf.com/bundle/jamf-pro-documentation-current/page/Computer_Configuration_Profiles.html).
-    - A good starting point for this value is `CN=$UDID,L=$PROFILE_IDENTIFIER`
-- Optional: Add **Subject Alternative Names (SANs)** as needed.
-- Set **Challenge Type** to Dynamic. Jamf will use the Dynamic Challenge webhook configured earlier.
-- The default notification threshold should be adjusted to be a fraction of the total certificate lifetime.
-- Set **key size** to at least 2048 bits
-- Select ✅ **Use as Digital Signature**
-- Select ✅ **Use for Key Encipherment**
-- For **Fingerprint**, use the Intermediate CA Fingerprint you received from Smallstep. This value is a hex-encoded MD5 or SHA1 hash with no delimiters.
-- Only select **Allow export from Keychain** or **Allow all apps access** if you need them.
-(This setting is only available on Computer profiles.)
-- **Here's an example of the completed form**
-    
-    ![jamf scep.png](/graphics/jamf_scep.png)
-    
-
-Choose Save in the bottom right to save the profile.
-
-<Alert severity="info">
-  <div>
-    We recommend adding both payloads to the same Configuration Profile, but you could use separate profiles, so long as the profile with the `Certificate` payload is applied before the profile with the `SCEP` payload.
-  </div>
-</Alert>
-
-### 3. Test your MDM Profile
-
-After configuring the SCEP payload, it’s possible to add more payloads that make use of the SCEP certificate—for example, a VPN or Network/Wi-Fi payload—but we suggest testing this basic profile before you add payloads that use the certificate.
-
-To test your Configuration Profile, attach a Scope:
-
-1. In the **Configuration Profile** settings, choose the **Scope** tab
-2. Select a device or user for testing. For the device to appear, the device should already be enrolled with a basic Jamf MDM profile.
-
-<Alert severity="info">
-  <div>
-     Resist the temptation to download the profile from the Jamf admin panel and manually installing it; it won’t work.
-  </div>
-</Alert>
-
-## Adding Wi-Fi
-
-Now that we have a basic working profile with CA trust and a client certificate, we’ll configure an EAP-TLS certificate Wi-Fi connection.
-
-For this section, you will need a RADIUS server that your users will authenticate against. Check the certificate used by your RADIUS server for its common name.
-
-1. In Jamf, create a Wi-Fi payload.
-2. Configure your SSID and other basic network settings.
-3. For Network Security, select WPA2 Enterprise or WPA3 Enterprise.
-4. In the Protocols tab, select the EAP-TLS protocol.
-5. Under the Trust tab, add a Trusted Certificate for your RADIUS server. 
-    
-    If your RADIUS server certificate is managed by Smallstep, choose your Smallstep Root CA Certificate payload here.
-    
-    If your RADIUS server certificate is from a different PKI, you’ll need to add a new Certificate payload containing your RADIUS server’s Root CA certificate.
-    
-6. Under the Certificate Common Name, use the Common Name of your RADIUS server.
-
-## Changing Production Profiles
+### Changing Production Profiles
 
 As you plan changes to your configuration profile, it is recommended to stage your changes.
 Here's one approach:
@@ -204,6 +108,12 @@ Here's one approach:
 - Apply your changes back to the production profile
 - Re-add your test device to the production profile scope
 - Finally, remove the cloned profile
+
+### Running your own RADIUS server?
+
+If you run your own RADIUS server, you'll need to modify the Configuration Profile you uploaded to Jamf from Smallstep.
+Change the Certificate Trust settings for your `Wi-Fi` Payload so that they use your RADIUS server's Root CA Certificate instead of Smallstep's.
+You may need to add an additional `Certificate` payload for your RADIUS server.
 
 ### Troubleshooting
 
