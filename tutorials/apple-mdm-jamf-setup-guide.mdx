@@ -57,21 +57,15 @@ In this section, we will set up an MDM profile that instructs devices to establi
   </div>
 </Alert>
 
-Keep this page open.
-Smallstep will provide the following values, which you’ll need later:
-
-- **Jamf Settings**: A Jamf webhook URL, username and password to be used when configuring your Jamf webhook
-- **Configuration Profile** template: The `.mobileconfig` file you downloaded
+On this page, you will need the **Jamf Settings**:
+a webhook URL, username and password to be used when configuring a Jamf `SCEP Challenge` webhook, below.
 
 ### Configure Jamf to use Smallstep
 
-There are three steps to this part of the process:
+#### Configure a SCEP Challenge webhook
 
-1. Configure a SCEP dynamic challenge webhook in Jamf
-2. Upload the Configuration Profile you downloaded from Smallstep
-3. Complete and test your setup
-
-### 1. Configure a SCEP dynamic challenge webhook
+First, you'll need to add a SCCEP Challenge webhook to your Jamf tenant configuration.
+You'll only need to do this once.
 
 1. In the Jamf dashboard, go to `Settings` and search for `Webhooks`
 2. Click **+ New**
@@ -88,7 +82,9 @@ There are three steps to this part of the process:
 
 4. Choose **Save** in the bottom right
 
-### 2. Upload the Configuration Profile
+#### Upload and Test the Configuration Profile
+
+Next, upload the Configuration Profile you downloaded from Smallstep, and map it to a test device.
 
 1. In the Jamf Dashboard, go to Configuration Profiles (for Computers or Devices)
 2. Choose **Upload**.
@@ -96,10 +92,11 @@ There are three steps to this part of the process:
 4. Choose the Scope tab, and select a device or user for testing. For the device to appear, the device should already be enrolled with a basic Jamf MDM profile.
 
 Enrolled devices will immediately receive the configuration profile updates from Jamf and will be ready to join the network.
+If you need to make changes, you can change the settings in Smallstep and download a new Configuration Profile template.
 
-### Changing Production Profiles
+### Deploying Production Profiles
 
-As you plan changes to your configuration profile, it is recommended to stage your changes.
+As you plan to deploy your configuration profile, it is recommended to stage your changes.
 Here's one approach:
 - Clone your production profile in Jamf
 - Exclude your test computer or device from your production profile
