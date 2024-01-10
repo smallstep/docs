@@ -30,14 +30,6 @@ You will need:
 - A test device or VM to enroll in MDM.
 - A Jamf user for testing enrollment.
 
-<Alert severity="info">
-  <div>
-    If you’re planning to deploy Wi-Fi and EAP-TLS using a JumpCloud RADIUS server, you will need to use an RSA CA.
-    This requires creating an Advanced Authority.
-    When creating the Authority, use key type `RSA_SIGN_PKCS1_2048_SHA256` for both root & intermediate CAs.
-  </div>
-</Alert>
-
 ## Step-by-step instructions
 
 In this section, we will set up an MDM profile that instructs devices to establish CA trust with your Smallstep CA, and to get a client certificate via Smallstep’s SCEP server.
@@ -111,6 +103,14 @@ Here's one approach:
 If you run your own RADIUS server, you'll need to modify the Configuration Profile you uploaded to Jamf from Smallstep.
 Change the Certificate Trust settings for your `Wi-Fi` Payload so that they use your RADIUS server's Root CA Certificate instead of Smallstep's.
 You may need to add an additional `Certificate` payload for your RADIUS server.
+
+<Alert severity="info">
+  <div>
+    If you’re planning to deploy Wi-Fi and EAP-TLS using a JumpCloud RADIUS server, you will need to use an RSA CA.
+    This requires creating an Advanced Authority.
+    When creating the Authority, use key type `RSA_SIGN_PKCS1_2048_SHA256` for both root & intermediate CAs.
+  </div>
+</Alert>
 
 ### Troubleshooting
 
