@@ -559,9 +559,7 @@ Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plu
 
 Also, make sure you have installed [the `gcloud` CLI](https://cloud.google.com/sdk/docs/install) and have [configured Google Cloud application default credentials](https://developers.google.com/accounts/docs/application-default-credentials) in your local environment, eg. by running `gcloud auth application-default login`.
 
-In the project of your choosing, first [create a Cloud KMS key ring](https://cloud.google.com/kms/docs/create-key-ring) called `step-ca`.
-
-Next, let's generate a private key for your Root CA. Run:
+Next, let's generate a private key for your Root CA. The `step kms create` command will also [create a Cloud KMS key ring](https://cloud.google.com/kms/docs/create-key-ring) for you, if it doesn't exist. Run:
 
 ```shell nocopy
 $ step kms create --json --kms 'cloudkms:' \
