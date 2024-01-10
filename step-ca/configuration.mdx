@@ -559,18 +559,19 @@ Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plu
 
 Also, make sure you have installed [the `gcloud` CLI](https://cloud.google.com/sdk/docs/install) and have [configured Google Cloud application default credentials](https://developers.google.com/accounts/docs/application-default-credentials) in your local environment, eg. by running `gcloud auth application-default login`.
 
-Next, let's generate a private key for your root CA inside Google Cloud KMS. Run:
+Next, let's generate a private key for your Root CA. The `step kms create` command will also [create a Cloud KMS key ring](https://cloud.google.com/kms/docs/create-key-ring) for you, if it doesn't exist. Run:
 
 ```shell nocopy
 $ step kms create --json --kms 'cloudkms:' \
     'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root'
 ```
 
-To constructe the key name parameter, use the resource name of the [CryptoKey](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKey) object you want to create, following the format:
+To constructe the key name parameter above, use the resource name of the [CryptoKey](https://cloud.google.com/kms/docs/reference/rest/v1/projects.locations.keyRings.cryptoKeys#CryptoKey) object you want to create, following the format:
 
 ```
 projects/<project-id>/locations/<location>/keyRings/<key-ring-id>/cryptoKeys/<key-id>
 ```
+
 
 Once the key is generated, `step` outputs the key's name (including a version number), and the public key PEM:
 
@@ -682,6 +683,26 @@ When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH use
 2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
+#### Notes on Google Cloud KMS Permissions
+
+Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
+See [Google Cloud KMS: Access Control with IAM](https://cloud.google.com/kms/docs/iam) for an overview.
+
+Here are some notes on granting a custom IAM role that provides step-ca with access to Google Cloud KMS:
+* You can constrain the role to the key ring that you created for step-ca.
+* For day-to-day operation, grant `step-ca` the following default roles:
+  * [`cloudkms.cryptoOperator`](https://cloud.google.com/iam/docs/understanding-roles#cloudkms.cryptoOperator)
+  * [`cloudkms.viewer`](https://cloud.google.com/iam/docs/understanding-roles#cloudkms.viewer)
+* More specifically, a running `step-ca` needs access to the following KMS APIs:
+  * `resourcemanager.projects.get`
+  * `cloudkms.locations.get`
+  * `cloudkms.keyRings.get`
+  * `cloudkms.cryptoKeys.get`
+  * `cloudkms.cryptoKeyVersions.get`
+  * `cloudkms.cryptoKeyVersions.useToSign`
+  * `cloudkms.cryptoKeyVersions.useToVerify`
+  * `cloudkms.cryptoKeyVersions.useToDecrypt`
+
 ### AWS KMS
 
 [AWS KMS](https://aws.amazon.com/kms/) is Amazon's managed encryption and key management service. It creates and stores the cryptographic keys and uses AWS infrastructure for signing operations. Amazon KMS operations are always backed by HSMs.
@@ -713,6 +734,9 @@ Once the key is generated, `step` outputs the key ID and the public key PEM:
   "publicKey": "-----BEGIN PUBLIC KEY-----\nMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEH2ls6h1y2jsXV+IeuhDVkb68zkMe\nKPtI7L6vBIa5ThxOyFaZFnUrGWU6B+KQjProAntgKyNTqOnAh7Eyr3RmgQ==\n-----END PUBLIC KEY-----\n"
 }
 ```
+
+When creating the key, `step kms create` will also add an AWS key alias `root-ca-78980acd` for the key.
+The alias is concatenates the key name and the first segment of the key's ID.
 
 You'll need this key name for the next step.
 
@@ -820,6 +844,17 @@ When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH use
 2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
+#### Notes on AWS KMS Permissions
+
+Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
+See [Using IAM Policies With AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/iam-policies.html) for an overview.
+
+Here are some notes on granting a custom IAM role that provides step-ca with access to AWS KMS:
+* You can constrain the role to specific keys that you created for step-ca, by listing each key's ARN in the Resource block of the JSON policy.
+* For day-to-day operation, grant `step-ca` the following permissions:
+  * `kms:GetPublicKey`
+  * `kms:Sign`
+
 ### Azure Key Vault
 
 [Azure Key Vault](https://azure.microsoft.com/en-us/products/key-vault) is Microsoft's managed key management service.
@@ -869,6 +904,20 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 * In the `key` URI, the `version` is the version of the Azure Key Vault key name. Though it is optional, we recommend setting this value explicitly. If omitted, the latest version is used.
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
+
+#### Notes on Azure Key Vault IAM Permissions
+
+Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
+See [Provide access to Key Vault keys, certificates, and secrets with an Azure role-based access control](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli) for an overview.
+
+Here are some notes on granting a custom IAM role that provides step-ca with access to Azure Key Vault:
+* You can constrain the role to the vault that you created for step-ca.
+* For day-to-day operation, grant `step-ca` the following default RBAC roles on the vault:
+  * Key Vault Crypto User
+  * Key Vault Reader
+* More specifically, a running `step-ca` needs access to the following APIs:
+  * `GetKey`
+  * `Sign`
 
 ### PKCS #11
 
