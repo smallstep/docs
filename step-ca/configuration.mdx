@@ -735,6 +735,9 @@ Once the key is generated, `step` outputs the key ID and the public key PEM:
 }
 ```
 
+When creating the key, `step kms create` will also add an AWS key alias `root-ca-78980acd` for the key.
+The alias is concatenates the key name and the first segment of the key's ID.
+
 You'll need this key name for the next step.
 
 <Alert severity="info">
