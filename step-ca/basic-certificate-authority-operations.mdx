@@ -241,7 +241,7 @@ When both the user and the host use certificates in a connection, you will have 
 - **The host authenticates the user**: When configured to trust the User CA key, a host delegates user identity to the SSH CA. When a user presents their certificate to a host during the SSH handshake, the host will trust it if it's signed by the User CA key, and it will alow any listed certificate principals (usernames) to sign in.
 - **The user authenticates the host**: When configured to trust the Host CA key, clients delegate host identity to the CA. When a host presents its certificate to a user during the SSH handshake, the user will trust it if it's signed by the host CA key.
 
-When [`step ca init`](../step-cli/reference/ca/init is run with `--ssh`, it creates two SSH CA key pairs: one for the host CA, and one for the user CA. The user CA key signs SSH user certificates, and the host CA key signs SSH host certificates.
+When [`step ca init`](../step-cli/reference/ca/init) is run with `--ssh`, it creates two SSH CA key pairs: one for the host CA, and one for the user CA. The user CA key signs SSH user certificates, and the host CA key signs SSH host certificates.
 
 ### Requirements
 
