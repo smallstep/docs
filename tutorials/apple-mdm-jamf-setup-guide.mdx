@@ -100,9 +100,8 @@ Here's one approach:
 
 ### Running your own RADIUS server?
 
-If you run your own RADIUS server, you'll need to modify the Configuration Profile you uploaded to Jamf from Smallstep.
-Change the Certificate Trust settings for your `Wi-Fi` Payload so that they use your RADIUS server's Root CA Certificate instead of Smallstep's.
-You may need to add an additional `Certificate` payload for your RADIUS server.
+If you run your own RADIUS server, you'll need to modify your Configuration Profile to match your setup.
+Link the Certificate Trust settings for your `Wi-Fi` Payload to your RADIUS server's Root CA certificate instead of Smallstep's. You may need to add an additional `Certificate` payload for your RADIUS server's Root CA.
 
 <Alert severity="info">
   <div>
