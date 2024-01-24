@@ -25,6 +25,7 @@ It's trivial to install the `step` binary on your local machine.
   - [Arch Linux](#arch-linux)
   - [RedHat](#redhat)
   - [Alpine Linux](#alpine-linux)
+  - [Wolfi](#wolfi)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
 - [Linux Binaries](#linux-binaries)
@@ -85,6 +86,18 @@ sudo rpm -i step-cli_amd64.rpm
 ```
 
 To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` configuration directory.
+
+#### Wolfi
+
+[Wolfi](https://wolfi.dev) has a maintained `step` package.
+
+Use apk to install `step`:
+
+```
+apk add step
+```
+
+To uninstall, run `apk del step` and remove the `$HOME/.step` configuration directory.
 
 #### Alpine Linux
 
