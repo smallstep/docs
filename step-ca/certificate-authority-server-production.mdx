@@ -333,7 +333,7 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   {`$ sudo chown -R step:step /etc/step-ca`}
   </CodeBlock>
 
-  Point your `ca.conf` file to the new database location.
+  Modify your `ca.conf` file to point to the new database location:
   <CodeBlock language="shell-session">
   {`cat <<< $(jq '.db.dataSource = "/etc/step-ca/db"' /etc/step-ca/config/ca.json) > /etc/step-ca/config/ca.json`}
   </CodeBlock>
