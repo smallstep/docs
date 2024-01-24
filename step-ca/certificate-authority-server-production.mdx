@@ -305,8 +305,8 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
 
   The service user will only be used by `systemd` to manage the CA. Run:
 
-  <CodeBlock language="shell-session" copytext="sudo useradd --system --home /etc/step-ca --shell /bin/false step">
-  {`$ sudo useradd --system --home /etc/step-ca --shell /bin/false step`}
+  <CodeBlock language="shell-session" copytext="sudo useradd --user-group --system --home /etc/step-ca --shell /bin/false step">
+  {`$ sudo useradd --user-group --system --home /etc/step-ca --shell /bin/false step`}
   </CodeBlock>
 
   If your CA will bind to port 443, the `step-ca` binary will need to be
@@ -331,6 +331,11 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
 
   <CodeBlock language="shell-session" copytext="sudo chown -R step:step /etc/step-ca">
   {`$ sudo chown -R step:step /etc/step-ca`}
+  </CodeBlock>
+
+  Point your `ca.conf` file to the new database location.
+  <CodeBlock language="shell-session">
+  {`cat <<< $(jq '.db.dataSource = "/etc/step-ca/db"' /etc/step-ca/config/ca.json) > /etc/step-ca/config/ca.json`}
   </CodeBlock>
 
 3. Create a `systemd` unit file.
