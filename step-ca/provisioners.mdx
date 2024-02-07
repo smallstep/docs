@@ -1061,10 +1061,10 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
       "x509": {
         "template": 
           "{
-            \"subject\": {{
+            \"subject\": {
                 \"organization\": \"Organization Name\",
-                \"commonName\": {{{{ toJson .Oidc.name }}}}
-            }},
+                \"commonName\": {{ toJson .Oidc.name }}
+            },
             \"uris\": [{{ toJson .Oidc.preferred_username }}, {{ toJson .Dpop.sub }}],
             \"keyUsage\": [\"digitalSignature\"],
             \"extKeyUsage\": [\"clientAuth\"]
@@ -1099,7 +1099,7 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
           },
           "dpop": {
             "key": "base64(public.pem)",
-            "target": "https://example.com/clients/{{.DeviceID}}/access-token"
+            "target": "https://example.com/clients/{{ .DeviceID }}/access-token"
           }
       }
     }
