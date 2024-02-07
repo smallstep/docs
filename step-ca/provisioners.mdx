@@ -40,6 +40,9 @@ Hardware ID     | ✔️   | 𝗫   | ✔️   | 𝗫   | 𝗫   | 𝗫   | ✔�
 Service Account | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | ✔️   | ✔️   | 𝗫 
 Human           | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫   | 𝗫
 
+Besides the identifier types described above, `step-ca` also integrates with and supports [Wire](https://wire.com/) messenger application identities.
+The configuration for this is described in [ACME for Wire messenger clients](#acme-for-wire-messenger-clients).
+
 ## Authorization Scope by Provisioner
 
 Every provisioner has a slightly different scope of authorization. Below is a
@@ -935,7 +938,7 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 - **caaIdentities**<Reference id="star6" marker="*" />: an array of hostnames that the ACME server identifies itself with. These hostnames can be used by ACME clients to determine the correct issuer domain name to use when configuring CAA records. Defaults to empty array.
 
-- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. Note that `device-attest-01` is disabled by default.
+- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. Note that `device-attest-01`, `wire-oidc-01` and `wire-dpop-01` are disabled by default.
 
 - **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. The `apple` format is for Apple devices, and adds trust for Apple's CAs. The `step` format is for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for Yubico's root CA. The `tpm` format is for TPMs. It does not trust any TPM vendor CAs by default.
 
@@ -1026,6 +1029,91 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
       --provisioner acme-da $YUBIKEY_SERIAL_NO yubikey.crt
    }
    ```
+
+#### ACME for Wire messenger clients
+
+<Alert severity="warning">
+  <div> 
+    The challenge types for Wire clients must be explicitly enabled in an ACME provisioner.
+    Currently the configuration can only be done through editing the configuration file.
+  </div>
+</Alert>
+
+The `wire-oidc-01` and `wire-dpop-01` challenges enable `step-ca` to issue certificates to Wire clients.
+Wire clients make use of a user and a device identity, both of which are challenged and verified, after which the identities are combined into a single X.509 certificate.
+
+Here's an example of an ACME provisioner with Wire support enabled in `$(step path)/config/ca.json`:
+
+```json
+...
+{
+    "type": "ACME",
+    "name": "wire",
+    "claims": {
+        "maxTLSCertDuration": "24h",
+        "defaultTLSCertDuration": "16h"
+	  },
+    "challenges": [
+        "wire-oidc-01",
+        "wire-dpop-01"
+    ],
+    "options": {
+      "x509": {
+        "template": 
+          "{
+            \"subject\": {{
+                \"organization\": \"Organization Name\",
+                \"commonName\": {{{{ toJson .Oidc.name }}}}
+            }},
+            \"uris\": [{{ toJson .Oidc.preferred_username }}, {{ toJson .Dpop.sub }}],
+            \"keyUsage\": [\"digitalSignature\"],
+            \"extKeyUsage\": [\"clientAuth\"]
+          }"
+      },
+      "wire": {
+          "oidc": {
+            "provider": {
+              "discoveryBaseUrl": "https://accounts.example.com/.well-known/openid-configuration",
+              "issuerUrl": "https://accounts.example.com",
+              "authorizationUrl": "https://accounts.example.com/o/oauth2/v2/auth",
+              "tokenUrl": "https://oauth2.example.com/token",
+              "jwksUrl": "https://www.example.com/oauth2/v3/certs",
+              "userInfoUrl": "https://openidconnect.example.com/v1/userinfo",
+              "signatureAlgorithms": [
+                "RS256",
+                "ES256",
+                "ES384",
+                "EdDSA"
+              ]
+            },
+            "config": {
+                "clientId": "wireapp",
+                "signatureAlgorithms": [
+                    "RS256",
+                    "ES256",
+                    "ES384",
+                    "EdDSA"
+                ]
+            },
+            "transform": "{\"name\": \"{{ .name }}\", \"preferred_username\": \"{{ .preferred_username }}\"}"
+          },
+          "dpop": {
+            "key": "base64(public.pem)",
+            "target": "https://example.com/clients/{{.DeviceID}}/access-token"
+          }
+      }
+    }
+}
+```
+
+- The `wire-oidc-01` and `wire-dpop-01` challenge types must both be enabled.
+- The certificate template can include (transformed) properties from the OIDC and DPoP tokens (e.g. `.Oidc.preferred_username`, and `.Dpop.sub`).
+- The `wire` property holds Wire specific OIDC and DPoP validation configuration options.
+- To configure OIDC validation, set either the `discoveryBaseUrl` to use OIDC discovery, or configure all other properties statically.
+- Set `clientId` to the expected OIDC token audience.
+- To support multiple SSO IdPs, the `transform` option can be used to map and/or transform properties in the OIDC token. The tokens are verified first, then transformed and persisted. Transformation uses the same engine as our certificate template engine. The properties from the transformed token can be referenced in the certificate template. 
+- The `key` configuration is the base64 encoded PEM public key corresponding to the private key that signs the DPoP token 
+- The `target` configuration is a templated URL pointing to the token issuer. The value of `DeviceID` is evaluated when the certificate is requested.
 
 
 ### SCEP
