@@ -45,12 +45,16 @@
           "title": "Tutorials",
           "routes": [
             {
-              "title": "Jamf Pro + Smallstep Setup Guide",
+              "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro + Smallstep",
               "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
             },
             {
-              "title": "Intune + Smallstep Setup Guide",
+              "title": "Deploy EAP-TLS Wi-Fi with Intune + Smallstep",
               "path": "/tutorials/intune-mdm-setup-guide.mdx"
+            },
+            {
+              "title": "Deploy EAP-TLS Wi-Fi on Apple devices with your MDM + Smallstep",
+              "path": "/tutorials/generic-apple-mdm-setup-guide.mdx"
             }
           ]
         },
