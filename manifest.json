@@ -51,10 +51,6 @@
             {
               "title": "Deploy EAP-TLS Wi-Fi with Intune + Smallstep",
               "path": "/tutorials/intune-mdm-setup-guide.mdx"
-            },
-            {
-              "title": "Deploy EAP-TLS Wi-Fi on Apple devices with your MDM + Smallstep",
-              "path": "/tutorials/generic-apple-mdm-setup-guide.mdx"
             }
           ]
         },
