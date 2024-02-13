@@ -2,6 +2,7 @@
 title: Production considerations when running a certificate authority server
 html_title: Certificate authority server production considerations
 description: Learn about the important production considerations and sane cryptographic defaults that operators should know about when running a certificate authority server
+updated_at: February 12, 2024
 ---
 
 
@@ -29,6 +30,7 @@ safely and securely in a production environment.
 - [Certificate Lifecycle Management](#certificate-lifecycle-management)
   - [Automate Certificate Renewal](#automate-x509-certificate-lifecycle-management)
   - [Certificate Revocation](#certificate-revocation)
+  - [Root Distribution](#root-distribution)
   - [Rotating CA Certificates](#rotating-ca-certificates)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
@@ -599,6 +601,85 @@ See our [Renewal](./renewal.mdx) documentation for details.
 By default, `step-ca` uses passive revocation.
 Certificates can be revoked using the `step ca revoke` subcommand.
 See our [Revocation](./revocation.mdx) documentation for details.
+
+### Root Distribution
+
+To bootstrap trust, you will need to deploy your root CA certificate to clients.
+The [`step ca bootstrap`](../step-cli/reference/ca/bootstrap) command can be used on any CLI-based clients.
+In practice, however, certificates are everywhere, and `step` can't be used everywhere.
+
+While we can't cover all the options for root distribution here,
+we can offer some approaches and examples.
+
+Generally speaking:
+- You can inject a root CA PEM bundle into the environment when creating or configuring a resource.
+  For example, in the User Data script for a new virtual machine, or in a new Dockerfile layer. 
+  Or, at container startup, you could volume mount your CA certificates into the container.
+- You can inject the root CA fingerprint, and download the certificate on startup or first boot.
+  Use the `/roots.pem` endpoint in `step-ca` to download the root CA bundle.
+  To bootstrap, you'll have to temporarily disable TLS server certificate validation in your client (eg. `curl -k`).
+  After downloading the CA certificate, compare its SHA256 fingerprint with your known value.
+  If you have access to `openssl` or the OpenSSL libraries, you can use `openssl x509 -in root-ca.crt -noout -sha256 -fingerprint` to get a certificate's fingerprint.
+- If your deployment environment is able to trust the Web PKI,
+  you can leverage Web PKI trust to bootstrap your own PKI.
+  Just host your CA certificate as a static file on an HTTPS endpoint.
+- For DevOps infrastructure,
+  IaC tools can simplify root distribution
+  and simplify the root rotation process down the road.
+  However, many of these tools rely on `ssh`, which comes with its own bootstrapping challenges.
+  See our blog post [If you’re not using SSH certificates you’re doing SSH wrong](https://smallstep.com/blog/use-ssh-certificates/) for more. 
+- For MDM environments,
+  you can leverage the MDM channel's TLS connection,
+  which is established upon MDM enrollment.
+
+#### Installing a CA certificate
+
+Your CA certificate may need to be installed and trusted into the target operating system's certificate trust store.
+The command for doing this various by operating system, distribution, and the target application.
+Confusingly, there may be several trust store libraries and locations on a given system.
+
+#### Example: Linux Trust Anchors
+
+While many popular Linux distributions have standardized around the [`ca-certificates`](https://src.fedoraproject.org/rpms/ca-certificates) package to manage their internal trust store,
+they don't all use the same paths for the trust store itself.
+
+Unfortunately, there is no single place on a Linux system where you can reliably mount this volume,
+because **applications use several methods to access system CA certificates:**
+
+- OpenSSL-based applications and many Linux distributions use the `/etc/ssl/certs` directory as the system trust store.
+- NSS uses a hard-coded list of trusted CA certificates inside the `libnssckbi.so` library,
+  and it stores user-supplied certificates in SQL databases inside `$HOME/.pki/nssdb` or `/etc/pki/nssdb`.
+- Java applications use a special Java Keystore file and the [`keytool`](https://docs.oracle.com/javase/8/docs/technotes/tools/unix/keytool.html) command to manage it.
+- Some applications (like `step`) don't trust *any* system trust store,
+  or they have their own independent trust store or need to be configured with a CA bundle filename.
+  Servers that need to validate client certificates generally won't trust the system trust store,
+  and will require a CA bundle be passed in as a config parameter.
+
+**For distros that use standard `ca-certificates` paths**
+
+- Debian
+- BusyBox
+- Ubuntu
+- Alpine
+
+The recommended approach is to add the CA's PEM file to `/usr/local/share/ca-certificates/`,
+and run the `update-ca-certificates` command.
+This will generate the system-managed `/etc/ssl/certs/ca-certificates.crt` list of trusted certificates.
+
+**Arch Linux**
+
+Mount your PEM file into `/etc/ca-certificates/trust-source/anchors/`, then run `update-ca-trust extract` in the container to update the trust store.
+
+**RHEL 8**
+
+Put CA certificates into `/etc/pki/ca-trust/source/anchors/` or `/usr/share/pki/ca-trust-source/anchors/`, and run `update-ca-trust`.
+
+#### Further Reading
+
+- [Our blog post on certificate automation for containers](https://smallstep.com/blog/automate-docker-ssl-tls-certificates/) contains detailed Root Distribution examples that could also provide inspiration for other contexts.
+- [Storing Trust Policy](https://p11-glue.github.io/p11-glue/doc/storing-trust-policy/) by Stef Walter, Red Hat
+- [Gist: Trusted TLS Certificate Stores on Linux OS and Applications](https://gist.github.com/CMCDragonkai/f5f76b8eb13e7579aba3)
+
 
 ## Rotating CA Certificates
 
