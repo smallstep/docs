@@ -29,7 +29,7 @@ safely and securely in a production environment.
 - [Certificate Lifecycle Management](#certificate-lifecycle-management)
   - [Automate Certificate Renewal](#automate-x509-certificate-lifecycle-management)
   - [Certificate Revocation](#certificate-revocation)
-  - [Root distribution](#root-distribution)
+  - [Root Distribution](#root-distribution)
   - [Rotating CA Certificates](#rotating-ca-certificates)
 - [Sane Cryptographic Defaults](#sane-cryptographic-defaults)
   - [Tokens](#tokens)
@@ -625,6 +625,8 @@ Generally speaking:
 - For DevOps infrastructure,
   IaC tools can simplify root distribution
   and simplify the root rotation process down the road.
+  However, many of these tools rely on `ssh`, which comes with its own bootstrapping challenges.
+  See our blog post [If you’re not using SSH certificates you’re doing SSH wrong](https://smallstep.com/blog/use-ssh-certificates/) for more. 
 - For MDM environments,
   you can leverage the MDM channel's TLS connection,
   which is established upon MDM enrollment.
