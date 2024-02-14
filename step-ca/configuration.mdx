@@ -468,7 +468,10 @@ Because Badger and BoltDB are embedded, only MySQL and PostgreSQL are appropriat
 
 <Alert severity="info">
   <div>
-    Extra parameters can be passed in the PostgreSQL dataSource name as follows: <Code>"dataSource": "postgresql://user:password@127.0.0.1:5432/myDBName?connect_timeout=10"</Code>.
+    Alternatively, you can use environment variables to configure the PostgreSQL connection.
+    Instead of supplying <Code>dataSource</Code> and <Code>database</Code> options,
+    use the standard <a href="https://www.postgresql.org/docs/current/libpq-envars.html">libpq environment variables</a>
+    when starting <Code>step-ca</Code>.
   </div>
 </Alert>
 
