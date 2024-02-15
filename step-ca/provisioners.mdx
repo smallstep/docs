@@ -1039,7 +1039,7 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
   </div>
 </Alert>
 
-The `wire-oidc-01` and `wire-dpop-01` challenges enable `step-ca` to issue certificates to Wire clients.
+The `wire-oidc-01` and `wire-dpop-01` challenges enable `step-ca` to issue certificates to [Wire](https://wire.com) messenger clients.
 Wire clients make use of a user and a device identity, both of which are challenged and verified, after which the identities are combined into a single X.509 certificate.
 
 Here's an example of an ACME provisioner with Wire support enabled in `$(step path)/config/ca.json`:
@@ -1106,15 +1106,20 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
 }
 ```
 
-- The `wire-oidc-01` and `wire-dpop-01` challenge types must both be enabled.
-- The certificate template can include (transformed) properties from the OIDC and DPoP tokens (e.g. `.Oidc.preferred_username`, and `.Dpop.sub`).
-- The `wire` property holds Wire specific OIDC and DPoP validation configuration options.
-- To configure OIDC validation, set either the `discoveryBaseUrl` to use OIDC discovery, or configure all other properties statically.
-- Set `clientId` to the expected OIDC token audience.
-- To support multiple SSO IdPs, the `transform` option can be used to map and/or transform properties in the OIDC token. The tokens are verified first, then transformed and persisted. Transformation uses the same engine as our certificate template engine. The properties from the transformed token can be referenced in the certificate template. 
-- The `key` configuration is the base64 encoded PEM public key corresponding to the private key that signs the DPoP token 
-- The `target` configuration is a templated URL pointing to the token issuer. The value of `DeviceID` is evaluated when the certificate is requested.
-
+* **challenges**: to enable the Wire integration, `wire-oidc-01` and `wire-dpop-01` must be set. 
+* **options**<Reference id="star6" marker="*" />: with the Wire integration enabled, the certificate template can include (transformed) properties from the OIDC and DPoP tokens (e.g. `.Oidc.preferred_username`, and `.Dpop.sub`). See [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more template configuration details.
+* **discoveryBaseUrl**<Reference id="star6" marker="*" />: sets the OIDC discovery URL, automatically configuring the OIDC provider. If provided, the other  `oidc` configuration options are ignored.
+* **issuerUrl**<Reference id="star6" marker="*" />: sets the OIDC issuer URL. Ignored if `discoveryBaseUrl` is set.
+* **authorizationUrl**<Reference id="star6" marker="*" />: sets the OIDC authorization URL. Ignored if `discoveryBaseUrl` is set.
+* **tokenUrl**<Reference id="star6" marker="*" />: sets the OIDC token URL. Ignored if `discoveryBaseUrl` is set.
+* **jwksUrl**<Reference id="star6" marker="*" />: sets the OIDC JWKS URL. Ignored if `discoveryBaseUrl` is set.
+* **userInfoUrl**<Reference id="star6" marker="*" />: sets the OIDC userInfo URL. Ignored if `discoveryBaseUrl` is set.
+* **provider.signatureAlgorithms**<Reference id="star6" marker="*" />: sets the supported OIDC signature algorithms. Ignored if `discoveryBaseUrl` is set.
+* **clientId**: sets the OIDC client ID used in OIDC token validation.
+* **config.signatureAlgorithms**<Reference id="star6" marker="*" />: sets the OIDC signature algorithms to be used in validation.
+* **transform**<Reference id="star6" marker="*" />: a Go template that can be used to map and/or transform properties in the OIDC token. Different SSO IdPs include different claims in their OIDC tokens. Using this `transform` template, the tokens are verified first, then transformed and persisted. Transformation uses the same engine as our certificate template engine. The properties from the transformed token can be referenced in the certificate template configured in the `x509` option. 
+* **key**: the base64 encoded PEM public key corresponding to the private key that signs the DPoP token.
+* **target**: a templated URL pointing to the token issuer. The value of `DeviceID` is evaluated when the certificate is requested.
 
 ### SCEP
 
