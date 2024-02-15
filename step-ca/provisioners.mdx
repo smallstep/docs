@@ -1172,12 +1172,12 @@ Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
 }
 ```
 
-- The `forceCN` parameter is optional. 
-It behaves the same as `forceCN` in the ACME provisioner, and it defaults to false.
-- `challenge` is the secret shared between the provisioner and SCEP clients. By default no secret is used.
-- The `minimumPublicKeyLength` parameter can be used to set the minimum length of public keys submitted by a client. Defaults to 2048.
-- When `includeRoot` is set to true, the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
-- The `encryptionAlgorithmIdentifier` parameter can be used to change the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
+* **forceCN**<Reference id="star6" marker="*" />: force one of the SANs to become the Common Name, if a common name is not provided in the CSR. Defaults to false.
+* **challenge**<Reference id="star6" marker="*" />: is the secret shared between the provisioner and SCEP clients. By default no secret is used. Ignored when a `SCEPCHALLENGE` webhook is configured.
+* **minimumPublicKeyLength**<Reference id="star6" marker="*" />: the minimum length of RSA public keys submitted by a client. Defaults to 2048.
+* **includeRoot**<Reference id="star6" marker="*" />: the root CA certificate will be returned in responses to `GetCACert` requests in addition to the intermediate CA certificate. This option was added to support a specific use case for the macOS SCEP client (see [certificates#746](https://github.com/smallstep/certificates/issues/746) for more details). Defaults to false.
+* **excludeIntermediate**<Reference id="star6" marker="*" />: excludes the intermediate CA certificate from being returned in responses to `GetCACert` requests. Defaults to false.
+* **encryptionAlgorithmIdentifier**<Reference id="star6" marker="*" />: sets the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63) used for encrypting the request content. Defaults to 0: `DES-CBC` for legacy compatibility.
 
 If you don't want to rely on a single, static secret, you can [configure a `SCEPCHALLENGE` webhook](./webhooks.mdx#x509-request-body) instead.
 When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the SCEP request.
