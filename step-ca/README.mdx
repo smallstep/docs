@@ -99,6 +99,7 @@ Here are some limitations of `step-ca` that grew out of [our design choices](../
 - It issues X.509 certificates from a single configured Intermediate CA; multiple issuing CAs are not supported
 - Its root CA is always offline; a single-tier PKI is not supported
 - Issuance policies are authority-wide
+- There are known [ACME concurrency limits](https://github.com/smallstep/certificates/issues/341) for high-availability CAs
 - Very limited options for active revocation (CRL, OCSP)
 - Very limited options for legacy CA protocols
 - Very limited options for device attestation
