@@ -42,7 +42,7 @@
           ]
         },
         {
-          "title": "Tutorials",
+          "title": "How To Guides",
           "routes": [
             {
               "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro + Smallstep",
