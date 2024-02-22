@@ -1050,8 +1050,8 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
     "type": "ACME",
     "name": "wire",
     "claims": {
-        "maxTLSCertDuration": "24h",
-        "defaultTLSCertDuration": "16h"
+        "maxTLSCertDuration": "2160h",
+        "defaultTLSCertDuration": "1440h"
 	  },
     "challenges": [
         "wire-oidc-01",
@@ -1062,7 +1062,7 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
         "template": 
           "{
             \"subject\": {
-                \"organization\": \"Organization Name\",
+                \"organization\": \"example.com\",
                 \"commonName\": {{ toJson .Oidc.name }}
             },
             \"uris\": [{{ toJson .Oidc.preferred_username }}, {{ toJson .Dpop.sub }}],
@@ -1099,7 +1099,7 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
           },
           "dpop": {
             "key": "base64(public.pem)",
-            "target": "https://example.com/clients/{{ .DeviceID }}/access-token"
+            "target": "https://wire-server.example.com/clients/{{ .DeviceID }}/access-token"
           }
       }
     }
@@ -1117,9 +1117,9 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
 * **provider.signatureAlgorithms**<Reference id="star6" marker="*" />: sets the supported OIDC signature algorithms. Ignored if `discoveryBaseUrl` is set.
 * **clientId**: sets the OIDC client ID used in OIDC token validation.
 * **config.signatureAlgorithms**<Reference id="star6" marker="*" />: sets the OIDC signature algorithms to be used in validation.
-* **transform**<Reference id="star6" marker="*" />: a Go template that can be used to map and/or transform properties in the OIDC token. Different SSO IdPs include different claims in their OIDC tokens. Using this `transform` template, the tokens are verified first, then transformed and persisted. Transformation uses the same engine as our certificate template engine. The properties from the transformed token can be referenced in the certificate template configured in the `x509` option. 
+* **transform**<Reference id="star6" marker="*" />: a Go template that can be used to map and/or transform properties in the OIDC token. Different SSO IdPs include different claims in their OIDC tokens. Using this `transform` template, the tokens are verified first, then transformed and persisted. Transformation uses the same engine as our certificate template engine. The properties from the transformed token can be referenced in the certificate template configured in the `x509` option. Documentation for creating and using templates can be found [here](https://smallstep.com/docs/step-ca/templates/index.html#template-syntax-overview).
 * **key**: the base64 encoded PEM public key corresponding to the private key that signs the DPoP token.
-* **target**: a templated URL pointing to the token issuer. The value of `DeviceID` is evaluated when the certificate is requested.
+* **target**: a templated URL pointing to the token issuer (the Wire server). The value of `DeviceID` is evaluated when the certificate is requested.
 
 ### SCEP
 
