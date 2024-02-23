@@ -46,7 +46,7 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 
 ### Step 2: Grant User Group Access to Host(s)
 
-On your Smallstep Dasbhoard.
+On your Smallstep Dashboard.
 * Select the "Users" tab on the right hand navigation bar.
 * Choose the "GROUPS" tab
 
@@ -61,7 +61,7 @@ On your Smallstep Dasbhoard.
 **Managed Groups** are POSIX groups that you want Smallstep to create or delete on your Hosts.
 **Unmanaged Groups** are the default POSIX groups such as  ***fax*** or  ***floppy*** that already exist on the Host. Groups members will have permissions assigned to these groups.
   * In the example below, we are adding users in the Smallstep group **okta-isvtest-ssh** to one unmanaged POSIX group (***floppy***) and one managed POSIX group (***sre-team***)
-* **Optional**. Assign Certificate Principals. Smallstep now supports adding additional prinicals to user certificates. A **Principal** is a string that allows access to a host, or even a specific user on a host.
+* **Optional**. Assign Certificate Principals. Smallstep now supports adding additional principals to user certificates. A **Principal** is a string that allows access to a host, or even a specific user on a host.
 Users in the assigned group will be able to access Smallstep-managed hosts as that user, whether or not the user is managed by Smallstep. Adding a user as a certificate principal does not enable full lifecycle management for that user.
   * In the example below we are adding the principal ***craig*** to certificates issued for the Group **okta-isvtest-ssh**.
 

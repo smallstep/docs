@@ -55,7 +55,7 @@ Here's how an ACME client might request an X.509 certificate from a CA.
 
 1. The ACME client creates an account with an ACME CA server and submits a certificate order. You can think of an ACME account as a place to store open certificate requests for that particular client.
 2. The CA responds with a set of challenges. To complete the challenges, the client must prove it controls each subject name (domain name, IP address, or hardware device ID) that it is requesting in the certificate.
-3. The CA verifies the client's challenge reponses.
+3. The CA verifies the client's challenge responses.
 4. Once the client successfully completes the ACME challenges, it submits a certificate signing request (CSR) to the CA.
 5. The CA verifies that the client has control of the private key associated with the certificate request.
 6. The CA issues a certificate to the client.

@@ -57,7 +57,7 @@ Passive revocation doesn't use Certificate Revocation List (CRL) and Online Cert
 
 To passively revoke a certificate means to block its renewal at the CA.
 This eliminates the additional network request that occurs when using a web PKI because the certificate just expires by itself. 
-Unlike active revocation, certificates cannot be immedietely revoked.
+Unlike active revocation, certificates cannot be immediately revoked.
 Therefore, certificates should have a shorter lifetime to reduce the value of a key that has been exfiltrated.
 
 ![passive revocation diagram](/graphics/passive-revocation.png)
