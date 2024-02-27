@@ -187,7 +187,7 @@ So, you're stuck having to rotate your root CA too, and that's a much bigger pro
 To avoid this scenario, you can use _active revocation_ on your intermediate CA certificate,
 making it possible to immediately revoke a compromised intermediate.
 
-While `step-ca` doesn't directly support active revocation mechanisms like Certificate Revocation Lists (CRLs) or the Online Certificate Status Portocol (OCSP),
+While `step-ca` doesn't directly support active revocation mechanisms like Certificate Revocation Lists (CRLs) or the Online Certificate Status Protocol (OCSP),
 you can independently manage your own CRL if you like.
 
 #### Create an intermediate CA with a CRL distribution endpoint
@@ -587,7 +587,7 @@ When connecting an ACME provisioner to the internet, you will need to take preca
 
 ### Alternative: Use Federation
 
-If your clients are spread across differenet private networks—
+If your clients are spread across different private networks—
 eg. in multi-cloud environments—
 there's no need to expose your CA to the internet.
 
@@ -688,7 +688,7 @@ Put CA certificates into `/etc/pki/ca-trust/source/anchors/` or `/usr/share/pki/
 
 ## Rotating CA Certificates
 
-It's possible to rotate both root and intermediate X.509 CA cerificates.
+It's possible to rotate both root and intermediate X.509 CA certificates.
 
 A two-tiered PKI hierarchy simplifies intermediate CA rotation.
 Each leaf certificate is issued in a PEM bundle that includes the intermediate that signed it.

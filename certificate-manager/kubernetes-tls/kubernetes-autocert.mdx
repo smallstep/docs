@@ -6,7 +6,7 @@ image: /graphics/kubernetes-tls-unfurl.png
 ---
 
 Autocert exists to make it easy to use mutual TLS to improve security within a cluster and to secure communication into, out of, and between Kubernetes clusters. 
-To get a certificate you simply need to telll autocert your workload's name, using the `autocert.step.sm/name`pod annotation. 
+To get a certificate you simply need to tell autocert your workload's name, using the `autocert.step.sm/name`pod annotation.
 Autocert will issue a cert to the pod, make it available in `var/run/autocert.step.sm`, and keep it renewed. 
 It requires a certificate authority to issue certificates. 
 This guide shows how to configure autocert to use Certificate Manager as the upstream CA.
