@@ -1,0 +1,107 @@
+---
+title: Configure your Wi-Fi Access Point for EAP-TLS
+updated_at: February 27, 2024
+html_title: Configure your Wi-Fi Access Point to use Enterprise EAP-TLS certificate-based authentication with Smallstep
+description: This tutorial describes how to set up Smallstep's certificate-based Wi-Fi on several popular Access Point models
+---
+
+For EAP-TLS (certificate-based) Wi-Fi deployments in security-sensitive environments, Smallstep can provide a Certificate Authority, a RADIUS server, and MDM integrations for the seamless deployment of certificates and network profiles to your clients.
+
+Before you begin, [sign up for a Smallstep account](https://smallstep.com/signup) if you haven’t already.
+
+## Background
+
+Here’s a simplified diagram of an Apple laptop getting a client certificate and joining an EAP-TLS authenticated network. With EAP-TLS, the RADIUS server must complete a mutual TLS handshake with the device before giving the thumbs up to the access point:
+
+![](/graphics/Authenticating_to_an_EAP-TLS_network.png)
+
+## Requirements
+
+For an EAP-TLS deployment, you’ll generally need four things:
+
+1. A Certificate Authority
+2. A RADIUS server
+3. A properly configured Access Point
+4. A process for distributing the CA certificate and enrolling clients. This is usually handled via a Mobile Device Management (MDM) enrollment of client devices.
+
+Smallstep’s app covers the Certificate Authority and RADIUS server. This document describes how to configure the Access Point. For MDM enrollment, we have integrations and tutorials for [Jamf](https://smallstep.com/docs/tutorials/apple-mdm-jamf-setup-guide/) and [Intune](https://smallstep.com/docs/tutorials/intune-mdm-setup-guide/), but Smallstep can integrate with just about any MDM, and can even be deployed in environments without MDM.
+
+## Creating a Wi-Fi Device Collection in Smallstep
+
+If you haven’t already, in your Smallstep account, you’ll want to create a Mobile Device Collection, add a Wi-Fi Account to it, and add your client devices to the collection.
+
+Let’s create a Smallstep Wi-Fi Account and RADIUS server:
+
+1. First, create a Device Collection. [Sign into Smallstep](https://smallstep.com/app), go to the **Mobile Devices** tab, and choose **+ Add Collection**. Select **Any macOS, iPadOS, or iOS device** as the platform, and give your device collection a name.
+2. Add your test device(s) to the device collection. Use the serial
+number of the device as the Device Identifier when you create it. You
+can find the serial number for your device under `Settings > General > About` , or in `About This Mac`. Make sure you click "Register Device".
+3. Create a “Wi-Fi” account in your new Smallstep Device Collection
+    
+    You’ll need to supply the Wi-Fi SSID you’ll use for WPA3 Enterprise 
+    and your public-facing (WAN) IP address, so our RADIUS server can 
+    identify requests from your network.
+    
+4. When you’re finished, you’ll see your RADIUS server details. Use these when you configure your Access Point.
+
+## General Instructions for Configuring EAP-TLS on any Access Point
+
+In case your Access Point isn’t specifically listed here, here are some general instructions. Each AP will have a slightly different configuration UI, but these are the network settings that will matter no matter what AP you’re using:
+
+- Security Protocol: WPA2 Enterprise or WPA3 Enterprise
+- RADIUS server information (provided by Smallstep)
+    - RADIUS server IP
+    - RADIUS server port
+    - RADIUS server shared secret
+    - RADIUS accounting port
+
+## Configure EAP-TLS Wi-FI on Ubiquiti Unifi
+
+In the Unifi Network app, first create a RADIUS Profile:
+
+1. Go to **Settings** → **Profiles** → **RADIUS** → **Create New**
+2. Give the profile a name
+3. Under Authentication servers, add the RADIUS server IP address, port, and shared secret you received from Smallstep
+4. Choose **Save**
+
+Next, create a new Wi-Fi network that you’ll use for EAP-TLS Wi-Fi:
+
+1. Go to **Settings** → **WiFi** → **Create New**
+2. Give your network an SSID
+3. Under **Advanced Configuration**, choose **Manual**
+4. Go to **Security**
+    1. For **Security Protocol**, select WPA-3 Enterprise
+    2. For **RADIUS Profile,** select the RADIUS profile you created above
+5. Go back and choose **Save**
+
+Your new Wi-Fi SSID is ready to use with Smallstep
+
+## Configure EAP-TLS Wi-Fi on MikroTik
+
+This section is suitable for a MikroTik AP that uses RouterOS.
+
+Add a new RADIUS client, replacing the RADIUS IP and secret with the values you received from Smallstep:
+
+```bash
+/radius
+add address=123.123.123.123 secret="secret-goes-here" \
+service=wireless timeout=5s
+```
+
+Add a security profile:
+
+```bash
+/interface wireless security-profiles
+add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
+```
+
+Associate the security profile with the Wireless interface:
+
+```bash
+/interface/wireless
+set [find] security-profile=EAP_AP
+```
+
+Ref: https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5
+
+
