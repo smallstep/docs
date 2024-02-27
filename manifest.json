@@ -51,6 +51,10 @@
             {
               "title": "Deploy EAP-TLS Wi-Fi with Intune + Smallstep",
               "path": "/tutorials/intune-mdm-setup-guide.mdx"
+            },
+            {
+              "title": "Wi-Fi Access Point Setup Guide",
+              "path": "/tutorials/wifi-setup-guide.mdx"
             }
           ]
         },
