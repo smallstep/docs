@@ -61,18 +61,20 @@ In case your Access Point isn’t specifically listed here, here are some genera
 
 ## Configure EAP-TLS Wi-FI on Ubiquiti Unifi
 
-1. In the Unifi Network app, first create a RADIUS Profile:
-    i. Go to **Settings** → **Profiles** → **RADIUS** → **Create New**
-    ii. Give the profile a name
-    iii. Under Authentication servers, add the RADIUS server IP address, port, and shared secret you received from Smallstep
-    iv. Choose **Save**
+In the Unifi Network app, first create a RADIUS Profile:
 
-2. Next, create a new Wi-Fi network that you’ll use for EAP-TLS Wi-Fi:
-    i. Go to **Settings** → **WiFi** → **Create New**
-    ii. Give your network an SSID
-    iii. Under **Advanced Configuration**, choose **Manual**
-    iv. Go to **Security**. For **Security Protocol**, select WPA-3 Enterprise. For **RADIUS Profile,** select the RADIUS profile you created above
-    v. Go back and choose **Save**
+1. Go to **Settings** → **Profiles** → **RADIUS** → **Create New**
+2. Give the profile a name
+3. Under Authentication servers, add the RADIUS server IP address, port, and shared secret you received from Smallstep
+4. Choose **Save**
+
+Next, create a new Wi-Fi network that you’ll use for EAP-TLS Wi-Fi:
+
+1. Go to **Settings** → **WiFi** → **Create New**
+2. Give your network an SSID
+3. Under **Advanced Configuration**, choose **Manual**
+4. Go to **Security**. For **Security Protocol**, select WPA-3 Enterprise. For **RADIUS Profile,** select the RADIUS profile you created above
+5. Go back and choose **Save**
 
 Your new Wi-Fi SSID is ready to use with Smallstep
 
@@ -81,27 +83,27 @@ Your new Wi-Fi SSID is ready to use with Smallstep
 This section is suitable for a MikroTik AP that uses RouterOS.
 
 1. Add a new RADIUS client, replacing the RADIUS IP and secret with the values you received from Smallstep:
-
-```bash
-/radius
-add address=123.123.123.123 secret="secret-goes-here" \
-service=wireless timeout=5s
-```
-
+  
+  ```bash
+  /radius
+  add address=123.123.123.123 secret="secret-goes-here" \
+  service=wireless timeout=5s
+  ```
+  
 2. Add a security profile:
-
-```bash
-/interface wireless security-profiles
-add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
-```
-
+  
+  ```bash
+  /interface wireless security-profiles
+  add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
+  ```
+  
 3. Associate the security profile with the Wireless interface:
-
-```bash
-/interface/wireless
-set [find] security-profile=EAP_AP
-```
-
+  
+  ```bash
+  /interface/wireless
+  set [find] security-profile=EAP_AP
+  ```
+  
 For more information, see [MicroTik Documentation](https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5). 
 
 
