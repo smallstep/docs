@@ -7,7 +7,8 @@ Issues and pull requests are welcome!
 ## Docs Style & Syntax
 
 - The docs repo uses [MDX syntax](https://mdxjs.com/docs/what-is-mdx/#mdx-syntax).
-  MDX allows us to intersperse traditional Markdown with JSX tags (React components and other HTML-like tags).
+  MDX follows the [CommonMark spec](https://spec.commonmark.org/) for Markdown.
+  MDX also allows us to intersperse CommonMark with JSX tags (React components and other HTML-like tags).
   A JSX tag block looks like this:
 
   ```
