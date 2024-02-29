@@ -36,16 +36,22 @@ Before you configure an Access Point for EAP-TLS, you need create a Smallstep Wi
 
 If you haven’t already, in your Smallstep account, you’ll want to create a Mobile Device Collection, add a Wi-Fi Account to it, and add your client devices to the collection.
 
-1. Create a Device Collection. [Sign into Smallstep](https://smallstep.com/app), go to the **Mobile Devices** tab, and choose **+ Add Collection**. Select **Any macOS, iPadOS, or iOS device** as the platform, and give your device collection a name.
-2. Add your device(s) to the device collection. Use the serial
-number of the device as the Device Identifier when you create it. You
-can find the serial number for your device under `Settings > General > About` , or in `About This Mac`. Make sure you click "Register Device".
+1. Create a Device Collection.
+
+   [Sign into Smallstep](https://smallstep.com/app), go to the **Mobile Devices** tab, and choose **+ Add Collection**. Select **Any macOS, iPadOS, or iOS device** as the platform, and give your device collection a name.
+
+2. Add your device(s) to the device collection.
+
+   Use the serial number of the device as the Device Identifier when you create it.
+   You can find the serial number for your device under `Settings > General > About`,
+   or in `About This Mac`. Make sure you click "Register Device".
+
 3. Create a “Wi-Fi” account in your new Smallstep Device Collection
-    
-    You’ll need to supply the Wi-Fi SSID you’ll use for WPA3 Enterprise 
-    and your public-facing (WAN) IP address, so our RADIUS server can 
-    identify requests from your network.
-    
+
+   You’ll need to supply the Wi-Fi SSID you’ll use for WPA3 Enterprise 
+   and your public-facing (WAN) IP address, so our RADIUS server can 
+   identify requests from your network.
+
 4. When you’re finished, you’ll see your RADIUS server details. Use these when you configure your Access Point.
 
 ## General Instructions for Configuring EAP-TLS on any Access Point
@@ -84,50 +90,50 @@ This section is suitable for a MikroTik AP that uses RouterOS.
 You can use the WebFig UI or the MikroTik Terminal to configure your AP.
 
 1. Add a new RADIUS client, replacing the RADIUS IP and secret with the values you received from Smallstep:
-  
-  1. Go to **RADIUS** -> **Add New**
-  2. For **Service**, select **wireless**
-  3. Enter the **Address** and **Secret** for the Smalletp RADIUS server
-  4. Adjust the **Timeout** to 5000ms
-  5. Choose **Ok**
-  
-  Or, in the terminal:
-  
-  ```bash
-  /radius
-  add address=123.123.123.123 secret="secret-goes-here" \
-  service=wireless timeout=5s
-  ```
-  
+
+   1. Go to **RADIUS** -> **Add New**
+   2. For **Service**, select **wireless**
+   3. Enter the **Address** and **Secret** for the Smalletp RADIUS server
+   4. Adjust the **Timeout** to 5000ms
+   5. Choose **Ok**
+
+   Or, in the terminal:
+
+   ```bash
+   /radius
+   add address=123.123.123.123 secret="secret-goes-here" \
+   service=wireless timeout=5s
+   ```
+
 2. Add a security profile:
-  
-  1. Go to **Wireless** -> **Security Profiles** -> **Add New**
-  2. Give the profile the name **EAP_AP**
-  3. For **Mode**, choose **dynamic keys**
-  4. For **Authentication Types**, select **WPA2 EAP**
-  5. For **Supplicant Identity**, enter **Mikrotik**
-  6. Choose **Ok**
-  
-  Or, in the terminal:
-  
-  ```bash
-  /interface wireless security-profiles
-  add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
-  ```
-  
+
+   1. Go to **Wireless** -> **Security Profiles** -> **Add New**
+   2. Give the profile the name **EAP_AP**
+   3. For **Mode**, choose **dynamic keys**
+   4. For **Authentication Types**, select **WPA2 EAP**
+   5. For **Supplicant Identity**, enter **Mikrotik**
+   6. Choose **Ok**
+
+   Or, in the terminal:
+
+   ```bash
+   /interface wireless security-profiles
+   add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
+   ```
+
 3. Associate the security profile with the Wireless interface:
-  
-  1. Go to **Wireless Interfaces** and choose the interface you'd like to use with EAP-TLS
-  2. Update **Security Profile** to **EAP_AP**
-  3. Choose **Ok**
-  
-  Or, in the terminal:
-  
-  ```bash
-  /interface/wireless
-  set [find] security-profile=EAP_AP
-  ```
-  
+
+   1. Go to **Wireless Interfaces** and choose the interface you'd like to use with EAP-TLS
+   2. Update **Security Profile** to **EAP_AP**
+   3. Choose **Ok**
+
+   Or, in the terminal:
+
+   ```bash
+   /interface/wireless
+   set [find] security-profile=EAP_AP
+   ```
+
 For more information, see [MicroTik Documentation](https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5). 
 
 
