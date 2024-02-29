@@ -81,8 +81,17 @@ Your new Wi-Fi SSID is ready to use with Smallstep
 ## Configure EAP-TLS Wi-Fi on MikroTik
 
 This section is suitable for a MikroTik AP that uses RouterOS.
+You can use the WebFig UI or the MikroTik Terminal to configure your AP.
 
 1. Add a new RADIUS client, replacing the RADIUS IP and secret with the values you received from Smallstep:
+  
+  1. Go to **RADIUS** -> **Add New**
+  2. For **Service**, select **wireless**
+  3. Enter the **Address** and **Secret** for the Smalletp RADIUS server
+  4. Adjust the **Timeout** to 5000ms
+  5. Choose **Ok**
+  
+  Or, in the terminal:
   
   ```bash
   /radius
@@ -92,12 +101,27 @@ This section is suitable for a MikroTik AP that uses RouterOS.
   
 2. Add a security profile:
   
+  1. Go to **Wireless** -> **Security Profiles** -> **Add New**
+  2. Give the profile the name **EAP_AP**
+  3. For **Mode**, choose **dynamic keys**
+  4. For **Authentication Types**, select **WPA2 EAP**
+  5. For **Supplicant Identity**, enter **Mikrotik**
+  6. Choose **Ok**
+  
+  Or, in the terminal:
+  
   ```bash
   /interface wireless security-profiles
   add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
   ```
   
 3. Associate the security profile with the Wireless interface:
+  
+  1. Go to **Wireless Interfaces** and choose the interface you'd like to use with EAP-TLS
+  2. Update **Security Profile** to **EAP_AP**
+  3. Choose **Ok**
+  
+  Or, in the terminal:
   
   ```bash
   /interface/wireless
