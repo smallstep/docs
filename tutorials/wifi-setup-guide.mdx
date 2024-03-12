@@ -68,8 +68,8 @@ In case your Access Point isn’t specifically listed here, here are some genera
 First, create a RADIUS Profile in the Unifi Network app, :
 
 1. Go to **Settings** → **Profiles** → **RADIUS** → **Create New**
-2. Give the profile a name.
-3. Under Authentication servers, add the RADIUS server IP address, port, and shared secret you received from Smallstep.
+2. Give the profile a name
+3. Under Authentication servers, add the RADIUS server IP address, port, and shared secret you received from Smallstep
 4. Choose **Save.**
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it:
@@ -78,9 +78,9 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 2. Give your network an SSID
 3. Under **Advanced Configuration**, choose **Manual**
 4. Go to **Security**
-    1. For **Security Protocol**, select **WPA-3 Enterprise.**
-    2. For **RADIUS Profile,** select the RADIUS profile you created above.
-5. Go back and choose **Save.**
+    1. For **Security Protocol**, select **WPA-3 Enterprise**
+    2. For **RADIUS Profile**, select the RADIUS profile you created above
+5. Go back and choose **Save**
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
@@ -140,10 +140,10 @@ For more information, see [MicroTik Documentation](https://help.mikrotik.com/doc
 
 First, create a new RADIUS profile:
 
-1. On the Aerohive dashboard, go to **Configuration**→ **Common Objects**→ **Authentication**→ **External RADIUS Servers,** and click on “**+**” to create a new RADIUS server.
-2. Provide a **Name** for the server.
-3. Enter the RADIUS server IP address, port, and shared secret you received from Smallstep into their respective fields.
-4. Click **Save.**
+1. On the Aerohive dashboard, go to **Configuration**→ **Common Objects**→ **Authentication**→ **External RADIUS Servers,** and click on “**+**” to create a new RADIUS server
+2. Provide a **Name** for the server
+3. Enter the RADIUS server IP address, port, and shared secret you received from Smallstep into their respective fields
+4. Click **Save**
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it:
 
@@ -158,10 +158,10 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
     1. For **SSID Authentication**, select **Enterprise WPA/WPA2 802.1X**
     2. For **Key Management**, select **WPA2-(WPA2 Enterprise)-802.1X**
     3. For **Encryption Method**, select **CCMP (AES)**
-6. Scroll down to **Authentication Settings.** Click on “**+**”, next to **Default RADIUS Server Group,** to add a RADIUS server.
-7. Select the Smallstep RADIUS profile you created above, and click on **Save**.
+6. Scroll down to **Authentication Settings**. Click on **+**, next to **Default RADIUS Server Group**, to add a RADIUS server
+7. Select the Smallstep RADIUS profile you created above, and click on **Save**
 
-Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
+Your 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 ## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Aruba**
 
@@ -170,45 +170,45 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 First, create a new RADIUS profile:
 
 1. On the Aruba portal, go to **Configuration → Authentication → Auth Servers**
-2. Click ”**+”** in the **Server Group** table and provide a **Name** for the new server group, then click **Submit**.
-3. From the **Server Group** table, click the group you just created, then click on the **+** sign to add new RADIUS server details.
-4. Select the **Add new server** option, and then enter the RADIUS server IP address and hostname received from Smallstep into their respective fields.
-5. Select **RADIUS** from the **Type** drop-down list.
-6. Click **Submit**.
+2. Click **+** in the **Server Group** table and provide a **Name** for the new server group, then click **Submit**
+3. From the **Server Group** table, click the group you just created, then click **+** to add new RADIUS server details
+4. Select the **Add new server** option, and then enter the RADIUS server IP address and hostname received from Smallstep into their respective fields
+5. Select **RADIUS** from the **Type** drop-down list
+6. Click **Submit**
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it. 
 
-1. On the dashboard, go to **Configuration** → **WLAN,** then click ****the **+** icon to add a new WLAN. 
+1. On the dashboard, go to **Configuration** → **WLAN**, then click the **+** icon to add a new WLAN
 2. On the **General** tab:
-    1. For **Name (SSID),** enter a name for the SSID.
-    2. For **Primary usage**, select the **Employee** option. 
-    3. For **Broadcast on,** click on the **Select AP Groups** drop-down list, then select a desired AP group.
-    4. For **Forwarding Mode,** leave the default **tunnel** option.
-    5. Click **Next**.
-3. On the **VLANs** tab, select your **VLAN ID**, and click **Next**.
+    1. For **Name (SSID),** enter a name for the SSID
+    2. For **Primary usage**, select the **Employee** option
+    3. For **Broadcast on**, click on the **Select AP Groups** drop-down list, then select a desired AP group
+    4. For **Forwarding Mode**, leave the default **tunnel** option
+    5. Click **Next**
+3. On the **VLANs** tab, select your **VLAN ID**, and click **Next**
 4. On the **Security** > **Enterprise** tab: 
-    1. For **Key management**, select **WPA-3 Enterprise**.
-    2. For **Auth servers** section, click ”**+”, select the** Smallstep ****RADIUS profile, and click **OK**.
-    3. Click **Next**.
+    1. For **Key management**, select **WPA-3 Enterprise**
+    2. For **Auth servers** section, click **+**, select the Smallstep RADIUS profile, and click **OK**
+    3. Click **Next**
 5. On the **Access** tab: 
-    1. For the **Default role** drop-down list, select an existing user role to be assigned to an employee that successfully authenticates to the WLAN, or define a new role by clicking on **Show Roles** and clicking ”**+”** in the **Roles** table.
-    2. Click **Finish.**
-6. On the next page, click on **Pending Changes**, then click on **Deploy Changes**. 
+    1. For the **Default role** drop-down list, select an existing user role to be assigned to an employee that successfully authenticates to the WLAN, or define a new role by clicking on **Show Roles** and clicking ”**+”** in the **Roles** table
+    2. Click **Finish**
+6. On the next page, click on **Pending Changes**, then click on **Deploy Changes**
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 ## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Meraki**
 
-1. On your Meraki dashboard, navigate to **Wireless** >  **Configure** >  **SSIDs**. 
-2. Enable an **Unconfigured SSID**. 
-3. Under the newly **Unconfigured SSID,** click on **rename,** name the SSID accordingly,  then click **Save Changes.**
-4. Click on **edit settings.** This will will take you to the Access control tab for the SSID.
+1. On your Meraki dashboard, navigate to **Wireless** >  **Configure** >  **SSIDs**
+2. Enable an **Unconfigured SSID**
+3. Under the newly **Unconfigured SSID**, click on **rename**, name the SSID accordingly,  then click **Save Changes**
+4. Click on **edit settings**. This will will take you to the Access control tab for the SSID
 
 ![Meraki EAP-TLS Wi-Fi setup](/graphics/meraki.png)
 
-5. Set the **Association requirements** to **Enterprise with my RADIUS server**.
-6. Scroll to **RADIUS servers** to add your Smallstep RADIUS server.  Enter the RADIUS server IP address, port, and shared secret, you received from Smallstep into their respective fields.
-7. Click **Save**.
+5. Set the **Association requirements** to **Enterprise with my RADIUS server**
+6. Scroll to **RADIUS servers** to add your Smallstep RADIUS server.  Enter the RADIUS server IP address, port, and shared secret, you received from Smallstep into their respective fields
+7. Click **Save**
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
@@ -216,16 +216,16 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 First, create a new RADIUS profile:
 
-1. Go to **Security > RADIUS > Authentication, then c**lick **New** to add a new RADIUS server.
-2. Provide the **Server Address, Shared Secret** and **Port Number** obtained from Smallstep.
-3. Click **Apply.**
+1. Go to **Security > RADIUS > Authentication**, then click **New** to add a new RADIUS server
+2. Provide the **Server Address**, **Shared Secret** and **Port Number** obtained from Smallstep
+3. Click **Apply**
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it:
 
-1. Click on the **WLANs** tab, choose **Create New** and click **Go.**
-2. Provide a name for your new WLAN, and click **Apply** to continue.
-3. Go to the **General** tab, ensure that **Status** is **Enabled.**
-4. Go to the **Security** tab > **AAA Servers. I**n the **Server 1** dialog box, under **Authentication Servers,** select the RADIUS server that you just configured, and click **Apply.**
+1. Click on the **WLANs** tab, choose **Create New** and click **Go**
+2. Provide a name for your new WLAN, and click **Apply** to continue
+3. Go to the **General** tab, ensure that **Status** is **Enabled**
+4. Go to the **Security** tab > **AAA Servers**. In the **Server 1** dialog box, under **Authentication Servers**, select the RADIUS server that you just configured, and click **Apply**
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
@@ -234,70 +234,70 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 First, create a new RADIUS profile: 
 
 1. On your Extreme Networks dashboard, navigate to **ONBOARD** > **AAA**
-2. On the Default AAA Configuration page, scroll to **RADIUS Servers**, and click the **Add** button.
-3. Provide the **RADIUS Server IP address, Authorization Client UDP Port** <*Smallstep’s RADIUS Port*>, and **Shared Secret** provided by **Smallstep.** 
-4. Click **Save**. 
+2. On the Default AAA Configuration page, scroll to **RADIUS Servers**, and click **Add** 
+3. Provide the **RADIUS Server IP address**, **RADIUS Port**, and **Shared Secret** provided by Smallstep
+4. Click **Save**
 
 ![Extreme EAP-TLS setup](/graphics/Extreme.png)
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it:
 
 1. Navigate to **Networks** > **Add:**
-    - **For Network Name**, provide a suitable name.
-    - For **SSID,** enter a name for the SSID.
-    - For **Status,** select **Enable.**
-    - **For Auth Type,** select **WPA2 Enterprise w/ RADIUS.**
-    - For **Authentication Method,** select **RADIUS.**
-    - **For Primary RADIUS** select the Smallstep RADIUS IP Address added earlier.
-    - For **Backup RADIUS,** select another if any.
-    - For **Default Auth Role, s**elect **Enterprise User.**
-    - For **Default VLAN** , select a VLAN.
-2. Click **Save**.
+    - **For Network Name**, provide a suitable name
+    - For **SSID**, enter a name for the SSID
+    - For **Status**, select **Enable**
+    - For **Auth Type**, select **WPA2 Enterprise w/ RADIUS**
+    - For **Authentication Method**, select **RADIUS**
+    - For **Primary RADIUS**, select the Smallstep RADIUS IP Address added earlier
+    - For **Backup RADIUS**, select another if any
+    - For **Default Auth Role**, select **Enterprise User**
+    - For **Default VLAN**, select a VLAN
+2. Click **Save**
 
 Your new 802.1x EAP-TLS Enterprise Wi-Fi network is ready for use. 
 
 ## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Juniper Mist
 
-1. Navigate **to Organization** > **WLAN Templates.**
-2. Click a WLAN template (or create a template).
-3. Click on **Add WLAN**. 
-4. In the **Edit/Create WLAN** window, provide an **SSID** for your new WLAN.
-5. Scroll to the **Security** section, under Security Type, select **WPA3** or **WPA2, then click Enterprise (802.1X).**
-6. Scroll to the **Authentication Servers** section, and click **Add Server**.
-7. Enter the **Hostname (IP Address)** and **Shared Secret** of the RADIUS server received from Smallstep. 
-8. Click **Save.**
+1. Navigate to **Organization** > **WLAN Templates**
+2. Click a WLAN template (or create a template)
+3. Click on **Add WLAN**
+4. In the **Edit/Create WLAN** window, provide an **SSID** for your new WLAN
+5. Scroll to the **Security** section, under Security Type, select **WPA3** or **WPA2, then click Enterprise (802.1X)**
+6. Scroll to the **Authentication Servers** section, and click **Add Server**
+7. Enter the **Hostname (IP Address)** and **Shared Secret** of the RADIUS server received from Smallstep
+8. Click **Save**
 
-Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use. See Juniper Mist reference documentation [here](https://www.juniper.net/documentation/us/en/software/mist/mist-wireless/topics/topic-map/radius-configuration.html).
+Your 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use. For more, see [Juniper Mist reference documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wireless/topics/topic-map/radius-configuration.html).
 
 ## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Sophos UTM
 
 First, create a new RADIUS profile: 
 
 1. Go to **Definitions & Users** > **Authentication Services**
-2. On the Servers tab, click **New Authentication Server.** 
+2. On the Servers tab, click **New Authentication Server** 
 3. On the **Add Authentication Server** dialogue box:
-    1. For **Backend, select** RADIUS
-    2. **For Position, select** Top
-    3. **For Server,** click the “**+”** button to add a new RADIUS server IP address provided by Smallstep.
-    4. **For Shared Secret, enter the s**hared RADIUS server secret provided by Smallstep.
-4. Click **Save**.
+    1. For **Backend**, select RADIUS
+    2. For **Position**, select Top
+    3. For **Server**, click **+** to add a new RADIUS server IP address provided by Smallstep
+    4. For **Shared Secret**, enter the shared RADIUS server secret provided by Smallstep
+4. Click **Save**
 
 Next, configure 802.1x EAP-TLS WPA-Enterprise WLANs to use the new RADIUS profile for authentication: 
 
-1. Go to **Wireless Protection > Global Settings > Advanced.**
-2. On the **Enterprise Authentication** box, select the created RADIUS profile from the **Radius Server** dropdown. 
-3. Click **Apply.** 
+1. Go to **Wireless Protection > Global Settings > Advanced**.
+2. On the **Enterprise Authentication** box, select the created RADIUS profile from the **Radius Server** dropdown.
+3. Click **Apply**
 
 Then, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network:
 
-1. Go to **Wireless Protection > Wireless Networks.**
-2. Click on **Add Wireless Network**.
+1. Go to **Wireless Protection > Wireless Networks**
+2. Click on **Add Wireless Network**
 3. On the **Add Wireless Network** dialog:
-    1. For **Network name, e**nter a descriptive name for the network.
-    2. For **Network SSID, provide a suitable name.**
-    3. For **Encryption mode, select WPA2/WPA Enterprise.**
+    1. For **Network name**, enter a descriptive name for the network
+    2. For **Network SSID**, provide a suitable name
+    3. For **Encryption mode**, select WPA2/WPA Enterprise
     4. For **Client traffic**, see the implications of the different options on the [Sophos UTM Administrator Guide.](https://docs.sophos.com/nsg/sophos-utm/utm/9.717/help/en-us/Content/utm/utmAdminGuide/WirelessNetworks.htm) 
-4. Click **Save**. 
+4. Click **Save**
 
 Go ahead to associate the new SSID network with your access point, and your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
@@ -307,15 +307,15 @@ These instructions follow setup for RT-AX1800S. However you should find most cur
 
 *Tip: To set up an 802.1x EAP-TLS Enterprise Wi-Fi WLAN on your Asus router, start with a separate dual band setup so that you have a break-glass connection to a WPA2 Password connection in the event that your settings are not allowing access to the configured band.*
 
-1. On the [Asus Router dashboard](http://www.asusrouter.com/Main_Login.asp),  navigate to **Advanced Settings > Wireless.**
+1. On the [Asus Router dashboard](http://www.asusrouter.com/Main_Login.asp),  navigate to **Advanced Settings > Wireless**
     
     ![ASUS EAP-TLS setup](/graphics/asus-eaptls.png)
     
 2. On the **General** tab, configure the following parameters: 
-    1. For **Network Name (SSID),** enter a name for the WLAN.
-    2. For **Authentication Method**, select WPA2-Enterprise. 
-    3. For **Server IP Address**, **Server Port**, and **Connection String**, provide the RADIUS server properties provided by Smallstep during setup. 
-3. Click **Apply** to save changes to router. 
+    1. For **Network Name (SSID)**, enter a name for the WLAN
+    2. For **Authentication Method**, select WPA2-Enterprise 
+    3. For **Server IP Address**, **Server Port**, and **Connection String**, provide the RADIUS server properties provided by Smallstep during setup
+3. Click **Apply** to save changes to router
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
