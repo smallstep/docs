@@ -26,6 +26,9 @@
     },
     {
       "pattern": "^https://i.imgur.com"
+    },
+    {
+      "pattern": "^https://www.arubanetworks.com"
     }
   ],
   "replacementPatterns": [
