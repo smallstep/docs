@@ -31,18 +31,18 @@ For MDM enrollment, we have integrations and tutorials for [Jamf](https://smalls
 ## On this page, you'll find: 
 
 - [Create a Wi-Fi Device Collection in Smallstep](#create-a-wi-fi-device-collection-in-smallstep)
-- [General Instructions for Configuring 802.1x EAP-TLS on any Access Point](#general-instructions-for-configuring-802.1x-eap-tls-on-any-access-point)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Ubiquiti Unifi](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-ubiquiti-unifi)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on MikroTik](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-mikrotik)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aerohive](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-aerohive)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aruba](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-aruba)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Meraki](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-meraki)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Cisco Wireless LAN Controller](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-cisco-wireless-lan-controller)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Extreme](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-extreme)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Juniper Mist](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-juniper-mist)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Sophos UTM](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-sophos-utm)
-- [Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Asus](#configure-802.1x-eap-tls-wpa-enterprise-wi-fi-on-asus)
-
+- [Configure 802.1x EAP-TLS on any Access Point](#general-instructions-for-configuring-8021x-eap-tls-on-any-access-point)
+- Instructions for specific Access Points:
+  - [Ubiquiti Unifi](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-ubiquiti-unifi)
+  - [Aerohive](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-aerohive)
+  - [Aruba](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-aruba)
+  - [Asus](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-asus)
+  - [Cisco Wireless LAN Controller](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-cisco-wireless-lan-controller)
+  - [Extreme Networks](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-extreme)
+  - [Juniper Mist](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-juniper-mist)
+  - [Meraki](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-meraki)
+  - [MikroTik](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-mikrotik)
+  - [Sophos UTM](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-sophos-utm)
 
 ## Create a Wi-Fi Device Collection in Smallstep
 
@@ -100,7 +100,7 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **MikroTik**
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on MikroTik
 
 This section is suitable for a MikroTik AP that uses RouterOS.
 You can use the WebFig UI or the MikroTik Terminal to configure your AP.
@@ -152,7 +152,7 @@ You can use the WebFig UI or the MikroTik Terminal to configure your AP.
 
 For more information, see [MicroTik Documentation](https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5). 
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Aerohive**
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aerohive
 
 First, create a new RADIUS profile:
 
@@ -179,9 +179,9 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Aruba**
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aruba
 
-*Note: These instructions follow setup for Aruba mobility controllers wireless AP portals. SSee Aruba reference WLAN configuration documentation [here](https://www.arubanetworks.com/techdocs/ArubaOS_86_Web_Help/Content/arubaos-solutions/virtual-ap/basi-wlan-conf-work.htm?Highlight=wlan%20wizard).*
+*Note: These instructions follow setup for Aruba mobility controllers wireless AP portals. See [Aruba reference WLAN configuration documentation](https://www.arubanetworks.com/techdocs/ArubaOS_86_Web_Help/Content/arubaos-solutions/virtual-ap/basi-wlan-conf-work.htm)*
 
 First, create a new RADIUS profile:
 
@@ -228,7 +228,7 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Cisco Wireless LAN Controller**
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Cisco Wireless LAN Controller
 
 First, create a new RADIUS profile:
 
@@ -245,7 +245,7 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Extreme**
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Extreme
 
 First, create a new RADIUS profile: 
 
@@ -323,7 +323,7 @@ These instructions follow setup for RT-AX1800S. However you should find most cur
 
 *Tip: To set up an 802.1x EAP-TLS Enterprise Wi-Fi WLAN on your Asus router, start with a separate dual band setup so that you have a break-glass connection to a WPA2 Password connection in the event that your settings are not allowing access to the configured band.*
 
-1. On the [Asus Router dashboard](http://www.asusrouter.com/Main_Login.asp),  navigate to **Advanced Settings > Wireless**
+1. On the Asus Router dashboard, navigate to **Advanced Settings > Wireless**
     
     ![ASUS EAP-TLS setup](/graphics/asus-eaptls.png)
     
