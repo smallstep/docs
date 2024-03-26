@@ -315,10 +315,8 @@ We have written a few [example clients](https://github.com/smallstep/clients/tre
 
 Here's an example JWT used by `step-ca`:
 
-```
+```shell
 $ step ca token foo.internal | step crypto jwt inspect --insecure
-✔ Provisioner: carl@smallstep.com (JWK) [kid: kXLZ2xHQo8VoaZsq4j38N5QzQzNBmOPp0NCLzKAI0yA]
-Please enter the password to decrypt the provisioner key:
 {
   "header": {
     "alg": "ES256",
@@ -453,60 +451,60 @@ Please enter the password to decrypt the content encryption key:
 
 1. Retrieve the current encrypted key.
 
-  Run the following, changing the provisioner name in the `jq` command to match your configuration:
-
-  ```shell
-  OLD_ENCRYPTED_KEY=$(step ca provisioner list \
-     | jq -r '.[] | select(.name == "you@smallstep.com").encryptedKey')
-  ```
+   Run the following, changing the provisioner name in the `jq` command to match your configuration:
+ 
+   ```shell
+   OLD_ENCRYPTED_KEY=$(step ca provisioner list \
+      | jq -r '.[] | select(.name == "you@smallstep.com").encryptedKey')
+   ```
 
 2. Update the encrypted key password.
 
-  Run:
-
-  ```shell
-  ENCRYPTED_KEY=$(echo $OLD_ENCRYPTED_KEY | \
-    step crypto jwe decrypt | \
-    step crypto jwe encrypt --alg PBES2-HS256+A128KW | \
-    step crypto jose format)
-  ```
-
-  You'll be asked for the old and new passwords.
+   Run:
+ 
+   ```shell
+   ENCRYPTED_KEY=$(echo $OLD_ENCRYPTED_KEY | \
+     step crypto jwe decrypt | \
+     step crypto jwe encrypt --alg PBES2-HS256+A128KW | \
+     step crypto jose format)
+   ```
+ 
+   You'll be asked for the old and new passwords.
 
 3. Update the provisioner.
   
-  Run the following, changing the provisioner name in the command to match your configuration:
-  
-  ```shell
-  step ca provisioner update you@smallstep.com \
-    --private-key=<(echo -n "$ENCRYPTED_KEY")
-  ```
+   Run the following, changing the provisioner name in the command to match your configuration:
+   
+   ```shell
+   step ca provisioner update you@smallstep.com \
+     --private-key=<(echo -n "$ENCRYPTED_KEY")
+   ```
   
 4. Send a `SIGHUP` to `step-ca` to reload the configuration file.
 
-  (Skip this step if you have enabled remote provisioner administration.)
-
-  ```shell
-  killall -i -s SIGHUP step-ca
-  ```
+   (Skip this step if you have enabled remote provisioner administration.)
+ 
+   ```shell
+   killall -i -s SIGHUP step-ca
+   ```
 
 #### Rekeying a JWK provisioner
 
 1. Update the provisioner.
 
-  Run the following, changing the provisioner name in the command to match your configuration:
-
-  ```shell
-  step ca provisioner update you@smallstep.com --create
-  ```
+   Run the following, changing the provisioner name in the command to match your configuration:
+ 
+   ```shell
+   step ca provisioner update you@smallstep.com --create
+   ```
 
 2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
 
-  (Skip this step if you have enabled remote provisioner administration.)
-
-  ```shell
-  killall -i -s SIGHUP step-ca
-  ```
+   (Skip this step if you have enabled remote provisioner administration.)
+ 
+   ```shell
+   killall -i -s SIGHUP step-ca
+   ```
 
 #### Removing the encrypted private key from a JWK provisioner
 
@@ -516,19 +514,19 @@ To remove this key:
 
 1. Update the provisioner.
 
-  Run the following, changing the provisioner name in the command to match your configuration:
-
-  ```shell
-  step ca provisioner update you@smallstep.com --private-key ""
-  ```
+   Run the following, changing the provisioner name in the command to match your configuration:
+ 
+   ```shell
+   step ca provisioner update you@smallstep.com --private-key ""
+   ```
 
 2. Send a `SIGHUP` to `step-ca` to reload the configuration file.
 
-  (Skip this step if you have enabled remote provisioner administration.)
-
-  ```shell
-  killall -i -s SIGHUP step-ca
-  ```
+   (Skip this step if you have enabled remote provisioner administration.)
+ 
+   ```shell
+   killall -i -s SIGHUP step-ca
+   ```
 
 ### OAuth/OIDC Single Sign-on
 
