@@ -1499,6 +1499,10 @@
               "path": "/step-ca/registration-authority-ra-mode.mdx"
             },
             {
+              "title": "Cryptographic Protection",
+              "path": "/step-ca/cryptographic-protection.mdx"
+            },
+            {
               "title": "Integrations",
               "path": "/step-ca/integrations.mdx"
             }
