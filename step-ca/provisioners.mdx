@@ -302,10 +302,59 @@ step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
 
 ### JWK
 
-JWK is the default provisioner type. It uses public-key cryptography to sign and
-validate a JSON Web Token (JWT).
+JSON Web Key (JWK) is the default CA provisioner type,
+and the [`step ca certificate`](../step-cli/reference/ca/certificate) client tries to use it by default.
+With a JWK provisioner,
+a Certificate Signing Request (CSR) is sent to the CA
+along with a short-lived JSON Web Token (JWT) which authenticates the request.
 
-The [`step`](https://github.com/smallstep/cli) CLI tool will create a JWK provisioner when [`step ca init`](../step-cli/reference/ca/init) is used.
+The JWK provisioner can be useful for custom integrations.
+JWTs are easy to [generate programmatically](https://jwt.io/#libraries-io),
+without using `step`.
+We have written a few [example clients](https://github.com/smallstep/clients/tree/main) for demonstration purposes.
+
+Here's an example JWT used by `step-ca`:
+
+```
+$ step ca token foo.internal | step crypto jwt inspect --insecure
+✔ Provisioner: carl@smallstep.com (JWK) [kid: kXLZ2xHQo8VoaZsq4j38N5QzQzNBmOPp0NCLzKAI0yA]
+Please enter the password to decrypt the provisioner key:
+{
+  "header": {
+    "alg": "ES256",
+    "kid": "kXLZ2xHQEXAMPLEq4j38N5QzQzNBmOPp0NCLzKAI0yA",
+    "typ": "JWT"
+  },
+  "payload": {
+    "aud": "https://ca.internal/1.0/sign",
+    "exp": 1711479459,
+    "iat": 1711479159,
+    "iss": "carl@tashian.com",
+    "jti": "8211a180b6EXAMPLEed81da54132e9...",
+    "nbf": 1711479159,
+    "sans": [
+      "foo.internal"
+    ],
+    "sha": "c8de28e620ecEXAMPLE4a0c405d92d7350dbec351cec3e4f6a6d1fc9512387aa",
+    "sub": "foo.internal"
+  },
+  "signature": "MEcSHfmIEXAMPLElNiLoDcHz90..."
+}
+```
+
+The JWT subject (`sub`) specifies a subject Common Name for the issued certificate.
+The `sha` and `sans` claims are non-standard:
+they specify the root CA certificate fingerprint in SHA256
+and any subject alternative name(s)
+that are authorized for inclusion in the issued certificate.
+
+The JWT is designed to be generated in one context, then passed into the context where it will be used (eg. a container or pod).
+Meanwhile, sensitive private key material can remain in the context where it is generated.
+Therefore, by default, the JWT is not bound to the CSR, which may not yet exist when the token is created.
+The JWT is instead bound to the expected SANs, subject common name, and the CA's root fingerprint.
+See [Issue a Certificate Using A Single-Use CA Token](https://smallstep.com/docs/step-ca/basic-certificate-authority-operations/#issue-a-certificate-using-a-single-use-ca-token) for an example.
+
+Optionally, a confirmation claim (`cnf`) can be added (as defined in [RFC 7800 § 3.4](https://datatracker.ietf.org/doc/html/rfc7800#section-3.4) to bind the JWT to a CSR. See [smallstep/certificates#1637](https://github.com/smallstep/certificates/issues/1637#issuecomment-1871620791) for details.
 
 #### Example
 
