@@ -14,12 +14,12 @@ menu:
 
 ```raw
 step ca init
-[--root=<file>] [--key=<file>] [--pki] [--ssh]
+[--root=<file>] [--key=<file>] [--key-password-file=<file>] [--pki] [--ssh]
 [--helm] [--deployment-type=<name>] [--name=<name>]
-[--dns=<dns>] [--address=<address>] [--provisioner=<name>] 
-[--admin-subject=<string>] [--provisioner-password-file=<file>] 
-[--password-file=<file>] [--ra=<type>] [--kms=<type>] 
-[--with-ca-url=<url>] [--no-db] [--remote-management] 
+[--dns=<dns>] [--address=<address>] [--provisioner=<name>]
+[--admin-subject=<string>] [--provisioner-password-file=<file>]
+[--password-file=<file>] [--ra=<type>] [--kms=<type>]
+[--with-ca-url=<url>] [--no-db] [--remote-management]
 [--acme] [--context=<name>] [--profile=<name>] [--authority=<name>]
 ```
 
@@ -36,6 +36,9 @@ The path of an existing PEM `file` to be used as the root certificate authority.
 
 **--key**=`file`
 The path of an existing key `file` of the root certificate authority.
+
+**--key-password-file**=`file`
+The path to the `file` containing the password to decrypt the existing root certificate key.
 
 **--pki**
 Generate only the PKI without the CA configuration.
