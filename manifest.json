@@ -55,6 +55,10 @@
             {
               "title": "Set up Wi-Fi Access Points for EAP-TLS",
               "path": "/tutorials/wifi-setup-guide.mdx"
+            },
+            {
+              "title": "Deploy strongSwan VPN certificates with Smallstep",
+              "path": "/tutorials/strongswan-setup-guide.mdx"
             }
           ]
         },
