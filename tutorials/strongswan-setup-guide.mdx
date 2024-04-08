@@ -1,5 +1,5 @@
 ---
-title: Configure strongSwan with Smallstep
+title: Configure a strongSwan VPN with Smallstep
 updated_at: April 9, 2024
 html_title: How to configure strongSwan VPN to use Smallstep for client and server certificate authentication
 description: This tutorial describes how to set up Smallstep with strongSwan for a high-security, certificate-based VPN server
@@ -7,7 +7,7 @@ description: This tutorial describes how to set up Smallstep with strongSwan for
 
 This configuration was tested with strongSwan 5.9.13.
 
-To configure a strongSwan server to work with Smallstep, there’s just a few critical configuration parameters you’ll need to set.
+To configure a strongSwan VPN server to work with Smallstep, there’s just a few critical configuration parameters you’ll need to set.
 
 ### Configure strongSwan with a Server TLS Certificate
 
@@ -78,7 +78,7 @@ The next step is to configure strongSwan to use full EAP-TLS client authenticati
     
     You can constraint the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
     
-6. Restart strongSwan; you will now have full EAP-TLS authentication.
+6. Restart strongSwan. You now have client EAP-TLS authentication for your VPN!
 
 For testing, you can get a certificate from the Accounts CA using the Smallstep UI. Visit Certificate Manager → Authorities → Smallstep Accounts CA, and get a certificate on that page.
 
