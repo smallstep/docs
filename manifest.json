@@ -57,8 +57,8 @@
               "path": "/tutorials/wifi-setup-guide.mdx"
             },
             {
-              "title": "Deploy strongSwan VPN certificates with Smallstep",
-              "path": "/tutorials/strongswan-setup-guide.mdx"
+              "title": "Set up certificate-based VPN with Smallstep",
+              "path": "/tutorials/vpn-setup-guide.mdx"
             }
           ]
         },
