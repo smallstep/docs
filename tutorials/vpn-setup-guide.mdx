@@ -1,0 +1,89 @@
+---
+title: Configure Certificate-Based VPN With Smallstep
+updated_at: April 9, 2024
+html_title: How to configure common VPN servers to use Smallstep for client and server certificate authentication
+description: This tutorial describes how to configure Smallstep with VPN servers for a high-security, certificate-based VPN server
+---
+
+**April 15, 2024**: strongSwan is currently the only VPN supported in this guide. More are coming soon.
+
+## strongSwan
+
+This configuration was tested with strongSwan 5.9.13.
+
+To configure a strongSwan VPN server to work with Smallstep, there’s just a few critical configuration parameters you’ll need to set.
+
+### Configure strongSwan with a Server TLS Certificate
+
+1. Add a Virtual Machine Collection in Smallstep, for your VPN servers
+2. [Install `step-agent`](https://www.notion.so/Install-the-Smallstep-agent-on-a-Linux-device-2a161d11bb244267aeeb36327c3075fb?pvs=21)on a VPN server, and make sure it is running as a service and is connected to Smallstep.
+3. Add a Workload Collection for your strongSwan server, selecting Custom Client and Server as the Workload Type.
+4. When creating the Workload Collection, use Advanced Settings to select the following:
+   * Key Type: 2048-bit RSA (for maximum compatibility)
+   * Server certificate location: `/etc/swanctl/x509/vpn.crt`
+   * Server key location: `/etc/swanctl/private/vpn.key`
+   * Reload method: systemd
+   * Unit name: `strongswan.service`
+    
+   You may need to adjust the user, group, or file locations to match your specific OS and distribution.
+    
+5. Deploy the new Workload Collection.
+6. Confirm that the Smallstep-managed certificate and private key for strongSwan appear on the VM, in `/etc/swanctl/x509/vpn.crt` and `/etc/swanctl/private/vpn.key`. These will be managed and renewed by the `step-agent` process.
+7. The `vpn.crt` file is a PEM bundle containing the server certificate and the Workloads Intermediate CA certificate. **strongSwan will only read the first certificate in `vpn.crt`.  So, the Intermediate CA certificate to be separately configured.**
+    
+    Run the following to separate the two certificates:
+    
+    ```bash
+    sudo cat /etc/swanctl/x509/vpn.crt | sudo awk 'split_after==1{n++;split_after=0}
+           /-----END CERTIFICATE-----/{split_after=1}
+          n==1{print > "/etc/swanctl/x509ca/intermediate.crt"}'
+    ```
+    
+    Run `step certificate inspect` to confirm that your Intermediate CA certificate was written to `/etc/swanctl/x509ca/intermediate.crt`.
+    
+8. Now let’s configure strongSwan to use your new server TLS certificate. In `/etc/swanctl/swanctl.conf`, your [`connections.<conn>.local` section](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_local) should look like:
+    
+    ```bash
+        local {
+          auth = eap-tls
+          certs = vpn.crt
+          cacerts = intermediate.crt
+          id = vpn.example.com
+        }
+    ```
+    
+    The `cacerts` file is the Workload Intermediate CA certificate, for strongSwan to send in the TLS handshake. This allows the client to complete a trust chain back to the Workloads Root CA, which must be trusted by all clients (this is handled by Smallstep’s agent app).
+    
+    The `id` value should match the Subject Common Name in your server certificate.
+    
+9. Restart strongSwan, and you should now have server authentication.
+
+### Configure strongSwan to accept Smallstep-issued Client Certificates
+
+The next step is to configure strongSwan to use full EAP-TLS client authentication.
+
+1. In Smallstep, under Mobile Devices, create (or go to) the Device Collection for the devices that will be VPN clients.
+2. Under the Accounts tab, add a VPN Account.
+    - For Connection Type, choose `IKEv2 with IPSec`
+    - For Key Type, choose `RSA_2048`
+    - Add your Remote Address and Remote ID
+    - Choose Save
+3. Once you’ve created the VPN Account, download the Root CA Certificate from the VPN Settings page. This is the CA your clients will get certificates from.
+4. Copy the Root CA certificate you just downloaded into `/etc/swanctl/x509ca/accounts_root_ca.crt` on your strongSwan servers.
+5. In `/etc/swanctl/swanctl.conf`, update the [`connections.<conn>.remote` section](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) to look like:
+    
+    ```bash
+       remote {
+          id = %any
+          cacerts = accounts_root_ca.crt
+          auth = eap-tls
+        }
+    ```
+    
+    You can constraint the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
+    
+6. Restart strongSwan. You now have client EAP-TLS authentication for your VPN!
+
+For testing, you can get a certificate from the Accounts CA using the Smallstep UI. Visit Certificate Manager → Authorities → Smallstep Accounts CA, and get a certificate on that page.
+
+To deploy and manage certificates for strongSwan to all your VPN clients, you can use MDM or the Smallstep agent app.
