@@ -29,7 +29,7 @@ To configure a strongSwan VPN server to work with Smallstep, there’s just a fe
     
 5. Deploy the new Workload Collection.
 6. Confirm that the Smallstep-managed certificate and private key for strongSwan appear on the VM, in `/etc/swanctl/x509/vpn.crt` and `/etc/swanctl/private/vpn.key`. These will be managed and renewed by the `step-agent` process.
-7. The `vpn.crt` file is a PEM bundle containing the server certificate and the Workloads Intermediate CA certificate. **strongSwan will only read the first certificate in `vpn.crt`.  So, the Intermediate CA certificate to be separately configured.**
+7. The `vpn.crt` file is a PEM bundle containing the server certificate and the Workloads Intermediate CA certificate. **strongSwan will only read the first certificate in `vpn.crt`. So, the Intermediate CA certificate will need to be in a separate file.**
     
     Run the following to separate the two certificates:
     
@@ -80,7 +80,7 @@ The next step is to configure strongSwan to use full EAP-TLS client authenticati
         }
     ```
     
-    You can constraint the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
+    You can constrain the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
     
 6. Restart strongSwan. You now have client EAP-TLS authentication for your VPN!
 
