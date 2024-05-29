@@ -958,7 +958,7 @@ Here's an example of an ACME provisioner configuration in `ca.json`:
         "step",
         "tpm"
     ],
-    "attestationRoots": [],
+    "attestationRoots": "",
     "options": {
         "x509": {
             "templateFile": "templates/certs/x509/default.tpl"
@@ -989,7 +989,7 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 - **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. The `apple` format is for Apple devices, and adds trust for Apple's CAs. The `step` format is for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for Yubico's root CA. The `tpm` format is for TPMs. It does not trust any TPM vendor CAs by default.
 
-- **attestationRoots**<Reference id="star6" marker="*" />: contains a trust bundle of root certificates in PEM format that will be used to verify attestation certificates. The default value depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA trust established by setting **attestationFormats**.
+- **attestationRoots**<Reference id="star6" marker="*" />: a CA trust bundle that will be used to verify attestation certificates. A base64-encoded string is expected. To generate this string, create a single PEM bundle containing all trusted CA certificates for the provisioner, then base64 encode the bundle. The default value of **attestationRoots** depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA default trust roots established by setting **attestationFormats**.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
