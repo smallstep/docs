@@ -108,10 +108,13 @@ This is a popular challenge type in cases where an ingress controller fronts cli
 
 ### The Device Attestation Challenge (device-attest-01)
 
-You can use <Code>device-attest-01</Code> for Apple <a href="https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web">Managed Device Attestation (MDA)</a> and other secure zero-touch provisioning (SZTP) applications as part of your device management (MDM) strategy. `step-ca` supports attestation challenges using Apple devices and YubiKeys.
+The device attestation challenge (`device-attest-01`) is designed to issue client certificates bound to a device identifier.
 
-Certificates identify specific hardware devices, via permanent device IDs.
-These are typically client certificates that can be used for device authentication.
+It allows clients with an attached security module (TPM, Secure Enclave, Yubikey, etc) to request a certificate bound to the security module's permanent hardware identifier. It can also be used to attest the hardware protection of a private key in the security module.
+
+Further reading:
+* [Managed Device Attestation: ACME as the Bottom Turtle in Mobile Device Management](https://smallstep.com/blog/managed-device-attestation/)
+* [ACME Device Attestation Explained](https://smallstep.com/blog/acme-managed-device-attestation-explained/) focuses Device Attestation for MDM certificate enrollment on Apple devices.
 
 ## Configure `step-ca` for ACME
 
