@@ -1020,7 +1020,7 @@ The variations are specified in
 `step-ca` supports device attestation statements
 in `tpm`, `apple`, and `step` formats.
 
-* The `tpm` format is a variant of the [WebAuthn TPM Attestation statement](https://www.w3.org/TR/webauthn-2/#sctn-tpm-attestation). By default, it does not add trust for any TPM vendor CAs. You must add TPM vendor trust roots via the `attestationRoots` configuration.
+* The `tpm` format is a variant of the [WebAuthn TPM Attestation statement](https://www.w3.org/TR/webauthn-2/#sctn-tpm-attestation). By default, it does not add trust for any CAs. You must add the trust roots of an attestation authority, via the `attestationRoots` configuration.
 * The `apple` format is a variant of [WebAuthn Apple Anonymous Attestation](https://www.w3.org/TR/webauthn-2/#sctn-apple-anonymous-attestation) format. It is compatible with Apple's <a href="https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web">Managed Device Attestation (MDA)</a> and other secure zero-touch provisioning (SZTP) applications as part of your device management (MDM) strategy. By default, it adds trust for [Apple's Enterprise CA](https://www.apple.com/certificateauthority/private/). 
 * The `step` format is a variant of [WebAuthn `packed` attestation format](https://www.w3.org/TR/webauthn-2/#sctn-packed-attestation). It is designed for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for [Yubico's root CA](https://developers.yubico.com/PIV/Introduction/PIV_attestation.html).
 
@@ -1118,7 +1118,16 @@ Apple has an online attestation authority service for this.
 Yubico offers attestation certificates on their devices.
 
 But we have not seen a public or open source attestation authority that can issue attestation certificates for TPMs.
-TPMs also have privacy constraints that complexify attestation flows.
+TPMs also have privacy constraints and a wide range of use case-specific validation requirements that complexify attestation flows.
+
+<Alert severity="info">
+  <div> 
+  A complete TPM attestation flow and attestation authority
+  is available in Smallstep's commercial platform.
+  We offer cloud SaaS and on-prem hosting options.
+  <a href="https://smallstep.com/certificate-manager/">Learn More...</a>
+  </div>
+</Alert>
 
 For a description of how a TPM-based attestation flow might work, if implemented,
 see [TPMs + ACME: Better Together](https://smallstep.com/blog/managed-device-attestation/#tpms--acme-better-together)
