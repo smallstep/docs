@@ -1,17 +1,53 @@
 ---
 title: Configure Certificate-Based VPN With Smallstep
-updated_at: April 9, 2024
+updated_at: June 3, 2024
 html_title: How to configure common VPN servers to use Smallstep for client and server certificate authentication
 description: This tutorial describes how to configure Smallstep with VPN servers for a high-security, certificate-based VPN server
 ---
+
+The following VPN servers are covered in this document:
+- [strongSwan](#strongswan)
+- [F5 BIG IP VPN](#f5-big-ip-ssl-vpn)
+- [Juniper SSL-VPN](#juniper-ssl-vpn)
+- [Cisco Meraki AnyConnect](#cisco-meraki-anyconnect)
 
 ## strongSwan
 
 This configuration was tested with strongSwan 5.9.13.
 
-To configure a strongSwan VPN server to work with Smallstep, there’s just a few critical configuration parameters you’ll need to set.
+### Configure strongSwan to accept Smallstep-issued Client Certificates
+
+In this section, you'll configure strongSwan to use full EAP-TLS client authentication with Smallstep client certificates.
+
+1. In Smallstep, under Mobile Devices, create (or go to) the Device Collection for the devices that will be VPN clients.
+2. Under the Accounts tab, add a VPN Account.
+    - For Connection Type, choose `IKEv2 with IPSec`
+    - For Key Type, choose `RSA_2048`
+    - Add your Remote Address and Remote ID
+    - Choose Save
+3. Once you’ve created the VPN Account, download the Root CA Certificate from the VPN Settings page. This is the CA your clients will get certificates from.
+4. Copy the Root CA certificate you just downloaded into `/etc/swanctl/x509ca/accounts_root_ca.crt` on your strongSwan servers.
+5. In `/etc/swanctl/swanctl.conf`, update the [`connections.<conn>.remote` section](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) to look like:
+    
+    ```bash
+       remote {
+          id = %any
+          cacerts = accounts_root_ca.crt
+          auth = eap-tls
+        }
+    ```
+    
+    You can constrain the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
+    
+6. Restart strongSwan. You now have client EAP-TLS authentication for your VPN!
+
+For testing, you can get a certificate from the Accounts CA using the Smallstep UI. Visit Certificate Manager → Authorities → Smallstep Accounts CA, and get a certificate on that page.
+
+To deploy and manage certificates for strongSwan to all your VPN clients, you can use MDM or the Smallstep agent app.
 
 ### Configure strongSwan with a Server TLS Certificate
+
+In this section, you'll configure a strongSwan Server TLS certificate issued from your Smallstep CA.
 
 1. Add a Virtual Machine Collection in Smallstep, for your VPN servers
 2. [Install `step-agent`](https://www.notion.so/Install-the-Smallstep-agent-on-a-Linux-device-2a161d11bb244267aeeb36327c3075fb?pvs=21)on a VPN server, and make sure it is running as a service and is connected to Smallstep.
@@ -56,42 +92,233 @@ To configure a strongSwan VPN server to work with Smallstep, there’s just a fe
     
 9. Restart strongSwan, and you should now have server authentication.
 
-### Configure strongSwan to accept Smallstep-issued Client Certificates
 
-The next step is to configure strongSwan to use full EAP-TLS client authentication.
+## F5 BIG-IP SSL VPN
 
-1. In Smallstep, under Mobile Devices, create (or go to) the Device Collection for the devices that will be VPN clients.
-2. Under the Accounts tab, add a VPN Account.
-    - For Connection Type, choose `IKEv2 with IPSec`
-    - For Key Type, choose `RSA_2048`
-    - Add your Remote Address and Remote ID
-    - Choose Save
-3. Once you’ve created the VPN Account, download the Root CA Certificate from the VPN Settings page. This is the CA your clients will get certificates from.
-4. Copy the Root CA certificate you just downloaded into `/etc/swanctl/x509ca/accounts_root_ca.crt` on your strongSwan servers.
-5. In `/etc/swanctl/swanctl.conf`, update the [`connections.<conn>.remote` section](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) to look like:
+Intended audience: Enterprise IT administrators
+Estimated time commitment: 1 hour
+
+### Introduction
+
+In this tutorial, we will configure an F5 SSL VPN on [F5 BIG-IP® APM](https://www.f5.com/products/big-ip-services/access-policy-manager) to use Smallstep certificate-based authentication with mutual TLS.
+
+Client certificate management is not documented here. Client certificates could be issued to the F5 Access or Edge Client by the Smallstep app or by an MDM.
+
+You will need a BIG-IP® instance with Local Traffic (LTM) and Access Policy (APM) resources provisioned.
+
+This tutorial was tested on BIG-IP® VE v17.1.1 Build 0.2.6.
+
+### Overview of the setup
+
+For a complete setup, you will add the following to your F5 BIG-IP® configuration:
+
+- An Access Profile with an Access Policy that performs certificate authentication and assigns resources to clients that successfully authenticate.
+    
+    The Access Profile also contains configuration for the VPN itself, including IP lease pools and DNS settings.
+    
+- A Virtual Server which will serve your VPN traffic. This is where you’ll configure the mutual TLS handshake for your VPN server. The Virtual Server will accept client certificates from Smallstep, and use a server certificate from Smallstep.
+
+### Access Profile
+
+The Access Profile defines the certificate authentication flow and VPN settings for F5 BIG-IP®.
+
+**This is just an example policy. After importing, please review and modify it as needed**. You may want a fallback authentication method, for instance, in case certificate authentication fails. Or you may want a different set of resource assignments after successful certificate authentication.
+
+1. Download this profile: [smallstep-vpn-profile.conf.tar.gz](https://files.smallstep.com/smallstep-vpn-profile.conf.tar.gz)
+2. Go to Access → Profiles / Policies and choose Import…
+    - Profile name: `smallstep`
+    - Config File Upload: Upload smallstep-vpn-profile.conf.tar.gz
+        
+3. Choose “Import”
+
+Here’s what the Access Policy will look like once imported:
+
+![Imported BIG IP Access Policy](/graphics/imported-access-policy.png)
+
+After import, you’ll need to customize your Access Profile to align with your VPN needs. Users commonly customize things like:
+
+- IP Lease Pool address ranges
+- Compression settings (in the Network Access List)
+- DNS servers and domain suffix (in the Network Access List)
+
+### Configuring TLS
+
+Next, you’ll configure the TLS handshake for your VPN. You’ll add the following:
+
+- CAs and Certificates for your Virtual Server
+    - F5 Menu: System → Certificate Management → Traffic Certificate Management → SSL Certificate List
+- A Client SSL Profile
+    - F5 Menu: Local Traffic → Profiles → SSL → Client
+- Virtual Server Configurations for ports 80 and 443
+    - F5 Menu: Local Traffic → Virtual Servers
+
+### Certificates and Certificate Authorities
+
+Now let’s configure CAs and Certificates on the BIG IP.
+
+First, you’ll add a root of trust that will verify client certificates:
+
+1. Go to System → Certificate Management → Traffic Certificate Management → SSL Certificate List
+2. Choose “Import…” and on the next screen, choose:
+    - Import Type: Certificate
+    - Certificate Name: `smallstep-accounts-root-intermediate`
+    - Certificate Source: Browse for the Intermediate and Root Cert Bundle from your Smallstep Accounts CA
+    - Choose Import
+3. You should now see a new Certificate Bundle in the list.
+
+Next, you’ll configure a server certificate and private key for your virtual server’s Client SSL profile. This certificate must be issued by a root CA that will be trusted by your VPN clients when they connect.
+
+<aside>
+These instructions will help you create and import a certificate and key manually. A fully automated certificate management workflow is beyond the scope of this document. In a production environment, it is recommended to automate BIG IP server certificate management using Ansible, Terraform, or another IaC tool. BIG IP’s REST API can be leveraged for certificate automation. See [this F5 DevCentral post](https://community.f5.com/discussions/technicalforum/lets-encrypt-with-cloudflare-dns-and-f5-rest-api/292929) for details.
+</aside>
+
+1. Create the server certificate and private key. You can do this in the Smallstep UI, or locally by running `step ca certificate`. For example:
     
     ```bash
-       remote {
-          id = %any
-          cacerts = accounts_root_ca.crt
-          auth = eap-tls
-        }
+    $ step ca certificate vpn.example.com server.crt server.key \
+         --not-after 8160h \
+         --san vpn.example.com \
+         --san 14.13.12.10
     ```
     
-    You can constrain the IKE `id` to match a subject name from the certificate, if you wish. See the [strongSwan documentation](https://docs.strongswan.org/docs/5.9/swanctl/swanctlConf.html#_connections_conn_remote) for details.
+2. Combine the certificate + intermediate CA certificate and the private key into a PKCS 12 archive. You can generate a PKCS 12 archive with `step`. For example, if `server.crt` contains your server certificate and intermediate CA PEM blocks, and `server.key` contains your server private key, run:
     
-6. Restart strongSwan. You now have client EAP-TLS authentication for your VPN!
+    ```bash
+    $ step certificate p12 server.p12 server.crt server.key
+    ```
+    
+    You’ll be asked to provide a password to encrypt the file.
+    
+3. Next, in F5 BIG IP, go to System → Certificate Management → Traffic Certificate Management → SSL Certificate List
+4. Choose “Import…” and on the next screen, choose:
+    - Import Type: PKCS 12 (IIS)
+    - Certificate and Key Name: `smallstep-vpn-server`
+    - Certificate and Key Source, browse for your `server.p12` PKCS 12 archive
+    - Enter the password you used to encrypt the PKCS 12 archive
+5. Choose Import
 
-For testing, you can get a certificate from the Accounts CA using the Smallstep UI. Visit Certificate Manager → Authorities → Smallstep Accounts CA, and get a certificate on that page.
+You should now see the EC Certificate & Key you uploaded, in the SSL Certificate List.
 
-To deploy and manage certificates for strongSwan to all your VPN clients, you can use MDM or the Smallstep agent app.
+### Virtual Servers
+
+Now you’ll associate your Access Policy to a Virtual Server
+
+You’ll need two Virtual Server configurations:
+
+- For port 80, to redirect to port 443 using the built-in redirect iRule
+- For port 443, with attached profiles
+
+To get started, create a Client SSL profile:
+
+1. Go to Local Traffic → Profiles → SSL → Client
+2. Create a new Client SSL Profile
+3. Use the following values:
+    - Name: `smallstep-clientssl`
+    - Certificate Key Chain: Add the `smallstep-vpn-server` server certificate and private key you imported earlier
+    - Client Certificate: Request
+    - Trusted Certificate Authorities: Choose the `smallstep-accounts-root-intermediate` CA Bundle that you imported earlier. Your client certificates must be issued by this CA.
+    - Advertised Certificate Authorities: Same value as Trusted Certificate Authorities
+4. Save the Profile
+
+Next, create a Connectivity Profile:
+
+1. Go to Local Traffic → Profiles → Services → Connectivity
+2. Choose “Add…”
+    - Name: `smallstep-connectivity`
+    - Parent profile: `/Common/connectivity`
+3. Ok
+
+Next, create the Virtual Server for port 80
+
+1. Go to Local Traffic → Virtual Servers
+2. Choose “Create…”
+3. Use the following properties:
+    - Name: `smallstep-vpn-redirect`
+    - Provide your source address mask, eg. `0.0.0.0/0`
+    - Provide your destination address/mask. This may be the internal IP addresses of your F5 BIG IP.
+    - Service port: 80 / HTTP
+    - HTTP Profile (Client): http
+    - Add iRule **`_sys_https_redirect`**
+
+Finally, create a Virtual Server for port 443:
+
+1. Go to Local Traffic → Virtual Servers
+2. Choose “Create…”
+3. Use the following properties:
+    - Name: `smallstep-vpn`
+    - Provide your source and destination addresses/masks
+    - Service port: 443 / HTTPS
+    - HTTP Profile (Client): http
+    - SSL Profile (Client): Add the Client SSL Profile you created above
+    - Access Profile: Select the Access Profile you imported above
+    - Connectivity Profile: Select the Connectivity Profile you created above
+
+Your VPN configuration is now ready for testing.
+
+Further reading:
+
+- [F5: Configuring an HTTP virtual server to redirect to HTTPS using an iRule](https://my.f5.com/manage/s/article/K10090418)
+- [F5’s Dev/Central](https://community.f5.com/) Community support
+
+---
+
+### Creating an Access Profile manually
+
+If you want to create an Access Profile manually instead of importing one, do the following:
+
+### Add a Network Access List
+
+1. Go to Access → Connectivity / VPN → Network Access (VPN) → Network Access Lists
+2. Choose “Create…”
+    - Name: `smallstep-na-res`
+    - Description: `Smallstep VPN Access`
+    - Customize the Customization Settings as desired
+3. Choose “Finished”
+
+### Add an IPv4/IPv6 Lease Pool
+
+Add at least one lease IPv4 or IPv6 lease pool:
+
+1. Go to Access → Connectivity / VPN → Network Access (VPN) → IPv4 Lease Pools
+2. Choose “Create…”
+    - Name: `smallstep-lp`
+    - Start IP: `192.168.133.2`, for example
+    - End IP: `192.168.133.254`, for example
+
+### Add an Access Profile
+
+1. Go to Access → Profiles / Policies and create an Access Profile
+    - Name: `smallstep-vpn`
+    - Profile Type: All
+    - Languages: Add a language
+    - Choose “Finish”
+2. Open the access policy you just created. In the Access Policy tab, open the visual policy editor
+3. Import the following Access Policy:
+    
+    If you want to create this policy manually, do the following:
+    
+    - Authentication → On-Demand Cert Auth: Dynamically initiate an SSL re-handshake and validate the received client certificate
+        - Choose Auth Mode: “Require”
+        - Leave all other settings as default
+    - On the “Successful” branch after “On-Demand Cert Auth”, add Authentication → Client Cert Inspection: Check the result of client certificate authentication by the Local Traffic Client SSL profile
+        - Leave all settings as default
+    - On the “Successful” branch after “Client Cert Inspection”, add Assignment → Advanced Resource Assign:
+        - Use the Simple Expression “Client Cert is valid”
+        - Add a new Resource Assignment entry
+        - Assign your Network Access Profile
+        - Save
+        
+        The Advanced Resource Assign properties should look like this:
+        
+        ![Advanced Resource Assign properties](/graphics/advanced-resource-assign.png)
+        
+    - Finally, change the fallback Ending from Advanced Resource Assign to **Allow**
 
 ## Juniper SSL-VPN
 
 See [Create a Remote Access VPN—Juniper Secure Connect](https://www.juniper.net/documentation/us/en/software/jweb-srx21.3/jweb-srx/topics/task/j-web-security-ipsec-remote-access-vpn-juniper-secure-connect-creating.html)
 
-## Cisco Meraki AnyConnect 
+## Cisco Meraki AnyConnect
 
 - [Server docs at meraki.net](https://learning.meraki.net/#/online-courses/3def4293-8b71-406f-ae12-ab0c1028261b)
 - [Client docs at meraki.net](https://documentation.meraki.com/MX/Client_VPN/AnyConnect_on_the_MX_Appliance/Client_deployment)
-
