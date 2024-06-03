@@ -958,7 +958,7 @@ Here's an example of an ACME provisioner configuration in `ca.json`:
         "step",
         "tpm"
     ],
-    "attestationRoots": [],
+    "attestationRoots": "",
     "options": {
         "x509": {
             "templateFile": "templates/certs/x509/default.tpl"
@@ -985,32 +985,63 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 - **caaIdentities**<Reference id="star6" marker="*" />: an array of hostnames that the ACME server identifies itself with. These hostnames can be used by ACME clients to determine the correct issuer domain name to use when configuring CAA records. Defaults to empty array.
 
-- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. Note that `device-attest-01`, `wire-oidc-01` and `wire-dpop-01` are disabled by default.
+- **challenges**<Reference id="star6" marker="*" />: which ACME challenge types are allowed. By default, `device-attest-01`, `wire-oidc-01` and `wire-dpop-01` are disabled.
 
-- **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. The `apple` format is for Apple devices, and adds trust for Apple's CAs. The `step` format is for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for Yubico's root CA. The `tpm` format is for TPMs. It does not trust any TPM vendor CAs by default.
+- **attestationFormats**<Reference id="star6" marker="*" />: which attestation formats are allowed for `device-attest-01` challenges. Valid values are `apple`, `step`, and `tpm`. By default, all formats are enabled. 
 
-- **attestationRoots**<Reference id="star6" marker="*" />: contains a trust bundle of root certificates in PEM format that will be used to verify attestation certificates. The default value depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA trust established by setting **attestationFormats**.
+- **attestationRoots**<Reference id="star6" marker="*" />: a CA trust bundle that will be used to verify attestation certificates. A base64-encoded string is expected. To generate this string, create a single PEM bundle containing all trusted CA certificates for the provisioner, then base64 encode the bundle. The default value of **attestationRoots** depends on the value of **attestationFormats**. If provided, this PEM bundle will override the CA default trust roots established by setting **attestationFormats**.
 
 <Footnote id="star6" marker="*">Optional</Footnote>
 
-<br /><br />
+<br />
 
 See [ACME Basics](./acme-basics.mdx)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
 #### ACME for Device Attestation
 
+The `device-attest-01` challenge supports device attestations from iOS, iPadOS, tvOS, and YubiKeys.
+An attestation certificate is used
+to satisfy the ACME challenge.
+The CSR may include
+a device ID in a `permanentIdentifier` SAN ([RFC 4043](https://www.rfc-editor.org/rfc/rfc4043.html)),
+depending on the application. 
+
+This challenge type is not enabled by default and must be explicitly enabled.
+
+##### Attestation statement formats
+
+The `device-attest-01` challenge response
+uses a variant of the WebAuthn attestation statement format
+adapted for ACME.
+The variations are specified in
+[IETF draft-acme-device-attest](https://datatracker.ietf.org/doc/draft-acme-device-attest/).
+
+`step-ca` supports device attestation statements
+in `tpm`, `apple`, and `step` formats.
+
+* The `tpm` format is a variant of the [WebAuthn TPM Attestation statement](https://www.w3.org/TR/webauthn-2/#sctn-tpm-attestation). By default, it does not add trust for any CAs. You must add the trust roots of an attestation authority, via the `attestationRoots` configuration.
+* The `apple` format is a variant of [WebAuthn Apple Anonymous Attestation](https://www.w3.org/TR/webauthn-2/#sctn-apple-anonymous-attestation) format. It is compatible with Apple's <a href="https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web">Managed Device Attestation (MDA)</a> and other secure zero-touch provisioning (SZTP) applications as part of your device management (MDM) strategy. By default, it adds trust for [Apple's Enterprise CA](https://www.apple.com/certificateauthority/private/). 
+* The `step` format is a variant of [WebAuthn `packed` attestation format](https://www.w3.org/TR/webauthn-2/#sctn-packed-attestation). It is designed for non-TPM devices that can issue attestation certificates, such as YubiKey PIV. It adds trust for [Yubico's root CA](https://developers.yubico.com/PIV/Introduction/PIV_attestation.html).
+
 <Alert severity="warning">
   <div> 
-    This challenge type must be explicitly enabled in an ACME provisioner.
+    ☠️  Careful!
+    By enabling a `device-attest-01` provisioner configured for `apple` or `step` attestation formats,
+    you are forming a trust relationship with Apple or Yubico CAs.
+    Your provisioner will issue certificates
+    to any Apple or Yubico device with an attestation certificate.
+    Therefore,
+    you must explicitly restrict the provisioner
+    to only issue certificates to _your_ devices.
   </div>
 </Alert>
 
-The `device-attest-01` challenge supports device attestations from iOS, iPadOS, tvOS, and YubiKeys. An attestation certificate is used to satisfy the ACME challenge. The CSR may include a device ID in a `permanentIdentifier` SAN ([RFC 4043](https://www.rfc-editor.org/rfc/rfc4043.html)), depending on the application. 
+##### Device Attestation for Apple Devices
 
-##### Managed Device Attestation for Apple Devices
-
-To add a `device-attest-01` provisioner for use with [Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) on Apple devices, run:
+To add a `device-attest-01` provisioner
+for use with [Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) on Apple devices,
+run:
 
 ```bash
 step ca provisioner add acme-da \
@@ -1021,7 +1052,7 @@ step ca provisioner add acme-da \
 
 <Alert severity="warning">
   <div>
-    Apple's device attestation CA will be trusted by the provisioner.
+    ☠️  Apple's device attestation CA will be trusted by the provisioner.
     For a production environment, you must add policies to restrict this provisioner.
     Without policy restrictions, the provisioner may issue certificates **for any Apple device**.
   </div>
@@ -1045,7 +1076,7 @@ step ca provisioner add acme-da \
 
 <Alert severity="warning">
   <div>
-    Yubico's attestation CA will be trusted by the new provisioner.
+    ☠️  Yubico's attestation CA will be trusted by the new provisioner.
     For a production environment, you must add policies to restrict this provisioner.
     Without policy restrictions, the provisioner may issue certificates **for any YubiKey**.
   </div>
@@ -1076,6 +1107,30 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
       --provisioner acme-da $YUBIKEY_SERIAL_NO yubikey.crt
    }
    ```
+
+##### Device Attestation for TPM 2.0
+
+While `step-ca` supports the `tpm` attestation format of ACME `device-attest-01`,
+an end-to-end TPM-bound client certificate flow is not available at this time.
+
+A device needs to provide an attestation certificate in its response to an ACME `device-attest-01` challenge.
+Apple has an online attestation authority service for this.
+Yubico offers attestation certificates on their devices.
+
+But we have not seen a public or open source attestation authority that can issue attestation certificates for TPMs.
+TPMs also have privacy constraints and a wide range of use case-specific validation requirements that complexify attestation flows.
+
+<Alert severity="info">
+  <div> 
+  A complete TPM attestation flow and attestation authority
+  is available in Smallstep's commercial platform.
+  We offer cloud SaaS and on-prem hosting options.
+  <a href="https://smallstep.com/certificate-manager/">Learn More...</a>
+  </div>
+</Alert>
+
+For a description of how a TPM-based attestation flow might work, if implemented,
+see [TPMs + ACME: Better Together](https://smallstep.com/blog/managed-device-attestation/#tpms--acme-better-together)
 
 #### ACME for Wire messenger clients
 
