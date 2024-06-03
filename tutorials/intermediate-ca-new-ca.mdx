@@ -89,6 +89,10 @@ $ mv intermediate_ca_key ~/.step/secrets/intermediate_ca_key
 Verify that the `$(step path)/config/ca.json` is pointing to the correct location
 for each of these files.
 
+You may also wish to delete `$(step path)/config/defaults.json`,
+if it exists,
+and re-run `step ca bootstrap` with your new Root CA fingerprint.
+
 That's it! You should now be able to start `step-ca` and generate X.509 certificates
 that can be validated and authenticated by any software that trusts your root 
 certificate.
