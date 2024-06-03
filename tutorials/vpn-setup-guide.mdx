@@ -5,8 +5,6 @@ html_title: How to configure common VPN servers to use Smallstep for client and 
 description: This tutorial describes how to configure Smallstep with VPN servers for a high-security, certificate-based VPN server
 ---
 
-**April 15, 2024**: strongSwan is currently the only VPN supported in this guide. More are coming soon.
-
 ## strongSwan
 
 This configuration was tested with strongSwan 5.9.13.
@@ -87,3 +85,13 @@ The next step is to configure strongSwan to use full EAP-TLS client authenticati
 For testing, you can get a certificate from the Accounts CA using the Smallstep UI. Visit Certificate Manager → Authorities → Smallstep Accounts CA, and get a certificate on that page.
 
 To deploy and manage certificates for strongSwan to all your VPN clients, you can use MDM or the Smallstep agent app.
+
+## Juniper SSL-VPN
+
+See [Create a Remote Access VPN—Juniper Secure Connect](https://www.juniper.net/documentation/us/en/software/jweb-srx21.3/jweb-srx/topics/task/j-web-security-ipsec-remote-access-vpn-juniper-secure-connect-creating.html)
+
+## Cisco Meraki AnyConnect 
+
+- [Server docs at meraki.net](https://learning.meraki.net/#/online-courses/3def4293-8b71-406f-ae12-ab0c1028261b)
+- [Client docs at meraki.net](https://documentation.meraki.com/MX/Client_VPN/AnyConnect_on_the_MX_Appliance/Client_deployment)
+
