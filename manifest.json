@@ -34,31 +34,6 @@
             {
               "title": "Getting Started",
               "path": "/platform/getting-started.mdx"
-            },
-            {
-              "title": "Smallstep API",
-              "path": "/platform/smallstep-api.mdx"
-            }
-          ]
-        },
-        {
-          "title": "How To Guides",
-          "routes": [
-            {
-              "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro + Smallstep",
-              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
-            },
-            {
-              "title": "Deploy EAP-TLS Wi-Fi with Intune + Smallstep",
-              "path": "/tutorials/intune-mdm-setup-guide.mdx"
-            },
-            {
-              "title": "Set up Wi-Fi Access Points for EAP-TLS",
-              "path": "/tutorials/wifi-setup-guide.mdx"
-            },
-            {
-              "title": "Set up certificate-based VPN with Smallstep",
-              "path": "/tutorials/vpn-setup-guide.mdx"
             }
           ]
         },
@@ -118,6 +93,10 @@
             {
               "title": "Introduction",
               "path": "/certificate-manager/README.mdx"
+            },
+            {
+              "title": "Core Concepts",
+              "path": "/certificate-manager/core-concepts.mdx"
             },
             {
               "title": "Getting Started",
