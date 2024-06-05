@@ -156,7 +156,11 @@ Next, you’ll configure the TLS handshake for your VPN. You’ll add the follow
 
 Now let’s configure CAs and Certificates on the BIG IP.
 
-First, you’ll add a root of trust that will verify client certificates:
+#### Configure a Client Certificate Trust Chain
+
+First, you’ll add a root of trust that will verify client certificates.
+Since Smallstep will issue your client certificates,
+you'll upload the Smallstep Accounts Root and Intermediate CA bundle in this step.
 
 1. Go to System → Certificate Management → Traffic Certificate Management → SSL Certificate List
 2. Choose “Import…” and on the next screen, choose:
@@ -166,10 +170,12 @@ First, you’ll add a root of trust that will verify client certificates:
     - Choose Import
 3. You should now see a new Certificate Bundle in the list.
 
-Next, you’ll configure a server certificate and private key for your virtual server’s Client SSL profile. This certificate must be issued by a root CA that will be trusted by your VPN clients when they connect.
+#### Configure a Server TLS Certificate
+
+Next, you’ll configure a server certificate and private key for your virtual server’s Client SSL profile. This certificate does not need to come from Smallstep, but it must be issued by a Certificate Authority that will be trusted by your VPN clients before they connect.
 
 <aside>
-These instructions will help you create and import a certificate and key manually. A fully automated certificate management workflow is beyond the scope of this document. In a production environment, it is recommended to automate BIG IP server certificate management using Ansible, Terraform, or another IaC tool. BIG IP’s REST API can be leveraged for certificate automation. See [this F5 DevCentral post](https://community.f5.com/discussions/technicalforum/lets-encrypt-with-cloudflare-dns-and-f5-rest-api/292929) for details.
+These instructions will help you create and import a certificate and key manually. A fully automated server certificate management workflow is beyond the scope of this document. In a production environment, it is recommended to automate BIG IP server certificate management using Ansible, Terraform, or another IaC tool. BIG IP’s REST API can be leveraged for certificate automation. See [this F5 DevCentral post](https://community.f5.com/discussions/technicalforum/lets-encrypt-with-cloudflare-dns-and-f5-rest-api/292929) for details.
 </aside>
 
 1. Create the server certificate and private key. You can do this in the Smallstep UI, or locally by running `step ca certificate`. For example:
@@ -262,11 +268,15 @@ Further reading:
 
 ---
 
-### Creating an Access Profile manually
+### Optional: Creating an Access Profile manually
 
-If you want to create an Access Profile manually instead of importing one, do the following:
+As an alternative to importing Smallstep's predefined Access Profile,
+you can create it manually.
 
-### Add a Network Access List
+To create the Access Profile manually,
+do the following:
+
+#### Add a Network Access List
 
 1. Go to Access → Connectivity / VPN → Network Access (VPN) → Network Access Lists
 2. Choose “Create…”
@@ -275,7 +285,7 @@ If you want to create an Access Profile manually instead of importing one, do th
     - Customize the Customization Settings as desired
 3. Choose “Finished”
 
-### Add an IPv4/IPv6 Lease Pool
+#### Add an IPv4/IPv6 Lease Pool
 
 Add at least one lease IPv4 or IPv6 lease pool:
 
@@ -285,7 +295,7 @@ Add at least one lease IPv4 or IPv6 lease pool:
     - Start IP: `192.168.133.2`, for example
     - End IP: `192.168.133.254`, for example
 
-### Add an Access Profile
+#### Add an Access Profile
 
 1. Go to Access → Profiles / Policies and create an Access Profile
     - Name: `smallstep-vpn`
@@ -314,7 +324,7 @@ Add at least one lease IPv4 or IPv6 lease pool:
         
     - Finally, change the fallback Ending from Advanced Resource Assign to **Allow**
 
-## Juniper SSL-VPN
+## Juniper Secure Connect SSL-VPN
 
 See [Create a Remote Access VPN—Juniper Secure Connect](https://www.juniper.net/documentation/us/en/software/jweb-srx21.3/jweb-srx/topics/task/j-web-security-ipsec-remote-access-vpn-juniper-secure-connect-creating.html)
 
