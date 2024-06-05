@@ -1,16 +1,14 @@
 ---
-title: Overview of The Smallstep Platform
-html_title: The Smallstep Platform 
-description: The Smallstep platform helps teams quickly and reliably connect devices, workloads, and people using end-to-end encryption and cryptographic identity, making it easy to deploy and monitor an internal Public Key Infrastructure (PKI) in the cloud.
+title: What is Smallstep?
+html_title: What is Smallstep? 
+description: Smallstep is a centralised comprehensive internal PKI toolchain, providing IT/Security/DevOps engineers with everything they need to automate the deployment, and management (renewal, revocation and monitoring) of certificates for a broad range of contexts, use cases and environments.
 ---
 
-The Smallstep platform helps teams quickly and reliably connect devices, workloads, and people using end-to-end encryption and cryptographic identity, making it easy to deploy and monitor an internal Public Key Infrastructure (PKI) in the cloud.
+Certificates are a fundamental part of any non-trivial architecture, as they are the strongest possible way to encrypt communications, authenticate users and devices, protect data integrity, and ensure compliance with security standards. 
 
-Built by PKI experts, our platform employs modern, standard protocols and PKI best practices. We believe network encryption and production identity should be ubiquitous, automated, monitored, and unobtrusive.
+Smallstep is a centralised comprehensive internal PKI toolchain, providing IT/Security/DevOps engineers with everything they need to automate the deployment, and management (renewal, revocation and monitoring) of certificates for a broad range of contexts, use cases and environments.
 
-Whether you’re securing an NGINX web app, an IoT fleet, or a mobile MDM deployment, you can use Smallstep to safeguard your infrastructure. Our goal is to help you encrypt all the communication within your organization, creating a *cryptographic perimeter* around your resources, using short-lived certificates.
-
-Under the hood, Smallstep deploys, manages, and monitors TLS, SSH, and X.509 certificates for your users and infrastructure. We support deep integrations for securing network connections to servers, databases, VPNs, Linux VMs, managed devices, web applications, and much more.
+We offer robust integration solutions for securing network connections to various resources like servers, databases, internal web applications, Kubernetes clusters, GitHub Actions, VPNs, VMs, Wi-Fi, managed devices, and more. With Smallstep, your PKI can serve as a unified foundation for certificate-driven security for all your devices, people, and workloads.
 
 <Alert severity="info">
   <div>
@@ -24,6 +22,119 @@ Under the hood, Smallstep deploys, manages, and monitors TLS, SSH, and X.509 cer
 </Alert>
 
 
-## Learn More
+# What can you use Smallstep for?
+## Enterprise IT
 
-You can [schedule time](https://smallstep.com/request-demo/) with the Smallstep team to learn how the platform can help your project.
+Smallstep can be used to establish high-assurance device identities and restrict access by devices, ensuring that sensitive resources are only accessible from trusted company-managed devices. When combined with user identities, device identities bound to hardware can offer the strongest possible security guarantees.
+
+Device Identity helps your organisation:
+
+- [Protect against credential theft based attacks](https://smallstep.com/blog/road-to-phishing-resistant-authentication/).
+- Meet regulatory requirements and industry standards such as GDPR, HIPAA, and PCI DSS.
+- Enforce non-repudiation, so you can seamlessly verify and attribute every action.
+
+After devices have been securely enrolled and identified, Smallstep takes care of automatically deploying client certificates to company devices for accessing each of your most important resources, such as: 
+
+- Wi-Fi (for 802.1x EAP-TLS WPA-Enterprise)
+- VPN Servers
+- Zero Trust Network Access (ZTNA)
+- HTTP/3 Proxies
+- Internal Websites
+- Cloud-based collaboration suites (Google Workspace, Microsoft Office365, Zoho Workplace, Atlassian Suite, e.t.c)
+- Public SaaS applications (Stripe, Quickbooks, Slack, etc.)
+
+### For Organisations With MDM
+
+Smallstep integrates with your MDM to deploy client certificates to company-managed devices to enable certificate-based network authentication for Wi-Fi (802.1x EAP-TLS WPA-Enterprise), VPN, ZTNA, etc.
+
+We offer integrations for any MDMs for Apple and Windows devices that support Dynamic SCEP or ACME certificate enrollment protocols.
+
+![Jamf MDM Marketecture.png](/graphics/Jamf_MDM_Marketecture.png)
+
+Supported MDMs include: Jamf, Intune, Workspace ONE, Mosyle, Ivanti, Jumpcloud, and lots more. 
+
+Smallstep can also be used as a drop-in replacement for Active Directory Certificate Services (ADCS), allowing you to transition from ADCS while still serving legacy workloads. We provide backwards-compatible support for SCEP and NDES, and also let you bring your existing Root CA with you, so you can get up and running in minutes.
+
+![Intune MDM Marketecture.png](/graphics/Intune_flow_diagram.png)
+
+See: 
+
+- [Why Your Organisation Should Be Migrating From Microsoft AD CS](https://smallstep.com/blog/migrate-from-microsoft-adcs/)
+- [How to Bring Your Own Root from AD CS to Smallstep](https://smallstep.com/blog/byor-adcs-to-smallstep/)
+
+<Alert severity="info">
+  <div>
+    💡 What about MDM’s that do not support Dynamic SCEP?  
+    <p>
+      There are two main approaches to using SCEP as a certificate enrolment protocol: static and dynamic. 
+    </p>
+    <p>
+      In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.
+    </p>
+    <p> 
+       In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices. 
+    </p>
+    <p>In such a case where your MDM does not support Dynamic SCEP, your next best bet to deploy Smallstep is to use the  Smallstep Agent. <em> See details below </em>
+    </p>
+  </div>
+</Alert>
+
+### For Organisations Without MDM or with Linux Devices
+
+The Smallstep Agent is the recommended way to get identify devices and get client certificates to devices for Enterprise Wi-Fi, VPN, HTTP/3 proxies, or web applications in the following scenarios: 
+
+- SMEs with 20 - 100 devices without an MDM
+- Linux devices
+- Managed devices under an MDM that does not support Dynamic SCEP
+
+The Smallstep Agent is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources (workloads). The agent leverages Trusted Platform Modules (TPMs) for trust bootstrapping. It works with all TPM 2.0 devices—virtual TPMs, firmware TPMs, or physical TPMs—and on some TEEs and Secure Enclaves (eg. Apple Managed Device Attestation).
+
+To get started, [sign up now](https://smallstep.com/signup/).
+
+# How Can You Use Smallstep?
+
+Depending on what’s best for your infrastructure and current reality, Smallstep offers different deployment options to meets your needs: 
+
+## Smallstep SaaS cloud offering
+
+The Smallstep Saas cloud offering is our default recommended offering, unless you have security requirements that prohibit you from using a cloud CA. We also provide an ****API, Terraform Provider, and Ansible Collection for automation and IaC integration.
+
+## Smallstep Run Anywhere
+
+The Smallstep Run Anywhere is a copy of our hosted SaaS software that can be deployed in any customer-managed data center or cloud hosting provider. This solution allows customers to manage their own infrastructure and meet compliance while still being able to use Smallstep’s tech stack to issue and manage certificates.
+
+At its core, `run anywhere` requires a Kubernetes cluster for compute resources. It plugs into a PostgreSQL database, Redis instance, load balancing solution, and either a KMS or HSM. If you would like to deploy `run anywhere` into a GCP, AWS, or Azure environment, we have Terraform modules available for use or reference. Alternatively, users may work with Smallstep to configure their own solutions for other cloud hosting providers and data centers as desired.
+
+Talk to Smallstep’s Customer Engineering Team at [support.smallstep.com](http://support.smallstep.com) to design a deployment custom-tailored to all of your security needs.
+
+## Smallstep Open-Source Toolchain
+
+Our open source toolchain the most popular open-source certificate management toolchain, and was designed for DevOps and homelab or POC use cases—it’s not a device identity platform, and doesn’t solve the problems listed above.
+
+Our open-source toolchain for certificate and PKI management features 3 components: 
+
+- [step CLI](https://github.com/smallstep/cli): A user-friendly command-line interface to build, operate, and automate PKI systems.
+- [step-ca](https://github.com/smallstep/certificates): A powerful online CA for secure, automated certificate management.
+- [step-issuer](https://github.com/smallstep/step-issuer) and [autocert](https://github.com/smallstep/autocert): Kubernetes-native solutions for seamless certificate issuance and management in containerized environments.
+
+Get tinkering and [***Join our open-source Discord community*** ](https://u.step.sm/discord). 
+
+## Smallstep Enterprise CA
+
+Smallstep Enterprise CA is a drop-in upgrade for open-source certificate management toolchain, offering advanced features, support, and compliance options. It extends our open source with Device Identity features and integrations. 
+
+The Enterprise CA is ideal for organisations who want full On-Prem Control or need to make the transition from open-source to commercial to access Device Identity capabilities and advanced compliance options.
+
+With Enterprise CA, just like our open source toolchain, you still maintain full control over the CA and root signing keys while benefiting from our cloud-based integrations and management interface.
+
+Key Features are:
+
+- Fast and lightweight setup on Linux, Kubernetes, and Docker
+- Smallstep Device Identity, including MDM & posture integrations and active revocation (CRL & OCSP)
+- High-volume certificate issuance with HSM integration
+- FIPS and software supply-chain compliance, including SBOM & code-signing
+- Broad support for enrollment protocols, such as SCEP, REST API, SSO (OAuth OIDC), SPIFFE, cloud identities, and Kubernetes integration
+- Connectors for existing PKI backends (AD CS, GCP CAS, AWS PCM)
+- High availability, automation, and CLM integration with Sectigo and Digicert
+
+We offer standard SLAs with 24-hour response for non-critical issues and 4-hour turnaround for critical incidents. For organizations requiring tailored assistance, enhanced support options are available, ensuring your infrastructure remains secure and operational. [Reach out](https://go.smallstep.com/request-demo) if you're looking to explore this option. 
