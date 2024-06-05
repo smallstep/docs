@@ -64,18 +64,12 @@ See:
 
 <Alert severity="info">
   <div>
-    💡 What about MDM’s that do not support Dynamic SCEP?  
-    <p>
-      There are two main approaches to using SCEP as a certificate enrolment protocol: static and dynamic. 
-    </p>
-    <p>
-      In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.
-    </p>
-    <p> 
-       In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices. 
-    </p>
-    <p>In such a case where your MDM does not support Dynamic SCEP, your next best bet to deploy Smallstep is to use the  Smallstep Agent. <em> See details below </em>
-    </p>
+    <p><strong>💡 What about MDM’s that do not support Dynamic SCEP?  </strong></p>
+    <p>There are two main approaches to using SCEP as a certificate enrollment protocol: static and dynamic. </p>
+
+    <p>In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.</p>
+    <p>In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices.</p>
+    <p>If your MDM does not support Dynamic SCEP, your next best bet to deploy Smallstep is to use the Smallstep Agent. <em>See details below.</em></p>
   </div>
 </Alert>
 
