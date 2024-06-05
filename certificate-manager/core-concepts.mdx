@@ -6,165 +6,49 @@ description: Core Concepts of the Smallstep Platform.
 
 The Smallstep Platform is powered by a number of components that can be combined to deliver automated certificate management for a broad set of use cases and implementations. 
 
-# Certificates
+The components include:
 
-A **certificate** is a sort of credential. Concretely, a certificate is a data
-structure that contains a name, public key, validity period (a.k.a., lifetime),
-and additional metadata. Certificates are **signed** by a trusted **certificate
-authority** (CA) and issued to **endpoints**. A **relying party** validates a
-certificate and extracts the **subject name** to authenticate the identity of an
-endpoint.
+- **[Authorities]()**— Certificate or registration authorities powered by `step-ca`
+- **[Provisioners]()**— Machinery for securely automating certificate issuance
+- **[Inventories]()**— Catalogs of entities like hosts, services, and people for use with templates and provisioners
+- **[Templates]()**— Customization of x.509 or SSH certificates for any use case
+- **[Events]()**— Observability and alerting for certificate lifecycle activities
 
-# Endpoints
-
-An **Endpoint** is an entity (person, device, workload) that is issued a
-certificate. Certificate Manager attempts to group certificate renewals for an
-Endpoint for alerting, audit, and billing purposes.
-
-Certificate Manager can be configured to alert you when an Endpoint’s last
-certificate is approaching expiry and has not been renewed.
-
-The Certificate Manager dashboard provides an Endpoint detail view that makes it
-easy for administrators to view the historical certificate lineage for an
-Endpoint. This aggregated view simplifies operations, auditing, reporting, and
-compliance inquiries.
-
-Certificate Manager billing is also metered on Endpoint-months.
-
-- Billing starts when a certificate is issued for a new Endpoint
-- Billing ends when an Endpoint’s last certificate expires or is revoked
-
-Billing per-certificate would penalize deployments that use short-lived
-certificates and automated renewal. Endpoint billing is designed to encourage
-this best practice.
-
-Two Endpoint examples:
-
-1. A single device with **one 30-day certificate** would be billed at the same
-   rate as,
-2. A single device with **60 one-day certificates** renewed every 12-hours.
-
-**Endpoint** grouping is automatic and intuitive for most use cases:
-
-- For provisioners with renewal enabled:
-  - Certificates issued using `step ca certificate` (or any other method that
-    uses the `/sign` API) create a new Endpoint
-  - Certificates issued using `step ca renew` (or any other method that uses the
-    `/renew` API) are associated with the existing Endpoint of the certificate
-    that’s being renewed
-- For provisioners with renewal disabled, common with ACME and OIDC,
-  certificates with identical subjects (common name and SANs), ignoring order
-  and capitalization, belong to the same Endpoint
-
-For billing purposes, there is a limit of three active certificates per
-Endpoint. Each active certificate above three is billed as an additional
-Endpoint. To avoid being charged for multiple Endpoints you can revoke unused
-certificates after they’ve been renewed.
-
-If you’d like to opt-in to certificate-based billing, inquire about high-volume
-fixed pricing, or have any other questions about Endpoint-based billing for your
-use case please [contact us](mailto:support@smallstep.com).
 
 # Authorities
 
-Authorities are the foundation of the Smallstep Platform. They are trusted services that provide core certificate signing and management functions (issue, sign, renew, and revoke certificates), and can run at any level of the PKI trust chain. Authorities are
-highly configurable, and multiple authorities can be used together to meet
-complex requirements.
+Authorities, powered by `step-ca`, are the foundation of the Smallstep Platform and provide core certificate signing and management functions (issue, renew, and revoke certificates). 
+Authorities are used to issue and sign certificates and can run at any level of the PKI trust chain.
 
-There are different types of authorities supported:
-
-## Issuing Authorities
-
-An **issuing authority** is an online certificate authority that authenticates
-and authorizes certificate requests and issues certificates. Issuing authorities
-sign certificates themselves. To do so, they are provisioned with a special CA
-certificate and private key.
-
-There are two types of issuing authority:
-
-1. **Hosted**: run by smallstep on your behalf as part of your Certificate
-   Manager account.
-2. **Linked**: an instance of `step-ca` you run that connects to your
-   Certificate Manager account for reporting, alerting, revocation, and other
-   managed services.
-
-If an issuing authority's private key is compromised, it can be used to
-maliciously issue certificates that will be trusted by the rest of your
-infrastructure. To protect these keys, `step-ca` integrates with hardware and
-software key managers, including PKCS#11 Hardware Security Modules (HSMs),
-YubiKeys, and cloud key management systems (KMSs) from AWS, GCP, and Azure. For
-hosted authorities, smallstep secures these keys for you in GCP's CloudKMS, with
-options for software or FIPS 140-2 Level 3 hardware protection levels.
-
-## Root CA 
-At the bottom of the PKI trust chain is the root authority. Typically, a Root CA is only invoked to sign intermediate CA certificates. 
+- **Root CA** - At the bottom of the PKI trust chain is the root authority. 
+Typically, a Root CA is only invoked to sign intermediate CA certificates. 
 This indirection allows for redundant topologies and facilitates migrations. 
 It also means root CA private keys can be managed, stored, and accessed with more care. 
-
 For the most security-sensitive use cases root signing keys can even be kept offline in a physically secure environment.
-A **root CA** is _directly_ trusted by relying parties. The root CA's
-certificate must be deployed to VMs, devices, and containers, then software and
-systems must be configured to trust it.
-
-## Intermediate CA 
-Automated certificate management requires an online CA with an API that's capable of authenticating certificate signing requests (CSRs) and issuing certificates. 
-An intermediate CA (also called a **subordinate CA**) is an issuing CA which recursively _chains up_ to the root CA. It is used to sign and issue certificates for devices, people, workloads, or whatever else you need to identify. It also allows you to keep your root signing keys offline, which improves security.
-
-For most scenarios, this is a nuance you won't have to worry about. By default,
-Certificate Manager will create a non-issuing root CA and a separate issuing
-authority for you automatically. For advanced scenarios, you can use your own
-offline root CA, provision multiple issuing authorities from a single root,
-configure multiple levels of intermediates, and revoke and re-issue intermediate
-authority certificates as necessary.
-
-## Registration Authority
-A registration authority is an online service that accepts and authenticates certificate requests. But, instead of issuing certificates itself, a registration authority passes authentic requests to an
-issuing authority (an Intermediate CA or Root CA) to sign and catalog. Registration authorities support all Provisioner types and are an optional component. They deliver most of the benefits of a
-linked issuing authority with less operational complexity since there's no
-signing key to manage.   
-Registration Authorities are also useful for connecting remote sites to a central set of signing authorities.
-
-![ACME Registration Authority](/graphics/ia-cloud-ra-challenge-client.svg 'In this example, the Smallstep ACME RA runs within the local network or VPC and responds to ACME requests from internal infrastructure and workloads. The RA accepts ACME orders and authenticates requests by verifying an ACME challenge. Upon verification, a CSR is securely passed to the Issuing Authority to sign and catalog.')
-
-## Validation Authorities
-
-A validation authority distributes certificate revocation status. Validation
-authorities implement two open standards to support active revocation:
-
-- **Certificate Revocation List (CRL)**: a signed, immutable ledger that lists
-  the serial number of all revoked certificates. CRLs are signed by trusted
-  infrastructure and served from cloud storage for high performance and
-  availability.
-- **Online Certificate Status Protocol (OCSP)**: a standard API for requesting
-  the revocation status of a particular certificate. The Certificate Manager
-  OCSP responder is a shared-nothing service that uses CRLs as a data source.
-   
+- **Intermediate CA** - Automated certificate management requires an online CA with an API that's capable of authenticating certificate signing requests (CSRs) and issuing certificates. 
+An intermediate CA is used to sign and issue certificates for devices, people, workloads, or whatever else you need to identify.
+- **Registration Authority** - Not a certificate signer, a Registration Authority accepts and verifies certificate requests. 
+Upon verification, certificate signing requests are passed to an Intermediate CA or Root CA to sign and catalog. 
+Registration Authorities are useful for connecting remote sites to a central set of signing authorities.
 
 <Alert severity="info">
   <div>
     Authorities are an open-source feature. The best way to learn about Authorities is to create one for yourself. 
-    Follow the instructions on <a href="https://smallstep.com/docs/step-ca/getting-started/"> the <em> step-ca</em> getting started page</a> and you will have your own Authority in no time at all..
+    Follow the instructions on <a href="https://smallstep.com/docs/step-ca/getting-started/"> the <code> step-ca` </code> getting started page</a> and you will have your own Authority in no time at all..
   </div>
 </Alert>
 
 
 # Provisioners
 
-Provisioners verify the legitimacy of certificate signing requests and attest to the identity of the requesting service or human. Provisioners are used to bootstrap new entities into the PKI, and make it easy to automate certificate management where
-possible, and support semi-automated / self-serve workflows where required.
-
-Certificate lifetimes, access control policies, renewal, templates, and many
-other options are configurable per-provisioner. Since an issuing authority can
-have multiple provisioners, you implement complex authentication and
-authorization policies and issue different kinds of certificates from one
-issuing authority.
-
-Each Provisioner addresses a particular environment, enabling different use cases. 
- A few examples include:
+Provisioners verify the legitimacy of certificate signing requests and attest to the identity of the requesting service or human.
+Used to help bootstrap new entities into the PKI, 
+each Provisioner addresses a particular environment, enabling different use cases. 
+A few examples include:
 
 - **OIDC Provisioner** - Useful for getting certificates to people, 
 the OAuth/OpenID Connect (OIDC) Provisioner uses identity tokens for authentication. 
-With this provisioner, you can use single sign-on with Google Workspace, Okta, Microsoft Entra ID, or any other OAuth OIDC provider 
+With this provisioner, you can use single sign-on with G Suite, Okta, Azure Active Directory, or any other OAuth OIDC provider 
 to verify the user's identity before issuing a certificate.
 - **ACME Provisioner** - Useful for automating TLS certificates, 
 the ACME provisioner provides CSR generation, domain ownership verification, certificate download, and installation. 
@@ -175,16 +59,10 @@ Cloud API Provisioners use the native cloud provider API and instance identity d
 With support for AWS, GCP, and Azure metadata APIs, the Cloud API provisioner accelerates secure cloud operations.
 - **JWK Provisioner** - Useful for a broad range of workflows, the JWK provisioner provides a flexible JSON Web Token-based authentication flow. 
 Often paired with infrastructure automation solutions, the JWK Provisioner can deliver one-time tokens to a new workload to later be exchanged for an x.509 certificate.
-- **The `X5C` and `SSHPOP` provisioners** - Useful for getting short-lived device certificates. These provisioners let you get a certificate
-  using an existing x509 or SSH certificate issued from another authority. This
-  can be used by devices to exchange long-lived _birth certificates_ issued at
-  manufacture time for short-lived _workload certificates_ and for other
-  _derived credential_ workflows where a certificate from a canonical CA is used
-  to automatically obtain certificates from one or more special-purpose CA(s).
 
 <Alert severity="info">
   <div>
-    Provisioners are an open-source feature. Visit  <a href="https://smallstep.com/docs/step-ca/certificate-authority-core-concepts#provisioners"> the <em>step-ca</em> documentation</a> for a complete list of Provisioners and instructions on usage and capabilities of each.
+    Provisioners are an open-source feature. Visit  <a href="https://smallstep.com/docs/step-ca/certificate-authority-core-concepts#provisioners"> the <code> step-ca` </code> documentation</a> for a complete list of Provisioners and instructions on usage and capabilities of each.
   </div>
 </Alert>
 
@@ -202,38 +80,23 @@ In both cases, the name in the authentication credential used to request a certi
 
 <Alert severity="info">
   <div>
-    Inventories is a feature available on the Smallstep platform.
+    Inventories is a feature availaible on the Smallstep platform.
   </div>
 </Alert>
 
 # Templates
 
-Templates give you granular control over certificate details and can be used to customize x.509 or SSH certificates for any use case. 
-By default,
-Certificate Manager is tuned to issue short-lived certificates for use with TLS.
-Templates let you customize every detail of a certificate, down to the
-[OID](https://en.wikipedia.org/wiki/Object_identifier), to support any use case.
-With Templates, you can add custom SANs or extensions to:
+Templates are JSON documents that describe the most important fields in the final certificate or certificate request. 
+Used to customize x.509 or SSH certificates for any use case, 
+Templates allow you to add custom SANs or extensions:
 
 - Customize certificates for a broad range of applications and integrations.
 - Provides full control of all of certificate fields, even add custom extensions.
 - Automate custom certificate generation and skip the manual workflows.
 
-Concretely, a template is a JSON representation of a certificate that's
-materialized using Go's [`text/template`](https://golang.org/pkg/text/template/)
-module and [sprig functions](http://masterminds.github.io/sprig/). They look
-like this:
-
-![Certificate Templates](/graphics/templates-screenshot.svg 'Certificate Templates')
-
-Context from certificate requests and authentication credentials are made
-available as template variables, so you can adjust certificate details based on
-who's requesting the certificate.
-
-
 <Alert severity="info">
   <div>
-    Templates are an open-source feature. See the <a href="https://smallstep.com/docs/step-ca/templates"><em>step-ca</em> documentation</a> for a complete description of Templates and instructions on usage and capabilities.
+    Templates are an open-source feature. <a href="https://smallstep.com/docs/step-ca/templates"> the <code> step-ca` </code>documentation</a> for a complete description of Templates and instructions on usage and capabilities.
     Visit
   </div>
 </Alert>
@@ -247,7 +110,7 @@ Events can be generated and surfaced via standard mechanisms.
 
 <Alert severity="info">
   <div>
-    Events are a feature of the commercial <a href="https://smallstep.com/app">Smallstep platform</a>. See the <a href="./../webhook-events">Webhook Events doc </a> to learn more. 
+    Events are a feature of the commercial <a href="https://smallstep.com/app">Smallstep platform</a>. See the <a href="">Webhook Events doc </a> to learn more. 
   </div>
 </Alert>
 
