@@ -301,7 +301,7 @@ Finally, create a Virtual Server for port 443:
 
 Your VPN configuration is now ready for testing.
 
-Further reading:
+### Further reading
 
 - [F5: Configuring an HTTP virtual server to redirect to HTTPS using an iRule](https://my.f5.com/manage/s/article/K10090418)
 - [F5’s Dev/Central](https://community.f5.com/) Community support
@@ -313,7 +313,7 @@ Further reading:
 This is an optional, alternative approach to creating the Access Profile.
 If you want to create an Access Profile manually instead of importing ours, do the following:
 
-### Add a Network Access List
+#### Add a Network Access List
 
 1. Go to Access → Connectivity / VPN → Network Access (VPN) → Network Access Lists
 2. Choose “Create…”
@@ -322,7 +322,7 @@ If you want to create an Access Profile manually instead of importing ours, do t
     - Customize the Customization Settings as desired
 3. Choose “Finished”
 
-### Add an IPv4/IPv6 Lease Pool
+#### Add an IPv4/IPv6 Lease Pool
 
 Add at least one lease IPv4 or IPv6 lease pool:
 
@@ -332,7 +332,7 @@ Add at least one lease IPv4 or IPv6 lease pool:
     - Start IP: `192.168.133.2`, for example
     - End IP: `192.168.133.254`, for example
 
-### Add an Access Profile
+#### Add an Access Profile
 
 1. Go to Access → Profiles / Policies and create an Access Profile
     - Name: `smallstep-vpn`
