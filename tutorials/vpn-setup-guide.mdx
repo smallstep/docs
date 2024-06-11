@@ -5,11 +5,57 @@ html_title: How to configure common VPN servers to use Smallstep for client and 
 description: This tutorial describes how to configure Smallstep with VPN servers for a high-security, certificate-based VPN server
 ---
 
+This tutorial describes how to configure your VPN server for certificate-based authentication with Smallstep.
+The Smallstep app can configure and issue certificates to your clients.
+
+# Overview of Setup Steps
+
+While the details will differ between VPNs, the process of configuring a VPN server
+to use Smallstep certificate authentication is broadly the same:
+
+1. Create a VPN server, if you don't already have one. Most VPN servers that support X.509 certificate authentication will work with Smallstep.
+2. Configure a DNS server name for your VPN server.
+3. Configure the VPN server to use a server TLS certificate.
+   You can use a public Web PKI certificate, eg. from [Let's Encrypt](https://letsencrypt.org/), or you can use a Smallstep Workoad certificate.
+4. Gather the following configuration information from your VPN server:
+
+   * **Server name and IP address**
+   * **Remote ID**. This may be the same as the server name.
+   * **Root Certificate**.
+     By default, most VPN clients will not trust any server certificate,
+     even if it comes from the Web PKI and would be trusted by a web browser.
+     Smallstep will need the Root Certificate for your VPN server,
+     which it will pass along to clients for the purpose of creating a trusted connection.
+
+5. In Smallstep, under Mobile Devices, create a Device Collection.
+6. Create a VPN Account in the Device Collection,
+   using your VPN's Server Name (or IP address), Remote ID, and Root Certifcate
+   (if it's a non-Smallstep server ceritificate, choose "Upload external root").
+7. Once you've saved the Account,
+   download the Root Certificate (in PEM format) from the VPN Account page.
+   This is your Account CA.
+   Your devices will be issued VPN account certificates from your Account CA.
+8. Finally,
+   configure your VPN server to authenticate clients
+   using the Account CA certificate you just downloaded from Smallstep.
+
+## What about the Accounts Intermediate CA?
+
+Clients receive the Accounts Intermediate CA from Smallstep in a certificate bundle that includes their client certificate.
+Clients then send this intermediate CA and the client certificate to the VPN server when connecting.
+The VPN server then has everything it needs to verify the full Root -> Intermediate -> Client certificate chain.
+
+In some rare cases, however, the server needs to be configured with the Accounts Intermediate CA in addition to the Root.
+
+# Vendor-specific guides
+
 The following VPN servers are covered in this document:
 - [strongSwan](#strongswan)
 - [F5 BIG IP VPN](#f5-big-ip-ssl-vpn)
+- [Azure Virtual Network Gateway](#azure-virtual-network-gateway)
 - [Juniper SSL-VPN](#juniper-ssl-vpn)
 - [Cisco Meraki AnyConnect](#cisco-meraki-anyconnect)
+
 
 ## strongSwan
 
@@ -264,7 +310,8 @@ Further reading:
 
 ### Creating an Access Profile manually
 
-If you want to create an Access Profile manually instead of importing one, do the following:
+This is an alternative approach.
+If you want to create an Access Profile manually instead of importing ours, do the following:
 
 ### Add a Network Access List
 
@@ -313,6 +360,60 @@ Add at least one lease IPv4 or IPv6 lease pool:
         ![Advanced Resource Assign properties](/graphics/advanced-resource-assign.png)
         
     - Finally, change the fallback Ending from Advanced Resource Assign to **Allow**
+
+## Azure Virtual Network Gateway
+
+You can use an [Azure Point-to-Site VPN](https://learn.microsoft.com/en-us/azure/vpn-gateway/point-to-site-about) to connect clients to your Azure virtual network.
+
+In this tutorial, we'll set up client certificate authenticatin with Smallstep, using an IPSec IKEv2 VPN.
+
+Microsoft's "Configure a point-to-site VPN" tutorial provides the basis for this tutorial:
+
+   * [Azure Portal version](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal)
+   * [Azure PowerShell version](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-rm-ps)
+
+1. Start by creating a basic Virtual Network Gateway by following the steps in [Create the VPN Gateway](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal#creategw)
+
+2. Wait for the Virtual Network Gateway to deploy.
+
+3. Once deployed, look up the following properties for your Virtual Network Gateway:
+
+   * The gateway's **Public IP Address**
+   * The gateway's **Remote ID** and **Root CA Certificate**.
+     These are loacated inside the Point-to-Site configuration settings file.
+     To find tehse values,
+     in the Point-to-Site Configuration tab of the Virtual Network Gateway settings,
+     choose **Download VPN Client**.
+
+   When you choose "Download VPN Client", you will get a ZIP file containing two crucial configuration parameters:
+   
+     * Your gateway's **Remote ID**, located in `Generic/VpnSettings.xml`.
+       The Remote ID is the value inside the `<VpnServer>` tag.
+     * Your gateway's **Root CA Certificate**, located in `Generic/VpnServerRoot.cer_0`
+       
+       The Root CA Certificate is in DER (binary) format.
+       Before you upload it to Smallstep, you'll need to convert it to PEM format.
+       Run:
+       
+       ```
+       step certificate format VpnServerRoot.cer_0 > VpnServerRoot.pem
+       ```
+
+4. In [Smallstep](https://smallstep.com/app), create a Mobile Device Collection and add your device to it.
+   (If you're using the Smallstep app, a New Devices collection will be created for you when you sign in.)
+
+5. Now, under the Accounts tab of your Device Collection, create a VPN Account:
+
+   * Connection type: **IKEv2 with IPSec**
+   * Remote address: Use the server name or remote IP of your Azure VPN
+   * Remote ID: Use the Remote ID you located earier.
+   * Server Certificate Roots: Choose "Upload external root" and upload the `VpnServerRoot.pem` file you created earlier.
+
+5. Choose "Save account"
+6. Download your Smallstep Root Certificate from the Authority Settings page.
+7. In Azure, follow the instructions in [Upload root certificate public key information](https://learn.microsoft.com/en-us/azure/vpn-gateway/vpn-gateway-howto-point-to-site-resource-manager-portal#uploadfile) to add the Smallstep Root Certifcate to the Root certificates section of your VPN's Point-to-site Configuration.
+
+You're now ready to verify your VPN connection.
 
 ## Juniper SSL-VPN
 
