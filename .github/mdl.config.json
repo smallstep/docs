@@ -34,7 +34,7 @@
   "replacementPatterns": [
     {
       "pattern": "^/graphics",
-      "replacement": "{{BASEURL}}/graphics/"
+      "replacement": "{{BASEURL}}/graphics"
     }
   ]
 }

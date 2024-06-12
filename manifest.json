@@ -52,6 +52,18 @@
             {
               "title": "Set up certificate-based VPN with Smallstep",
               "path": "/tutorials/vpn-setup-guide.mdx"
+            },
+            {
+              "title": "Set up strongSwan VPN with Smallstep",
+              "path": "/tutorials/vpn-setup-guide-strongswan.mdx"
+            },
+            {
+              "title": "Set up F5 VPN with Smallstep",
+              "path": "/tutorials/vpn-setup-guide-f5.mdx"
+            },
+            {
+              "title": "Set up Azure VPN with Smallstep",
+              "path": "/tutorials/vpn-setup-guide-azure-vng.mdx"
             }
           ]
         },
