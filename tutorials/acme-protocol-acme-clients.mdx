@@ -266,11 +266,18 @@ Caddy will automatically renew its certificates after &frac23; of the validity p
 
 ### NGINX
 
-[Nginx][] doesn’t support ACME natively, but you can use a command-line ACME client to get certificates for Nginx to use.
+[NGINX][https://nginx.com/] doesn’t support ACME natively, but there are two options:
 
-[nginx]: https://www.nginx.com/
+* The [njs-acme](https://github.com/nginx/njs-acme) module allows for automatic generation and renewal of TLS certificates for NGINX using ACME.
+* You can use a command-line ACME client to get certificates for NGINX.
 
-Here’s an example `nginx.conf` that runs Nginx in a common configuration where it terminates TLS and proxies to a back-end server listening on local loopback:
+#### Using the njs-acme module
+
+See [njs-acme](https://github.com/nginx/njs-acme) for full documentation.
+
+#### Using a command-line ACME client
+
+Here’s an example `nginx.conf` that runs NGINX in a common configuration where it terminates TLS and proxies to a back-end server listening on local loopback:
 
 ```nginx
 server {
@@ -284,7 +291,7 @@ server {
 }
 ```
 
-With this code, you are telling Nginx to listen on port 443 using TLS, with a certificate and private key stored on disk.
+With this code, you are telling NGINX to listen on port 443 using TLS, with a certificate and private key stored on disk.
 [Other resources][nginx-le-docker] provide a more thorough explanation of NGINX's various TLS configuration options.
 
 [nginx-le-docker]: https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71
@@ -301,8 +308,8 @@ $ curl https://foo.internal --cacert $(step path)/certs/root_ca.crt
 Hello TLS!
 ```
 
-Nginx only reads certificates once, only at startup.
-When you renew the certificate on disk, Nginx won’t notice.
+NGINX only reads certificates once, only at startup.
+When you renew the certificate on disk, NGINX won’t notice.
 After each renewal you’ll need to run the following command:
 
 ```shell
@@ -322,8 +329,8 @@ If you’re using acme.sh, check out the `--reloadcmd` flag.
 
 ### Apache
 
-Apache httpd has integrated ACME support via [mod_md][].
-You can deploy certificates to Apache in a way similar to what we did for Nginx.
+Apache httpd has integrated ACME support, via [mod_md][].
+Or you can deploy certificates to Apache using an external ACME client, such as certbot.
 
 [mod_md]: https://github.com/icing/mod_md
 
@@ -350,7 +357,7 @@ Start Apache and check your work with curl:
 Hello TLS`}
 </CodeBlock>
 
-Like Nginx, Apache needs to be signaled after certificates are renewed by running the following command:
+Apache needs to be signaled after certificates are renewed by running the following command:
 
 ```shell
 apachectl graceful
