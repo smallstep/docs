@@ -16,7 +16,8 @@ menu:
 step ssh login [<identity>]
 [--token=<token>] [--provisioner=<name>] [--provisioner-password-file=<file>]
 [--principal=<string>] [--not-before=<time|duration>] [--not-after=<time|duration>]
-[--set=<key=value>] [--set-file=<file>] [--force]
+[--kty=<key-type>] [--curve=<curve>] [--size=<size>] [--comment=<comment>]
+[--set=<key=value>] [--set-file=<file>] [--force] [--insecure]
 [--offline] [--ca-config=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
@@ -106,6 +107,43 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
+**--comment**=`value`
+The comment used when adding the certificate to an agent. Defaults to the subject if not provided.
+
+**--kty**=`kty`
+The `kty` to build the certificate upon.
+If unset, default is EC.
+
+`kty` is a case-sensitive string and must be one of:
+
+- **EC**: Create an **elliptic curve** keypair
+
+- **OKP**: Create an octet key pair (for **"Ed25519"** curve)
+
+- **RSA**: Create an **RSA** keypair
+
+**--crv**=`curve`, **--curve**=`curve`
+The elliptic `curve` to use for EC and OKP key types. Corresponds
+to the **"crv"** JWK parameter. Valid curves are defined in JWA [RFC7518]. If
+unset, default is P-256 for EC keys and Ed25519 for OKP keys.
+
+`curve` is a case-sensitive string and must be one of:
+
+- **P-256**: NIST P-256 Curve
+
+- **P-384**: NIST P-384 Curve
+
+- **P-521**: NIST P-521 Curve
+
+- **Ed25519**: Ed25519 Curve
+
+**--size**=`size`
+The `size` (in bits) of the key for RSA and oct key types. RSA keys require a
+minimum key size of 2048 bits. If unset, default is 2048 bits for RSA keys and 128 bits for oct keys.
+
+**--insecure**
+
+
 ## Examples
 
 Request a new SSH certificate and add it to the agent:
@@ -126,5 +164,20 @@ $ step ssh login --not-after 1h alice
 Request a new SSH certificate with multiple principals:
 ```shell
 $ step ssh login --principal admin --principal bob bob@smallstep.com
+```
+
+Request a new SSH certificate and set a custom comment in the agent
+```shell
+$ step ssh login --comment my-custom-comment bob@smallstep.com
+```
+
+Request a new SSH certificate with an EC key and P-521 curve:
+```shell
+$  step ssh certificate --kty EC --curve "P-521" mariano@work id_ecdsa
+```
+
+Request a new SSH certificate with an Octet Key Pair and Ed25519 curve:
+```shell
+$  step ssh certificate --kty OKP --curve Ed25519 mariano@work id_ed25519
 ```
 

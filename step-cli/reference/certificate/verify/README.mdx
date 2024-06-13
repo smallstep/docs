@@ -15,6 +15,9 @@ menu:
 ```raw
 step certificate verify <crt-file> [--host=<host>]
 [--roots=<root-bundle>] [--servername=<servername>]
+[--issuing-ca=<ca-cert-file>] [--verbose]
+[--verify-ocsp]] [--ocsp-endpoint]=url
+[--verify-crl] [--crl-endpoint]=url
 ```
 
 ## Description
@@ -47,8 +50,29 @@ authenticity of the remote server.
 
 - **directory**: Relative or full path to a directory. Every PEM encoded certificate from each file in the directory will be used for path validation.
 
+**--issuing-ca**=`file`
+The certificate issuer CA `file` needed to communicate with OCSP and verify a CRL. By default the issuing CA will be taken from the cert Issuing Certificate URL extension.
+
+**--verify-ocsp**
+Verify the certificate against it's OCSP.
+
+**--ocsp-endpoint**=`value`
+The OCSP endpoint to use. If not provided step will attempt to check it against the certificate's OCSPServer AIA extension endpoints.
+
+**--verify-crl**
+Verify the certificate against it's CRL.
+
+**--crl-endpoint**=`value`
+The CRL endpoint to use. If not provided step will attempt to check it against the certificate's CRLDistributionPoints extension endpoints.
+
+**--verbose**, **-v**
+Print result of certificate verification to stdout on success
+
 **--servername**=`value`
 TLS Server Name Indication that should be sent to request a specific certificate from the server.
+
+**--insecure**
+
 
 ## Exit codes
 
@@ -87,4 +111,21 @@ Verify a certificate using a custom directory of root certificates for path vali
 $ step certificate verify ./certificate.crt --roots ./root-certificates/
 ```
 
+Verify a certificate including OCSP and CRL using CRL and OCSP defined in the certificate
+
+```shell
+$ step certificate verify ./certificate.crt --verify-crl --verify-ocsp
+```
+
+Verify a certificate including OCSP and specifying an OCSP server
+
+```shell
+$ step certificate verify ./certificate.crt --verify-ocsp --ocsp-endpoint http://acme.com/ocsp
+```
+
+Verify a certificate including CRL and specificing a CRL server and providing the issuing CA certificate
+
+```shell
+$ step certificate verify ./certificate.crt --issuing-ca ./issuing_ca.pem  --verify-crl --crl-endpoint http://acme.com/crl
+```
 

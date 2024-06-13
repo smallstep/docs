@@ -14,8 +14,8 @@ menu:
 
 ```raw
 step certificate sign <csr-file> <crt-file> <key-file>
-[--profile=<profile>] [--template=<file>] 
-[--set=<key=value>] [--set-file=<file>]
+[--profile=<profile>] [--template=<file>]
+[--set=<key=value>] [--set-file=<file>] [--omit-cn-san]
 [--password-file=<file>] [--path-len=<maximum>]
 [--not-before=<time|duration>] [--not-after=<time|duration>]
 [--bundle]
@@ -65,6 +65,13 @@ The `key=value` pair with template data variables. Use the **--set** flag multip
 **--set-file**=`file`
 The JSON `file` with the template data variables.
 
+**--omit-cn-san**
+Do not add CSR Common Name as SAN extension in resulting certificate.
+By default, the CSR Common Name will be added as a SAN extension only if the CSR
+does not contain any SANs. Note that if the Common Name is already captured as a
+SAN extension in the CSR then it will still appear as a SAN extension in the
+certificate.
+
 **--password-file**=`file`
 The path to the `file` containing the password to encrypt or decrypt the private key.
 
@@ -110,6 +117,11 @@ $ step certificate sign --bundle leaf.csr issuer.crt issuer.key
 Sign a CSR with custom validity and bundle the new certificate with the issuer:
 ```shell
 $ step certificate sign --bundle --not-before -1m --not-after 16h leaf.csr issuer.crt issuer.key
+```
+
+Sign a CSR but do not add the Common Name to the SANs extension of the certificate:
+```shell
+$ step certificate sign --omit-cn-san leaf.csr issuer.crt issuer.key
 ```
 
 Sign an intermediate ca:

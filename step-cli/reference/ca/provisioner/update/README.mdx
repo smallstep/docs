@@ -18,6 +18,8 @@ step ca provisioner update <name> [--public-key=<file>]
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
 [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 ACME
 
@@ -27,6 +29,7 @@ step ca provisioner update <name> [--force-cn] [--require-eab]
 [--attestation-roots=<file>] [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 
 OIDC
 
@@ -36,9 +39,13 @@ step ca provisioner update <name>
 [--domain=<domain>] [--remove-domain=<domain>]
 [--group=<group>] [--remove-group=<group>]
 [--admin=<email>]... [--remove-admin=<email>]...
+[--scope=<scope>] [--remove-scope=<scope>]
+[--auth-param=<auth-param>] [--remove-auth-param=<auth-param>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 X5C
 
@@ -46,6 +53,8 @@ step ca provisioner update <name> --x5c-roots=<file>
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 K8SSA (Kubernetes Service Account)
 
@@ -53,6 +62,7 @@ step ca provisioner update <name> [--public-key=<file>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 
 IID (AWS/GCP/Azure)
 
@@ -67,6 +77,8 @@ step ca provisioner update <name>
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 SCEP
 
@@ -78,6 +90,7 @@ step ca provisioner update <name> [--force-cn] [--challenge=<challenge>]
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
 [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 ```
 
 ## Description
@@ -141,6 +154,14 @@ Use the '--group' flag multiple times to configure multiple groups.
 
 **--tenant-id**=`tenant-id`
 The `tenant-id` used to replace the templatized tenantid value in the OpenID Configuration.
+
+**--scope**=`scope`
+The `scope` list used to validate the scopes extension in an OpenID Connect token.
+Use the '--scope' flag multiple times to configure multiple scopes.
+
+**--auth-param**=`auth-param`
+The `auth-param` list used to validate the auth-params extension in an OpenID Connect token.
+Use the '--auth-param' flag multiple times to configure multiple auth-params.
 
 **--x5c-roots**=`file`, **--x5c-root**=`file`
 PEM-formatted root certificate(s) `file` used to validate the signature on X5C

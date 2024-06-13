@@ -16,10 +16,11 @@ menu:
 step ssh certificate <key-id> <key-file>
 [--host] [--host-id] [--sign] [--principal=<string>]
 [--password-file=<file>] [--provisioner-password-file=<file>]
-[--add-user] [--not-before=<time|duration>]
+[--add-user] [--not-before=<time|duration>] [--comment=<comment>]
 [--not-after=<time|duration>] [--token=<token>] [--issuer=<name>]
 [--no-password] [--insecure] [--force] [--x5c-cert=<file>]
 [--x5c-key=<file>] [--k8ssa-token-path=<file>] [--no-agent]
+[--kty=<key-type>] [--curve=<curve>] [--size=<size>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
@@ -146,6 +147,40 @@ The path to the `file` containing the password to decrypt the one-time token
 **--sign**
 Sign the public key passed as an argument instead of creating one.
 
+**--kty**=`kty`
+The `kty` to build the certificate upon.
+If unset, default is EC.
+
+`kty` is a case-sensitive string and must be one of:
+
+- **EC**: Create an **elliptic curve** keypair
+
+- **OKP**: Create an octet key pair (for **"Ed25519"** curve)
+
+- **RSA**: Create an **RSA** keypair
+
+**--crv**=`curve`, **--curve**=`curve`
+The elliptic `curve` to use for EC and OKP key types. Corresponds
+to the **"crv"** JWK parameter. Valid curves are defined in JWA [RFC7518]. If
+unset, default is P-256 for EC keys and Ed25519 for OKP keys.
+
+`curve` is a case-sensitive string and must be one of:
+
+- **P-256**: NIST P-256 Curve
+
+- **P-384**: NIST P-384 Curve
+
+- **P-521**: NIST P-521 Curve
+
+- **Ed25519**: Ed25519 Curve
+
+**--size**=`size`
+The `size` (in bits) of the key for RSA and oct key types. RSA keys require a
+minimum key size of 2048 bits. If unset, default is 2048 bits for RSA keys and 128 bits for oct keys.
+
+**--comment**=`value`
+The comment used when adding the certificate to an agent. Defaults to the subject if not provided.
+
 **--kms**=`uri`
 The `uri` to configure a Cloud KMS or an HSM.
 
@@ -247,5 +282,17 @@ $ step ssh certificate --principal max --principal mariano --sign \
 Generate a new key pair and a certificate using a given token:
 ```shell
 $ step ssh certificate --token $TOKEN mariano@work id_ecdsa
+```
+
+Create an EC pair with curve P-521 and certificate:
+
+```shell
+$  step ssh certificate --kty EC --curve "P-521" mariano@work id_ecdsa
+```
+
+Create an Octet Key Pair with curve Ed25519 and certificate:
+
+```shell
+$  step ssh certificate --kty OKP --curve Ed25519 mariano@work id_ed25519
 ```
 

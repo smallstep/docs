@@ -18,6 +18,8 @@ step ca provisioner add <name> --type=JWK [--public-key=<file>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 ACME
 
@@ -27,6 +29,7 @@ step ca provisioner add <name> --type=ACME
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 
 OIDC
 
@@ -37,6 +40,8 @@ step ca provisioner add <name> --type=OIDC
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 X5C
 
@@ -44,6 +49,8 @@ step ca provisioner add <name> --type=X5C --x5c-roots=<file>
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 SSHPOP
 
@@ -59,14 +66,15 @@ step ca provisioner add <name> --type=Nebula --nebula-root=<file>
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
 
-K8SSA
+K8SSA (Kubernetes Service Account)
 
 step ca provisioner add <name> --type=K8SSA [--public-key=<file>]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 
-IID
+IID (AWS/GCP/Azure)
 
 step ca provisioner add <name> --type=[AWS|Azure|GCP]
 [--aws-account=<id>] [--gcp-service-account=<name>] [--gcp-project=<name>]
@@ -77,6 +85,8 @@ step ca provisioner add <name> --type=[AWS|Azure|GCP]
 [--admin-cert=<file>] [--admin-key=<file>]
 [--admin-subject=<subject>] [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>] [--ssh-template=<file>]
+[--ssh-template-data=<file>]
 
 SCEP
 
@@ -88,6 +98,7 @@ step ca provisioner add <name> --type=SCEP [--force-cn] [--challenge=<challenge>
 [--admin-cert=<file>] [--admin-key=<file>] [--admin-subject=<subject>]
 [--admin-provisioner=<name>] [--admin-password-file=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>] [--ca-config=<file>]
+[--x509-template=<file>] [--x509-template-data=<file>]
 ```
 
 ## Description
