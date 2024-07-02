@@ -5,6 +5,8 @@ description: High-level overview of the major components and concepts you’ll e
 ---
 ![Image: Device Identity Attestation Flow](/graphics/tpm-attestation.png)
 
+# Workflow Overview
+
 Smallstep protects your organisation from phishing and data breach attacks, by limiting access to corporate resources to only company-owned or approved devices.
 
 This document provides an overview of the major components and concepts you’ll encounter in the Smallstep platform, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -39,7 +41,7 @@ The Smallstep app is a desktop app that offers a uniform experience for device i
 
 The app is installed on individual company-managed devices and operates without administrative privileges. It only collects the device security context essential for your organisation's administrative policy configuration.
 
-After proving its identity to the Smallstep Attestation CA, the agent obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
+After proving its identity to the Smallstep Attestation CA, the app obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
 
 ## Smallstep Attestation CA
 The Smallstep Attestation CA service is responsible for verifying the identity of a device that is authenticating itself. It confirms that the key presented by the device is hardware-bound and that the device is a known device registered to your Smallstep team account.
@@ -53,12 +55,12 @@ Devices like Apple and Yubikeys have an Attestation CA maintained by their manuf
 The Attestation CA was built into the Smallstep platform to provide a uniform standard device identity attestation protocol.
 
 ## Agent CA
-The Agent CA is the certificate authority responsible for issuing, renewing, and revoking agent (device) certificates for device identity. It is configured to trust the Smallstep Attestation CA. As a result, when the agent receives an Attestation Certificate from the Smallstep Attestation CA, it can use this certificate to procure a device identity certificate from the Agent CA by completing an ACME device-attest-01 challenge or another certificate enrollment method, in cases where the former is not possible.
+The Agent CA is the certificate authority responsible for issuing, renewing, and revoking device certificates for device identity. It is configured to trust the Smallstep Attestation CA. As a result, when the app receives an Attestation Certificate from the Smallstep Attestation CA, it can use this certificate to procure a device identity certificate from the Agent CA by completing an ACME device-attest-01 challenge or another certificate enrollment method, in cases where the former is not possible.
 
 ## Attestation Key (AK) Certificate
 An Attestation Certificate (AKcert) is a type of device identity certificate stored in the TPM, with its private key hardware-bound. The Attestation Certificate is provided to a trusted device after the Smallstep Attestation CA has verified its authenticity.
 
-To obtain an Attestation Certificate, the device must demonstrate to the Attestation CA that it possesses the hardware-bound private key of the cryptoprocessor. This Attestation Certificate is only used to establish a trust relationship with the device. The device agent uses it to acquire a device certificate that can be utilized for a variety of use cases.
+To obtain an Attestation Certificate, the device must demonstrate to the Attestation CA that it possesses the hardware-bound private key of the cryptoprocessor. This Attestation Certificate is only used to establish a trust relationship with the device. The device uses it to acquire a device certificate, which is then used as an authentication token for client certificates.
 
 ## Account
 An account is the means by which an end-user can access a resource protected by Smallstep, such as Wi-Fi, VPN, or a website. For instance, employees (their registered devices) in an organization who need access to a Wi-Fi network are issued Wi-Fi account certificates for their devices.
@@ -75,12 +77,11 @@ A Device Collection is a named group of specific devices of the same ***type***,
 
 A device type refers to a specific variant of a kind (such as VMs, laptops, or mobile phones) that runs the same OS (Windows, MacOS, Linux, iPadOS, or iOS), and comes from the same source (AWS, GCP, Azure, etc.). For instance, AWS VMs, Azure VMs, GCP VMs, and Linux laptops are different types of devices.
 
-Device Collections are useful for applying shared configurations. There can be anywhere from zero to n devices in a collection. On the Smallstep web app, individual devices are created or added within collections. So, on the UI, the hierarchy is: list of collections > list of instances in a specific collection > details of a specific instance. This means that you first create a collection for a specific type of device and then add individual devices of the same type to that collection.
+Device Collections are useful for applying shared configurations.
 
 ## Provisioners
-Provisioners provide the mechanism to verify the legitimacy of certificate signing requests and attest to the identity of the requesting entity.
 
-The role of a Certificate Authority is to issue certificates. However for the Certificate Authority to issue certificates to an entity, it needs to somehow verify that the entity is authorised to make a certificate request. 
+Provisioners provide various mechanism to authenticate certificate signing requests. The role of a Certificate Authority is to issue certificates to end entities, and it needs to somehow verify that the entity is authorised to make a certificate request.
 
 Used to help bootstrap new entities into the PKI, each Provisioner addresses a particular environment. A certificate authority can have support different provisioners for enabling different use cases. A few examples include:
 
