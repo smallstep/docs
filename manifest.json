@@ -17,11 +17,15 @@
           "title": "Platform"
         },
         {
-          "title": "Smallstep Overview",
+          "title": "About Smallstep",
           "routes": [
             {
-              "title": "About Smallstep",
+              "title": "Overview",
               "path": "/platform/README.mdx"
+            },
+            {
+              "title": "Core Concepts",
+              "path": "/platform/core-concepts.mdx"
             },
             {
               "title": "Smallstep API",

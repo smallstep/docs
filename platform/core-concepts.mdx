@@ -1,0 +1,93 @@
+---
+title: Core Concepts
+html_title: Smallstep Core Concepts
+description: High-level overview of the major components and concepts you’ll encounter while working with the Smallstep platform, and how they interact/relate with one another to protect your resources and provide strong assurance of device identity.
+---
+![Image: Device Identity Attestation Flow](/graphics/tpm-attestation.png)
+
+# Workflow Overview
+
+Smallstep protects your organisation from phishing and data breach attacks, by limiting access to corporate resources to only company-owned or approved devices.
+
+This document provides an overview of the major components and concepts you’ll encounter in the Smallstep platform, and how they work together to protect your resources and provide strong assurance of device identity.
+
+Here's how Smallstep gets the right certificates to your devices. In this example, we'll assume we're enrolling a Windows or Linux device with a TPM 2.0 crypto processor chip. Apple devices enroll with Secure Enclave, but the workflow is similar.
+
+1. As an administrator, you register your company-owned or approved devices in the Smallstep web UI, using a permanent identifier for the device, such as the TPM 2.0 Endorsement Public Key (EKPub). Smallstep has an API and integrations that simplify syncing device identiers from other services such as MDM servers or IT asset management services.
+2. You (or your employee) installs the **Smallstep app** on a registered device. 
+3. The Smallstep app kicks off the device identity trust bootstrapping process by instructing the cryptographic processor (TPM) to create an Attestation Key (AK) pair.
+4. The Smallstep app requests a device attestation certificate (AKCert) from the **Smallstep Attestation CA**.
+5. The Smallstep Attestation CA verifies that:  
+   a) The request is coming from a company-owned or company-approved device, by checking if the EKPub is registered on your Smallstep team device inventory, and  
+   b) The request is coming from a device where the Endorsement Key is resident, by asking the TPM to decrypt a challenge encrypted by the CA using the EKPub. 
+6. Upon verification, the Smallstep Attestation CA signs an Attestation Certificate for the app. The Attestation Certificate cannot be used for any purpose other than attestation. 
+7. The app uses the Attestation certificate complete an ACME `device-attest-01` challenge from the **Agent CA** to obtain a Smallstep device certificate. 
+8. Finally, the app uses the Smallstep device certificate via an X5C **Provisioner** to obtain client certificates needed by the device, from your **Smallstep Account CA**. 
+
+This workflow requires no credentials be configured in the app. No passwords. The Smallstep device certificate is stored only in memory, never saved to disk. The client certificates may be short-lived or have TPM-protected private keys, depending on what the operating system and the target application can support.
+
+# Definitions
+
+## Device Identifiers
+
+Before restricting access to organizational resources to only your devices, you must register your devices. Smallstep offers a device API to register and document your devices.
+
+Cryptographic processors used to establish trust in a device workflow come with a unique per-device asymmetric key pair that is hardcoded during manufacturing. For TPM modules, this key pair is known as the Endorsement Key. Sometimes, the TPM's manufacturer signs and includes an Endorsement Key Certificate (EKcert). For Apple's Secure Enclave, this is the Secure Enclave UID, a root cryptographic key fused to the secure enclave during manufacturing, and is inaccessible even to Apple. 
+
+A third party could verify possession of an Endorsement Key pair by encrypting a small piece of data with the public key and asking the TPM to decrypt it with the private key. This simple device authentication mechanism offers the highest assurance that a request originates from a known device, compared to the SCEP + MDM enrolment process.
+
+## Smallstep app
+The Smallstep app is a desktop app that offers a uniform experience for device identity across macOS, Windows, and Linux. It is the foundation for Smallstep's high-assurance device identity attestation workflow, automating the issuance of certificates to devices and configuring the components that depend on these certificates. 
+
+The app is installed on individual company-managed devices and operates without administrative privileges. It only collects the device security context essential for your organisation's administrative policy configuration.
+
+After proving its identity to the Smallstep Attestation CA, the app obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
+
+## Smallstep Attestation CA
+The Smallstep Attestation CA service is responsible for verifying the identity of a device that is authenticating itself. It confirms that the key presented by the device is hardware-bound and that the device is a known device registered to your Smallstep team account.
+
+The Attestation CA carries out a challenge/response protocol with the attestor (the device with the TPM) to validate the TPM's identity and issue an attestation certificate to the device. Subsequently, the device uses the attestation certificate to acquire a device identity certificate from the Agent CA.
+
+For a device to successfully complete an ACME Device Attestation challenge and obtain a high-assurance device identity certificate, it must present a valid attestation certificate (chain) signed by a trusted Attestation CA.
+
+Devices like Apple and Yubikeys have an Attestation CA maintained by their manufacturers. However, not all devices with TPMs (and similar tech) operate in environments where an Attestation CA is available that can (remotely) attest to device identity.
+
+The Attestation CA was built into the Smallstep platform to provide a uniform standard device identity attestation protocol.
+
+## Agent CA
+The Agent CA is the certificate authority responsible for issuing, renewing, and revoking device certificates for device identity. It is configured to trust the Smallstep Attestation CA. As a result, when the app receives an Attestation Certificate from the Smallstep Attestation CA, it can use this certificate to procure a device identity certificate from the Agent CA by completing an ACME device-attest-01 challenge or another certificate enrollment method, in cases where the former is not possible.
+
+## Attestation Key (AK) Certificate
+An Attestation Certificate (AKcert) is a type of device identity certificate stored in the TPM, with its private key hardware-bound. The Attestation Certificate is provided to a trusted device after the Smallstep Attestation CA has verified its authenticity.
+
+To obtain an Attestation Certificate, the device must demonstrate to the Attestation CA that it possesses the hardware-bound private key of the cryptoprocessor. This Attestation Certificate is only used to establish a trust relationship with the device. The device uses it to acquire a device certificate, which is then used as an authentication token for client certificates.
+
+## Account
+An account is the means by which an end-user can access a resource protected by Smallstep, such as Wi-Fi, VPN, or a website. For instance, employees (their registered devices) in an organization who need access to a Wi-Fi network are issued Wi-Fi account certificates for their devices.
+
+## Account CA
+The Account CA is the certificate authority responsible for issuing 24-hour short-lived certificates for securely accessing different resources. When you create a Wi-Fi or VPN account via the Smallstep web app UI or API, the Agent obtains the respective Wi-Fi or VPN access certificate from the Account CA.
+
+Every Smallstep team has one Account Certificate Authority (CA). For each account created, an X5C provisioner is created.
+
+After the Agent has obtained a device identity certificate from the Agent CA, it uses this certificate to obtain the necessary client certificate from the Account CA via an X5C provisioner. The Account CA trusts the Agent CA as a root of trust and verifies every request against the Agent CA’s public key.
+
+## Device Collection
+A Device Collection is a named group of specific devices of the same ***type***, which share configurations or policies.
+
+A device type refers to a specific variant of a kind (such as VMs, laptops, or mobile phones) that runs the same OS (Windows, MacOS, Linux, iPadOS, or iOS), and comes from the same source (AWS, GCP, Azure, etc.). For instance, AWS VMs, Azure VMs, GCP VMs, and Linux laptops are different types of devices.
+
+Device Collections are useful for applying shared configurations.
+
+## Provisioners
+
+Provisioners provide various mechanism to authenticate certificate signing requests. The role of a Certificate Authority is to issue certificates to end entities, and it needs to somehow verify that the entity is authorised to make a certificate request.
+
+Used to help bootstrap new entities into the PKI, each Provisioner addresses a particular environment. A certificate authority can have support different provisioners for enabling different use cases. A few examples include:
+
+- **X5C provisioner** - Useful for when a client can authenticate a certificate request using an existing X.509 certificate from a different CA. It allows clients to use a different PKI to bootstrap trust. Configure this provisioner with a root CA certificate, and any certificate that chains up to that root can be used in a certificate request.
+- **ACME Provisioner** - Useful for automating TLS certificates, the ACME provisioner provides CSR generation, domain ownership verification, certificate download, and installation. With support for all of the ACME challenge types supported by Let’s Encrypt (HTTP, DNS, ALPN), the ACME provisioner unlocks the entire ACME ecosystem of tools and clients.
+- **The SCEP Provisioner** - Useful for signing and renewing certificates using the SCEP protocol ([RFC8894](https://datatracker.ietf.org/doc/html/rfc8894)). SCEP is very popular for use in network equipment and mobile device management (MDM). It runs over HTTP using POSTed binary data or base64-encoded GET parameters, using CMS (PKCS#7) and CSR (PKCS#10) data formats, and a (shared) secret authenticates clients to the CA.
+- **Cloud API Provisioners** - Useful for issuing certificates to public cloud virtual machines, Cloud API Provisioners use the native cloud provider API and instance identity documents to automate certificates. With support for AWS, GCP, and Azure metadata APIs, the Cloud API provisioner accelerates secure cloud operations.
+- **OIDC Provisioner** - Useful for getting certificates to people, the OAuth/OpenID Connect (OIDC) Provisioner uses identity tokens for authentication. With this provisioner, you can use single sign-on with G Suite, Okta, Azure Active Directory, or any other OAuth OIDC provider to verify the user's identity before issuing a certificate.
+- **JWK Provisioner** - Useful for a broad range of workflows, the JWK provisioner provides a flexible JSON Web Token-based authentication flow. Often paired with infrastructure automation solutions, the JWK Provisioner can deliver one-time tokens to a new workload to later be exchanged for an x.509 certificate.

@@ -4,15 +4,20 @@ html_title: What is Smallstep?
 description: Smallstep is a centralised comprehensive internal PKI toolchain, providing IT/Security/DevOps engineers with everything they need to automate the deployment, and management (renewal, revocation and monitoring) of certificates for a broad range of contexts, use cases and environments.
 ---
 
-Certificates are a fundamental part of any non-trivial architecture, as they are the strongest possible way to encrypt communications, authenticate users and devices, protect data integrity, and ensure compliance with security standards. 
+Certificates are a fundamental part of any non-trivial architecture. They provide the strongest possible way to authenticate users and devices, encrypt communications, protect data integrity, and ensure compliance with security standards. 
 
-Smallstep is a centralised comprehensive internal PKI toolchain, providing IT/Security/DevOps engineers with everything they need to automate the deployment, and management (renewal, revocation and monitoring) of certificates for a broad range of contexts, use cases and environments.
+Smallstep is a comprehensive device identity solution for securely identifying company-owned or company-managed devices using high-assurance ***cryptographically attested device identity*** certificates. 
 
-We offer robust integration solutions for securing network connections to various resources like servers, databases, internal web applications, Kubernetes clusters, GitHub Actions, VPNs, VMs, Wi-Fi, managed devices, and more. With Smallstep, your PKI can serve as a unified foundation for certificate-driven security for all your devices, people, and workloads.
+As networks and resources become increasingly distributed — with SaaS moving sensitive resources off private networks and BYOD policies introducing personal devices — threats to data confidentiality grow more aggressive. Organizations are seeking more secure methods to ensure that only authorized users on authorized devices can access sensitive resources. Provisioning trusted devices with device-attested client certificates for accessing critical resources within your organisation is the most effective way to achieve this.
+
+Smallstep provides the means to use the strongest possible assurance of device identity to ensure that only trusted company-approved devices can enroll for client certificates to access sensitive organisational resources. This procedure is facilitated through the [ACME device attestation enrolment](https://smallstep.com/blog/managed-device-attestation/), effectively protecting your organisation from data breaches caused by credential compromise or phishing.  
+
+With Smallstep, IT/Security/Network Engineers can assign certificates to devices and configure the things that rely on those certificates correctly without needing to know much about PKI. 
+
 
 <Alert severity="info">
   <div>
-    💡 If you’d like to dive deeper into certificates and PKI, see these articles from our blog:  
+    💡 Regardless, if you want to dive deeper into PKI, see some literature from our blog:  
     <ul>
        <li><a href="https://smallstep.com/blog/everything-pki/">Everything you should know about certificates and PKI but are too afraid to ask</a></li>
        <li><a href="https://smallstep.com/blog/use-tls/">The case for using TLS everywhere</a></li>
@@ -21,46 +26,52 @@ We offer robust integration solutions for securing network connections to variou
   </div>
 </Alert>
 
+# Why Cryptographic Attested Device Identity?
+Many existing solutions provide some flavor of 'device identity' where the device self-reports a unique ID for itself, or the identity is tied to a credential. 
 
-# What can you use Smallstep for?
-## Enterprise IT
+But can such device identity be trusted if an independent infallible entity does not attest to it? Does a credential still significantly identify a device if it can be moved between devices? In such scenarios, we make critical assumptions that our devices and services report information is trustworthy.
 
-Smallstep can be used to establish high-assurance device identities and restrict access by devices, ensuring that sensitive resources are only accessible from trusted company-managed devices. When combined with user identities, device identities bound to hardware can offer the strongest possible security guarantees.
+Claiming device identity should be as substantiated as declaring one's citizenship. Just as one must provide a passport, attested and signed by their nation's government to prove their citizenship, a device should also offer some form of attestation to establish its identity.
 
-Device Identity helps your organisation:
+Take the SCEP enrolment process ubiquitously employed by MDM platforms. 
 
-- [Protect against credential theft based attacks](https://smallstep.com/blog/road-to-phishing-resistant-authentication/).
-- Meet regulatory requirements and industry standards such as GDPR, HIPAA, and PCI DSS.
-- Enforce non-repudiation, so you can seamlessly verify and attribute every action.
+The Simple Certificate Enrollment Protocol (SCEP) [[**RFC**](https://en.wikipedia.org/wiki/RFC_(identifier)) [**8894**](https://datatracker.ietf.org/doc/html/rfc8894)] simplifies the process of issuing certificates to devices and 'verifying their identity' on a network. The process starts with an employee initiating enrollment through authentication with an MDM agent or link. The employee's device then receives a SCEP payload. This payload contains enrollment instructions, a SCEP server URL, and a challenge password, which the device then uses to obtain a certificate from the organisation's Certificate Authority (CA).
 
-After devices have been securely enrolled and identified, Smallstep takes care of automatically deploying client certificates to company devices for accessing each of your most important resources, such as: 
+The problem is, in this process, the device does not provide strong evidence about itself when making a request. It's hard to verify that the device belongs to a said organisation or is a known device, because there is no known identity set up for the device the first time it identifies itself. Additionally, SCEP is secured with a password, making it vulnerable to phishing—if a scammer obtains a user's credentials, they could enroll an unauthorised device. Similarly, an attacker who gains access to a configuration profile could use SCEP to obtain a certificate and impersonate the user.
 
-- Wi-Fi (for 802.1x EAP-TLS WPA-Enterprise)
-- VPN Servers
-- Zero Trust Network Access (ZTNA)
-- HTTP/3 Proxies
-- Internal Websites
-- Cloud-based collaboration suites (Google Workspace, Microsoft Office365, Zoho Workplace, Atlassian Suite, e.t.c)
-- Public SaaS applications (Stripe, Quickbooks, Slack, etc.)
+How can controls be implemented to assure that only authorised trusted devices can obtain certificates using your organisation's PKI? 
 
-### For Organisations With MDM
+The answer lies in cryptographic attested device identity: a device provides strong signed evidence, backed by hardware-bound keys, independent of the OS or user space, affirming its identity. 
+
+Modern devices feature cryptoprocessors ([TPMs](https://smallstep.com/blog/trusted-platform-modules-tpms/) or Secure Enclaves) that are isolated from the main processor. These cryptoprocessors are shielded from tampering and unauthorized access, even if the primary operating system is compromised. They provide hardware-based security-related functions and perform cryptographic operations. Each cryptoprocessor comes with a unique asymmetric key pair, hard-coded during manufacturing, of which the public part is publicly accessible.
+
+To verify its identity, a device signs a challenge by decrypting data encrypted with its public key. This public key is stored on the organization's device inventory, and the decryption is done using its hardware-bound private key. After successful verification, the device receives an attested device identity certificate. With this certificate, the device can prove its identity to your organisation's Public Key Infrastructure (PKI) and obtain the necessary certificates to access organisational resources. This can be achieved with device attestation and [ACME device-attest-01 challenge](https://datatracker.ietf.org/doc/html/draft-acme-device-attest-01).
+
+ACME is a client and server protocol that uses "challenges" to ensure a client can prove control over specific identifiers for issuing a certificate. The device-attest-01 challenge allows devices to request attestation from a device inventory. They then forward the signed attestation and Certificate Signing Request (CSR) to a supported ACME server in exchange for a signed certificate from the organisation's PKI.
+
+This process, known as cryptographic device attestation, forms the foundation for secure, automated device enrollment, and is how we protect your resources.
+
+<aside>
+💡 If you’d like to dive deeper into how exactly Smallstep implements this, see [Core Concepts](https://smallstep.com/docs/platform/core-concepts/).
+</aside>
+
+# How can you use Smallstep?
+
+The Smallstep Agent is the vehicle through which Smallstep delivers cryptographically attested device identity to your organisation. It is the recommended way to identify devices and get client certificates to devices (Windows, Linux, Mac OS) for Enterprise Wi-Fi, VPN, HTTP/3 proxies, or web applications. 
+
+It is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources. It works with all TPM 2.0 devices—virtual TPMs, firmware TPMs, or physical TPMs—and on some TEEs and Secure Enclaves (eg. Apple Managed Device Attestation).
+
+To get started, [sign up now](https://smallstep.com/signup/).
+
+## For Organisations who do not want to use the Agent
+
+If for any reason, you cannot have the Smallstep Agent on your devices, Smallstep can still help you get certificates to devices via your MDM using SCEP. This method is less secure than the cryptographic device attestation offered by the ACME device-attest-01 challenge, which is supported by the Smallstep Agent. Regrettably, major MDM providers have yet to adopt ACME device attestation.
 
 Smallstep integrates with your MDM to deploy client certificates to company-managed devices to enable certificate-based network authentication for Wi-Fi (802.1x EAP-TLS WPA-Enterprise), VPN, ZTNA, etc.
 
-We offer integrations for any MDMs for Apple and Windows devices that support Dynamic SCEP or ACME certificate enrollment protocols.
+We offer integrations for any MDMs for Apple and Windows devices that support Dynamic SCEP like Jamf, Intune, Workspace ONE, Mosyle, Ivanti, e.t.c.
 
 ![Jamf MDM Marketecture.png](/graphics/Jamf_MDM_Marketecture.png)
-
-Supported MDMs include: Jamf, Intune, Workspace ONE, Mosyle, Ivanti, Jumpcloud, and lots more. 
-
-Smallstep can also be used as a drop-in replacement for Active Directory Certificate Services (ADCS), allowing you to transition from ADCS while still serving legacy workloads. We provide backwards-compatible support for SCEP and NDES, and also let you bring your existing Root CA with you, so you can get up and running in minutes.
-
-![Intune MDM Marketecture.png](/graphics/Intune_flow_diagram.png)
-
-See: 
-
-- [Why Your Organisation Should Be Migrating From Microsoft AD CS](https://smallstep.com/blog/migrate-from-microsoft-adcs/)
-- [How to Bring Your Own Root from AD CS to Smallstep](https://smallstep.com/blog/byor-adcs-to-smallstep/)
 
 <Alert severity="info">
   <div>
@@ -69,23 +80,20 @@ See:
 
     <p>In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.</p>
     <p>In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices.</p>
-    <p>If your MDM does not support Dynamic SCEP, your next best bet to deploy Smallstep is to use the Smallstep Agent. <em>See details below.</em></p>
   </div>
 </Alert>
 
-### For Organisations Without MDM or with Linux Devices
+Smallstep can also be used as a drop-in replacement for Active Directory Certificate Services (ADCS), allowing you to transition from ADCS while still serving legacy workloads. We provide backwards-compatible support for SCEP and NDES, and also let you bring your existing Root CA with you, so you can get up and running in minutes.
 
-The Smallstep Agent is the recommended way to get identify devices and get client certificates to devices for Enterprise Wi-Fi, VPN, HTTP/3 proxies, or web applications in the following scenarios: 
+![Intune MDM Marketecture.png](/graphics/Intune_flow_diagram.png)
 
-- SMEs with 20 - 100 devices without an MDM
-- Linux devices
-- Managed devices under an MDM that does not support Dynamic SCEP
+<aside>
+    Want to read more about why you should be migrating from ADCS, See: 
 
-The Smallstep Agent is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources (workloads). The agent leverages Trusted Platform Modules (TPMs) for trust bootstrapping. It works with all TPM 2.0 devices—virtual TPMs, firmware TPMs, or physical TPMs—and on some TEEs and Secure Enclaves (eg. Apple Managed Device Attestation).
+- [Why Your Organisation Should Be Migrating From Microsoft AD CS](https://smallstep.com/blog/migrate-from-microsoft-adcs/)
+</aside>
 
-To get started, [sign up now](https://smallstep.com/signup/).
-
-# How Can You Use Smallstep?
+# The Smallstep Ecosystem
 
 Depending on what’s best for your infrastructure and current reality, Smallstep offers different deployment options to meets your needs: 
 
@@ -103,32 +111,26 @@ Talk to Smallstep’s Customer Engineering Team at [support.smallstep.com](http:
 
 ## Smallstep Open-Source Toolchain
 
-Our open source toolchain the most popular open-source certificate management toolchain, and was designed for DevOps and homelab or POC use cases—it’s not a device identity platform, and doesn’t solve the problems listed above.
+Our open source toolchain the most popular open-source certificate management toolchain, and was designed for DevOps and homelab or POC use cases. However, it’s not a device identity platform, and doesn’t solve the problems listed above out-of-the-box.
+
+Our open-source toolchain provides IT/Security/DevOps engineers with an extensive internal PKI toolchain, which includes everything needed to automate the deployment and management (renewal, revocation, and monitoring) of certificates for a broad range of contexts, use cases, and environments.
+
+We offer robust integration solutions for securing network connections to various resources like servers, databases, internal web applications, Kubernetes clusters, GitHub Actions, VPNs, VMs, Wi-Fi, managed devices, and more. With Smallstep, your PKI can serve as a unified foundation for cryptographic encryption and authentication for all your devices, people, and workloads.
 
 Our open-source toolchain for certificate and PKI management features 3 components: 
 
-- [step CLI](https://github.com/smallstep/cli): A user-friendly command-line interface to build, operate, and automate PKI systems.
-- [step-ca](https://github.com/smallstep/certificates): A powerful online CA for secure, automated certificate management.
-- [step-issuer](https://github.com/smallstep/step-issuer) and [autocert](https://github.com/smallstep/autocert): Kubernetes-native solutions for seamless certificate issuance and management in containerized environments.
+- step CLI: A user-friendly command-line interface to build, operate, and automate PKI systems, with built-in support for ACME & the **`device-attest-01`** challenge.
+- step-ca: A powerful online CA for secure, automated certificate management.
+- step-issuer and autocert: Kubernetes-native solutions for seamless certificate issuance and management in containerized environments.
 
-Get tinkering and [***Join our open-source Discord community*** ](https://u.step.sm/discord). 
+[Join our open-source Discord community.](https://u.step.sm/discord)
 
-## Smallstep Enterprise CA
+## `step-ca` Pro
 
-Smallstep Enterprise CA is a drop-in upgrade for open-source certificate management toolchain, offering advanced features, support, and compliance options. It extends our open source with Device Identity features and integrations. 
+`step-ca` Pro is Smallstep's drop-in upgrade for our open-source Certificate Authority server, offering advanced features, support, and compliance options. It extends our open source with high availability, active revocation, FIPS compliance, simpler integrations and APIs, and device identity features. 
 
-The Enterprise CA is ideal for organisations who want full On-Prem Control or need to make the transition from open-source to commercial to access Device Identity capabilities and advanced compliance options.
+`step-ca` Pro is ideal for organisations who want full On-Prem Control or need to make the transition from open-source to commercial to access Device Identity capabilities and advanced compliance options.
 
-With Enterprise CA, just like our open source toolchain, you still maintain full control over the CA and root signing keys while benefiting from our cloud-based integrations and management interface.
+With `step-ca` Pro, just like our open source packages, you maintain full control over the CA and signing keys while benefiting from our cloud-based integrations and management interface.
 
-Key Features are:
-
-- Fast and lightweight setup on Linux, Kubernetes, and Docker
-- Smallstep Device Identity, including MDM & posture integrations and active revocation (CRL & OCSP)
-- High-volume certificate issuance with HSM integration
-- FIPS and software supply-chain compliance, including SBOM & code-signing
-- Broad support for enrollment protocols, such as SCEP, REST API, SSO (OAuth OIDC), SPIFFE, cloud identities, and Kubernetes integration
-- Connectors for existing PKI backends (AD CS, GCP CAS, AWS PCM)
-- High availability, automation, and CLM integration with Sectigo and Digicert
-
-We offer standard SLAs with 24-hour response for non-critical issues and 4-hour turnaround for critical incidents. For organizations requiring tailored assistance, enhanced support options are available, ensuring your infrastructure remains secure and operational. [Reach out](https://go.smallstep.com/request-demo) if you're looking to explore this option. 
+Interested? [Reach out to our Sales team](https://go.smallstep.com/request-demo).
