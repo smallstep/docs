@@ -1,36 +1,34 @@
 ---
-title: Core Concepts?
-html_title: Smallstep Core Concepts? 
+title: Core Concepts
+html_title: Smallstep Core Concepts
 description: High-level overview of the major components and concepts you’ll encounter while working with the Smallstep platform, and how they interact/relate with one another to protect your resources and provide strong assurance of device identity.
 ---
-![Device Identity Attestation Flow](/graphics/tpm-attestation.png)
+![Image: Device Identity Attestation Flow](/graphics/tpm-attestation.png)
 
 Smallstep protects your organisation from phishing and data breach attacks, by limiting access to corporate resources to only company-owned or approved devices.
 
-This document provides a high-level overview of the major components and concepts you’ll encounter while working with the Smallstep platform, and how they interact/relate with one another to protect your resources and provide strong assurance of device identity.
+This document provides an overview of the major components and concepts you’ll encounter in the Smallstep platform, and how they work together to protect your resources and provide strong assurance of device identity.
 
-When using the Smallstep Agent to initiate high assurance [Cryptographic Attested Device Identity](https://smallstep.com/docs/platform/), here’s what happens: 
+Here's how Smallstep gets the right certificates to your devices. In this example, we'll assume we're enrolling a Windows or Linux device with a TPM 2.0 crypto processor chip. Apple devices enroll with Secure Enclave, but the workflow is similar.
 
-1. As an administrator, you register each company-owned or approved device to a **Device Collection** on the Smallstep web app using their hardware-attested identifiers, such as the TPM Endorsement Key (for Windows/Linux) or Secure Enclave ID (for Apple devices).
-2. You (or your employee) installs the **Smallstep Agent** on a registered device. 
-3. The Smallstep Agent kicks off the device identity trust bootstrapping process by instructing the cryptographic processor (TPM or Secure Enclave) to create an Attestation Key (AK) pair.
-4. The Smallstep Agent requests a device attestation certificate from the **Smallstep Attestation CA**.
-5. The Smallstep Attestation CA verifies that a)the request is coming from a company-owned or company-approved device by checking if the specific EK (the public part) is registered on your Smallstep team device inventory, and b)the request is coming from a device from which the Endorsement Key is resident by asking the TPM to complete a challenge instructing the EK private component to decrypt data encrypted with the EK public component. 
+1. As an administrator, you register your company-owned or approved devices in the Smallstep web UI, using a permanent identifier for the device, such as the TPM 2.0 Endorsement Public Key (EKPub). Smallstep has an API and integrations that simplify syncing device identiers from other services such as MDM servers or IT asset management services.
+2. You (or your employee) installs the **Smallstep** app on a registered device. 
+3. The Smallstep app kicks off the device identity trust bootstrapping process by instructing the cryptographic processor (TPM) to create an Attestation Key (AK) pair.
+4. The Smallstep app requests a device attestation certificate (AKCert) from the **Smallstep Attestation CA**.
+5. The Smallstep Attestation CA verifies that:  
+   a) The request is coming from a company-owned or company-approved device, by checking if the EKPub is registered on your Smallstep team device inventory, and  
+   b) The request is coming from a device where the Endorsement Key is resident, by asking the TPM to decrypt a challenge encrypted by the CA using the EKPub. 
 6. Upon verification, the Smallstep Attestation CA signs an Attestation Certificate for the agent. The Attestation Certificate cannot be used for any purpose other than attestation. 
-7. The agent uses the Attestation certificate complete an ACME device-attest-01 challenge from the **Agent CA** to obtain an device (agent) certificate. 
-8. Finally, the agent uses the device certificate via an X5C **Provisioner** to obtain short-lived 24 hour client certificates needed by the device, from your **Smallstep Account CA**. 
+7. The agent uses the Attestation certificate complete an ACME `device-attest-01` challenge from the **Agent CA** to obtain a Smallstep device certificate. 
+8. Finally, the agent uses the Smallstep device certificate via an X5C **Provisioner** to obtain client certificates needed by the device, from your **Smallstep Account CA**. 
 
-This entire workflow doesn't require any credentials to be configured in the agent nor does it need passwords, therefore eliminating common attack vectors. The device certificate is stored only in memory, never saved to disk, and workload certificates are short-lived, lasting only 24 hours. This leaves nothing for an attacker to exfiltrate, significantly narrowing the attack vector.
+This workflow requires no credentials be configured in the agent. No passwords. The Smallstep device certificate is stored only in memory, never saved to disk. The client certificates may be short-lived or have TPM-protected private keys, depending on what the operating system and the target application can support.
 
 ## Device Identifiers
 
-Before restricting access to organizational resources to only your devices, you must know your devices. Smallstep offers a device inventory service to register and document your devices.
+Before restricting access to organizational resources to only your devices, you must register your devices. Smallstep offers a device API to register and document your devices.
 
 Cryptographic processors used to establish trust in a device workflow come with a unique per-device asymmetric key pair that is hardcoded during manufacturing. For TPM modules, this key pair is known as the Endorsement Key. Sometimes, the TPM's manufacturer signs and includes an Endorsement Key Certificate (EKcert). For Apple's Secure Enclave, this is the Secure Enclave UID, a root cryptographic key fused to the secure enclave during manufacturing, and is inaccessible even to Apple. 
-
-When registering devices on Smallstep, you will need to provide the Key URI, which contains information about the public part of the key, as the device identifier.
-
-The private part of these hardware-bound keys, used as identifiers, cannot sign data. They can only decrypt data encrypted with their corresponding public key. This means these keys cannot be used to directly track a device's identity. However, they can provide strong assurance when used as part of trust evaluation because they can only be used on the device where they were created.
 
 A third party could verify possession of an Endorsement Key pair by encrypting a small piece of data with the public key and asking the TPM to decrypt it with the private key. This simple device authentication mechanism offers the highest assurance that a request originates from a known device, compared to the SCEP + MDM enrolment process.
 
