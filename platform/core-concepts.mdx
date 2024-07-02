@@ -12,17 +12,19 @@ This document provides an overview of the major components and concepts you’ll
 Here's how Smallstep gets the right certificates to your devices. In this example, we'll assume we're enrolling a Windows or Linux device with a TPM 2.0 crypto processor chip. Apple devices enroll with Secure Enclave, but the workflow is similar.
 
 1. As an administrator, you register your company-owned or approved devices in the Smallstep web UI, using a permanent identifier for the device, such as the TPM 2.0 Endorsement Public Key (EKPub). Smallstep has an API and integrations that simplify syncing device identiers from other services such as MDM servers or IT asset management services.
-2. You (or your employee) installs the **Smallstep** app on a registered device. 
+2. You (or your employee) installs the **Smallstep app** on a registered device. 
 3. The Smallstep app kicks off the device identity trust bootstrapping process by instructing the cryptographic processor (TPM) to create an Attestation Key (AK) pair.
 4. The Smallstep app requests a device attestation certificate (AKCert) from the **Smallstep Attestation CA**.
 5. The Smallstep Attestation CA verifies that:  
    a) The request is coming from a company-owned or company-approved device, by checking if the EKPub is registered on your Smallstep team device inventory, and  
    b) The request is coming from a device where the Endorsement Key is resident, by asking the TPM to decrypt a challenge encrypted by the CA using the EKPub. 
-6. Upon verification, the Smallstep Attestation CA signs an Attestation Certificate for the agent. The Attestation Certificate cannot be used for any purpose other than attestation. 
-7. The agent uses the Attestation certificate complete an ACME `device-attest-01` challenge from the **Agent CA** to obtain a Smallstep device certificate. 
-8. Finally, the agent uses the Smallstep device certificate via an X5C **Provisioner** to obtain client certificates needed by the device, from your **Smallstep Account CA**. 
+6. Upon verification, the Smallstep Attestation CA signs an Attestation Certificate for the app. The Attestation Certificate cannot be used for any purpose other than attestation. 
+7. The app uses the Attestation certificate complete an ACME `device-attest-01` challenge from the **Agent CA** to obtain a Smallstep device certificate. 
+8. Finally, the app uses the Smallstep device certificate via an X5C **Provisioner** to obtain client certificates needed by the device, from your **Smallstep Account CA**. 
 
-This workflow requires no credentials be configured in the agent. No passwords. The Smallstep device certificate is stored only in memory, never saved to disk. The client certificates may be short-lived or have TPM-protected private keys, depending on what the operating system and the target application can support.
+This workflow requires no credentials be configured in the app. No passwords. The Smallstep device certificate is stored only in memory, never saved to disk. The client certificates may be short-lived or have TPM-protected private keys, depending on what the operating system and the target application can support.
+
+# Definitions
 
 ## Device Identifiers
 
@@ -32,10 +34,10 @@ Cryptographic processors used to establish trust in a device workflow come with 
 
 A third party could verify possession of an Endorsement Key pair by encrypting a small piece of data with the public key and asking the TPM to decrypt it with the private key. This simple device authentication mechanism offers the highest assurance that a request originates from a known device, compared to the SCEP + MDM enrolment process.
 
-## Smallstep Agent
-The Smallstep agent is lightweight background software that offers a uniform experience for device identity across MacOS, Windows, and Linux platforms. It is the foundation for Smallstep's high-assurance device identity attestation workflow, automating the issuance of certificates to devices and configuring the components that depend on these certificates. 
+## Smallstep app
+The Smallstep app is a desktop app that offers a uniform experience for device identity across macOS, Windows, and Linux. It is the foundation for Smallstep's high-assurance device identity attestation workflow, automating the issuance of certificates to devices and configuring the components that depend on these certificates. 
 
-The agent is installed on individual company-managed devices and operates without administrative privileges. It only collects the device security context essential for your organisation's administrative policy configuration.
+The app is installed on individual company-managed devices and operates without administrative privileges. It only collects the device security context essential for your organisation's administrative policy configuration.
 
 After proving its identity to the Smallstep Attestation CA, the agent obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
 
