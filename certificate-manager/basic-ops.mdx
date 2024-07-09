@@ -93,11 +93,24 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
 
 ### step 4 - revoke a certificate
 
-Certificate Manager uses passive revocation by default. 
+Certificate Manager DevOps Authorities use passive revocation and short-lived certificates by default. 
 To passively revoke a certificate means to block its renewal at the CA. 
-This eliminates the additional network requests when using active revocation, because the certificate expires by itself. 
-With passive revocation, certificates cannot be immediately revoked. 
-Therefore, certificates should have a shorter life to reduce the value of a key that has been exfiltrated.
+
+Passive revocation eliminates the complexity, network overhead, and client latency of running Certificate Revocation List (CRL) and Online Certificate Signing Protocol (OCSP), which are required for active revocation.
+The tradeoff is, certificates issued with passive revocation cannot be immediately revoked. 
+
+Passive revocation is a good fit for many internal PKIs.
+With this model, certificates should have short lifetimes to limit the value of a key that has been exfiltrated.
+And short-lived certificates encourage certificate automation and on-demand workflows.
+
+If your security model demands active revocation, Certificate Manager Advanced Authorities support CRL and OCSP.
+Advanced Authorities use a pull model to implement OCSP and CRL:
+A revocation service periodically queries the CA for revoked certificates and builds a CRL,
+which is signed and shipped to a cloud bucket.
+OCSP responses are built, signed, and served on-demand.
+
+Whether you're using passive or active revocation, the process for revoking a certificate is the same.
+
 To revoke a certificate, run the following operation.
 
 <CodeBlock language="shell-session" copyText="step ca revoke --cert=myservice.crt --key=myservice.key">
@@ -113,10 +126,6 @@ If you try to renew the certificate, it will fail.
 {`$ step ca renew myservice.crt myservice.key
 error renewing certificate: The request lacked necessary authorization to be completed. Please see the certificate authority logs for more info.`}
 </CodeBlock>
-
-Passive revocation doesn't use Certificate Revocation List (CRL) and Online Certificate Signing Protocol (OCSP) like Web PKI.
-
-Certificate Manager also supports CRL and OCSP, when used with an Advanced Authority.
 
 <Alert severity="info">
   <div>
