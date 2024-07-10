@@ -135,13 +135,20 @@ Here are some common variables available in X.509 certificate templates:
 - **.Insecure.CR.EmailAddresses**:
   The Email Address SANs provided in the CSR
 
+- **.Insecure.CR.Subject**:
+  The CSR subject field.
+
 - **.Insecure.CR.Subject.CommonName**:
-  The Common Name (CN) provided in the CSR's subject
+  The Common Name (CN) from the CSR subject
 
 - **.Insecure.CR.Subject.ExtraNames**:
-  The Extra Names provided in the CSR subject.
+  The Extra Names from the CSR subject.
   This is an array of all subject distinguished names (DNs) in the CSR.
   Each contains an OID (`type`) and a value (`value`).
+
+- **.Insecure.CR.RawSubject**:
+  The original subject asn.1 value from the CSR.
+  Use this if your application requires that the certificate subject and CSR subject match exactly.
 
 - **.Insecure.CR.PublicKey**:
   The public key provided in the certificate request.
