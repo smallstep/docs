@@ -22,7 +22,7 @@ Certificate templates are JSON documents
 that describe the most important properties in the final certificate or certificate request.
 They are [Go `text/template` files](https://golang.org/pkg/text/template/).
 [Sprig functions](http://masterminds.github.io/sprig/) are available inside the templates.
-A few custom [functions for ASN.1 encoding](#asn1-values) are also available.
+A few custom [functions for ASN.1 encoding](#asn1-values) and [time formatting](#time-formatting) are also available.
 
 <Alert severity="warning">
   <div>
@@ -42,6 +42,7 @@ templates hardcoded into `step-ca`.
 - [X.509 Templates](#x509-templates)
 - [ASN.1 Values](#asn1-values)
 - [SSH Templates](#ssh-templates)
+- [Time formatting](#time-formatting)
 - [Configuring `step-ca` to Use Templates](#configuring-step-ca-to-use-templates)
 - [Basic X.509 Template Examples](#basic-x509-template-examples)
 - [Advanced X.509 Template Examples](#advanced-x509-template-examples)
@@ -360,6 +361,23 @@ from your provisioner's [configuration block](#configuring-the-ca-to-use-templat
     This is because the CA usually uses a different <a href="https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/sshutil/templates.go#L152">default template for admin users</a>.
   </div>
 </Alert>
+
+## Time formatting
+
+In addition to the time formatting functions offered by [Sprig](http://masterminds.github.io/sprig/),
+`step-ca` has added some additional convenience functions for X.509 and SSH templates:
+
+| Function | Description |
+|----------|-------------|
+| `toTime 1719970524` | Returns a `time.Time` in UTC from a Unix epoch. |
+| `formatTime (now)` | Returns the UTC time as an RFC3339-formatted string.<br />Example output: `2006-01-02T15:04:05Z07:00` |
+| `parseTime` | Returns the current time in UTC. |
+| `parseTime "2024-07-03T01:30:39Z"` | Parses a time string using RFC3339 format and returns a `time.Time` object. |
+| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024"` | Parses a time string using the `time.UnixDate` layout.<br />Returns a `time.Time` object in UTC. |
+| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024" "America/Los_Angeles"` | Parses a time string using the `time.UnixDate` layout and a specified [time zone identifier](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), returning a `time.Time` object. |
+| `mustParseTime` | Same as `parseTime` but returns an error if the time could not be parsed. |
+| `toTimeLayout "RFC3339"` | Returns the [predefined layout string](https://pkg.go.dev/time#pkg-constants).<br />Example output: `2006-01-02T15:04:05Z07:00` |
+| `toTimeLayout "time.UnixDate"` | Example output: `Mon Jan _2 15:04:05 MST 2006` |
 
 ## Configuring `step-ca` to Use Templates
 
