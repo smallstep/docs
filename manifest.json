@@ -30,6 +30,10 @@
             {
               "title": "Smallstep API",
               "path": "/platform/smallstep-api.mdx"
+            },
+            {
+              "title": "Smallstep App",
+              "path": "/platform/smallstep-app.mdx"
             }
           ]
         },
