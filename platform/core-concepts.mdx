@@ -3,6 +3,7 @@ title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of the major components and concepts you’ll encounter while working with the Smallstep platform, and how they interact/relate with one another to protect your resources and provide strong assurance of device identity.
 ---
+
 ![Image: Device Identity Attestation Flow](https://smallstep-cms-images.s3.us-east-2.amazonaws.com/tpm_attestation_0de8c39a14.png)
 
 # Workflow Overview
@@ -39,7 +40,7 @@ A third party could verify possession of an Endorsement Key pair by encrypting a
 ## Smallstep app
 The Smallstep app is a desktop app that offers a uniform experience for device identity across macOS, Windows, and Linux. It is the foundation for Smallstep's high-assurance device identity attestation workflow, automating the issuance of certificates to devices and configuring the components that depend on these certificates. 
 
-The app is installed on individual company-managed devices and operates without administrative privileges. It only collects the device security context essential for your organisation's administrative policy configuration.
+The app is installed on individual company-managed devices and only collects the device security context essential for your organisation's administrative policy configuration.
 
 After proving its identity to the Smallstep Attestation CA, the app obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
 

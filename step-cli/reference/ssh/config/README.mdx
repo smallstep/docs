@@ -16,7 +16,7 @@ menu:
 step ssh config
 [--team=<name>] [--team-authority=<sub-domain>] [--host]
 [--set=<key=value>] [--set-file=<file>] [--dry-run] [--roots]
-[--federation] [--force] [--offline] [--ca-config=<file>]
+[--federation] [--console] [--force] [--offline] [--ca-config=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 [--authority=<name>] [--profile=<name>]
 ```
@@ -60,6 +60,9 @@ times to set multiple variables.
 
 **--set-file**=`file`
 The JSON `file` with the template data variables.
+
+**--console**
+Complete the flow while remaining inside the terminal.
 
 **--dry-run**
 Executes the command without changing any file.

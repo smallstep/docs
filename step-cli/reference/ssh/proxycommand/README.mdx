@@ -15,7 +15,7 @@ menu:
 ```raw
 step ssh proxycommand <user> <host> <port>
 [--provisioner=<name>] [--set=<key=value>] [--set-file=<file>]
-[--offline] [--ca-config=<file>]
+[--console] [--offline] [--ca-config=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
@@ -53,6 +53,9 @@ The `key=value` pair with template data variables. Use the **--set** flag multip
 
 **--set-file**=`file`
 The JSON `file` with the template data variables.
+
+**--console**
+Complete the flow while remaining inside the terminal.
 
 **--offline**
 Creates a certificate without contacting the certificate authority. Offline mode
