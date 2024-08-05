@@ -1,0 +1,23 @@
+name: Upload Assets
+
+on:
+  push:
+    branches:
+      - 'main'
+    paths:
+      - 'graphics/**'
+
+jobs:
+  upload:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Upload to S3
+        uses: shallwefootball/upload-s3-action@v1.3.3
+        id: S3
+        with:
+          aws_key_id: ${{ secrets.AWS_ASSETS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_ASSETS_SECRET_ACCESS_KEY}}
+          aws_bucket: ${{ secrets.AWS_ASSETS_BUCKET }}
+          source_dir: 'graphics'
+          destination_dir: 'graphics'
