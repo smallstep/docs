@@ -187,8 +187,9 @@ So, you're stuck having to rotate your root CA too, and that's a much bigger pro
 To avoid this scenario, you can use _active revocation_ on your intermediate CA certificate,
 making it possible to immediately revoke a compromised intermediate.
 
-While `step-ca` doesn't directly support active revocation mechanisms like Certificate Revocation Lists (CRLs) or the Online Certificate Status Protocol (OCSP),
-you can independently manage your own CRL if you like.
+While `step-ca` does directly support Certificate Revocation Lists (CRLs) it does not directly support Online Certificate Status Protocol (OCSP).
+
+In order to enable.
 
 #### Create an intermediate CA with a CRL distribution endpoint
 
