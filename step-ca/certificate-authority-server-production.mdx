@@ -187,9 +187,7 @@ So, you're stuck having to rotate your root CA too, and that's a much bigger pro
 To avoid this scenario, you can use _active revocation_ on your intermediate CA certificate,
 making it possible to immediately revoke a compromised intermediate.
 
-While `step-ca` does directly support Certificate Revocation Lists (CRLs) it does not directly support Online Certificate Status Protocol (OCSP).
-
-In order to enable.
+While `step-ca` does directly support Certificate Revocation Lists (CRLs) it does not directly support Online Certificate Status Protocol (OCSP). In order to enable CRL distribution use the following approach.
 
 #### Create an intermediate CA with a CRL distribution endpoint
 
@@ -207,7 +205,7 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
                   "maxPathLen": 0
           },
           "crlDistributionPoints":
-                  ["http://crl.example.com/crl/ca.crl"]
+                  ["http://ca.internal/1.0/crl"]
           }
   }
   ```
@@ -229,59 +227,55 @@ This setup is more complex than the default `step-ca` PKI, but it offers an insu
        $(step path)/secrets/intermediate_ca_key
   ```
 
-2. Create an empty CRL file and sign it with your root CA key:
+2. Add the following to `ca.json` file:
 
-  ```bash
-  cat <<EOF > openssl.conf
-  [ ca ]
-  default_ca = CA_default
-  
-  [ CA_default ]
-  default_crl_days = 30
-  database = index.txt
-  default_md = sha256
-  EOF
-  touch index.txt
-  openssl ca \
-      -config openssl.conf \
-      -gencrl \
-      -keyfile $(step path)/secrets/root_ca_key \
-      -cert $(step path)/certs/root_ca.crt \
-      -out ca.crl.pem
-  openssl crl \
-      -inform PEM \
-      -in ca.crl.pem \
-      -outform DER \
-      -out ca.crl
+  ```json
+  "...",
+  "insecureAddress": ":9001",
+  "..."
   ```
 
-3. Upload the DER-formatted `ca.crl` file to the distribution point URL you specified in the template.
-4. Finally, configure your `step-ca` server to use the intermediate CA you created.
+  ```json
+  "...",
+  "crl": {
+    "enabled": true,
+    "idpURL": "http://ca.internal/1.0/crl"
+  },
+  "..."
+  ```
 
+3. Enable `crlDistributionPoints` within your default template:
 
-<Alert severity="warning">
-  <div>
-	Your CRL will expire, so you will need to generate and push a new empty CRL file regularly. We recommend updating the CRL once two-thirds of its lifetime has elapsed. Configuring automated CRL renewal is beyond the scope of this document.
-  </div>
-</Alert>
+  ```
+  {
+	"subject": {{ toJson .Subject }},
+	"sans": {{ toJson .SANs }},
+  {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+	"keyUsage": ["keyEncipherment", "digitalSignature"],
+  {{- else }}
+	"keyUsage": ["digitalSignature"],
+  {{- end }}
+	"extKeyUsage": ["serverAuth", "clientAuth"],
+	"crlDistributionPoints": ["http://ca.internal/1.0/crl"]}
+  ```
 
-#### Revoke A Certificate
+4. The approach above assumes serving CRL over http. If you use Caddy to proxy the traffic add the following to `Caddyfile` to allow hosts to reach the CRL distribution point over http:
 
-To revoke a certificate, add it to the `index.txt` file before regenerating the CRL file. The format for this CRL database file is:
+  ```
+  # This serves crl over http
+  http://ca.external {   
+    # Backend connection to step-ca
+    reverse_proxy http://ca.internal:9001
+  }
+  ```
 
-- One certificate per line
-- Each line is tab-delimited
-- The tab-delimited fields are:
-  1. **Entry type.** May be `V` (valid), `R` (revoked) or `E` (expired).
-      An expired certificate may have the type `V` because the type has not been updated.
-	  `openssl ca updatedb` does such an update.
-  2. **Expiration datetime.** Format is `yymmddHHMMSSZ`.
-  3. **Revokation datetime** and **optional revocation reason**. Must be set for any entry of the type `R`. Format is `yymmddHHMMSSZ[,reason]`.
-  4. **Certificate serial number** in uppercase hexidecimal, eg. `804A72D941DB451A0123BA4706446D1F`.
-  5. **File name** This doesn't seem to be used, ever, so use the value `unknown`.
-  6. **Certificate subject** eg. `CN=Test Intermediate CA,O=Smallstep Labs\, Inc`
+5. Finally, configure your `step-ca` server to use the intermediate CA you created.
 
-Source: [OpenSSL PKI Tutorial](https://pki-tutorial.readthedocs.io/en/latest/cadb.html)
+6. Once you revoke an x509 certificate, check the CRL served:
+
+  ```bash
+  step crl inspect --ca $(step path)/certs/root_ca.crt http://ca.internal:9001/1.0/crl
+  ```
 
 ### Use Templates With Care
 
