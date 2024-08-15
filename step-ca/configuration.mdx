@@ -84,6 +84,7 @@ the `--password-file` flag accepts
     "enabled": false
   }, 
   "authority": {
+    "disableIssuedAtCheck": false,
     "claims": {
       "minTLSCertDuration": "5m",
       "maxTLSCertDuration": "24h",
@@ -251,6 +252,8 @@ the `--password-file` flag accepts
 
   - **template**: default ASN1DN values for new certificates. See [Templates](./templates.mdx).
 
+  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
+
   - **claims**: default validation for requested attributes in the certificate request. Can be overridden by similar claims objects defined by individual provisioners.
 
     - **minTLSCertDuration**: do not allow certificates with a duration less than this value.
@@ -276,8 +279,6 @@ the `--password-file` flag accepts
     - **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
-
-    - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
   - **provisioners**: list of certificate [Provisioners](./provisioners.mdx). Each provisioner has a name, associated authentication attributes, and an optional claims attribute that overrides any values set in the global claims directly underneath authority. The [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group can add, modify, and remove provisioners. See [Provisioners](./provisioners.mdx).
 
