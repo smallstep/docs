@@ -637,6 +637,9 @@ Generally speaking:
   you can leverage the MDM channel's TLS connection,
   which is established upon MDM enrollment.
 
+The root CA bundle for `step-ca` is available at the `/roots.pem` endpoint,
+and the intermediate CA bundle is available at `/intermediates.pem`.
+
 #### Installing a CA certificate
 
 Your CA certificate may need to be installed and trusted into the target operating system's certificate trust store.
