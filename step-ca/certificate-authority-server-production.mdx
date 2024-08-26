@@ -522,7 +522,9 @@ https://ca.example.com {
     transport http {
       # This allows the proxy to complete a trust
       # chain by trusting step-ca's root.
-      tls_trusted_ca_certs /etc/caddy/root_ca.crt
+      tls_trust_pool file {
+        pem_file /etc/caddy/root_ca.crt
+      }
     }
   }
 }
