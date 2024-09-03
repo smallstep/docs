@@ -19,7 +19,7 @@ safely and securely in a production environment.
   - [Avoid Storing Passwords In Environment Variables](#avoid-storing-passwords-in-environment-variables)
   - [Replace Your Default Provisioner](#replace-your-default-provisioner)
   - [Use Short-Lived Certificates](#use-short-lived-certificates)
-  - [Enable Active Revocation On Your Intermediate CA](#enable-active-revocation-on-your-intermediate-ca)
+  - [Consider Active Revocation](#consider-active-revocation)
   - [Use Templates With Care](#use-templates-with-care)
   - [Create a Service User to Run `step-ca`](#create-a-service-user-to-run-step-ca)
 - [Operational Concerns](#operational-concerns)
@@ -163,8 +163,7 @@ You can [configure certificate lifetimes](./configuration.mdx#basic-configuratio
 
 <Alert severity="info">
   <div>
-    Short-lived certificates are not a replacement for active revocation using certificate revocation lists (CRL) or Online Certificate Status Protocol (OCSP).
-	Automatic active revocation is not available in <Code>step-ca</Code>, but you can manually manage a CRL for your CA certificates. See below.
+    Short-lived certificates are not a full replacement for active revocation using certificate revocation lists (CRL) or Online Certificate Status Protocol (OCSP). They offer an alternative that's easier to deploy and maintain.
   </div>
 </Alert>
 
@@ -175,112 +174,171 @@ So do some certificates.
 But it can be difficult to operationalize such short-lived certificates.
 </Footnote>
 
-### Enable Active Revocation On Your Intermediate CA
+### Consider Active Revocation
 
-The value of a two-tiered PKI is that you can add your root CA certificate to the certificate trust store on all of your nodes, and store your root private key completely offline.
-A leaf certificate signed by the CA always comes in a bundle that contains the intermediate CA certificate alongside the leaf certificate.
-With this bundle, any client that trusts your root CA can verify the complete chain of trust.
+You may require Active Revocation if you need immediate certificate revocation,
+or if you are issuing long-lived certificates.
+For this purpose,
+`step-ca` contains a built-in,
+minimal Certificate Revocation List (CRL) server.
 
-Now, what if one day your intermediate CA key is compromised?
-You could issue a new intermediate using your root CA key, but your old intermediate has a 10 year validity period!
-So, you're stuck having to rotate your root CA too, and that's a much bigger project because you have to distribute the new root certificate to everyone and ensure the old one is no longer trusted.
-To avoid this scenario, you can use _active revocation_ on your intermediate CA certificate,
-making it possible to immediately revoke a compromised intermediate.
+This section describes how to enable CRL for your intermediate CA and leaf certificates.
 
-While `step-ca` doesn't directly support active revocation mechanisms like Certificate Revocation Lists (CRLs) or the Online Certificate Status Protocol (OCSP),
-you can independently manage your own CRL if you like.
-
-#### Create an intermediate CA with a CRL distribution endpoint
-
-Let's make it possible to revoke your intermediate CA down the road if necessary.
-This setup is more complex than the default `step-ca` PKI, but it offers an insurance policy for a compromised intermediate CA.
-
-1. Create an intermediate CA that includes a CRL endpoint. Save the following template to `intermediate.tpl`:
-
-  ```json
-  {
-          "subject": {{ toJson .Subject }},
-          "keyUsage": ["certSign", "crlSign"],
-          "basicConstraints": {
-                  "isCA": true,
-                  "maxPathLen": 0
-          },
-          "crlDistributionPoints":
-                  ["http://crl.example.com/crl/ca.crl"]
-          }
-  }
-  ```
-
-  You'll need this template to manually create your intermediate CA.
-  The CRL endpoint here should be an HTTP URL; the CRL file itself is signed.
-  The CRL will be a static file, so you you might choose an object storage or CDN endpoint here.
-  
-  Use the template to create your intermediate CA. You will need your root CA certificate and key:
-  
-  ```bash
-  $ step certificate create \
-       --template intermediate.tpl \
-       --ca $(step path)/certs/root_ca.crt \
-       --ca-key $(step path)/secrets/root_ca_key \
-       --not-after 87660h \
-       "Example Intermediate CA" \
-       $(step path)/certs/intermediate_ca.crt \
-       $(step path)/secrets/intermediate_ca_key
-  ```
-
-2. Create an empty CRL file and sign it with your root CA key:
-
-  ```bash
-  cat <<EOF > openssl.conf
-  [ ca ]
-  default_ca = CA_default
-  
-  [ CA_default ]
-  default_crl_days = 30
-  database = index.txt
-  default_md = sha256
-  EOF
-  touch index.txt
-  openssl ca \
-      -config openssl.conf \
-      -gencrl \
-      -keyfile $(step path)/secrets/root_ca_key \
-      -cert $(step path)/certs/root_ca.crt \
-      -out ca.crl.pem
-  openssl crl \
-      -inform PEM \
-      -in ca.crl.pem \
-      -outform DER \
-      -out ca.crl
-  ```
-
-3. Upload the DER-formatted `ca.crl` file to the distribution point URL you specified in the template.
-4. Finally, configure your `step-ca` server to use the intermediate CA you created.
-
-
-<Alert severity="warning">
+<Alert severity="info">
   <div>
-	Your CRL will expire, so you will need to generate and push a new empty CRL file regularly. We recommend updating the CRL once two-thirds of its lifetime has elapsed. Configuring automated CRL renewal is beyond the scope of this document.
+    The support for active revocation in `step-ca` is designed to be minimalistic.
+    If you need OCSP, check out Smallstep's <a href="https://smallstep.com/certificate-manager/">commercial offerings</a>.
   </div>
 </Alert>
 
-#### Revoke A Certificate
+#### When To Use Active Revocation?
 
-To revoke a certificate, add it to the `index.txt` file before regenerating the CRL file. The format for this CRL database file is:
+The value of a two-tiered PKI is in the decoupling of Root and Intermediate CAs.
+You can add your Root CA certificate to the certificate trust store on all of your nodes,
+and store the private key completely offline.
+When `step-ca` issues a certificate to a client,
+it comes inside a PEM bundle that contains both the Intermediate CA certificate(s) and the end entity certificate.
+When establishing a TLS connection,
+any client that trusts your Root CA can use this bundle to verify a complete chain of trust.
 
-- One certificate per line
-- Each line is tab-delimited
-- The tab-delimited fields are:
-  1. **Entry type.** May be `V` (valid), `R` (revoked) or `E` (expired).
-      An expired certificate may have the type `V` because the type has not been updated.
-	  `openssl ca updatedb` does such an update.
-  2. **Expiration datetime.** Format is `yymmddHHMMSSZ`.
-  3. **Revokation datetime** and **optional revocation reason**. Must be set for any entry of the type `R`. Format is `yymmddHHMMSSZ[,reason]`.
-  4. **Certificate serial number** in uppercase hexidecimal, eg. `804A72D941DB451A0123BA4706446D1F`.
-  5. **File name** This doesn't seem to be used, ever, so use the value `unknown`.
-  6. **Certificate subject** eg. `CN=Test Intermediate CA,O=Smallstep Labs\, Inc`
+Now, what if one day your Intermediate CA key is compromised?
+You could issue a new Intermediate using your root CA key,
+but your old Intermediate had a 10 year validity period!
+So, you're stuck having to rotate your Root CA too,
+and that may be a big project:
+you have to distribute the new CA certificate to clients,
+and ensure the old one is no longer trusted.
 
-Source: [OpenSSL PKI Tutorial](https://pki-tutorial.readthedocs.io/en/latest/cadb.html)
+To avoid this scenario, you can use _active revocation_,
+making it possible to immediately revoke a compromised certificate.
+
+Active revocation can also be used on leaf certificates.
+If a long-lived leaf certificate is compromised,
+it can be rendered unusable by an attacker through revocation.
+
+But there are downsides:
+Hosting a Certificate Revocation List (CRL) adds a service dependency to your PKI.
+Clients check the CRL endpoint on every new connection,
+adding significant latency to the TLS handshake,
+and load on your CRL endpoint.
+
+You can add active revocation to your Intermediate CA,
+to your leaf certificates,
+or both,
+using the instructions below.
+
+#### Enable CRL for an Intermediate CA
+
+To use active revocation on an Intermediate CA certificate,
+you'll need a new Intermediate CA that contains your CRL server URL.
+
+If you're planning to use `step-ca`'s built in CRL server,
+the CRL will be hosted at `/1.0/crl`.
+
+1. First, enable the built-in CRL server.
+
+   Add the following to the top level of your `$(step path)/config/ca.json` file:
+
+   ```json
+   "insecureAddress": ":9001",
+   "crl": {
+     "enabled": true,
+     "idpURL": "http://ca.example.com/1.0/crl"
+   },
+   ```
+
+   Reload the configuration by restarting `step-ca` or sending it a `HUP` signal.
+
+2. Create an Intermediate CA that includes a CRL endpoint. Save the following template to `intermediate.tpl`:
+
+   ```json
+   {
+           "subject": {{ toJson .Subject }},
+           "keyUsage": ["certSign", "crlSign"],
+           "basicConstraints": {
+                   "isCA": true,
+                   "maxPathLen": 0
+           },
+           "crlDistributionPoints": ["http://ca.example.com/1.0/crl"]
+   }
+   ```
+
+   You'll need this template to manually create your Intermediate CA.
+   The CRL endpoint in this example will be served by `step-ca` as configured below; the CRL file itself is signed.
+   
+   Use the template to create your Intermediate CA. You will need your root CA certificate and key:
+   
+   ```bash
+   $ step certificate create \
+        --template intermediate.tpl \
+        --ca $(step path)/certs/root_ca.crt \
+        --ca-key $(step path)/secrets/root_ca_key \
+        --not-after 87660h \
+        "Example Intermediate CA" \
+        $(step path)/certs/intermediate_ca.crt \
+        $(step path)/secrets/intermediate_ca_key
+   ```
+
+2. Retart `step-ca`.
+   Clients will be able to renew certificates that were issued by your previous Intermediate CA.
+
+#### Enable CRL for Leaf Certificates
+
+Let's add the CRL server URL to every leaf certificate issued by `step-ca`.
+
+If you're planning to use `step-ca`'s built in CRL server,
+the CRL will be hosted at `/1.0/crl`.
+
+1. If you haven't done so already, enable the built-in CRL server:
+
+   Add the following to the top level of your `$(step path)/config/ca.json` file:
+
+   ```json
+   "insecureAddress": ":9001",
+   "crl": {
+     "enabled": true,
+     "idpURL": "http://ca.example.com/1.0/crl"
+   },
+   ```
+
+   Reload the configuration by restarting `step-ca` or sending it a `HUP` signal.
+
+
+1. Add an X.509 certificate template, and enable `crlDistributionPoints` in the template:
+
+   ```bash
+   cd $(step path)/templates
+   mkdir -p x509
+   cat <<EOF > x509/leaf.tpl
+   {
+ 	"subject": {{ toJson .Subject }},
+ 	"sans": {{ toJson .SANs }},
+   {{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}
+ 	"keyUsage": ["keyEncipherment", "digitalSignature"],
+   {{- else }}
+ 	"keyUsage": ["digitalSignature"],
+   {{- end }}
+ 	"extKeyUsage": ["serverAuth", "clientAuth"],
+ 	"crlDistributionPoints": ["http://ca.example.com/1.0/crl"]
+   }
+   EOF
+   ```
+
+3. Configure your `step-ca` provisioners to use the template you created.
+   
+   You can use, for example, `step ca provisioner update` with `--x509-template x509/leaf.tpl`.
+   Or add the template to provisioner definitions in `ca.json`.
+   See [Configuring `step-ca` to Use Templates](https://smallstep.com/docs/step-ca/templates/#configuring-step-ca-to-use-templates) for an example.
+
+4. Create a test certificate using the provisioner you just reconfigured, and check that the correct CRL endpoint is shown.
+
+5. Confirm your CRL. Revoke the certificate you just created (using `step ca revoke`), then check the CRL served by `step-ca`:
+
+   ```bash
+   step crl inspect --ca $(step path)/certs/root_ca.crt http://ca.example.com:9001/1.0/crl
+   ```
+
+   Your certificate's serial number should be listed in the CRL.
 
 ### Use Templates With Care
 
