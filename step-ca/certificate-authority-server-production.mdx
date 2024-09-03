@@ -193,20 +193,20 @@ This section describes how to enable CRL for your intermediate CA and leaf certi
 
 #### When To Use Active Revocation?
 
-The value of a two-tiered PKI is in the decoupling of root and intermediate CAs.
-You can add your root CA certificate to the certificate trust store on all of your nodes,
-and store your root private key completely offline.
+The value of a two-tiered PKI is in the decoupling of Root and Intermediate CAs.
+You can add your Root CA certificate to the certificate trust store on all of your nodes,
+and store the private key completely offline.
 When `step-ca` issues a certificate to a client,
-it comes inside a PEM bundle that contains both the intermediate CA certificate(s) and the end entity certificate.
+it comes inside a PEM bundle that contains both the Intermediate CA certificate(s) and the end entity certificate.
 When establishing a TLS connection,
-any client that trusts your root CA can use this bundle to verify a complete chain of trust.
+any client that trusts your Root CA can use this bundle to verify a complete chain of trust.
 
-Now, what if one day your intermediate CA key is compromised?
-You could issue a new intermediate using your root CA key,
-but your old intermediate had a 10 year validity period!
-So, you're stuck having to rotate your root CA too,
+Now, what if one day your Intermediate CA key is compromised?
+You could issue a new Intermediate using your root CA key,
+but your old Intermediate had a 10 year validity period!
+So, you're stuck having to rotate your Root CA too,
 and that may be a big project:
-you have to distribute the new root certificate to clients,
+you have to distribute the new CA certificate to clients,
 and ensure the old one is no longer trusted.
 
 To avoid this scenario, you can use _active revocation_,
@@ -217,7 +217,7 @@ If a long-lived leaf certificate is compromised,
 it can be rendered unusable by an attacker through revocation.
 
 But there are downsides:
-CRL adds a service dependency to your PKI.
+Hosting a Certificate Revocation List (CRL) adds a service dependency to your PKI.
 Clients check the CRL endpoint on every new connection,
 adding significant latency to the TLS handshake,
 and load on your CRL endpoint.
@@ -249,7 +249,7 @@ the CRL will be hosted at `/1.0/crl`.
 
    Reload the configuration by restarting `step-ca` or sending it a `HUP` signal.
 
-2. Create an intermediate CA that includes a CRL endpoint. Save the following template to `intermediate.tpl`:
+2. Create an Intermediate CA that includes a CRL endpoint. Save the following template to `intermediate.tpl`:
 
    ```json
    {
@@ -263,10 +263,10 @@ the CRL will be hosted at `/1.0/crl`.
    }
    ```
 
-   You'll need this template to manually create your intermediate CA.
+   You'll need this template to manually create your Intermediate CA.
    The CRL endpoint in this example will be served by `step-ca` as configured below; the CRL file itself is signed.
    
-   Use the template to create your intermediate CA. You will need your root CA certificate and key:
+   Use the template to create your Intermediate CA. You will need your root CA certificate and key:
    
    ```bash
    $ step certificate create \
@@ -280,7 +280,7 @@ the CRL will be hosted at `/1.0/crl`.
    ```
 
 2. Retart `step-ca`.
-   Clients will be able to renew certificates that were issued by your previous intermediate CA.
+   Clients will be able to renew certificates that were issued by your previous Intermediate CA.
 
 #### Enable CRL for Leaf Certificates
 
