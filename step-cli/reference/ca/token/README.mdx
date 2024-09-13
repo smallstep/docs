@@ -21,6 +21,7 @@ step ca token <subject>
 [--output-file=<file>] [--kms=uri] [--key=<file>] [--san=<SAN>] [--offline]
 [--revoke] [--x5c-cert=<file>] [--x5c-key=<file>] [--x5c-insecure]
 [--sshpop-cert=<file>] [--sshpop-key=<file>]
+[--cnf=<fingerprint>] [--cnf-file=<file>]
 [--ssh] [--host] [--principal=<name>] [--k8ssa-token-path=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
@@ -131,6 +132,12 @@ Certificate `file` in PEM format to store in the 'nebula' header of a JWT.
 Private key `file`, used to sign a JWT, corresponding to the certificate that will
 be stored in the 'nebula' header.
 
+**--cnf**=`fingerprint`
+The `fingerprint` of the CSR to restrict this token for.
+
+**--cnf-file**=`file`
+The CSR `file` to restrict this token for.
+
 **--key**=`file`
 The private key `file` used to sign the JWT. This is usually downloaded from
 the certificate authority.
@@ -212,6 +219,18 @@ Get a new token that becomes valid in 30 minutes and expires 5 minutes after tha
 $ step ca token --not-before 30m --not-after 35m internal.example.com
 ```
 
+Get a new token with a confirmation claim to enforce a given CSR fingerprint:
+```shell
+$ step certificate fingerprint --format base64-url-raw internal.csr
+PJLNhtQoBE1yGN_ZKzr4Y2U5pyqIGiyyszkoz2raDOw
+$ step ca token --cnf PJLNhtQoBE1yGN_ZKzr4Y2U5pyqIGiyyszkoz2raDOw internal.smallstep.com
+```
+
+Get a new token with a confirmation claim to enforce the use of a given CSR:
+```shell
+step ca token --cnf-file internal.csr internal.smallstep.com
+```
+
 Get a new token signed with the given private key, the public key must be
 configured in the certificate authority:
 ```shell
@@ -261,6 +280,11 @@ $ step ca token max@smallstep.com --ssh
 Get a new token for an SSH host certificate:
 ```shell
 $ step ca token my-remote.hostname --ssh --host
+```
+
+Get a new token with a confirmation claim to enforce the use of a given public key:
+```shell
+step ca token --ssh --host --cnf-file internal.pub internal.smallstep.com
 ```
 
 Generate a renew token and use it in a renew after expiry request:
