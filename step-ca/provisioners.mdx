@@ -29,8 +29,8 @@ In this section we'll discuss the different provisioners, their target use cases
 ## Choosing a Provisioner
 
 When choosing a provisioner for your use case,
-you can narrow your options by starting from the types of
-identifiers you need on a certificate. 
+you can narrow your options by starting from
+the **types of identifiers** you need on a certificate. 
 
 Identifier Type | JWK | OAuth | X5C | ACME `dns-01` | ACME `http-01` | ACME `tls-alpn-01` | ACME `device-attest-01` | Nebula | SCEP | K8sSA | Cloud Provisioners
 --------------- | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: | :-: |
@@ -42,6 +42,21 @@ Human           | ✔️   | ✔️   | ✔️   | 𝗫   | 𝗫   | 𝗫   | �
 
 Besides the identifier types described above, `step-ca` also integrates with and supports [Wire](https://wire.com/) messenger application identities.
 The configuration for this is described in [ACME for Wire messenger clients](#acme-for-wire-messenger-clients).
+
+You can also narrow your provisioner options based on **trust dependencies**.
+Trust dependencies are third parties you can leverage to bootstrap trust within your PKI.
+
+Provisioner             | What Is Trusted?
+----------------------- | --------------------------------------------------------------
+JWK                     | Private key bearers
+OAuth                   | An OIDC authorization server (Okta, Google, Azure, etc.)
+X5C                     | Another X.509 CA
+ACME `dns-01`           | Your DNS server and network
+ACME `http-01`          | Your network, DNS, and OS privileged port protections
+ACME `tls-alpn-01`      | Your network, DNS, and OS privileged port protections
+ACME `device-attest-01` | Security hardware manufacturer (Apple, Infineon, Yubico, etc.)
+Cloud Provisioners      | Your cloud provider (AWS, GCP, Azure)
+SCEP                    | Shared secret bearers
 
 ## Authorization Scope by Provisioner
 
