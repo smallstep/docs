@@ -48,7 +48,7 @@ Trust dependencies are third parties you can leverage to bootstrap trust within 
 
 Provisioner             | What Is Trusted?
 ----------------------- | --------------------------------------------------------------
-JWK                     | Nothing (asymmetric private key)
+JWK                     | Private key bearers
 OAuth                   | An OIDC authorization server (Okta, Google, Azure, etc.)
 X5C                     | Another X.509 CA
 ACME `dns-01`           | Your DNS server and network
@@ -56,7 +56,7 @@ ACME `http-01`          | Your network, DNS, and OS privileged port protections
 ACME `tls-alpn-01`      | Your network, DNS, and OS privileged port protections
 ACME `device-attest-01` | Security hardware manufacturer (Apple, Infineon, Yubico, etc.)
 Cloud Provisioners      | Your cloud provider (AWS, GCP, Azure)
-SCEP                    | Nothing (shared secret)
+SCEP                    | Shared secret bearers
 
 ## Authorization Scope by Provisioner
 
