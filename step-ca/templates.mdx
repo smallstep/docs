@@ -107,7 +107,7 @@ Here are some common variables available in X.509 certificate templates:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
   this is the certificate used to authorize the current certificate request with the CA.
   The client has proven posession of this certificate's private key.
-  The `.AuthorizationCrt` will have the following properties (a.o.): `Subject`, `Subject.CommonName`, `SerialNumber`, `DNSNames`, `EmailAddresses`, `IPAddresses`, `URIs`, `SANs` and `Extensions` (See [the Certificate struct shown here](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16)).
+  For an X.509 authorization certificate, the `.AuthorizationCrt` is a [`crypto/x509` Certificate](https://pkg.go.dev/crypto/x509#Certificate).
 
 - **.AuthorizationChain**:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
@@ -116,7 +116,8 @@ Here are some common variables available in X.509 certificate templates:
 
 - **.Insecure.CR**<Reference id="star11" marker="*" />: ☠️
   This holds the Certificate Request (CSR) received from the client.
-  How step-ca treats these values depends on the provisioner.
+  `.Insecure.CR` is a [`crypto/x509` CertificateRequest](https://pkg.go.dev/crypto/x509#CertificateRequest).
+  How `step-ca` handles a Certificate Request depends on the provisioner.
   While a CSR is always passed to step-ca (often alongside a signed token),
   in most cases _only the public key value in the CSR is used by step-ca_.
   These properties are marked _insecure_ because CSRs are not explicitly authenticated by step-ca.
