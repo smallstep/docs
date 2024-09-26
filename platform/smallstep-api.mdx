@@ -18,7 +18,7 @@ The Smallstep API is [OpenAPI conformant](https://www.openapis.org/), with JSON 
 
 You can get an API token in two ways:
 - In your [Smallstep settings](https://smallstep.com/app?next=/settings). Under **API Tokens**, choose **+ Add Token.**
-- On the command line, using the [`step` CLI](https://smallstep.com/docs/step-cli/). The [`step api token create`](https://smallstep.com/docs/step-cli/reference/api/token/create/index.html) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token. To use this option, you must first configure at least one trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA.
+- On the command line, using the [`step` CLI](https://smallstep.com/docs/step-cli/). The [`step api token create`](https://smallstep.com/docs/step-cli/reference/api/token/create/index.html) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token. To use this option, you must first configure a trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA. Only one trusted root CA may be configured.
 
 ### API Clients
 
