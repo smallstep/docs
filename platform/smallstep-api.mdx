@@ -12,10 +12,16 @@ With the Smallstep API, you can:
 
 The Smallstep API is [OpenAPI conformant](https://www.openapis.org/), with JSON requests and responses.
 
-### TL;DR Links
+### Smallstep API Setup and Usage
 
-- Get an API token in your [Smallstep dashboard](https://smallstep.com/app). In the bottom-left **⋮** menu, go to **Settings**. Under **API Tokens**, choose **+ Add Token.**
-- Visit the [Smallstep API Specification and Playground](https://gateway.smallstep.com).
+👉 [Smallstep API Specification and Playground](https://gateway.smallstep.com)
+
+You can get an API token in two ways:
+- In your [Smallstep settings](https://smallstep.com/app?next=/settings). Under **API Tokens**, choose **+ Add Token.**
+- On the command line, using the [`step` CLI](https://smallstep.com/docs/step-cli/). The [`step api token create`](https://smallstep.com/docs/step-cli/reference/api/token/create/index.html) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token. To use this option, you must first configure a trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA. Only one trusted root CA may be configured.
+
+### API Clients
+
 - [Smallstep Terraform Provider](https://github.com/smallstep/terraform-provider-smallstep) ([Documentation](https://registry.terraform.io/providers/smallstep/smallstep/latest/docs))
 - [Smallstep API Python Client](https://github.com/smallstep/smallstep-python)
 
