@@ -12,9 +12,23 @@ X.509 and SSH certificate templates open up these possibilities.
 With certificate templates, you can do things like:
 
 - Add extensions (OIDs) to X.509 certificates
-- Make longer certificate chains, with multiple intermediate CAs
-- Use SSH `force-command` or `source-address` extensions
+- Change the mapping of OIDC token claims to certificate fields
+- Create longer certificate chains, with multiple intermediate CAs
+- Use SSH certificate extensions like `force-command` or `source-address`
 - Add conditionals around a certificate's parameters, and fail if they are not met
+
+## On This Page
+
+- [Template Syntax Overview](#template-syntax-overview)
+- [Time formatting](#time-formatting)
+- [Configuring `step-ca` to Use Templates](#configuring-step-ca-to-use-templates)
+- [X.509 Templates](#x509-templates)
+- [ASN.1 Values](#asn1-values)
+- [SSH Templates](#ssh-templates)
+- [Basic X.509 Template Examples](#basic-x509-template-examples)
+- [Advanced X.509 Template Examples](#advanced-x509-template-examples)
+- [SSH Template Examples](#ssh-template-examples)
+- [Even More Templates](#even-more-templates)
 
 ## Template Syntax Overview
 
@@ -37,17 +51,131 @@ There are [default X.509](https://github.com/smallstep/crypto/blob/master/x509ut
 and [SSH](https://github.com/smallstep/crypto/blob/master/sshutil/templates.go)
 templates hardcoded into `step-ca`.
 
-## On This Page
+### Time formatting
 
-- [X.509 Templates](#x509-templates)
-- [ASN.1 Values](#asn1-values)
-- [SSH Templates](#ssh-templates)
-- [Time formatting](#time-formatting)
-- [Configuring `step-ca` to Use Templates](#configuring-step-ca-to-use-templates)
-- [Basic X.509 Template Examples](#basic-x509-template-examples)
-- [Advanced X.509 Template Examples](#advanced-x509-template-examples)
-- [SSH Template Examples](#ssh-template-examples)
-- [Even More Templates](#even-more-templates)
+In addition to the time formatting functions offered by [Sprig](http://masterminds.github.io/sprig/),
+`step-ca` has added some additional convenience functions for X.509 and SSH templates:
+
+| Function | Description |
+|----------|-------------|
+| `toTime 1719970524` | Returns a `time.Time` in UTC from a Unix epoch. |
+| `formatTime (now)` | Returns the UTC time as an RFC3339-formatted string.<br />Example output: `2006-01-02T15:04:05Z07:00` |
+| `parseTime` | Returns the current time in UTC. |
+| `parseTime "2024-07-03T01:30:39Z"` | Parses a time string using RFC3339 format and returns a `time.Time` object. |
+| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024"` | Parses a time string using the `time.UnixDate` layout.<br />Returns a `time.Time` object in UTC. |
+| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024" "America/Los_Angeles"` | Parses a time string using the `time.UnixDate` layout and a specified [time zone identifier](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), returning a `time.Time` object. |
+| `mustParseTime` | Same as `parseTime` but returns an error if the time could not be parsed. |
+| `toTimeLayout "RFC3339"` | Returns the [predefined layout string](https://pkg.go.dev/time#pkg-constants).<br />Example output: `2006-01-02T15:04:05Z07:00` |
+| `toTimeLayout "time.UnixDate"` | Example output: `Mon Jan _2 15:04:05 MST 2006` |
+
+
+## Configuring `step-ca` to Use Templates
+
+How you add templates to `step-ca` depends on
+whether you have enabled [remote provisioner management](./provisioners.mdx#remote-provisioner-management).
+
+Remote provisioner management is disabled by default.
+
+### Adding a template (without remote provisioner management)
+
+Within the provisioner configuration block of `$STEPPATH/config/ca.json`,
+certificate templates can be set
+under the property `"options"`.
+The following snippet shows a provisioner with custom X.509 and SSH templates:
+
+```json
+{
+  "type": "JWK",
+  "name": "jane@doe.com",
+  "key": {
+      "use": "sig",
+      "kty": "EC",
+      "kid": "lq69QCCEwEhZys_wavar9RoqRLdJ58u_OGzJK0zswSU",
+      "crv": "P-256",
+      "alg": "ES256",
+      "x": "pt7T0n98qREZUkyUX6b4kXJ5FkJlIdiMfJaLFclZIng",
+      "y": "Pw1y1xqe4g4YARwyBSkEkcjNrtPYxdKlYDLI512t2_M"
+  },
+  "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiQ1dWZG5zWTR2bGZJbG9BQ1dOaUdNUSJ9.12dowlkvESpxJgrNJgP2ELDQz750HSh2w6Ux6BmatBE5-ybAJFFO7g.1cjU2-CTrV3gbUE7.m8a95nv4qLnN_K_PG7lzgzYXBGnw_aHCf-znJ34AZxzPy2QDGGEjN_V0jX3kvHH9AIg3cs8I8NRm__RDm2iezU5AhPoAHaqnPnZdKh0ReBZ4hNpYXUHlTPf4fRaCXXDQiKatxNzCMBpyqKpudf3xYUzZPRNMN78WM0ZeIzmv_jFzbryOpxD8bJ3Bnxa4e8Am_pPdAANHphodlKN2nDr4701OLKgitImm8RoA20sWdAI_LkTS_Abk_TqBo_3qOGdjmnRBtATFSu3BdQw5wZMjywfwCWKXUK_OUt-cjVIe11xUT43SoE8fR2GJJEKomAHP0vn0MUUMqY9P9icUejw.eEYI_H7WfrYDL4yhsnsJxg",
+  "claims": {
+    "enableSSHCA": true
+  }
+  "options": {
+    "x509": {
+      "templateFile": "templates/certs/x509/leaf.tpl",
+      "templateData": {
+        "OrganizationalUnit": "Engineering Team"
+      }
+    },
+    "ssh": {
+      "templateFile": "templates/certs/ssh/host.tpl"
+    }
+  }
+}
+```
+
+- **options**: object that allows configuration of provisioner options e.g. templates.
+
+  - **x509** or **ssh**: object for configuring X.509 or SSH certificate template options.
+
+    - **templateFile**: path to a template stored on disk. You have a few options for how to define your path:
+
+        - **_absolute path_**:  e.g. `/home/mariano/path/to/file.ptl`
+        - **_relative to `$(step path)`_**: e.g. `templates/certs/x509/leaf.tpl` the actual
+          location of which would be `$(step path)/templates/certs/x509/leaf.tpl`.
+        - **_relative to the execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
+
+    - **templateData**: defines variables that can be used in the template.
+      In the example above, you will be able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,
+      for example in a template like:
+
+        ```json
+        {
+            "subject": {
+                "organizationalUnit": {{ toJson .OrganizationalUnit }},
+                "commonName": {{ toJson .Subject.CommonName }}
+            },
+            "sans": {{ toJson .SANs }},
+            "keyUsage": ["digitalSignature"],
+            "extKeyUsage": ["serverAuth", "clientAuth"]
+        }
+        ```
+
+    - **template**: set the full template in a string. The value can be the
+      string representation of a JSON object, or you encoded in Base64. For
+      example: 
+
+        ```json
+        {
+            "x509": {
+                "template": "{{ toJson .Insecure.CR }}",
+            }
+        }
+        ```
+
+        Or using Base64:
+
+        ```json
+        {
+            "x509": {
+                "template": "e3sgdG9Kc29uIC5JbnNlY3VyZS5DUiB9fQ==",
+            }
+        }
+        ```
+
+### Adding a template via remote provisioner management
+
+You can use [`step ca provisioner update`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/update/)
+to read a template file
+which will then be stored in the database for use by `step-ca`.
+For example:
+
+```
+step ca provisioner update cicd --x509-template ./templates/cicd.tpl
+step ca provisioner update google --ssh-template ./templates/google.tpl
+```
+
+See [`step ca provisioner update`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/update/) for more options.
 
 ## X.509 Templates
 
@@ -72,7 +200,9 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
 
 ### X.509 Template Fields
 
-The fields in an X.509 template map to [X.509 v3 certificate fields](https://datatracker.ietf.org/doc/html/rfc5280). See [the complete list of fields supported in `step-ca` templates](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16).
+The fields available in an X.509 template
+map to [X.509 v3 certificate fields](https://datatracker.ietf.org/doc/html/rfc5280).
+See [the complete list of fields supported in `step-ca` templates](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16).
 
 ### X.509 Template Variables
 
@@ -151,6 +281,8 @@ Here are some common variables available in X.509 certificate templates:
 - **.Insecure.CR.RawSubject**:
   The original subject asn.1 value from the CSR.
   Use this if your application requires that the certificate subject and CSR subject match exactly.
+  (Because `step-ca` may re-encode the CSR subject when creating the certificate subject,
+  these values may not match byte-for-byte)
 
 - **.Insecure.CR.PublicKey**:
   The public key provided in the certificate request.
@@ -167,8 +299,20 @@ in your provisioner's [configuration block](#configuring-the-ca-to-use-templates
 
 ### ASN.1 Values
 
-The X.509 templating system includes a few functions for encoding ASN.1 values.
-Use these functions to populate custom OID `extensions`:
+_This is section is for advanced use cases that require
+custom extensions or special encodings of data inside certificates.
+Most users are best served by `step-ca`'s higher-level template functions._
+
+The templating system in `step-ca` includes a few functions for encoding ASN.1 values.
+
+ASN.1 (Abstract Syntax Notation 1) is a standard
+from the 1980s that define the data structures
+and format of an X.509 certificate.
+X.509 certificates are encoded using ASN.1,
+then serialized into binary using DER (Distinguished Encoding Rules)
+before being (optionally) PEM-encoded with Base64.
+
+Use these functions to populate custom certificate OID `extensions`:
 
 ```
 "extensions": [
@@ -362,109 +506,6 @@ from your provisioner's [configuration block](#configuring-the-ca-to-use-templat
     This is because the CA usually uses a different <a href="https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/sshutil/templates.go#L152">default template for admin users</a>.
   </div>
 </Alert>
-
-## Time formatting
-
-In addition to the time formatting functions offered by [Sprig](http://masterminds.github.io/sprig/),
-`step-ca` has added some additional convenience functions for X.509 and SSH templates:
-
-| Function | Description |
-|----------|-------------|
-| `toTime 1719970524` | Returns a `time.Time` in UTC from a Unix epoch. |
-| `formatTime (now)` | Returns the UTC time as an RFC3339-formatted string.<br />Example output: `2006-01-02T15:04:05Z07:00` |
-| `parseTime` | Returns the current time in UTC. |
-| `parseTime "2024-07-03T01:30:39Z"` | Parses a time string using RFC3339 format and returns a `time.Time` object. |
-| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024"` | Parses a time string using the `time.UnixDate` layout.<br />Returns a `time.Time` object in UTC. |
-| `parseTime "time.UnixDate" "Tue Jul  2 18:31:04 PDT 2024" "America/Los_Angeles"` | Parses a time string using the `time.UnixDate` layout and a specified [time zone identifier](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones), returning a `time.Time` object. |
-| `mustParseTime` | Same as `parseTime` but returns an error if the time could not be parsed. |
-| `toTimeLayout "RFC3339"` | Returns the [predefined layout string](https://pkg.go.dev/time#pkg-constants).<br />Example output: `2006-01-02T15:04:05Z07:00` |
-| `toTimeLayout "time.UnixDate"` | Example output: `Mon Jan _2 15:04:05 MST 2006` |
-
-## Configuring `step-ca` to Use Templates
-
-Within provisioner configuration, certificate templates can be set
-under the property `"options"`.
-The following snippet shows a provisioner with custom X.509 and SSH templates:
-
-```json
-{
-  "type": "JWK",
-  "name": "jane@doe.com",
-  "key": {
-      "use": "sig",
-      "kty": "EC",
-      "kid": "lq69QCCEwEhZys_wavar9RoqRLdJ58u_OGzJK0zswSU",
-      "crv": "P-256",
-      "alg": "ES256",
-      "x": "pt7T0n98qREZUkyUX6b4kXJ5FkJlIdiMfJaLFclZIng",
-      "y": "Pw1y1xqe4g4YARwyBSkEkcjNrtPYxdKlYDLI512t2_M"
-  },
-  "encryptedKey": "eyJhbGciOiJQQkVTMi1IUzI1NitBMTI4S1ciLCJjdHkiOiJqd2sranNvbiIsImVuYyI6IkEyNTZHQ00iLCJwMmMiOjEwMDAwMCwicDJzIjoiQ1dWZG5zWTR2bGZJbG9BQ1dOaUdNUSJ9.12dowlkvESpxJgrNJgP2ELDQz750HSh2w6Ux6BmatBE5-ybAJFFO7g.1cjU2-CTrV3gbUE7.m8a95nv4qLnN_K_PG7lzgzYXBGnw_aHCf-znJ34AZxzPy2QDGGEjN_V0jX3kvHH9AIg3cs8I8NRm__RDm2iezU5AhPoAHaqnPnZdKh0ReBZ4hNpYXUHlTPf4fRaCXXDQiKatxNzCMBpyqKpudf3xYUzZPRNMN78WM0ZeIzmv_jFzbryOpxD8bJ3Bnxa4e8Am_pPdAANHphodlKN2nDr4701OLKgitImm8RoA20sWdAI_LkTS_Abk_TqBo_3qOGdjmnRBtATFSu3BdQw5wZMjywfwCWKXUK_OUt-cjVIe11xUT43SoE8fR2GJJEKomAHP0vn0MUUMqY9P9icUejw.eEYI_H7WfrYDL4yhsnsJxg",
-  "claims": {
-    "enableSSHCA": true
-  }
-  "options": {
-    "x509": {
-      "templateFile": "templates/certs/x509/leaf.tpl",
-      "templateData": {
-        "OrganizationalUnit": "Engineering Team"
-      }
-    },
-    "ssh": {
-      "templateFile": "templates/certs/ssh/host.tpl"
-    }
-  }
-}
-```
-
-- **options**: object that allows configuration of provisioner options e.g. templates.
-
-  - **x509** or **ssh**: object for configuring X.509 or SSH certificate template options.
-
-    - **templateFile**: path to a template stored on disk. You have a few options for how to define your path:
-
-        - **_absolute path_**:  e.g. `/home/mariano/path/to/file.ptl`
-        - **_relative to `$(step path)`_**: e.g. `templates/certs/x509/leaf.tpl` the actual
-          location of which would be `$(step path)/templates/certs/x509/leaf.tpl`.
-        - **_relative to the execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
-
-    - **templateData**: defines variables that can be used in the template.
-      In the example above, you will be able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,
-      for example in a template like:
-
-        ```json
-        {
-            "subject": {
-                "organizationalUnit": {{ toJson .OrganizationalUnit }},
-                "commonName": {{ toJson .Subject.CommonName }}
-            },
-            "sans": {{ toJson .SANs }},
-            "keyUsage": ["digitalSignature"],
-            "extKeyUsage": ["serverAuth", "clientAuth"]
-        }
-        ```
-
-    - **template**: set the full template in a string. The value can be the
-      string representation of a JSON object, or you encoded in Base64. For
-      example: 
-
-        ```json
-        {
-            "x509": {
-                "template": "{{ toJson .Insecure.CR }}",
-            }
-        }
-        ```
-
-        Or using Base64:
-
-        ```json
-        {
-            "x509": {
-                "template": "e3sgdG9Kc29uIC5JbnNlY3VyZS5DUiB9fQ==",
-            }
-        }
-        ```
 
 ### Basic X.509 Template Examples
 
