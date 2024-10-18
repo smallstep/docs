@@ -750,8 +750,8 @@ template:
 Given a root certificate and a key, you can generate the intermediate with:
 
 ```shell
-step certificate create —template intermediate.tpl --ca root_ca.crt --ca-key root_ca_key \
-     “Intermediate CA” intermediate.crt intermediate.key
+step certificate create --template intermediate.tpl --ca root_ca.crt --ca-key root_ca_key \
+     "Intermediate CA" intermediate.crt intermediate.key
 ```
 
 Besides `"permittedDNSDomains"`, the `"nameConstraints"` property accepts all
