@@ -102,7 +102,7 @@ Each device’s `instanceID` should be set according to the device type:
 - For AWS EC2 instances, use the EC2 instance ID (eg. [`i-0d460b88a96dfdd08`](https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#InstanceDetails:instanceId=i-0d460b88a96dfdd08))
 - For Azure VMs, use the managed identity principal object ID
 - For Compute Engine VMs, use the instance ID (eg. `16979701088048819`)
-- For TPM devices, use the TPM’s EKpub URI (see our [TPM documentation](https://www.notion.so/Bootstrap-device-trust-using-device-attestation-with-Smallstep-f1dc366a17bf4e628520aabfa18b5b80?pvs=21) for details)
+- For TPM devices, use the TPM’s EKpub URI (see our [TPM documentation](https://smallstep.notion.site/Bootstrap-device-trust-using-TPM-device-attestation-with-Smallstep-f1dc366a17bf4e628520aabfa18b5b80?pvs=4) for details)
  
 Use the `data` field to store any relevant instance metadata, such as:
  
@@ -113,4 +113,4 @@ Use the `data` field to store any relevant instance metadata, such as:
     
 The agent will only need your `team` name and `fingerprint` for bootstrapping.
 
-See [Smallstep Agent Quickstart](https://www.notion.so/Smallstep-agent-quickstart-124d5474fdf34ebab4f86b4bb6b0aaad?pvs=21) for details.
+See [Smallstep Agent Quickstart](https://smallstep.notion.site/Install-the-Smallstep-agent-on-a-Linux-server-11bd17a91249809f8127faffbb6b6263?pvs=4) for details.
