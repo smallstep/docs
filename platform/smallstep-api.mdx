@@ -102,7 +102,6 @@ Each device’s `instanceID` should be set according to the device type:
 - For AWS EC2 instances, use the EC2 instance ID (eg. [`i-0d460b88a96dfdd08`](https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#InstanceDetails:instanceId=i-0d460b88a96dfdd08))
 - For Azure VMs, use the managed identity principal object ID
 - For Compute Engine VMs, use the instance ID (eg. `16979701088048819`)
-- For TPM devices, use the TPM’s EKpub URI (see our [TPM documentation](https://smallstep.notion.site/Bootstrap-device-trust-using-TPM-device-attestation-with-Smallstep-f1dc366a17bf4e628520aabfa18b5b80?pvs=4) for details)
  
 Use the `data` field to store any relevant instance metadata, such as:
  
