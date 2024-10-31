@@ -72,12 +72,10 @@ Every Smallstep team has one Account Certificate Authority (CA). For each accoun
 
 After the Agent has obtained a device identity certificate from the Agent CA, it uses this certificate to obtain the necessary client certificate from the Account CA via an X5C provisioner. The Account CA trusts the Agent CA as a root of trust and verifies every request against the Agent CA’s public key.
 
-## Device Collection
-A Device Collection is a named group of specific devices of the same ***type***, which share configurations or policies.
+## Device Inventory
 
-A device type refers to a specific variant of a kind (such as VMs, laptops, or mobile phones) that runs the same OS (Windows, MacOS, Linux, iPadOS, or iOS), and comes from the same source (AWS, GCP, Azure, etc.). For instance, AWS VMs, Azure VMs, GCP VMs, and Linux laptops are different types of devices.
-
-Device Collections are useful for applying shared configurations.
+Your Device Inventory is your canonical list of corporate-owned devices.
+It forms the basis of your device-based authentication policies.
 
 ## Provisioners
 
