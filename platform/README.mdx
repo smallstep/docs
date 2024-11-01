@@ -10,7 +10,7 @@ Smallstep is a comprehensive device identity solution for securely identifying c
 
 As networks and resources become increasingly distributed — with SaaS moving sensitive resources off private networks and BYOD policies introducing personal devices — threats to data confidentiality grow more aggressive. Organizations are seeking more secure methods to ensure that only authorized users on authorized devices can access sensitive resources. Provisioning trusted devices with device-attested client certificates for accessing critical resources within your organisation is the most effective way to achieve this.
 
-Smallstep provides the means to use the strongest possible assurance of device identity to ensure that only trusted company-approved devices can enroll for client certificates to access sensitive organisational resources. This procedure is facilitated through the [ACME device attestation enrolment](https://smallstep.com/blog/managed-device-attestation/), effectively protecting your organisation from data breaches caused by credential compromise or phishing.  
+Smallstep provides the means to use the strongest possible assurance of device identity to ensure that only trusted company-approved devices can enroll for client certificates to access sensitive organisational resources. This procedure is facilitated through the [ACME device attestation enrollment](https://smallstep.com/blog/managed-device-attestation/), effectively protecting your organization from data breaches caused by credential compromise or phishing.  
 
 With Smallstep, IT/Security/Network Engineers can assign certificates to devices and configure the things that rely on those certificates correctly without needing to know much about PKI. 
 
@@ -33,7 +33,7 @@ But can such device identity be trusted if an independent infallible entity does
 
 Claiming device identity should be as substantiated as declaring one's citizenship. Just as one must provide a passport, attested and signed by their nation's government to prove their citizenship, a device should also offer some form of attestation to establish its identity.
 
-Take the SCEP enrolment process ubiquitously employed by MDM platforms. 
+Take the SCEP enrollment process ubiquitously employed by MDM platforms. 
 
 The Simple Certificate Enrollment Protocol (SCEP) [[**RFC**](https://en.wikipedia.org/wiki/RFC_(identifier)) [**8894**](https://datatracker.ietf.org/doc/html/rfc8894)] simplifies the process of issuing certificates to devices and 'verifying their identity' on a network. The process starts with an employee initiating enrollment through authentication with an MDM agent or link. The employee's device then receives a SCEP payload. This payload contains enrollment instructions, a SCEP server URL, and a challenge password, which the device then uses to obtain a certificate from the organisation's Certificate Authority (CA).
 
