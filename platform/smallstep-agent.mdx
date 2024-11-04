@@ -1,0 +1,263 @@
+---
+title: Smallstep Agent
+html_title: Install the Smallstep Agent on a Linux endpoint
+description: The Smallstep agent is used across security, IT, and DevOps teams to enable end-to-end network encryption, privileged access management, passwordless authentication, and much more.
+---
+
+While macOS and Windows can manage certificates and authentication settings via Mobile Device Management (MDM), Linux does not include automated remote management facilities. The Smallstep Agent brings vital certificate management features to your Linux users and endpoints. It is the [Smallstep App](./smallstep-app.mdx), without any GUI. It can be installed independently on any Linux device running systemd.
+
+Linux users should install either the Smallstep Agent or the Smallstep App&mdash;not both.
+
+In this document, we will install, configure, and start the Smallstep Agent on a Linux device running systemd. We also show how to use the agent’s built-in PKCS#11 (smart card) service. With the PKCS#11 service, you can access Smallstep certificates and keys from applications that support PKCS#11.
+
+# System Requirements
+
+- Supported operating systems:
+    - Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
+    - Ubuntu (Current Stable and LTS)
+    - Debian (Current Releases)
+    - Fedora (Current Releases)
+- We support `amd64` and `arm64` architectures
+- The following package dependencies will be installed:
+    - `polkitd`, to assign service manager privileges to the agent
+    - `p11-kit` and `tpm-tss2`, for TPM 2.0 integration
+- The following directories are used by default:
+    - runtime state in `/run/step-agent`
+    - configuration in `/etc/step-agent`
+    - certificates in`/var/lib/step-agent` and in your configured locations
+- The agent will connect to the following Smallstep hosts:
+    - Your CA:  `<your-team>.ca.smallstep.com` and subdomains
+    - Agent API: `control.infra.smallstep.com`
+    - Smallstep API: `gateway.smallstep.com`
+    - TPM Attestation CA: `att.smallstep.com`
+
+# Quick Install
+
+On a system with `bash` and `curl`, run the following **as root**:
+
+```bash
+curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bash
+```
+
+
+# Manual Install
+
+### Fedora
+
+1. In the Terminal, add our package repository to your system:
+    
+    ```bash
+    cat << EOF | sudo tee /etc/yum.repos.d/smallstep.repo
+    [smallstep]
+    name=Smallstep
+    baseurl=https://packages.smallstep.com/stable/fedora/
+    enabled=1
+    repo_gpgcheck=0
+    gpgcheck=1
+    gpgkey=https://packages.smallstep.com/keys/smallstep-0x889B19391F774443.gpg
+    EOF
+    ```
+    
+2. Install the Smallstep agent:
+    
+    ```bash
+    sudo dnf makecache && sudo dnf install -y step-agent-plugin
+    ```
+    
+3. Check that it was installed correctly:
+    
+    ```bash
+    step-agent-plugin version
+    ```
+    
+    Output:
+    
+    ```bash
+    🚀 step-agent-plugin/0.38.0 (linux/amd64)
+       Release Date: 2024-10-10T14:55:48Z
+    ```
+    
+
+### Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
+
+1. In the Terminal, add our package repository to your system:
+    
+    ```bash
+    cat << EOF | sudo tee /etc/yum.repos.d/smallstep.repo
+    [smallstep]
+    name=Smallstep
+    baseurl=https://packages.smallstep.com/stable/el/
+    enabled=1
+    repo_gpgcheck=0
+    gpgcheck=1
+    gpgkey=https://packages.smallstep.com/keys/smallstep-0x889B19391F774443.gpg
+    EOF
+    ```
+    
+2. Install the Smallstep agent:
+    
+    ```bash
+    sudo dnf makecache && sudo dnf install -y step-agent-plugin
+    ```
+    
+3. Check that it was installed correctly:
+    
+    ```bash
+    step-agent-plugin version
+    ```
+    
+    Output:
+    
+    ```bash
+    🚀 step-agent-plugin/0.38.0 (linux/amd64)
+       Release Date: 2024-10-10T14:55:48Z
+    ```
+    
+
+## Debian
+
+1. In the Terminal, install dependencies:
+    
+    ```bash
+    sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gpg ca-certificates
+    ```
+    
+2. Add our package repository to your system:
+    
+    ```bash
+    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
+        echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://pkgs.infra.smallstep.com/stable/debian debs main' \
+        | sudo tee /etc/apt/sources.list.d/smallstep.list
+    ```
+    
+3. Install the Smallstep agent:
+    
+    ```bash
+    sudo apt-get update && sudo apt-get -y install step-agent-plugin
+    ```
+    
+4. Check that it was installed correctly:
+    
+    ```bash
+    step-agent-plugin version
+    ```
+    
+    Output:
+    
+    ```bash
+    🚀 step-agent-plugin/0.38.0 (linux/amd64)
+       Release Date: 2024-10-10T14:55:48Z
+    ```
+    
+
+## Ubuntu
+
+1. In the Terminal, install dependencies:
+    
+    ```bash
+    DEBIAN_FRONTEND=noninteractive
+    sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gpg ca-certificates
+    ```
+    
+2. Add our package repository to your system:
+    
+    ```bash
+    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
+        echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
+        | sudo tee /etc/apt/sources.list.d/smallstep.list
+    ```
+    
+3. Install the Smallstep agent
+    
+    ```bash
+    sudo apt-get update && sudo apt-get -y install step-agent-plugin openssl-tpm2-engine
+    ```
+    
+4. Check that it was installed correctly
+    
+    ```bash
+    step-agent-plugin version
+    ```
+    
+    Output:
+    
+    ```bash
+    🚀 step-agent-plugin/0.38.0 (linux/amd64)
+       Release Date: 2024-10-10T14:55:48Z
+    ```
+    
+
+## Configure the agent
+
+Update `/etc/step-agent/agent.yaml` config file, with your Smallstep team ID and Smallstep Agent CA fingerprint.
+
+```jsx
+team: "yourteamname"
+fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
+```
+
+- Your `team` ID (team slug). This is the value after `/app/` in your Smallstep dashboard URL.
+- Your agent CA `fingerprint`. Find this value in your dashboard:
+    - In the Smallstep dashboard, select Authorities
+    - Select the Smallstep Agents authority
+    - Use the sha256 Root fingerprint displayed on this page
+
+## Register your device
+
+To register your Linux endpoint with Smallstep, run:
+
+```jsx
+step-agent-plugin register
+```
+
+## Start the Smallstep agent
+
+Finally, enable and start the agent:
+
+```jsx
+sudo systemctl daemon-reload
+sudo systemctl enable --now step-agent
+```
+
+If you get any errors, check the agent’s status:
+
+```jsx
+sudo systemctl status step-agent.service
+```
+
+## **PKCS#11 Support**
+
+The Smallstep agent provides a PKCS#11 server that can be used for a variety of integration use cases, such as NetworkManager and `wpa_supplicant` connections or web browser certificates. The PKCS#11 server is exposed as a UNIX socket at `$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`. 
+
+### Example usage: Google Chrome
+
+For this example, we’re using Ubuntu 24.04. The location of `p11-kit-client.so` may vary.
+
+Let’s make client certificates and keys from the agent available to Google Chrome via PKCS#11 tokens. We will use `modutil` and an NSS database. Google Chrome defaults to storing an NSS database in `~/.pki/nssdb`, so we can leverage that.
+
+To use Smallstep certificates in Chrome, run:
+
+```
+modutil -dbdir ~/.pki/nssdb -add step-agent \
+        -libfile /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so
+export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+```
+
+Next, start Chrome from the command line.
+
+In Chrome, you should now have access to certificates managed by Smallstep.
+
+For regular usage, add `P11_KIT_SERVER_ADDRESS` to your environment more permanently. For example, you might add `P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`  to your global `/etc/environment` file.
+
+### Troubleshooting
+
+The agent produces a log file or journal entries in systemd, depending on how it is installed and run.
+
+You can use tools like `pkcs11-tool` for troubleshooting PKCS#11 support:
+
+```bash
+pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
+         --list-slots
+```
+
+See the [p11-kit](https://p11-glue.github.io/p11-glue/p11-kit/manual/) documentation for more details.

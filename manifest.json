@@ -34,6 +34,10 @@
             {
               "title": "Smallstep App",
               "path": "/platform/smallstep-app.mdx"
+            },
+            {
+              "title": "Smallstep Agent",
+              "path": "/platform/smallstep-agent.mdx"
             }
           ]
         },
