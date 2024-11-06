@@ -114,7 +114,7 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bas
     ```
     
 
-## Debian
+### Debian
 
 1. In the Terminal, install dependencies:
     
@@ -150,7 +150,7 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bas
     ```
     
 
-## Ubuntu
+### Ubuntu
 
 1. In the Terminal, install dependencies:
     
@@ -189,7 +189,14 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bas
 
 ## Configure the agent
 
-Update `/etc/step-agent/agent.yaml` config file, with your Smallstep team ID and Smallstep Agent CA fingerprint.
+To configure the agent and register your Linux device with Smallstep, run:
+
+```jsx
+step-agent-plugin register
+```
+
+Alternatively, you can configure the agent manually.
+Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team ID and Smallstep Agent CA fingerprint.
 
 ```jsx
 team: "yourteamname"
@@ -202,13 +209,6 @@ fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
     - Select the Smallstep Agents authority
     - Use the sha256 Root fingerprint displayed on this page
 
-## Register your device
-
-To register your Linux endpoint with Smallstep, run:
-
-```jsx
-step-agent-plugin register
-```
 
 ## Start the Smallstep agent
 
