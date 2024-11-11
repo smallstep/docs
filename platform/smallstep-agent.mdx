@@ -1,12 +1,14 @@
 ---
-title: Smallstep Agent
+title: Smallstep Agent for Linux
 html_title: Install the Smallstep Agent on a Linux endpoint
 description: The Smallstep agent is used across security, IT, and DevOps teams to enable end-to-end network encryption, privileged access management, passwordless authentication, and much more.
 ---
+The Smallstep Agent for Linux is a background component of the [Smallstep Desktop App](./smallstep-app.mdx).
+Choose one or the other depending on your deployment needs.
 
-While macOS and Windows can manage certificates and authentication settings via Mobile Device Management (MDM), Linux does not include automated remote management facilities. The Smallstep Agent brings vital certificate management features to your Linux users and endpoints. It is the [Smallstep App](./smallstep-app.mdx), without any GUI. It can be installed independently on any Linux device running systemd.
+# Background
 
-Linux users should install either the Smallstep Agent or the Smallstep App&mdash;not both.
+While macOS and Windows can manage certificates and authentication settings via Mobile Device Management (MDM), Linux does not include automated remote management facilities. The Smallstep Agent brings vital certificate management features to your Linux users and endpoints. It can be installed independently on any Linux device running systemd.
 
 In this document, we will install, configure, and start the Smallstep Agent on a Linux device running systemd. We also show how to use the agent’s built-in PKCS#11 (smart card) service. With the PKCS#11 service, you can access Smallstep certificates and keys from applications that support PKCS#11.
 
