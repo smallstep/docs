@@ -1,19 +1,36 @@
 ---
-title: Create a new Certificate Authority or an intermediate CA from your existing PKI.
+title: Use step-ca with your existing CA
 html_title: Create an intermediate or subordinate CA from your existing PKI
 description: Use open-source step-ca to extend and automate existing PKI with modern protocols (ACME, OIDC, and more).
+updated_at: November 11, 2024
 ---
 
+Need to extend or migrate from an existing CA to a Smallstep CA?
 
-With open source `step-ca` or Smallstep Certificate Manager you can create an entirely new private PKI setup or an intermediate CA from your existing PKI. Intermediate CAs (also called subordinate CAs) are used to sign and issue leaf certificates to subscribers. Intermediates aren't generally included in trust stores, making them easier to revoke and rotate, so certificate issuance from an intermediate typically is online and automated.
+With this tutorial in hand, you can extend your current PKI
+by issuing a new intermediate CA (aka subordinate CA)
+from your existing root or intermediate CA.
+You'll configure `step-ca`
+to issue leaf certificates (aka end-entity certificates)
+from the new intermediate.
+This allows `step-ca` to run independently of your existing CA,
+while still issuing certificates trusted by your existing clients.
 
-This tutorial will walk you through three ways of bootstrapping `step-ca` to create new PKI or an intermediate CA.
+<Alert severity="info">
+  <div>
+    <b>Using Smallstep Certificate Manager?</b> <br />
+    See <a href="https://smallstep.com/docs/certificate-manager/byo-root">Bring Your Own Root for Certificate Manager</a>.
+  </div>
+</Alert>
+
+This tutorial covers three ways of bootstrapping a Smallstep CA
+using an existing PKI.
 
 ## About this tutorial
 
-- Learn how to stand up a new private certificate authority or create an intermediate CA to your existing PKI.
-- Examples include copy/paste code blocks and specific commands for Active Directory (ADCS), AWS Private CA (ACM-PCA), OpenSSL, and CFSSL.
-- When complete, you will have a fully functioning certificate authority or intermediate CA that can issue X.509 or SSH certificates. 
+- Explains how to sign a new intermediate CA from an existing CA
+- Examples include code blocks and specific commands for Active Directory (ADCS), AWS Private CA (ACM-PCA), OpenSSL, and CFSSL.
+- When complete, you will have a fully functioning certificate authority or intermediate CA that can issue X.509 certificates. 
 - Estimated effort: Reading time ~3 mins, Lab time ~10 to 60 mins. 
 
 <Alert severity="info">
@@ -24,16 +41,12 @@ This tutorial will walk you through three ways of bootstrapping `step-ca` to cre
 
 ## Requirements
 
-This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
-
-<Alert severity="info">
-  <div>
-    <b>Using Certificate Manager?</b> <br />
-    See <a href="https://smallstep.com/docs/certificate-manager/byo-root">Bring Your Own Root for Certificate Manager</a>.
-  </div>
-</Alert>
-
-
+This tutorial assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
+You'll also need the ability to sign a new intermediate CA
+using your existing CA.
+You can use your existing root
+or intermediate CA
+to sign the new intermediate CA.
 
 ## Overview
 
@@ -43,12 +56,16 @@ This tutorial assumes you have initialized and started up a `step-ca`instance us
 
 ## The Easy Way
 
+Let's configure `step ca` to
+sign a new intermediate for itself
+using your existing root CA.
+
 If you have your root CA signing key available, run:
 
 ```shell-session nocopy
 $ step ca init --root=[ROOT_CERT_FILE] --key=[ROOT_PRIVATE_KEY_FILE]
 ```
-**Note:**  The root certificate can be in PEM or DER format, and the signing
+**Note:** The root certificate can be in PEM or DER format, and the signing
 key can be a PEM file containing a PKCS#1, PKCS#8, or RFC5915 (for EC) key.
 
 ## The Medium Way
@@ -59,31 +76,31 @@ then all you'll need to do is move them to the right locations and update your
 
 ### 1. Use `step` to generate a boilerplate configuration
 
-It's easiest to run [`step ca init`](../step-cli/reference/ca/init) to get the boilerplate configuration in place, then remove or replace these artifacts with new ones that are tied to your existing root CA.
+It's easiest to run [`step ca init`](../step-cli/reference/ca/init) to get the boilerplate configuration in place, then remove or replace the auto-generated artifacts with new ones that are tied to your existing root CA.
 
 ```shell-session 
 $ step ca init
 ```
 
-When you run [`step ca init`](../step-cli/reference/ca/init) we create a couple artifacts under `~/.step/`. The important ones for us are:
+When you run [`step ca init`](../step-cli/reference/ca/init), it creates artifacts under [`$STEPPATH`](../step-cli/reference/path/) (by default, `$HOME/.step`). The important ones for us are:
 
- - `~/.step/certs/root_ca.crt` the CA certificate
- - `~/.step/secrets/root_ca_key` the CA signing key
- - `~/.step/certs/intermediate_ca.crt` the intermediate CA cert
- - `~/.step/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
+ - `$STEPPATH/certs/root_ca.crt` the CA certificate
+ - `$STEPPATH/secrets/root_ca_key` the CA signing key
+ - `$STEPPATH/certs/intermediate_ca.crt` the intermediate CA cert
+ - `$STEPPATH/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
 
 `step-ca` does not actually need the root CA signing key. So you can remove that file:
 
 ```shell
-shred -u ~/.step/secrets/root_ca_key
+$ shred -u $(step path)/secrets/root_ca_key
 ```
 
-### 2. Replace `step-ca`'s root CA cert and intermediate CA cert/key  with your existing PKI.
+### 2. Import your existing PKI
 
 ```shell-session nocopy
-$ mv root.crt ~/.step/certs/root_ca.crt
-$ mv intermediate.crt ~/.step/certs/intermediate_ca.crt
-$ mv intermediate_ca_key ~/.step/secrets/intermediate_ca_key
+$ mv root.crt $(step path)/certs/root_ca.crt
+$ mv intermediate.crt $(step path)/certs/intermediate_ca.crt
+$ mv intermediate_ca_key $(step path)/secrets/intermediate_ca_key
 ```
 
 Verify that the `$(step path)/config/ca.json` is pointing to the correct location
@@ -113,24 +130,24 @@ It's easiest to run [`step ca init`](../step-cli/reference/ca/init) to get the b
 $ step ca init
 ```
 
-When you run [`step ca init`](../step-cli/reference/ca/init) we create a couple artifacts under `~/.step/`. The important ones for us are:
+When you run [`step ca init`](../step-cli/reference/ca/init), it creates artifacts under [`$STEPPATH`](../step-cli/reference/path/) (by default, `$HOME/.step`). The important ones for us are:
 
- - `~/.step/certs/root_ca.crt` the CA certificate
- - `~/.step/secrets/root_ca_key` the CA signing key
- - `~/.step/certs/intermediate_ca.crt` the intermediate CA cert
- - `~/.step/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
+ - `$STEPPATH/certs/root_ca.crt` the CA certificate
+ - `$STEPPATH/secrets/root_ca_key` the CA signing key
+ - `$STEPPATH/certs/intermediate_ca.crt` the intermediate CA cert
+ - `$STEPPATH/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
 
 
 `step-ca` does not actually need the root CA signing key. So you can remove that file:
 
 ```shell
-rm ~/.step/secrets/root_ca_key
+$ shred -u $(step path)/secrets/root_ca_key
 ```
 
 ### 2. Replace `step-ca`'s root CA cert with your existing root certificate and generate a new signing key and intermediate certificate.
 
 ```shell-session nocopy
-$ mv  </path/to/your/existing/root.crt> ~/.step/certs/root_ca.crt
+$ mv /path/to/existing/root.crt $(step path)/certs/root_ca.crt
 ```
 
 Now you need to generate a new signing key and intermediate certificate signed by your existing root CA. To do that, we can use the [`step certificate create`](../step-cli/reference/certificate/create) subcommand to generate a certificate signing request (CSR) that we'll have your existing root CA sign, producing an intermediate certificate.
@@ -246,10 +263,51 @@ This process will yield a signed intermediate.crt certificate (or cert.pem for C
 Finally, replace the intermediate .crt and signing key produced by step ca init with the new ones we just created:
 
 ```shell-session nocopy
-$ mv intermediate.crt ~/.step/certs/intermediate_ca.crt
-$ mv intermediate_ca_key ~/.step/secrets/intermediate_ca_key
+$ mv intermediate.crt $(step path)/certs/intermediate_ca.crt
+$ mv intermediate_ca_key $(step path)/secrets/intermediate_ca_key
 ```
 
 That's it! You should now be able to start `step-ca` and generate X.509 certificates
 that can be validated and authenticated by any software that trusts your root 
 certificate.
+
+## FAQs
+
+### Can I have multiple intermediate CAs?
+
+Sure. Let's say you have a longer path of intermediate CAs:
+
+Existing Root -> Intermediate 1 -> Intermediate 2 -> `step-ca` Intermediate -> Leaf Certificate
+
+In this setup, you are creating the `step-ca` intermediate.
+For this to work, ensure that you're signing your a `step-ca` intermediate using Intermediate 2.
+
+For this to work, your `$(step path)/certs/intermediate_ca.crt` file should be a PEM bundle, in this order:
+- `step-ca` Intermediate
+- Intermediate 2
+- Intermediate 1
+
+It is critical that the `step-ca` intermediate come first in this file.
+
+Finally, `$(step path)/secrets/intermediate_ca_key` will be the signing key for `step-ca` Intermediate.
+
+### Can I configure `step-ca` to sign X.509 leaf certificates from a root CA?
+
+No. Intermediate CAs add a valuable layer of security and indirection to any PKI.
+Smallstep CA software requires the use of one or more intermediate CAs.
+
+### Can I have multiple signing CAs?
+
+Sure. Each `step-ca` instance
+will only sign using one intermediate CA, however.
+If you want multiple signing CAs,
+you'll need to run multiple `step-ca`s.
+
+### Instead of signing a new intermediate, can I have my existing online CA perform signing operations on behalf of `step-ca` clients?
+
+Maybe. It depends on which CA software you're using.
+You can configure `step-ca`
+to run as a [Registration Authority (RA)](../step-ca/registration-authority-ra-mode.mdx).
+In this mode, your existing CA continues to sign certificates,
+while your `step-ca` (running in RA mode) acts as a front-end interface to your existing CA.
+
