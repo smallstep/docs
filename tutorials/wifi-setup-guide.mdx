@@ -30,7 +30,7 @@ For MDM enrollment, we have integrations and tutorials for [Jamf](https://smalls
 
 ## On this page, you'll find: 
 
-- [Create a Wi-Fi Device Collection in Smallstep](#create-a-wi-fi-device-collection-in-smallstep)
+- [Protect a Wi-Fi Resource in Smallstep](#protect-a-wi-fi-resource-in-smallstep)
 - [Configure 802.1x EAP-TLS on any Access Point](#general-instructions-for-configuring-8021x-eap-tls-on-any-access-point)
 - Instructions for specific Access Points:
   - [Ubiquiti Unifi](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-ubiquiti-unifi)
@@ -44,29 +44,19 @@ For MDM enrollment, we have integrations and tutorials for [Jamf](https://smalls
   - [MikroTik](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-mikrotik)
   - [Sophos UTM](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-sophos-utm)
 
-## Create a Wi-Fi Device Collection in Smallstep
+## Protect a Wi-Fi Resource in Smallstep
 
-Before you configure an Access Point for EAP-TLS, you need create a Smallstep Wi-Fi Account and RADIUS server.
+Before you configure an Access Point for EAP-TLS, you need create a Smallstep Wi-Fi Resource.
 
-If you haven’t already, [sign up for a Smallstep account](https://smallstep.com/signup). In your Smallstep account, you’ll want to create a Mobile Device Collection, add a Wi-Fi Account to it, and add your client devices to the collection.
+If you haven’t already, [sign up for a Smallstep account](https://smallstep.com/signup) and add some devices for testing, under the Devices tab.
 
-1. Create a Device Collection.
-
-   [Sign into Smallstep](https://smallstep.com/app), go to the **Mobile Devices** tab, and choose **+ Add Collection**. Select **Any macOS, iPadOS, or iOS device** as the platform, and give your device collection a name.
-
-2. Add your device(s) to the device collection.
-
-   Use the serial number of the device as the Device Identifier when you create it.
-   You can find the serial number for your device under `Settings > General > About`,
-   or in `About This Mac`. Make sure you click "Register Device".
-
-3. Create a “Wi-Fi” account in your new Smallstep Device Collection
+1. [Sign into Smallstep](https://smallstep.com/app/?next=/protect/wifi). Under the Protect tab, go to Wi-Fi and Add a Wi-Fi resource.
 
    You’ll need to supply the Wi-Fi SSID you’ll use for WPA3 Enterprise 
    and your public-facing (WAN) IP address, so our RADIUS server can 
    identify requests from your network.
 
-4. When you’re finished, you’ll see your RADIUS server details. Use these when you configure your Access Point.
+2. When you’re finished, if you're using a Smallstep-managed RADIUS server, you’ll see your RADIUS server details. Use these details when you configure your Access Point.
 
 ## General Instructions for Configuring 802.1x EAP-TLS on any Access Point
 

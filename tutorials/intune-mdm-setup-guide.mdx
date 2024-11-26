@@ -12,7 +12,7 @@ In this tutorial, you will configure Smallstep and Microsoft Intune to establish
 You will:
 
 - Connect Microsoft Entra ID to Smallstep via an Entra ID App Registration.
-- Create and configure an Intune Device Collection in Smallstep
+- Configure an Intune Integration in Smallstep
 - Configure Intune to use Smallstep as a CA
 
 Once you've completed this tutorial, your Intune certificate enrollment process will look like this:
@@ -79,24 +79,20 @@ You’ve completed the App Registration setup.
 ## 3. Configure Smallstep
 
 In your Smallstep dashboard,
-visit the **Devices** tab,
-create a **+ New Collection**,
-choose **Intune Windows Devices**,
-and choose **Submit**.
+visit the **Integrations** tab,
+and choose **Intune**.
 
-Configure the Collection with the values you gathered above:
+Configure the integration with the values you gathered above:
 
-- The tenant **Primary domain**
 - The App Registration **Application (client) ID**
 - The App Registration **Secret Value**
+- The **Intune Tenant Name** (this is the tenant's primary domain)
 
-Once the Collection is created, you'll need to make a new Account.
-Choose **+ Add Account**.
-Choose either Wi-Fi or VPN, depending on what you need, and select Create.
+Once the integration is added, go to the Protect tab.
+Choose either Wi-Fi or VPN, depending on what you need, and add a Wi-Fi or VPN resource.
 This tutorial assumes you are configuring EAP-TLS Wi-Fi network access.
-
-Once you've created the Account, open the Account details.
-You cna keep this tab open as you configure Intune.
+Once you've created the Wi-Fi resource, open the Wi-Fi resource details page.
+You can keep this tab open as you configure Intune.
 
 To prepare for the next section:
 - Download your Root CA Certificate
