@@ -188,17 +188,17 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sud
 
 ## Configure the agent
 
-To configure the agent and register your Linux device with Smallstep, run:
+To configure the agent and register your Linux device with your Smallstep team, run:
 
 ```jsx
-step-agent-plugin register
+step-agent-plugin register [team name]
 ```
 
 Alternatively, you can configure the agent manually.
-Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team ID and Smallstep Agent CA fingerprint.
+Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team name and Smallstep Agent CA fingerprint.
 
 ```jsx
-team: "yourteamname"
+team: "myteamname"
 fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
 ```
 
