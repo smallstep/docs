@@ -20,10 +20,7 @@ In this document, we will install, configure, and start the Smallstep Agent on a
     - Debian (Current Releases)
     - Fedora (Current Releases)
 - We support `amd64` and `arm64` architectures
-- The following package dependencies will be installed:
-    - `polkitd`, to assign service manager privileges to the agent
-    - `p11-kit` and `tpm-tss2`, for TPM 2.0 integration
-- The following directories are used by default:
+ The following directories are used by default:
     - runtime state in `/run/step-agent`
     - configuration in `/etc/step-agent`
     - certificates in`/var/lib/step-agent` and in your configured locations
@@ -35,10 +32,10 @@ In this document, we will install, configure, and start the Smallstep Agent on a
 
 # Quick Install
 
-On a system with `bash` and `curl`, run the following **as root**:
+On a system with `bash` and `curl`, run the following:
 
 ```bash
-curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bash
+curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo bash
 ```
 
 
