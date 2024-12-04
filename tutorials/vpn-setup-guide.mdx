@@ -1,5 +1,5 @@
 ---
-title: Configure Certificate-Based VPN With Smallstep
+title: Configure Your VPN Server For Certificate-Based VPN With Smallstep
 updated_at: June 11, 2024
 html_title: How to configure common VPN servers to use Smallstep for client and server certificate authentication
 description: This tutorial describes how to configure Smallstep with VPN servers for a high-security, certificate-based VPN server
@@ -27,15 +27,15 @@ to use Smallstep certificate authentication is broadly the same:
      Smallstep will need the Root Certificate for your VPN server,
      which it will pass along to clients for the purpose of creating a trusted connection.
 
-5. In Smallstep, under Mobile Devices, create a Device Collection.
-6. Create a VPN Account in the Device Collection,
-   using your VPN's Server Name (or IP address), Remote ID, and Root Certifcate
+5. In Smallstep, [go to Protect -> VPN](https://smallstep.com/app/?next=/protect/vpn) and **+ Add VPN**.
+   You may be asked for your VPN's Server Name (or IP address), Remote ID, and Root Certifcate
    (if it's a non-Smallstep server ceritificate, choose "Upload external root").
-7. Once you've saved the Account,
-   download the Root Certificate (in PEM format) from the VPN Account page.
+6. Once you've saved the VPN resource,
+   choose the VPN resource you just created,
+   and download the Root Certificate (in PEM format) from the VPN resource page.
    This is your Account CA.
-   Your devices will be issued VPN account certificates from your Account CA.
-8. Finally,
+   Your devices will be issued VPN account certificates from this CA.
+7. Finally,
    configure your VPN server to authenticate clients
    using the Account CA certificate you just downloaded from Smallstep.
 

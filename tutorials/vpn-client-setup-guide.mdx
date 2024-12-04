@@ -1,17 +1,41 @@
 ---
-title: Configure F5 SSL VPN with Smallstep
-updated_at: June 11, 2024
-html_title: How to configure an F5 VPN to use Smallstep for client and server certificate authentication
-description: This tutorial describes how to configure Smallstep with an F5 VPN server for a high-security, certificate-based access
+title: Configure Your VPN Client For Certificate-Based VPN With Smallstep
+updated_at: June 3, 2024
+html_title: How to configure common VPN servers to use Smallstep for client and server certificate authentication.
+description: This tutorial describes how to configure VPN servers for a high-security, certificate-based VPN with Smallstep.
 ---
 
-This tutorial describes how to configure an F5 VPN server for certificate-based authentication with Smallstep.
-The Smallstep app can then configure and issue certificates to your clients.
+Smallstep supports any Remote Access VPN that offers X.509 client certificate authentication.
+This includes IKEv2 VPN (using EAP-TLS), OpenVPN, and F5 SSL VPN.
+
+Site-to-site VPNs are not officially supported, but Smallstep can issue certificates for those.
+
+
+The following VPN clients are covered in this document:
+- [IKEv2 EAP-TLS VPN](#ikev2-eap-tls)
+- [F5 SSL VPN](#f5-ssl-vpn)
+- [OpenVPN](#openvpn)
+- [Cisco Meraki AnyConnect](#cisco-meraki-anyconnect)
+
+## IKEv2 EAP-TLS
+
+IKEv2 with EAP-TLS is a common standards-based VPN authentication method
+for end-user certificate-based authentication.
+
+VPN configurations can be created manually or using Mobile Device Management (MDM).
+
+General instructions for VPN configuration:
+For macOS, see [Set up a VPN Connection on Mac](https://support.apple.com/guide/mac-help/set-up-a-vpn-connection-on-mac-mchlp2963/14.0/mac/14.0)
+For Apple devices using MDM, see [VPN settings overview for Apple devices](https://support.apple.com/guide/deployment/vpn-settings-overview-dep2d2adb35d/web).
+For Windows, see [Connect to a VPN in Windows](https://support.microsoft.com/en-us/windows/connect-to-a-vpn-in-windows-3d29aeb1-f497-f6b7-7633-115722c1009c)
+
+
+## F5 Edge and F5 Access Clients
 
 Intended audience: Enterprise IT administrators
 Estimated time commitment: 1 hour
 
-## Introduction
+### Introduction
 
 In this tutorial, we will configure an F5 SSL VPN on [F5 BIG-IP® APM](https://www.f5.com/products/big-ip-services/access-policy-manager) to use Smallstep certificate-based authentication with mutual TLS.
 
@@ -21,7 +45,7 @@ You will need a BIG-IP® instance with Local Traffic (LTM) and Access Policy (AP
 
 This tutorial was tested on BIG-IP® VE v17.1.1 Build 0.2.6.
 
-## Overview of the setup
+### Overview of the setup
 
 For a complete setup, you will add the following to your F5 BIG-IP® configuration:
 
@@ -30,8 +54,6 @@ For a complete setup, you will add the following to your F5 BIG-IP® configurati
     The Access Profile also contains configuration for the VPN itself, including IP lease pools and DNS settings.
     
 - A Virtual Server which will serve your VPN traffic. This is where you’ll configure the mutual TLS handshake for your VPN server. The Virtual Server will accept client certificates from Smallstep, and use a server certificate from Smallstep.
-
-## Step-by-step instructions
 
 ### Access Profile
 
@@ -170,19 +192,18 @@ Finally, create a Virtual Server for port 443:
 
 Your VPN configuration is now ready for testing.
 
-### Further reading
+Further reading:
 
 - [F5: Configuring an HTTP virtual server to redirect to HTTPS using an iRule](https://my.f5.com/manage/s/article/K10090418)
 - [F5’s Dev/Central](https://community.f5.com/) Community support
 
 ---
 
-### Addendum: Creating an Access Profile manually
+### Creating an Access Profile manually
 
-This is an optional, alternative approach to creating the Access Profile.
-If you want to create an Access Profile manually instead of importing ours, do the following:
+If you want to create an Access Profile manually instead of importing one, do the following:
 
-#### Add a Network Access List
+### Add a Network Access List
 
 1. Go to Access → Connectivity / VPN → Network Access (VPN) → Network Access Lists
 2. Choose “Create…”
@@ -191,7 +212,7 @@ If you want to create an Access Profile manually instead of importing ours, do t
     - Customize the Customization Settings as desired
 3. Choose “Finished”
 
-#### Add an IPv4/IPv6 Lease Pool
+### Add an IPv4/IPv6 Lease Pool
 
 Add at least one lease IPv4 or IPv6 lease pool:
 
@@ -201,7 +222,7 @@ Add at least one lease IPv4 or IPv6 lease pool:
     - Start IP: `192.168.133.2`, for example
     - End IP: `192.168.133.254`, for example
 
-#### Add an Access Profile
+### Add an Access Profile
 
 1. Go to Access → Profiles / Policies and create an Access Profile
     - Name: `smallstep-vpn`
@@ -230,3 +251,11 @@ Add at least one lease IPv4 or IPv6 lease pool:
         
     - Finally, change the fallback Ending from Advanced Resource Assign to **Allow**
 
+## Juniper SSL-VPN
+
+See [Create a Remote Access VPN—Juniper Secure Connect](https://www.juniper.net/documentation/us/en/software/jweb-srx21.3/jweb-srx/topics/task/j-web-security-ipsec-remote-access-vpn-juniper-secure-connect-creating.html)
+
+## Cisco Meraki AnyConnect
+
+- [Server docs at meraki.net](https://learning.meraki.net/#/online-courses/3def4293-8b71-406f-ae12-ab0c1028261b)
+- [Client docs at meraki.net](https://documentation.meraki.com/MX/Client_VPN/AnyConnect_on_the_MX_Appliance/Client_deployment)
