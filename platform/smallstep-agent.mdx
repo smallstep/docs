@@ -20,10 +20,7 @@ In this document, we will install, configure, and start the Smallstep Agent on a
     - Debian (Current Releases)
     - Fedora (Current Releases)
 - We support `amd64` and `arm64` architectures
-- The following package dependencies will be installed:
-    - `polkitd`, to assign service manager privileges to the agent
-    - `p11-kit` and `tpm-tss2`, for TPM 2.0 integration
-- The following directories are used by default:
+ The following directories are used by default:
     - runtime state in `/run/step-agent`
     - configuration in `/etc/step-agent`
     - certificates in`/var/lib/step-agent` and in your configured locations
@@ -35,10 +32,10 @@ In this document, we will install, configure, and start the Smallstep Agent on a
 
 # Quick Install
 
-On a system with `bash` and `curl`, run the following **as root**:
+On a system with `bash` and `curl`, run the following:
 
 ```bash
-curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bash
+curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo bash
 ```
 
 
@@ -191,17 +188,17 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | bas
 
 ## Configure the agent
 
-To configure the agent and register your Linux device with Smallstep, run:
+To configure the agent and register your Linux device with your Smallstep team, run:
 
 ```jsx
-step-agent-plugin register
+step-agent-plugin register [team name]
 ```
 
 Alternatively, you can configure the agent manually.
-Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team ID and Smallstep Agent CA fingerprint.
+Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team name and Smallstep Agent CA fingerprint.
 
 ```jsx
-team: "yourteamname"
+team: "myteamname"
 fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
 ```
 
