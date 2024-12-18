@@ -695,7 +695,8 @@ You can leverage a hardware [YubiKey](https://www.yubico.com/)—and the [YubiKe
 * To enable YubiKey support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo)
 * You will need a YubiKey 5 series device that [supports the PIV application](https://www.yubico.com/store/compare/)
 * [Certificate slots](https://developers.yubico.com/PIV/Introduction/Certificate_slots.html) 9a, 9c, 9d, 9e, and 82-95 are supported
-* You can use the YubiKey for X.509 and SSH CAs
+* YubiKeys are supported for X.509 and SSH CAs
+* If you have trouble connecting to an inserted YubiKey, or if you're using multiple YubiKeys, you can specify the serial number in the URI, eg: `yubikey:serial=15907281`
 
 Please install the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) before you begin. You'll need it to create your PKI.
 
@@ -788,7 +789,7 @@ Finally, to enable your CA in `ca.json`, point the `root` and `crt` options to t
     "key": "yubikey:slot-id=83",
     "kms": {
         "type": "yubikey",
-        "uri": "yubikey:management-key=01020304...?pin-value=123456"
+        "uri": "yubikey:serial=15924352&management-key=01020304...?pin-value=123456"
     }
 }
 ```
