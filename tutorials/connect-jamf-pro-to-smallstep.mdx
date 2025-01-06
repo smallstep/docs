@@ -1,0 +1,195 @@
+---
+title: Connect Jamf Pro to Smallstep
+html_title: Connect Jamf Pro to Smallstep
+description: Configure Jamf Pro to deploy the Smallstep Agent and distribute certificates and configuration to Mac clients.
+---
+
+Smallstep can integrate with Jamf Pro to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Jamf Pro instance for use with your Smallstep team.
+
+# Prerequisites
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Jamf Pro](https://www.jamf.com/products/jamf-pro/) tenant
+- A [package distribution point](https://docs.jamf.com/10.35.0/jamf-pro/install-guide-linux/About_Distribution_Points.html) configured in Jamf Pro
+
+# Step-by-step instructions
+
+### 1. Create API Client in Jamf Pro
+
+This API client will allow Smallstep to read your Jamf device inventory and manage the webhooks necessary for ongoing inventory syncing.
+
+1. In Jamf Pro, choose ⚙️ **Settings**
+2. Under the **System** tab, choose **API Roles and Clients**
+3. Add an **API Role**
+    
+    Display name: Smallstep
+    
+    For Privileges, choose:
+    
+    - Read Mobile Devices
+    - Read Computers
+    - Webhooks: Create, Delete, Read, Update
+4. Next, in the **API Clients** tab, add a **Client**
+    - Display name: Smallstep
+    - API Roles: Smallstep
+    - Enabled: Yes, choose Enable
+    - Choose **Save**
+5. Choose **Generate client secret**
+6. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
+
+### 2. Connect Jamf to Smallstep
+
+Let’s add the Jamf API credentials you just created to Smallstep.
+
+1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
+2. Under Jamf, choose ➕ **Connect**
+3. Enter the API credentials from Jamf
+4. Choose **Add Platform.** Your device inventory will start syncing from Jamf to Smallstep.
+5. Temporarily save the **Webhook URL**, **Username**, and **Password** presented.
+
+### 3. Configure a SCEP Enrollment webhook in Jamf Pro
+
+Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during MDM enrollment. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
+
+1. In Jamf Pro, choose ⚙️ **Settings**
+2. Under the **Global** tab, Choose **Webhooks**
+3. Add a new Webhook
+    1. Display name: Smallstep
+    2. Webhook URL: (details from step #2)
+    3. Authentication Type: Basic
+        1. Basic Authentication Username: (details from step #2)
+        2. Basic Authentication Password: (details from step #2)
+        3. Basic Authentication Verify Password: (details from step #2)
+    4. Content Type: JSON
+    5. Webhook Event: SCEPChallenge
+4. Choose **Save**
+
+### 4. Create Agent Package for Distribution
+
+In this step, you’ll upload the Smallstep agent package to Jamf’s distribution network.
+
+1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+2. In Jamf Pro, choose ⚙️ **Settings**
+3. Under the **Computer Management** tab, Choose **Packages**
+4. Add a new Package
+    1. Display name: Smallstep Agent
+    2. Filename: (upload from step #1)
+5. Choose **Save**
+
+### 5. Create Agent Script
+
+This step will install a script on your client devices that bootstraps the connection between your devices and Smallstep.
+
+1. In Jamf Pro, choose ⚙️ **Settings**
+2. Under the **Computer Management** tab, Choose **Scripts**
+3. Add a new Script
+    1. In the **General tab**, for **Display Name**: `Smallstep Agent Install`
+    2. In the Script tab:
+        - Mode: `Shell/Bash`
+        - Content:
+            
+            ```json
+            launchctl stop com.smallstep.launchd.Agent
+            /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc install
+            
+            ```
+            
+4. Choose **Save**
+
+### 5. Create Agent Installation Policy
+
+Next, we’ll configure the Script we just created to run on your client devices.
+
+1. In Jamf Pro, choose 💻 **Computers**
+2. Under the **Content Management** tab, choose **Policies**
+3. Add a new **Policy**
+    1. Under Options → General:
+        - Display name: Smallstep Agent
+        - Trigger: Login
+        - Execution Frequency: Ongoing
+        
+        *Note: With this policy, the package will be installed at the device’s next check-in, typically within 15 minutes.*
+        
+    2. Under Options → Packages → Configure
+        - Choose the **Smallstep Agent** package you created earlier
+        - Distribution Point: (choose desired distribution point)
+        - Action: Install
+    3. Under Options → Scripts → Configure
+        - Add the **Smallstep Agent Install** script you created earlier
+    4. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
+4. Choose **Save**
+
+### 6. Configure Agent Enrollment Profile
+
+In this step, we’ll tie everything together by configuring Jamf to distribte the Smallstep Agent.
+
+1. In the Smallstep dashboard, choose **Certificate Manager**
+    1. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
+    2. Select the **Smallstep Agents** authority
+    3. Download the Root Certificate
+    4. Under the Provisioners section of the page, choose the provisioner beginning with **`integration-jamf`**
+    5. Temporarily save the **URL shown on the page, eg.** `https://agents.example.ca.smallstep.com/scep/integration-jamf-b967f507`
+2. In the Smallstep dashboard, choose ⚙️ **Settings** 
+    1. Temporarily save the **Team Slug** value
+3. In Jamf Pro, choose 🖥️ **Computers**
+4. Under the **Content Management** tab, Choose **Configuration Profiles**
+5. Add a new Configuration Profile
+    1. Choose **Options → General**
+        - Name: Smallstep
+    2. Add a [**Managed Login Items** payload](https://support.apple.com/guide/deployment/managed-login-items-payload-settings-dep07b92494/web)
+        - Rule type: **Bundle Identifier**
+        - Rule value: `com.smallstep.Agent`
+    3. Add a [**Certificate payload**](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/web)
+        - Certificate Name: **Smallstep Agents Authority**
+        - Certificate Option: **Upload**
+        - Certificate Upload: (upload the Root certificate you downloaded earlier)
+        - Allow all apps access: ☑️
+    4. Add a [**SCEP payload**](https://support.apple.com/guide/deployment/scep-payload-settings-dep495a6d79/web)
+        - URL: (paste the provisioner URL you saved earlier)
+        - Name: Smallstep
+        - Redistribute Profile: 7 days
+        - Challenge Type: Dynamic
+        - Key Size: 2048
+        - Allow all apps access: ☑️
+    5. Select Options → Application & Custom Settings → External Applications
+        
+        Add new custom settings:
+        
+        - Options → External Applications → Source: Custom Schema
+        - Options → External Applications → Preference Domain: `com.smallstep.Agent`
+        - Options → External Applications → Custom Schema
+            1. Choose Add Schema
+            2. Copy the following JSON in to the window and choose Save
+                
+                ```json
+                {
+                  "title": "Smallstep Agent (com.smallstep.agent)",
+                  "description": "Configure settings for the Smallstep Agent.",
+                  "properties": {
+                    "TeamSlug": {
+                      "type": "string",
+                      "title": "Smallstep Details: Team",
+                      "description": "The slug for your organization's Smallstep team, available in the Smallstep dashboard under Settings.",
+                      "property_order": 10
+                    },
+                    "Certificate": {
+                      "type": "string",
+                      "title": "Smallstep (Debug): Certificate URI",
+                      "description": "A KMS URI that points to a certificate that can be used for agent bootstrapping.",
+                      "property_order": 10
+                    }
+                  }
+                }
+                ```
+                
+            - Options → External Applications → Custom Schema → Smallstep Details: Team: (paste the Team Slug you saved earlier)
+            - Options → External Applications → Custom Schema → Smallstep Details: Certificate URI: `mackms:label=$PROFILE_IDENTIFIER;se=false;tag=`
+        1. Finally, set the profile scope:
+            1. Choose Edit
+            2. Set the desired scope. This should mirror the scope you chose when creating the Policy in step 5.
+            3. Choose Save
+
+Your Smallstep team is now linked to Jamf. The devices that you scoped will receive a certificate and have the agent installed and running.
+
