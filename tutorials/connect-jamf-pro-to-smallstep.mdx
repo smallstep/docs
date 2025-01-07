@@ -51,7 +51,7 @@ Let’s add the Jamf API credentials you just created to Smallstep.
 
 ### Configure a SCEP Enrollment webhook in Jamf Pro
 
-Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during a SCEP certificate request. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
+For compatibility reasons, Smallstep may use ACME or SCEP for certificate enrollment. The SCEP Enrollment webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during a SCEP request. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
 
 1. In Jamf Pro, choose ⚙️ **Settings**
 2. Under the **Global** tab, Choose **Webhooks**
