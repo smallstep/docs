@@ -46,7 +46,7 @@ Let’s add the Jamf API credentials you just created to Smallstep.
 1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
 2. Under Jamf, choose ➕ **Connect**
 3. Enter the API credentials from Jamf
-4. Choose **Add Platform.** Your device inventory will start syncing from Jamf to Smallstep.
+4. Choose **Add Platform**. Your device inventory will start syncing from Jamf to Smallstep.
 5. Temporarily save the **Webhook URL**, **Username**, and **Password** presented.
 
 ### 3. Configure a SCEP Enrollment webhook in Jamf Pro
@@ -90,10 +90,9 @@ This step will install a script on your client devices that bootstraps the conne
         - Mode: `Shell/Bash`
         - Content:
             
-            ```json
+            ```console
             launchctl stop com.smallstep.launchd.Agent
             /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc install
-            
             ```
             
 4. Choose **Save**
@@ -123,7 +122,7 @@ Next, we’ll configure the Script we just created to run on your client devices
 
 ### 6. Configure Agent Enrollment Profile
 
-In this step, we’ll tie everything together by configuring Jamf to distribte the Smallstep Agent.
+In this step, we’ll tie everything together by configuring Jamf to distribute the Smallstep Agent.
 
 1. In the Smallstep dashboard, choose **Certificate Manager**
     1. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
