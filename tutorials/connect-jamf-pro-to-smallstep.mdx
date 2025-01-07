@@ -16,7 +16,7 @@ You will need:
 
 # Step-by-step instructions
 
-### 1. Create API Client in Jamf Pro
+### Create an API Client in Jamf Pro
 
 This API client will allow Smallstep to read your Jamf device inventory and manage the webhooks necessary for ongoing inventory syncing.
 
@@ -39,7 +39,7 @@ This API client will allow Smallstep to read your Jamf device inventory and mana
 5. Choose **Generate client secret**
 6. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
 
-### 2. Connect Jamf to Smallstep
+### Connect Jamf to Smallstep
 
 Let’s add the Jamf API credentials you just created to Smallstep.
 
@@ -49,7 +49,7 @@ Let’s add the Jamf API credentials you just created to Smallstep.
 4. Choose **Add Platform**. Your device inventory will start syncing from Jamf to Smallstep.
 5. Temporarily save the **Webhook URL**, **Username**, and **Password** presented.
 
-### 3. Configure a SCEP Enrollment webhook in Jamf Pro
+### Configure a SCEP Enrollment webhook in Jamf Pro
 
 Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during a SCEP certificate request. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
 
@@ -66,7 +66,7 @@ Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to 
     5. Webhook Event: SCEPChallenge
 4. Choose **Save**
 
-### 4. Create Agent Package for Distribution
+### Create an Agent Package for Distribution
 
 In this step, you’ll upload the Smallstep agent package to Jamf’s distribution network.
 
@@ -78,7 +78,7 @@ In this step, you’ll upload the Smallstep agent package to Jamf’s distributi
     2. Filename: (upload from step #1)
 5. Choose **Save**
 
-### 5. Create Agent Script
+### Create an Agent Bootstrap Script
 
 This step will install a script on your client devices that bootstraps the connection between your devices and Smallstep.
 
@@ -97,7 +97,7 @@ This step will install a script on your client devices that bootstraps the conne
             
 4. Choose **Save**
 
-### 5. Create Agent Installation Policy
+### Create an Agent Installation Policy
 
 Next, we’ll configure the Script we just created to run on your client devices.
 
@@ -120,7 +120,7 @@ Next, we’ll configure the Script we just created to run on your client devices
     4. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
 4. Choose **Save**
 
-### 6. Configure Agent Enrollment Profile
+### Configure an Agent Enrollment Profile
 
 In this step, we’ll tie everything together by configuring Jamf to distribute the Smallstep Agent.
 
@@ -191,4 +191,10 @@ In this step, we’ll tie everything together by configuring Jamf to distribute 
             3. Choose Save
 
 Your Smallstep team is now linked to Jamf. The devices that you scoped will receive a certificate and have the agent installed and running.
+
+### Confirmation
+
+There's two ways to confirm installation on an endpoint:
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- Alternatively, on the device itself, run `/Applications/SmallstepAgent/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
 
