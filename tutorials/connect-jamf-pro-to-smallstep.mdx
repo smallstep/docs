@@ -12,7 +12,7 @@ You will need:
 
 - A [Smallstep team](https://smallstep.com/signup)
 - A [Jamf Pro](https://www.jamf.com/products/jamf-pro/) tenant
-- A [package distribution point](https://docs.jamf.com/10.35.0/jamf-pro/install-guide-linux/About_Distribution_Points.html) configured in Jamf Pro
+- A [package distribution point](https://learn.jamf.com/en-US/bundle/jamf-pro-install-guide-linux-current/page/About_Distribution_Points.html) configured in Jamf Pro
 
 # Step-by-step instructions
 
@@ -51,7 +51,7 @@ Let’s add the Jamf API credentials you just created to Smallstep.
 
 ### 3. Configure a SCEP Enrollment webhook in Jamf Pro
 
-Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during MDM enrollment. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
+Smallstep uses Dynamic SCEP certificate enrollment. This webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during a SCEP certificate request. The challenge string is injected into a [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
 
 1. In Jamf Pro, choose ⚙️ **Settings**
 2. Under the **Global** tab, Choose **Webhooks**
