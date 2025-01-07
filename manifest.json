@@ -38,6 +38,10 @@
             {
               "title": "Smallstep Agent for Linux",
               "path": "/platform/smallstep-agent.mdx"
+            },
+            {
+              "title": "Connect Jamf Pro to Smallstep",
+              "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             }
           ]
         },
