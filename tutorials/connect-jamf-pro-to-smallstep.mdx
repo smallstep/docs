@@ -6,6 +6,8 @@ description: Configure Jamf Pro to deploy the Smallstep Agent and distribute cer
 
 Smallstep can integrate with Jamf Pro to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Jamf Pro instance for use with your Smallstep team.
 
+This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-jamf-pro).
+
 # Prerequisites
 
 You will need:
@@ -106,7 +108,7 @@ Next, we’ll configure the Script we just created to run on your client devices
 3. Add a new **Policy**
     1. Under Options → General:
         - Display name: Smallstep Agent
-        - Trigger: Login
+        - Trigger: Recurring Check-In
         - Execution Frequency: Ongoing
         
         *Note: With this policy, the package will be installed at the device’s next check-in, typically within 15 minutes.*
@@ -198,3 +200,70 @@ There's two ways to confirm installation on an endpoint:
 - In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
 - Alternatively, on the device itself, run `/Applications/SmallstepAgent/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
 
+
+# Uninstall Smallstep Agent with Jamf Pro
+
+You can easily remove a Smallstep Agent that was installed on macOS endpoints via Jamf Pro.
+
+### Remove the Agent Install Policy and Script
+
+If you still have the Policy and Script that install the Smallstep Agent, remove those first.
+
+1. In Jamf Pro, choose ⚙️ **Settings**
+2. Under the **Computer Management** tab, choose **Scripts**
+3. Delete the **Smallstep Agent Install** script
+4. In Jamf Pro, choose 💻 **Computers**
+5. Under the **Computer Management** tab, choose **Policies**
+6. Delete the **Smallstep Agent** policy
+
+### Create an Agent Uninstall Script
+
+This step will install a script on your client devices that uninstalls the Smallstep Agent.
+
+1. In Jamf Pro, choose ⚙️ **Settings**
+2. Under the **Computer Management** tab, choose **Scripts**
+3. Add a new Script
+    1. In the **General tab**, for **Display Name**: `Smallstep Agent Uninstall`
+    2. In the Script tab:
+        - Mode: `Shell/Bash`
+        - Content:
+            
+            ```bash
+            launchctl stop com.smallstep.launchd.Agent
+            launchctl remove com.smallstep.launchd.Agent
+            
+            /Applications/SmallstepAgent/Contents/MacOS/SmallstepAgent uninstall
+            rm -rf /Applications/SmallstepAgent
+            if pkgutil --packages | grep -q com.smallstep.Agent; then
+            	pkgutil --forget com.smallstep.Agent
+            fi
+            ```
+
+4. Choose **Save**
+
+### Create a New Policy for Uninstallation
+
+Next, we’ll configure the Script we just created to run on your client devices.
+
+1. In Jamf Pro, choose 💻 **Computers**
+2. Under the **Content Management** tab, choose **Policies**
+3. Add a new **Policy**
+    1. Under Options → General:
+        - Display name: Smallstep Agent Uninstall
+        - Trigger: Recurring Check-in
+        - Execution Frequency: Ongoing
+        
+        *Note: With this policy, the package will be removed at the device’s next check-in, typically within 15 minutes.*
+
+    2. Under Options → Scripts → Configure
+        - Add the **Smallstep Agent Uninstall** script you created earlier
+    3. Under Scope, select your desired policy scope. The agent will be uninstalled from all devices in this scope.
+4. Choose **Save**
+
+### Confirm Uninstallation
+
+Use **Logs** in Jamf Pro to confirm the uninstallation process completed successfully.
+
+### Cleanup
+
+Once the agent is uninstalled from all endpoints, remove the Policy and Script you created above.
