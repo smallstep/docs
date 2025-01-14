@@ -550,7 +550,7 @@ There's a few things you should know before you deploy this setup:
   See below for an example.
 - Certificate renewal via `step ca renew` uses mutual TLS authentication by default.
   Mutual TLS is incompatible with application-layer reverse proxying.
-  When proxying traffic, pass `--mtls false` to `step ca renew`
+  When proxying traffic, pass `--mtls=false` to `step ca renew`
   (or set `STEP_MTLS` to `false`).
   This will trigger an alternative renewal flow that employs authentication tokens.
   (See `step ca renew --help` for more details.)
