@@ -232,7 +232,7 @@ This step will install a script on your client devices that uninstalls the Small
             launchctl stop com.smallstep.launchd.Agent
             launchctl remove com.smallstep.launchd.Agent
             
-            /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent uninstall
+            /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
             rm -rf /Applications/SmallstepAgent.app
             if pkgutil --packages | grep -q com.smallstep.Agent; then
             	pkgutil --forget com.smallstep.Agent
