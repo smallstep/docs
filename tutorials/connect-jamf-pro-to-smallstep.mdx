@@ -192,7 +192,9 @@ In this step, we’ll tie everything together by configuring Jamf to distribute 
             2. Set the desired scope. This should mirror the scope you chose when creating the Policy in step 5.
             3. Choose Save
 
-Your Smallstep team is now linked to Jamf. The devices that you scoped will receive a certificate and have the agent installed and running.
+Your Smallstep team is now linked to Jamf. Smallstep will do a partial sync of your device inventory from Jamf every hour, and a full sync every 8 hours.
+
+The devices that you scoped will receive a certificate and have the agent installed and running.
 
 ### Confirmation
 
