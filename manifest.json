@@ -34,13 +34,18 @@
             {
               "title": "Smallstep App",
               "path": "/platform/smallstep-app.mdx"
-            },
+            }
+          ]
+        },
+        {
+          "title": "Add Devices to Smallstep",
+          "routes": [
             {
-              "title": "Smallstep Agent for Linux",
+              "title": "Deploy to Linux",
               "path": "/platform/smallstep-agent.mdx"
             },
             {
-              "title": "Connect Jamf Pro to Smallstep",
+              "title": "Connect Jamf Pro",
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             }
           ]
