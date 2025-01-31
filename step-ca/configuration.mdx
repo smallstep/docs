@@ -101,8 +101,9 @@ the `--password-file` flag accepts
     "policy": {
       "x509": {
         "allow": {
-          "dns": ["*.local"]
-        }
+          "dns": ["server1.local", "server2.local"]
+        },
+        "allowWildcardNames": false
       },
       "ssh": {
         "user": {
@@ -251,6 +252,8 @@ the `--password-file` flag accepts
   Other options can [turn `step-ca` into a Registration Authority](./registration-authority-ra-mode.mdx): `stepcas` uses a remote `step-ca` instance as the backend, `cloudcas` uses Google CloudCAS, `vaultcas` uses Hashicorp Vault.
 
   - **template**: default ASN1DN values for new certificates. See [Templates](./templates.mdx).
+
+  - **policy**: authority-wide policy for certificate identifiers. See [Policies](./policies.mdx).
 
   - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
 
