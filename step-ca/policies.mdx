@@ -83,7 +83,20 @@ A rule for `*.éxàmplê.com` will internally be represented using its internati
 This rule will match `www.éxàmplê.com` as well as its internationalized representation `www.xn–xmpl-0na6cm.com` (and other subdomains).
 
 By default it is not possible to request a certificate with a literal wildcard character in the domain, like `*.example.com`.
-It is possible to configure the policy to allow this.
+It is possible to configure the policy to allow this:
+
+```
+"policy": {
+    "x509": {
+        "allow": {
+            "dns": ["*.example.com"]
+        }
+        "allowWildcardNames": true
+    }
+}
+ 
+```
+
 
 #### Examples
 
@@ -287,7 +300,6 @@ An example is shown below:
             "dns": ["forbidden.local"],
             "ip": ["192.168.0.1"]
         },
-        "allowWildcardNames": false,
     },
     "ssh": {
         "user": {

@@ -8,13 +8,31 @@ Smallstep can integrate with Jamf Pro to synchronize your device inventory, and 
 
 This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-jamf-pro).
 
-# Prerequisites
+# Requirements & Limitations
 
 You will need:
 
 - A [Smallstep team](https://smallstep.com/signup) with Pro features enabled
 - A [Jamf Pro](https://www.jamf.com/products/jamf-pro/) tenant
 - A [package distribution point](https://learn.jamf.com/en-US/bundle/jamf-pro-install-guide-linux-current/page/About_Distribution_Points.html) configured in Jamf Pro
+
+Client requirements:
+
+- The agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  ```
+
+Limitations:
+
+- For VPN configurations, only IPSec VPNs are currently supported.
+- “Always-on VPN” or device-wide VPNs are not yet supported in Smallstep-managed configurations.
 
 # Step-by-step instructions
 
