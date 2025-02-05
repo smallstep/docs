@@ -95,6 +95,7 @@ Choose a renewal period that is two-thirds of the entire certificate's lifetime,
 
 * [Certbot](#certbot)
 * [acme.sh](#acmesh)
+* [lego](#lego)
 * [win-acme](#win-acme)
 * [Caddy v2](#caddy-v2)
 * [NGINX](#nginx)
@@ -196,6 +197,39 @@ Renewals are slightly easier since `acme.sh` remembers to use the right root cer
 
 ```
 0 */8 * * * root "/home/<user>/.acme.sh"/acme.sh --cron --home "/home/<user>/.acme.sh" --force > /dev/null
+```
+
+### lego
+
+[lego](https://go-acme.github.io/lego/) is another popular command-line ACME client.
+It's written completely in Go and works on all platforms (Windows, Linux, Mac).
+
+To get a certificate from `step-ca` using `lego` you need to:
+
+1. Point `lego` at your ACME directory URL using the `--server` flag
+2. Tell `lego` to trust your root certificate using the `LEGO_CA_CERTIFICATES` environment variable
+
+For example:
+
+```
+sudo LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" \
+  lego --email="you@example.com" -d foo.internal \
+  -s https://ca.internal/acme/acme/directory --http run
+```
+
+Like `certbot`, `lego` can solve the `http-01` challenge in [_standalone_ mode](https://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-the-built-in-web-server) and [_webroot_ mode](hhttps://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-an-existing-running-web-server).
+It can also solve the `dns-01` challenge for [many DNS providers](https://go-acme.github.io/lego/dns/index.html).
+
+You can [renew the certificates](https://go-acme.github.io/lego/usage/cli/renew-a-certificate/index.html) you've installed using `lego` by running:
+
+```shell
+sudo LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" lego --email=you@example.com -d foo.internal --http renew
+```
+
+You can automate renewal with a simple `cron` entry:
+
+```shell
+*/15 * * * * root LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" lego --email=you@example.com -d foo.internal --http renew
 ```
 
 ### win-acme
