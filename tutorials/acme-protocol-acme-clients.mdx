@@ -415,9 +415,9 @@ Hello, mike@smallstep.com`}
 
 ### Golang
 
-[lego][] is an ACME client library written in Go.
+[lego][] is an ACME client CLI and library written in Go.
 You can use it to obtain a certificate from `step-ca` programmatically.
-You can find an example of this code here: [https://gist.github.com/mmalone/abce3c30df96972ed47f3298543be345](https://gist.github.com/mmalone/abce3c30df96972ed47f3298543be345)
+You can find an example of this code here: [https://gist.github.com/ldez/e975a1026b704e55f1d1f85143b377b7](https://gist.github.com/ldez/e975a1026b704e55f1d1f85143b377b7)
 
 [lego]: https://github.com/go-acme/lego
 
@@ -430,12 +430,9 @@ Fetch the required dependencies and start the server:
 
 <CodeBlock
   language="shell-session"
-  copyText="go get golang.org/x/net/http2 && go get github.com/go-acme/lego && go run acme.go"
+  copyText="go run acme.go"
 >
-{`$ go get golang.org/x/net/http2
-$ go get github.com/go-acme/lego
-$ go run acme.go
-`}
+{`$ go run acme.go`}
 </CodeBlock>
 
 Then test with curl:
