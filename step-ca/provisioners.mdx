@@ -1285,7 +1285,7 @@ Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
 ```json
 {
     "type": "SCEP",
-    "name": "scepca",
+    "name": "my_scep_provisioner",
     "forceCN": true,
     "challenge": "secret1234",
     "minimumPublicKeyLength": 2048,
@@ -1323,7 +1323,7 @@ Enable this by filling in the `"insecureAddress"` property to your top-level CA 
 ```
 
 Finally, restart `step-ca`.
-Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
+Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/my_scep_provisioner`.
 
 <Alert severity="info">
   <div>
