@@ -41,6 +41,10 @@
           "title": "Add Devices to Smallstep",
           "routes": [
             {
+              "title": "Device Enrollment Guide",
+              "path": "/platform/enrollment-guide.mdx"
+            },
+            {
               "title": "Deploy to Linux",
               "path": "/platform/smallstep-agent.mdx"
             },
