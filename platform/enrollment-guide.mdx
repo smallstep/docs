@@ -6,7 +6,7 @@ description: There are several ways to add your devices to Smallstep. In this gu
 
 In this guide,
 we'll talk about different approaches you can take
-as you build yout device inventory in Smallstep.
+as you build your device inventory in Smallstep.
 
 It's worth restating the overall goal of this process:
 To build a high-assurance device inventory,
@@ -32,9 +32,8 @@ and they will be able to self-enroll devices
 using the [Smallstep Desktop App](./smallstep-app.mdx)
 or the [Smallstep Agent for Linux](./smallstep-agent.mdx).
 
-As the administrator,
-by default,
-you must approve each new device
+By default, administrators
+must approve a new device
 before it can access any of your resources.
 You can change this in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
@@ -49,9 +48,8 @@ via single sign-on,
 using the [Smallstep Desktop App](./smallstep-app.mdx)
 or the [Smallstep Agent for Linux](./smallstep-agent.mdx).
 
-As the administrator,
-by default,
-you must approve each new device
+By default, administrators
+must approve a new device
 before it can access any of your resources.
 You can change this in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
@@ -62,8 +60,10 @@ Once an MDM is synced,
 you can deploy the Smallstep Agent to your endpoints
 to enable high-assurance protections.
 
-Devices synced from an MDM inventory do not require manual approval.
-But, they will not be marked as high-assurance until Smallstep receives an attestation from the device.
+Devices synced from an MDM inventory
+are automatically approved,
+but they will not be marked as high-assurance
+until Smallstep receives an attestation from the device.
 
 For a concrete example,
 see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx)
@@ -73,8 +73,9 @@ see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.m
 
 You can import devices from any source into Smallstep using our API.
 
-Devices added via API do not require manual approval.
-But, they will not be marked as high-assurance until Smallstep receives an attestation from the device.
+Devices added via API are automatically approved.
+but they will not be marked as high-assurance
+until Smallstep receives an attestation from the device.
 
 #### Example: I have a list of device identifiers
 
@@ -83,10 +84,15 @@ For each device, use the [Save Collection Instance](https://gateway.smallstep.co
 - For Apple devices, the `instanceID` must be the device's serial number.
 - For TPM 2.0 devices, the `instanceID` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
 
-For the body of the request, use the following value, replacing `carl@smallstep.com` with the device owner's email address:
+For the body of the request,
+create a user using the following value 
+(replacing `carl@smallstep.com` with the device owner's email address):
 
 ```
 { "data": { "smallstep:identity": "carl@smallstep.com" } }
 ```
 
-Once added, you'll see the device in your Smallstep dashboard, under Recent Devices, and it will be automatically approved.
+Once added,
+you'll see the device in your Smallstep dashboard,
+under Recent Devices,
+and it will be automatically approved.
