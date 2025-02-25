@@ -6,9 +6,11 @@ description: The Smallstep platform is used across security, IT, and DevOps team
 
 With the Smallstep API, you can:
 
-- Register VMs with Smallstep as you spin them up, for instant trust bootstrapping
-- Integrate certificate lifecycle management into your Terraform and Ansible definitions
-- Programmatically manage CAs, SSH grants and tags, and more!
+- Register new devices in your Smallstep inventory
+- Manage your high-level protected resources, such as Wi-Fi or VPN configurations
+- Manage low-level resources like X.509 CAs, Attestation authorities, and provisioners
+- Manage hosts, host grants, and tags for [Smallstep SSH](../ssh/README.mdx)
+- And more!
 
 The Smallstep API is [OpenAPI conformant](https://www.openapis.org/), with JSON requests and responses.
 
@@ -18,7 +20,9 @@ The Smallstep API is [OpenAPI conformant](https://www.openapis.org/), with JSON 
 
 You can get an API token in two ways:
 - In your [Smallstep settings](https://smallstep.com/app?next=/settings). Under **API Tokens**, choose **+ Add Token.**
-- On the command line, using the [`step` CLI](https://smallstep.com/docs/step-cli/). The [`step api token create`](https://smallstep.com/docs/step-cli/reference/api/token/create/index.html) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token. To use this option, you must first configure a trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA. Only one trusted root CA may be configured.
+- On the command line, using the [`step` CLI](../step-cli/README.mdx). The [`step api token create`](../step-cli/reference/api/token/create/README.mdx) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token. To use this option, you must first configure a trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA. Only one trusted root CA may be configured.
+
+Your API token has a 10 year validity period and will only be displayed once. Please store it in a safe place!
 
 ### API Clients
 
@@ -26,19 +30,6 @@ You can get an API token in two ways:
 - [Smallstep API Python Client](https://github.com/smallstep/smallstep-python)
 
 ### Getting Started
-
-You’ll need an API token to get started. You can create one by [signing into the Smallstep dashboard](https://smallstep.com/app/). In the bottom-left **⋮** menu, go to **Settings**. Under **API Tokens**, choose **+ Add Token.**
-
-Your API token has a 10 year validity period and will only be displayed once. Please store it in a safe place!
-
-Once you have a token, try your first API call:
-
-```bash
-set +o history
-echo "Authorization: Bearer [your token]" > api_headers
-set -o history
-curl -sH @api_headers https://gateway.smallstep.com/api/users | jq
-```
 
 Output:
 
@@ -71,43 +62,46 @@ Output:
 ]
 ```
 
-### Configure Devices and Workloads via the API
+### Example: Add devices via the API
 
-Here’s the most common workflow for using the Smallstepi API, either directly or via the Terraform or Ansible integrations:
+You can import devices from any source into Smallstep using our API.
 
-#### 1. [Create a device collection](https://gateway.smallstep.com/operations/PutDeviceCollection).
-    
-Set the device type according to your deployment. Note that each device type is going to have its own `deviceTypeConfiguration` as well. For example, an Azure VM device will require you to set your Azure tenant ID, for access control.
-    
-You’ll register your individual devices in step 3.
-    
-#### 2. [Add workloads](https://gateway.smallstep.com/operations/PutWorkload).
-    
-This is where you set up your workload configuration. You can specify things like certificate SANs and duration, certificate and key file ownership and permissions, reload options for the workload, and so on.
+Devices added via API are automatically approved.
+but they will not be marked as high-assurance
+until Smallstep receives an attestation from the device.
 
-A single workload can be associated with multiple devices.
+#### Example: I have a list of device identifiers
 
-Have three HAProxy hosts in front of a fleet of `internal.example.com` web servers? That’s one workload.
+For each device, use the [Save Collection Instance](https://gateway.smallstep.com/v2023-11-01/operations/PutCollectionInstance) endpoint to create a device.
+- For the `collectionSlug`, use `default`
+- For Apple devices, the `instanceID` must be the device's serial number.
+- For TPM 2.0 devices, the `instanceID` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
 
-Have a PostgreSQL server with several hot standby servers? That’s one workload.
+For the body of the request,
+create a user using the following value 
+(replacing `carl@smallstep.com` with the device owner's email address):
 
-Have an etcd cluster comprised of three hosts? That’s one workload.
+```
+{
+  "data": {
+    "name": "Carl's MacBook Pro",
+    "smallstep:identity": "carl@smallstep.com"
+  }
+}
+```
 
-On this endpoint, you can use the `deviceMetadataKeySANs` property to dynamically map certificate SANs for each device that’s running a workload. Or, statically assign SANs for every certificate in the workload, using `staticSANs`.
-    
-#### 3. [Add devices to collection](https://gateway.smallstep.com/operations/PutCollectionInstance).
-     
-Each device’s `instanceID` should be set according to the device type:
- 
-- For AWS EC2 instances, use the EC2 instance ID (eg. [`i-0d460b88a96dfdd08`](https://us-east-2.console.aws.amazon.com/ec2/home?region=us-east-2#InstanceDetails:instanceId=i-0d460b88a96dfdd08))
-- For Azure VMs, use the managed identity principal object ID
-- For Compute Engine VMs, use the instance ID (eg. `16979701088048819`)
- 
-Use the `data` field to store any relevant instance metadata, such as:
- 
-- an instance’s region, name, or role(s)
-- DNS names (these can be mapped to a SANs using `deviceMetadataKeySANs`, above)
+Once added,
+the devices will be automatically approved.
 
-#### 4. Install the Smallstep app on each device.
-    
-See [Smallstep App](./smallstep-app.mdx) for details.
+You can see the device using the [ListCollectionInstances](https://gateway.smallstep.com/v2023-11-01/operations/ListCollectionInstances) endpoint:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your token]" > api_headers
+set -o history
+curl -sH @api_headers https://gateway.smallstep.com/api/collections/default/items | jq
+```
+
+Or, in your Smallstep dashboard,
+you'll see the device listed under Recent Devices.
+
