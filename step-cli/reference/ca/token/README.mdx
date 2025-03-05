@@ -24,6 +24,7 @@ step ca token <subject>
 [--cnf=<fingerprint>] [--cnf-file=<file>]
 [--ssh] [--host] [--principal=<name>] [--k8ssa-token-path=<file>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--set=<key=value>] [--set-file=<file>]
 ```
 
 ## Description
@@ -177,6 +178,12 @@ The path to the PEM `file` used as the root certificate authority.
 **--context**=`name`
 The context `name` to apply for the given command.
 
+**--set**=`key=value`
+The `key=value` pair with template data variables. Use the **--set** flag multiple times to add multiple variables.
+
+**--set-file**=`file`
+The JSON `file` with the template data variables.
+
 ## Examples
 
  Most of the following examples assumes that **--ca-url** and **--root** are
@@ -305,5 +312,17 @@ add the intermediate and the root in the provisioner configuration:
 $ step ca token --kms yubikey:pin-value=123456 \
   --x5c-cert yubikey:slot-id=82 --x5c-key yubikey:slot-id=82 \
   internal.example.com
+```
+
+Generate a token with custom data in the "user" claim. The example below can be
+accessed in a template as **{{ .Token.user.field }}**, rendering to the string
+"value".
+
+This is distinct from **.Insecure.User**: any attributes set using this option
+are added to a claim named "user" in the signed JWT produced by this command.
+This data may therefore be considered trusted (insofar as the token itself is
+trusted).
+```shell
+$ step ca token --set field=value internal.example.com
 ```
 
