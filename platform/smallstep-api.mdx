@@ -25,41 +25,8 @@ You can get an API token in two ways:
 
 ### API Clients
 
-- [Smallstep Terraform Provider](https://github.com/smallstep/terraform-provider-smallstep) ([Documentation](https://registry.terraform.io/providers/smallstep/smallstep/latest/docs))
 - [Smallstep API Python Client](https://github.com/smallstep/smallstep-python)
-
-### Getting Started
-
-Output:
-
-```bash
-[
-  {
-    "active": true,
-    "displayName": "Alice T",
-    "emails": [
-      {
-        "email": "alice@smallstep.com",
-        "primary": true
-      }
-    ],
-    "familyName": "T",
-    "givenName": "Alice",
-    "groups": [
-      {
-        "id": "a1028765-3d67-44b0-b51b-f7d76727f181",
-        "name": "admin"
-      },
-      {
-        "id": "eb4b75f0-a341-4dac-a52a-12d90d91b97d",
-        "name": "super-admin"
-      }
-    ],
-    "id": "4510f372-f4ba-4dc7-b6c2-ad22fdaaadb1",
-    "posixUsers": []
-  }
-]
-```
+- [Smallstep Terraform Provider](https://github.com/smallstep/terraform-provider-smallstep) ([Documentation](https://registry.terraform.io/providers/smallstep/smallstep/latest/docs))
 
 ### Example: Add devices via the API
 
@@ -68,8 +35,6 @@ You can import devices from any source into Smallstep using our API.
 Devices added via API are automatically approved.
 but they will not be marked as high-assurance
 until Smallstep receives an attestation from the device.
-
-#### Example: I have a list of device identifiers
 
 For each device, use the [Save Collection Instance](https://gateway.smallstep.com/v2023-11-01/operations/PutCollectionInstance) endpoint to create a device.
 - For the `collectionSlug`, use `default`
