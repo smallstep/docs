@@ -1,0 +1,126 @@
+---
+title: Configure Web Browser Certificates
+updated_at: March 11, 2025
+html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
+description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
+---
+
+## Before we begin
+
+Certificate-based authentication in web browsers
+offers excellent security characteristics, thanks to mutual TLS.
+However, the user experience has traditionally been poor,
+with mysterious certificate errors,
+confusing certificate selector dialogs,
+and differing behaviors between browsers.
+
+Smallstep addresses these issues
+by keeping certificates renewed,
+offering simple remediation flows when an error occurs,
+and ensuring that web browers are configured to find client certificates automatically,
+so the user can have a seamless experience.
+
+Smallstep browser certificates are available for macOS, Windows, and Linux endpoints.
+
+To prepare an endpoint to use browser client certificates from Smallstep:
+1. The endpoint should be [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
+2. A protected resource that uses browser certificates should be added to Smallstep. This could be a Browser resource, or the Smallstep Device IdP integration (eg. Smallstep for Okta).
+
+## macOS
+
+For this tutorial, we'll assume you're using Jamf Pro as your MDM.
+The steps are very similar for other MDMs, however.
+
+### Firefox
+
+A [configuration profile](https://support.mozilla.org/en-US/kb/customizing-firefox-macos-using-configuration-prof) can be used to set Firefox's certificate preferences
+so that the Smallstep certificate is automatically selected
+when a protected resource is accessed.
+
+1. In Jamf, navigate to **Computers > Configuration Profiles**
+2. Create a new Configuration Profile and find the **Application & Custom Settings** > **Upload** page.
+3. For Preference Domain, specify `org.mozilla.firefox`.
+4. Create a plist file called `org.mozilla.firefox.plist`, and populate it with the following:
+
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+     <dict>
+       <key>EnterprisePoliciesEnabled</key>
+       <true/>
+       <key>PayloadDisplayName</key>
+       <string>Firefox ESR Policies</string>
+       <key>PayloadEnabled</key>
+       <true/>
+       <key>PayloadIdentifier</key>
+       <string>org.mozilla.firefox.BCADDC78-843E-4112-936A-DAB8EEEF514C</string>
+       <key>PayloadType</key>
+       <string>org.mozilla.firefox</string>
+       <key>PayloadUUID</key>
+       <string>BCADDC78-843E-4112-936A-DAB8EEEF514C</string>
+       <key>PayloadVersion</key>
+       <integer>1</integer>
+       <key>Preferences</key>
+       <dict>
+         <key>security.default_personal_cert</key>
+         <string>Select Automatically</string>
+         <key>security.osclientcerts.autoload</key>
+         <true/>
+       </dict>
+     </dict>
+   </plist>
+   ```
+5. Upload the plist file to Jamf.
+6. Deploy the configuration profile to your test endpoint.
+
+To test the certificate, restart Firefox and visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+### Chrome
+
+A [configuration profile](https://support.google.com/chrome/a/answer/9020077?hl=en) can be used to set Chrome's certificate preferences
+so that the Smallstep certificate is automatically selected
+when a protected resource is accessed.
+
+1. In Jamf, navigate to **Computers > Configuration Profiles**
+2. Create a new Configuration Profile and find the **Application & Custom Settings** > **Upload** page.
+3. For Preference Domain, specify `com.google.Chrome`.
+4. Create a plist file called `com.google.Chrome.plist`, and populate it with the following:
+
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+     <dict>
+       <key>AutoSelectCertificateForUrls</key>
+       <array>
+         <dict>
+           <key>pattern</key>
+           <string>[Server URL]</string>
+           <key>filter</key>
+           <dict>
+              <key>ISSUER</key>
+              <dict>
+                <key>CN</key>
+                <string>Smallstep Accounts Intermediate CA</string>
+              </dict>
+           </dict>
+         </dict>
+       </array>
+     </dict>
+   </plist>
+   ```
+
+   Replace `[Server URL]` with the server that requires certificate authentication.
+   This field is an [Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
+
+5. Upload the plist file to Jamf.
+6. Deploy the configuration profile to your test endpoint.
+
+To test the certificate, restart Firefox and visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+### Safari
+
+Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist.
+
+

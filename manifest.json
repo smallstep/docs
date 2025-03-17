@@ -55,6 +55,15 @@
           ]
         },
         {
+          "title": "Configure Endpoints for Smallstep",
+          "routes": [
+              {
+                  "title": "Configure Browser Certificates",
+                  "path": "/tutorials/browser-certificate-setup-guide.mdx"
+              }
+          ]
+        },
+        {
           "title": "Smallstep for WPA-Enterprise Wi-Fi",
           "routes": [
             {
