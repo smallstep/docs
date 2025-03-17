@@ -55,7 +55,7 @@
           ]
         },
         {
-          "title": "Configure Endpoints for Smallstep",
+          "title": "Configure Devices for Smallstep",
           "routes": [
               {
                   "title": "Configure Browser Certificates",

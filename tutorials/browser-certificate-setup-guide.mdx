@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: March 11, 2025
+updated_at: March 17, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -114,6 +114,10 @@ when a protected resource is accessed.
    Replace `[Server URL]` with the server that requires certificate authentication.
    This field is an [Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
 
+   Note: According to [Understand Chrome policy management](https://support.google.com/chrome/a/answer/9037717),
+   Chrome will *not* merge multiple `AutoSelectCertificateForUrls` policies.
+   You must add all of your certificate selection preferences into a single managed configuration profile.
+
 5. Upload the plist file to Jamf.
 6. Deploy the configuration profile to your test endpoint.
 
@@ -121,6 +125,5 @@ To test the certificate, restart Firefox and visit `https://accounts.ca.[team-id
 
 ### Safari
 
-Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist.
-
+Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
 
