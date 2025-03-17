@@ -20,10 +20,10 @@ offering simple remediation flows when an error occurs,
 and ensuring that web browers are configured to find client certificates automatically,
 so the user can have a seamless experience.
 
-Smallstep browser certificates are available for macOS, Windows, and Linux endpoints.
+Smallstep browser certificates are available for macOS, Windows, and Linux devices.
 
-To prepare an endpoint to use browser client certificates from Smallstep:
-1. The endpoint should be [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
+To prepare an device to use browser client certificates from Smallstep:
+1. The device should be [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
 2. A protected resource that uses browser certificates should be added to Smallstep. This could be a Browser resource, or the Smallstep Device IdP integration (eg. Smallstep for Okta).
 
 ## macOS
@@ -72,9 +72,9 @@ when a protected resource is accessed.
    </plist>
    ```
 5. Upload the plist file to Jamf.
-6. Deploy the configuration profile to your test endpoint.
+6. Deploy the configuration profile to your test device.
 
-To test the certificate, restart Firefox and visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
 ### Chrome
 
@@ -119,11 +119,48 @@ when a protected resource is accessed.
    You must add all of your certificate selection preferences into a single managed configuration profile.
 
 5. Upload the plist file to Jamf.
-6. Deploy the configuration profile to your test endpoint.
+6. Deploy the configuration profile to a test device.
+7. On the device, restart Chrome and visit the [policies tab](chrome://policy/) to verify the applied policy.
 
-To test the certificate, restart Firefox and visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
 ### Safari
 
 Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
+
+To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+## Linux
+
+### Google Chrome
+
+First, we need to establish Root CA trust on the device.
+
+Next, we can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) Chrome policy to automatically select the client certificate without presenting a dialog:
+1. As root, create a policy file: `/etc/opt/chrome/policies/managed/auto_select_cert.json` 
+2. Add the following content:
+
+   ```
+   {
+       "AutoSelectCertificateForUrls": ["{\"pattern\":${url},\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]
+   }
+   ```
+
+   Replace `${url}` with the server that requires certificate authentication.
+   For example:
+   
+   ```json
+   {
+       "AutoSelectCertificateForUrls": ["{\"pattern\":\"https://example.id.smallstep.com\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]
+   }
+   ```
+
+3. Restart Chrome, and visit the [policies tab](chrome://policy/) to verify the applied policy.
+
+Finally, let's verify that the user has a client certificate from the Smallstep agent.
+1. Run `certutil -d sql:$HOME/.pki/nssdb -L`. You should see `Smallstep Accounts Intermediate CA` in the list.
+2. Restart Chrome, and verify that the client certificate is in <a href="chrome://settings/certificates">Chrome's Certificate Manager</a>
+Don't see it? Check that the Smallstep agent is installed correctly.
+
+To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
