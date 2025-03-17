@@ -187,7 +187,9 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sud
     ```
     
 
-## Configure the agent
+## Register the endpoint
+
+### Auto-registration
 
 To configure the agent and register your Linux device with your Smallstep team, run:
 
@@ -195,22 +197,25 @@ To configure the agent and register your Linux device with your Smallstep team, 
 sudo step-agent-plugin register [team name]
 ```
 
-Alternatively, you can configure the agent manually.
-Simply update `/etc/step-agent/agent.yaml` config file, with your Smallstep team name and Smallstep Agent CA fingerprint.
+### Manual registration
 
-```jsx
-team: "myteamname"
-fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
-```
+Alternatively, you can configure the agent manually:
+1. First, [register and approve your devices via API](./enrollment-guide.mdx#add-devices-via-api).
+2. On your endpoints, update the `/etc/step-agent/agent.yaml` config file with your Smallstep team name and Smallstep Agent CA fingerprint.
 
-- Your `team` ID (team slug). This is the value after `/app/` in your Smallstep dashboard URL.
-- Your agent CA `fingerprint`. Find this value in your dashboard:
-    - In the Smallstep dashboard, select Authorities
-    - Select the Smallstep Agents authority
-    - Use the sha256 Root fingerprint displayed on this page
+   ```jsx
+   team: "myteamname"
+   fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
+   ```
+
+   - Your `team` ID (team slug). This is the value after `/app/` in your Smallstep dashboard URL.
+   - Your agent CA `fingerprint`. Find this value in your dashboard:
+       - In the Smallstep dashboard, select Authorities
+       - Select the Smallstep Agents authority
+       - Use the sha256 Root fingerprint displayed on this page
 
 
-## Start the Smallstep agent
+## Start the agent
 
 Finally, enable and start the agent:
 
