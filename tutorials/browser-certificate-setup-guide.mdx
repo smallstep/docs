@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: March 17, 2025
+updated_at: March 20, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -32,6 +32,8 @@ For this tutorial, we'll assume you're using Jamf Pro as your MDM.
 The steps are very similar for other MDMs, however.
 
 ### Firefox
+
+#### Client certificate auto-selection
 
 A [configuration profile](https://support.mozilla.org/en-US/kb/customizing-firefox-macos-using-configuration-prof) can be used to set Firefox's certificate preferences
 so that the Smallstep certificate is automatically selected
@@ -77,6 +79,11 @@ when a protected resource is accessed.
 To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
 ### Chrome
+
+#### Authority configuration
+
+
+#### Client certificate auto-selection
 
 A [configuration profile](https://support.google.com/chrome/a/answer/9020077?hl=en) can be used to set Chrome's certificate preferences
 so that the Smallstep certificate is automatically selected
@@ -126,17 +133,61 @@ To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/he
 
 ### Safari
 
+#### Authority configuration
+
+Safari will trust CA certificates in Keychain Access, as long as their trust setting for SSL is turned on.
+The easiest way to deploy a trusted CA to a fleet of Apple devices is via MDM.
+
+#### Client certificate auto-selection
+
 Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
 
 To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
 ## Linux
 
+
 ### Google Chrome
 
-First, we need to establish Root CA trust on the device.
+#### Authority configuration
 
-Next, we can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) Chrome policy to automatically select the client certificate without presenting a dialog:
+Since Chrome trusts the Linux system trust store, we need to install the root CA certificate there.
+
+1. Copy your root CA certificate to the trusted location:
+
+   For Debian/Ubuntu:
+
+   ```
+   sudo cp your-root-ca.crt /usr/local/share/ca-certificates/your-root-ca.crt
+   ```
+
+   For RHEL/CentOS/Fedora:
+
+   ```
+   sudo cp your-root-ca.crt /etc/pki/ca-trust/source/anchors/your-root-ca.crt
+   ```
+
+2. Update the system CA store:
+
+   Debian/Ubuntu:
+
+   ```
+   sudo update-ca-certificates
+   ```
+
+   RHEL/CentOS/Fedora:
+
+   ```
+   sudo update-ca-trust
+   ```
+
+3. Restart your web browser
+
+Chrome trusts CA certificates installed in the system CA store.
+
+#### Client certificate auto-selection
+
+We can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) Chrome policy to automatically select the client certificate without presenting a dialog:
 1. As root, create a policy file: `/etc/opt/chrome/policies/managed/auto_select_cert.json` 
 2. Add the following content:
 
@@ -161,6 +212,26 @@ Finally, let's verify that the user has a client certificate from the Smallstep 
 1. Run `certutil -d sql:$HOME/.pki/nssdb -L`. You should see `Smallstep Accounts Intermediate CA` in the list.
 2. Restart Chrome, and verify that the client certificate is in <a href="chrome://settings/certificates">Chrome's Certificate Manager</a>
 Don't see it? Check that the Smallstep agent is installed correctly.
+
+To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+### Firefox
+
+#### Authority configuration
+
+Firefox has its own trust store for CAs.
+
+To install the root CA certificate, run:
+
+```
+step certificate install root_ca.crt --firefox
+```
+
+To confirm root CA trust, restart Firefox and visit <a href="about:certificate">about:certificate</a>. Navigate to the Authorities tab. `Smallstep Accounts Intermediate CA` should be listed there.
+
+#### Client certificate auto-selection
+
+Use the <a href="about:certificate">about:certificate</a> URL to see all of the client certificates installed in Firefox's certificate database.
 
 To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
