@@ -41,9 +41,9 @@ A few custom [functions for ASN.1 encoding](#asn1-values) and [time formatting](
 <Alert severity="warning">
   <div>
     <strong>Warning: Always wrap values in <code>toJson</code></strong><br />
-    In the templates on this page, variables are pulled into templates using <code>{`{{`} toJson .variableName {`}}`}</code> 
-    to sanitize the value of the variable.
-    When using templates, you must sanitize all variables using <code>toJson</code> to avoid template injection vulnerabilities.
+    In the templates on this page, constants are pulled into templates using <code>{`{{`} toJson .constantName {`}}`}</code> 
+    to sanitize the value of the constant.
+    When using templates, you must sanitize all constants using <code>toJson</code> to avoid template injection vulnerabilities.
   </div>
 </Alert>
 
@@ -125,8 +125,8 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
           location of which would be `$(step path)/templates/certs/x509/leaf.tpl`.
         - **_relative to the execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
 
-    - **templateData**: defines variables that can be used in the template.
-      In the example above, you will be able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,
+    - **templateData**: defines constants that can be used in the template.
+      In the example above, you are able to use the defined organizational unit as the constant `{{ .OrganizationalUnit }}`,
       for example in a template like:
 
         ```json
@@ -208,15 +208,15 @@ See [the complete list of fields supported in `step-ca` templates](https://githu
 
 <Alert severity="info" id="star11">
   <div>
-    <strong>A note on <code>.Insecure</code> variables</strong><br />
-    In templates, some variables are prefixed with <code>.Insecure</code>.
+    <strong>A note on <code>.Insecure</code> constants</strong><br />
+    In templates, some constants are prefixed with <code>.Insecure</code>.
     They contain information that has not been cryptographically signed
     by a source that the CA trusts.
-    For example, the <code>.Insecure.CR</code> variable holds the user-supplied Certificate Request.
+    For example, the <code>.Insecure.CR</code> map holds the user-supplied Certificate Request.
   </div>
 </Alert>
 
-Here are some common variables available in X.509 certificate templates:
+Here are some constants available in X.509 certificate templates:
 
 - **.Subject**:
   This is the subject that was passed in to `step certificate` or `step ca certificate`. Specifically,
@@ -243,6 +243,8 @@ Here are some common variables available in X.509 certificate templates:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
   this is an array of the certificate chain from the request.
   This chain connects the authorization certificate to the root CA configured in the provisioner.
+
+- **.Insecure** These constants are marked insecure because they contain client-supplied data that is not signed by a trusted party.
 
 - **.Insecure.CR**<Reference id="star11" marker="*" />: ☠️
   This holds the Certificate Request (CSR) received from the client.
@@ -320,7 +322,7 @@ Use these functions to populate custom certificate OID `extensions`:
 ]
 ```
 
-When applied to template variables, these functions enable dynamic OID extensions:
+When applied to template constants, these functions enable dynamic OID extensions:
 
 ```
 {
@@ -384,7 +386,7 @@ For more details on ASN.1 types and their meanings, see [ASN.1 Types](https://ww
 
 #### asn1Marshal
 
-`asn1Marshal` simplifies the encoding of Go variables into ASN.1.
+`asn1Marshal` simplifies the encoding of Go values into ASN.1.
 For example, if you want to encode the Not After value in an X5C authorization certificate,
 without converting it to a string first, `asn1Marshal .AuthorizationCrt.NotAfter` will do the trick.
 
@@ -477,7 +479,7 @@ Here are the most relevant parameters available in SSH certificate template:
 - **.Insecure.CR**<Reference id="star11" marker="*" />:
   SSH certificate requests to `step-ca` are not CSRs in the X.509 sense.
   So, `step-ca` creates a virtual certificate request,
-  and that's what this variable represents.
+  and that's what this constant represents.
 
 - **.Insecure.CR.Principals**: If you trust a host to register its own custom SANs
   (for example, when using the IID provisioner),
@@ -565,13 +567,13 @@ delimited by `{{` and `}}`. These are called **_actions_** - **_actions_** are
 data evaluations or control structures. The ones in the default template are:
 
 - `{{ toJson .Subject }}`: renders `.Subject` as JSON. `toJson` is a function in
-Sprig that encodes the passed item into JSON. `.Subject` is a variable available
+Sprig that encodes the passed item into JSON. `.Subject` is a constant available
 in all templates that contains the `<subject>` parameter passed in the CLI, in
 this case, `jane@smallstep.com`, and to be more precise, this value is available
 in `.Subject.CommonName`.
 
 - `{{ toJson .SANs }}`: renders `.SANs` (Subject Alternative Names) as JSON.
-The variable `.SANs` is also available in all templates and contains the list
+The constant `.SANs` is also available in all templates and contains the list
 of `SANs` passed from the CLI.  If no `SANs` are specified, the
 `.Subject.CommonName` will be used as a default `SAN` (e.g.
 `jane@smallstep.com` in our example). If you add more `SANs` using the
@@ -706,21 +708,21 @@ certificate subject on `step-ca` if a template is provided in the `ca.json`, and
 it will set the Subject Alternative Name extension to critical if the subject is
 empty.
 
-#### User-Provided Variables in Signing Requests
+#### User-Provided Values in Signing Requests
 
-In `step-ca`, X.509 templates can also be parameterized with variables that will be
+In `step-ca`, X.509 templates can also be parameterized with values
 provided by `step` at certificate creation time. A common use case for
-variables is when you receive a CSR from another team, or a CSR embedded in
+values is when you receive a CSR from another team, or a CSR embedded in
 hardware, and you need to define a SAN for it.
 
-For example, below is an X.509 template that accepts the user variable `dnsName`
-but falls back to the default leaf template if it's not present:
+For example, below is an X.509 template that accepts the user-supplied value `dnsName`
+but it falls back to the default leaf template value if it's not present:
 
 ```json
 {
 	"subject": {{ toJson .Subject }},
 {{- if .Insecure.User.dnsName }}
-	"dnsNames": {{ toJson .Insecure.User.dnsName}},
+	"dnsNames": {{ toJson .Insecure.User.dnsName }},
 {{- else }}
 	"sans": {{ toJson .SANs }},
 {{- end }}
@@ -743,9 +745,9 @@ $ step ca sign --set-file vars.json input.csr output.crt
 ```
 
 Both flags, `--set <name=value>` and `--set-file <path>` are available in
-[`step ca certificate`](../step-cli/reference/ca/certificate) and [`step ca sign`](../step-cli/reference/ca/sign). If you need to pass more than one
-variable, you can use `--set` multiple times or use a JSON file with multiple
-properties.
+[`step ca certificate`](../step-cli/reference/ca/certificate) and [`step ca sign`](../step-cli/reference/ca/sign).
+If you need to pass more than one value,
+you can use `--set` multiple times or use a JSON file with multiple properties.
 
 It's worth mentioning the while we used `"dnsNames"` instead of `"sans"` in the example above, both can
 be used. `"dnsNames"` is an array of strings (or just one string if only one is
@@ -760,8 +762,8 @@ required), while `"sans"` is an array of objects like:
 ]
 ```
 
-The variable `.SANs` is generated by the provisioners with the values of the
-trusted names.
+The array `.SANs` is generated by the provisioner,
+containing the values of the trusted names.
 
 Besides `"dnsNames"`, you can also use `"emailAddresses"`, `"ipAddresses"`, and
 `"uris"`.
