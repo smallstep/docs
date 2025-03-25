@@ -2,7 +2,7 @@
 title: Configuring `step-ca` Templates
 html_title: Configuring open source step-ca Templates
 description: Learn how to configure step-ca Templates
-updated_at: March 24, 2024
+updated_at: March 25, 2025
 ---
 
 People use private CAs for all sorts of things, in many different contexts:
@@ -222,16 +222,14 @@ Here are some constants available in X.509 certificate templates:
 - **.Subject**:
   The subject that was passed in to `step certificate` or `step ca certificate`. Specifically,
   `.Subject.CommonName` contains the Common Name for the certificate. By default, a passed-in subject
-  value must match a value from a trusted source in order to be added to the certificate. The
-  client is only a trusted source if they are an admin using the JWK provisioner.
+  value must match a value from a trusted source in order to be added to the certificate.
 
 - **.SANs**:
   Subject Alternative Names.
   This is a list of maps containing SANs for the certificate.
   Unless SANs are specified (using the `--san` flag, for example),
   the `.Subject.CommonName` is the default SAN. By default, a passed-in subject
-  value must match a value from a trusted source in order to be added to the certificate. The
-  client is only a trusted source if they are an admin using the JWK provisioner.
+  value must match a value from a trusted source in order to be added to the certificate.
 
 - **.Token**:
   If a signed token was used to obtain the certificate 
