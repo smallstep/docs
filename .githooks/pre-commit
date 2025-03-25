@@ -7,21 +7,24 @@
 # cp .githooks/pre-commit .git/hooks/pre-commit
 # chmod +x .git/hooks/pre-commit
 
-
 # Get the current date in "Month Day, Year" format (e.g., March 23, 2025)
 CURRENT_DATE=$(date -u +"%B %d, %Y")
 
 # Function to update frontmatter
 update_frontmatter() {
     local file=$1
-    if grep -q "^updated_at:" "$file"; then
-        # Update the existing updated_at field (macOS and Linux compatible)
-        sed -i "" -E "s/^updated_at:.*/updated_at: $CURRENT_DATE/" "$file"
-    else
-        # Add updated_at field if it doesn't exist (macOS and Linux compatible)
-        sed -i "" -E "/^---$/a\\
+
+    # Ensure the file contains frontmatter
+    if [[ $(head -n 1 "$file") == "---" ]]; then
+        if grep -q "^updated_at:" "$file"; then
+            # Update the existing "updated_at" field
+            sed -i "" -E "s/^updated_at:.*/updated_at: $CURRENT_DATE/" "$file"
+        else
+            # Insert "updated_at" on the second line of the file
+            sed -i "" "2i\\
 updated_at: $CURRENT_DATE
 " "$file"
+        fi
     fi
 }
 
@@ -33,3 +36,5 @@ for file in $(git diff --cached --name-only -- '*.mdx'); do
         git add "$file"
     fi
 done
+
+
