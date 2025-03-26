@@ -16,7 +16,7 @@ menu:
 step ca renew <crt-file> <key-file>
 [--mtls] [--password-file=<file>] [--out=<file>] [--expires-in=<duration>]
 [--force] [--pid=<int>] [--pid-file=<file>] [--signal=<int>]
-[--exec=<string>] [--daemon] [--renew-period=<duration>]
+[--exec=<string>] [--daemon] [--renew-period=<duration>] [--kms=<uri>]
 [--ca-url=<uri>] [--root=<file>] [--context=<name>]
 ```
 
@@ -75,6 +75,9 @@ but can accept a different configuration file using **--ca-config** flag.
 
 **--password-file**=`file`
 The path to the `file` containing the password to encrypt or decrypt the private key.
+
+**--kms**=`uri`
+The `uri` to configure a Cloud KMS or an HSM.
 
 **--out**=`file`, **--output-file**=`file`
 The new certificate `file` path. Defaults to overwriting the `crt-file` positional argument
@@ -147,6 +150,13 @@ $ step ca renew --force internal.crt internal.key
 Renew a certificate using the token flow instead of mTLS:
 ```shell
 $ step ca renew --mtls=false --force internal.crt internal.key
+```
+
+Renew a certificate which key is in a KMS:
+```shell
+$ step ca renew \
+  --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \
+  pkcs11.crt 'pkcs11:id=4001'
 ```
 
 Renew a certificate providing the `--ca-url` and `--root` flags:

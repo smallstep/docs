@@ -324,7 +324,7 @@ a Certificate Signing Request (CSR) is sent to the CA
 along with a short-lived JSON Web Token (JWT) which authenticates the request.
 
 The JWK provisioner can be useful for custom integrations.
-JWTs are easy to [generate programmatically](https://jwt.io/#libraries-io),
+JWTs are easy to [generate programmatically](https://jwt.io/libraries),
 without using `step`.
 We have written a few [example clients](https://github.com/smallstep/clients/tree/main) for demonstration purposes.
 
@@ -1285,7 +1285,7 @@ Here's an example of a SCEP provisioner in `$(step path)/config/ca.json`:
 ```json
 {
     "type": "SCEP",
-    "name": "scepca",
+    "name": "my_scep_provisioner",
     "forceCN": true,
     "challenge": "secret1234",
     "minimumPublicKeyLength": 2048,
@@ -1323,7 +1323,7 @@ Enable this by filling in the `"insecureAddress"` property to your top-level CA 
 ```
 
 Finally, restart `step-ca`.
-Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/scepca`.
+Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/my_scep_provisioner`.
 
 <Alert severity="info">
   <div>

@@ -21,7 +21,8 @@ step ssh certificate <key-id> <key-file>
 [--console] [--no-password] [--insecure] [--force] [--x5c-cert=<file>]
 [--x5c-key=<file>] [--k8ssa-token-path=<file>] [--no-agent]
 [--kty=<key-type>] [--curve=<curve>] [--size=<size>]
-[--ca-url=<uri>] [--root=<file>] [--context=<name>]
+[--min-password-length=<length>] [--ca-url=<uri>]
+[--root=<file>] [--context=<name>]
 ```
 
 ## Description
@@ -209,6 +210,9 @@ Configure the `file` from which to read the kubernetes service account token.
 
 **--no-agent**
 Do not add the generated certificate and associated private key to the SSH agent.
+
+**--min-password-length**=`value`
+Set minimum required length for password used to encrypt private key. The default value is '0'. Values `=0 are interpreted as if no minimum value is set.
 
 **--ca-config**=`file`
 The certificate authority configuration `file`. Defaults to
