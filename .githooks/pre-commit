@@ -1,0 +1,40 @@
+#!/bin/bash
+# This pre-commit hook updates (or adds) the updated_at frontmatter in .mdx files with the current date.
+#
+# To install it, run the following from the top level of the repo:
+#
+# mkdir -p .git/hooks
+# cp .githooks/pre-commit .git/hooks/pre-commit
+# chmod +x .git/hooks/pre-commit
+
+# Get the current date in "Month Day, Year" format (e.g., March 23, 2025)
+CURRENT_DATE=$(date -u +"%B %d, %Y")
+
+# Function to update frontmatter
+update_frontmatter() {
+    local file=$1
+
+    # Ensure the file contains frontmatter
+    if [[ $(head -n 1 "$file") == "---" ]]; then
+        if grep -q "^updated_at:" "$file"; then
+            # Update the existing "updated_at" field
+            sed -i "" -E "s/^updated_at:.*/updated_at: $CURRENT_DATE/" "$file"
+        else
+            # Insert "updated_at" on the second line of the file
+            sed -i "" "2i\\
+updated_at: $CURRENT_DATE
+" "$file"
+        fi
+    fi
+}
+
+# Find all staged Markdown files
+for file in $(git diff --cached --name-only -- '*.mdx'); do
+    if [[ -f "$file" ]]; then
+        update_frontmatter "$file"
+        # Re-add the file to staging
+        git add "$file"
+    fi
+done
+
+
