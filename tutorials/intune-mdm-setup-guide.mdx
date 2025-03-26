@@ -1,4 +1,5 @@
 ---
+updated_at: March 26, 2025
 title: Deploy EAP-TLS Wi-Fi certificates to Windows devices with Smallstep and Intune
 html_title: Deploy EAP-TLS Wi-Fi certificates to Windows devices with Smallstep and Intune
 description: In this tutorial, you will configure Smallstep and Microsoft Intune to establish device trust with your CA and to issue a Wi-Fi certificate to your devices.
@@ -63,10 +64,12 @@ Now we’ll connect the App Registration to Intune by adding application permiss
 
 In the App Registration, visit the **API Permissions** blade.
 
-Add the following two permissions:
+Add the following permissions:
 
 - Microsoft Graph → Application permissions → `Application.Read.All`
+- Microsoft Graph → Application permissions → `DeviceManagementManagedDevices.Read.All`
 - Intune → Application permissions → `scep_challenge_provider`
+- Intune → Application permissions → `get_data_warehouse`
 
 Finally, select **✓ Grant admin consent** on the API permissions page.
 
