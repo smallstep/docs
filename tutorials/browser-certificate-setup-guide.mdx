@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: March 20, 2025
+updated_at: March 26, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -9,9 +9,10 @@ description: This tutorial describes how to set up web browsers to access resour
 
 Certificate-based authentication in web browsers
 offers excellent security characteristics, thanks to mutual TLS.
+
 However, the user experience has traditionally been poor,
 with mysterious certificate errors,
-confusing certificate selector dialogs,
+confusing certificate authentication dialogs,
 and differing behaviors between browsers.
 
 Smallstep addresses these issues
@@ -22,9 +23,10 @@ so the user can have a seamless experience.
 
 Smallstep browser certificates are available for macOS, Windows, and Linux devices.
 
-To prepare an device to use browser client certificates from Smallstep:
-1. The device should be [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
-2. A protected resource that uses browser certificates should be added to Smallstep. This could be a Browser resource, or the Smallstep Device IdP integration (eg. Smallstep for Okta).
+Before you begin, make sure:
+
+1. Your devices are [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
+2. Someone from [our support team](https://support.smallstep.com/kb-tickets/new) has helped you get set up. Your Smallstep team is configured properly for the resource that you are trying to protect.
 
 ## macOS
 
@@ -32,6 +34,18 @@ For this tutorial, we'll assume you're using Jamf Pro as your MDM.
 The steps are very similar for other MDMs, however.
 
 ### Firefox
+
+#### Authority configuration
+
+Firefox has its own trust store for CAs.
+
+To install the root CA certificate, run:
+
+```
+step certificate install root_ca.crt --firefox
+```
+
+To confirm root CA trust, restart Firefox and visit <a href="about:certificate">about:certificate</a>. Navigate to the Authorities tab. `Smallstep Accounts Intermediate CA` should be listed.
 
 #### Client certificate auto-selection
 
@@ -146,44 +160,20 @@ To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/he
 
 ## Linux
 
-
 ### Google Chrome
 
 #### Authority configuration
 
 Since Chrome trusts the Linux system trust store, we need to install the root CA certificate there.
 
-1. Copy your root CA certificate to the trusted location:
+1. Install your root CA certificate to the trusted location:
 
-   For Debian/Ubuntu:
-
-   ```
-   sudo cp your-root-ca.crt /usr/local/share/ca-certificates/your-root-ca.crt
-   ```
-
-   For RHEL/CentOS/Fedora:
 
    ```
-   sudo cp your-root-ca.crt /etc/pki/ca-trust/source/anchors/your-root-ca.crt
+   sudo step certificate install your-root-ca.crt
    ```
 
-2. Update the system CA store:
-
-   Debian/Ubuntu:
-
-   ```
-   sudo update-ca-certificates
-   ```
-
-   RHEL/CentOS/Fedora:
-
-   ```
-   sudo update-ca-trust
-   ```
-
-3. Restart your web browser
-
-Chrome trusts CA certificates installed in the system CA store.
+2. Restart your web browser
 
 #### Client certificate auto-selection
 
