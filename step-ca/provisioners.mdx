@@ -1,4 +1,5 @@
 ---
+updated_at: March 27, 2025
 title: Configuring `step-ca` Provisioners
 html_title: Configuring open source step-ca Provisioners
 description: Learn how to configure step-ca Provisioners
@@ -1250,6 +1251,10 @@ SCEP is very popular for use in network equipment and mobile device management (
 It runs over HTTP using POSTed binary data or base64-encoded GET parameters, 
 using CMS (PKCS#7) and CSR (PKCS#10) data formats. 
 A (shared) secret authenticates clients to the CA.
+
+The SCEP provisioner does not support "dynamic SCEP" workflows with single-use secrets,
+such as Intune or Jamf.
+Our [commercial platform](https://smallstep.com) adds these workflows.
 
 #### Requirements
 
