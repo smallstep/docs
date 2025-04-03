@@ -130,7 +130,7 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
       In the example above, you are able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,
       for example in a template like:
 
-        ```json
+        ```go
         {
             "subject": {
                 "organizationalUnit": {{ toJson .OrganizationalUnit }},
@@ -146,7 +146,7 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
       string representation of a JSON object, or you encoded in Base64. For
       example: 
 
-        ```json
+        ```go
         {
             "x509": {
                 "template": "{{ toJson .Insecure.CR }}",
@@ -156,7 +156,7 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
 
         Or using Base64:
 
-        ```json
+        ```go
         {
             "x509": {
                 "template": "e3sgdG9Kc29uIC5JbnNlY3VyZS5DUiB9fQ==",
@@ -186,7 +186,7 @@ X.509 templates can be used in two places:
 
 Here's what the default X.509 [leaf certificate template](https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/x509util/templates.go#L98) looks like:
 
-```json
+```go
 {
 	"subject": {{ toJson .Subject }},
 	"sans": {{ toJson .SANs }},
@@ -319,7 +319,7 @@ before being (optionally) PEM-encoded with Base64.
 
 Use these functions to populate custom certificate OID `extensions`:
 
-```
+```go
 "extensions": [
   {"id": "1.2.3.4", "critical": false, "value": {{ asn1Enc "int:3848281" | toJson }}}
 ]
@@ -327,7 +327,7 @@ Use these functions to populate custom certificate OID `extensions`:
 
 When applied to template variables, these functions enable dynamic OID extensions:
 
-```
+```go
 {
 	"subject": {{ toJson .Subject }},
 	"sans": {{ toJson .SANs }},
@@ -347,7 +347,7 @@ When applied to template variables, these functions enable dynamic OID extension
 
 Let's walk through one line of this template:
 
-```
+```go
 {"id": "1.2.3.6", "value": {{ asn1Seq (asn1Enc "YubiKey") (asn1Enc "int:123456") | toJson }}}
 ```
 
@@ -365,7 +365,7 @@ Encodes a string into an ASN.1 value.
 A data type can be supplied as a prefix,
 and ASN.1 Printable is the default data type:
 
-```
+```go
 asn1Enc "int:123"
 asn1Enc "oid:1.2.3.4"
 asn1Enc "foo"
@@ -395,7 +395,7 @@ without converting it to a string first, `asn1Marshal .AuthorizationCrt.NotAfter
 
 `asn1Marshal` imitates Go's [`asn1.MarshalWithParams`](https://pkg.go.dev/encoding/asn1#MarshalWithParams) function.
 
-```
+```go
 asn1Marshal .Token.iss
 asn1Marshal .AuthorizationCrt.NotAfter "utc"
 ```
@@ -407,7 +407,7 @@ It will use Go's default transformation if no data type is supplied.
 
 Creates an ASN.1 `SEQUENCE` of values.
 
-```
+```go
 asn1Seq (asn1Enc "foo") (asn1Enc "int:123") ...
 ```
 
@@ -415,7 +415,7 @@ asn1Seq (asn1Enc "foo") (asn1Enc "int:123") ...
 
 Creates an ASN.1 `SET` of values.
 
-```
+```go
 asn1Set (asn1Enc "foo") (asn1Enc "int:123") ...
 ```
 
@@ -424,7 +424,7 @@ asn1Set (asn1Enc "foo") (asn1Enc "int:123") ...
 `step-ca` also supports SSH certificate templates.
 Here is `step-ca`'s default [SSH certificate template](https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/sshutil/templates.go#L144):
 
-```json
+```go
 {
 	"type": {{ toJson .Type }},
 	"keyId": {{ toJson .KeyID }},
@@ -454,7 +454,7 @@ Here are the most relevant parameters available in SSH certificate template:
 - **.Extensions**: is a map containing extensions.
   The default value for `Extensions` is:
 
-  ```json
+  ```go
   {
     "permit-X11-forwarding":   "",
     "permit-agent-forwarding": "",
@@ -530,7 +530,7 @@ use.
 
 The default leaf certificate template is:
 
-```json
+```go
 {
 	"subject": {{ toJson .Subject }},
 	"sans": {{ toJson .SANs }},
@@ -554,7 +554,7 @@ step ca certificate jane@doe.com jane.crt
 The rendered template (from which the X.509 certificate will be generated and
 signed) is:
 
-```json
+```go
 {
     "subject": {
         "commonName": "jane@smallstep.com"
@@ -605,7 +605,7 @@ a root certificate.
 
 The default template for an intermediate certificate is:
 
-```json
+```go
 {
 	"subject": {{ toJson .Subject }},
 	"keyUsage": ["certSign", "crlSign"],
@@ -648,7 +648,7 @@ step certificate create --template intermediate.tpl \
 A root certificate is a self-signed certificate used to sign other certificates.
 The default root certificate template is:
 
-```json
+```go
 {
 	"subject": {{ toJson .Subject }},
 	"issuer": {{ toJson .Subject }},
@@ -698,7 +698,7 @@ Below, we'll walk through a few advanced templating examples.
 
 Let's start with one of the shortest templates:
 
-```json
+```go
 {{ toJson .Insecure.CR }}
 ```
 
@@ -721,7 +721,7 @@ hardware, and you need to define a SAN for it.
 For example, below is an X.509 template that accepts the user-supplied value `dnsName`
 but it falls back to the default leaf template value if it's not present:
 
-```json
+```go
 {
 	"subject": {{ toJson .Subject }},
 {{- if .Insecure.User.dnsName }}
@@ -756,7 +756,7 @@ It's worth mentioning the while we used `"dnsNames"` instead of `"sans"` in the 
 be used. `"dnsNames"` is a list of strings (or just one string if only one is
 required), while `"sans"` is an list of maps:
 
-```json
+```go
 [
 	{"type": "dns", "value": "backend.example.com"},
 	{"type": "email", "value": "jane@example.com"},
@@ -778,7 +778,7 @@ the validity of certificates that an intermediate can sign. If we want to only
 allow DNS name like \*.example.com we can generate an intermediate with the
 template:
 
-```
+```go
 {
     "subject": {{ toJson .Subject }},
     "keyUsage": ["certSign", "crlSign"],
@@ -803,7 +803,7 @@ step certificate create --template intermediate.tpl --ca root_ca.crt --ca-key ro
 Besides `"permittedDNSDomains"`, the `"nameConstraints"` property accepts all
 the following properties:
 
-```json
+```go
 {
     ...
 	"nameConstraints": {
@@ -824,7 +824,7 @@ the following properties:
 Remember that in certificate templates, if an array only has one member, you can
 write it as a string:
 
-```json
+```go
 {
     ...
 	"nameConstraints": {
@@ -863,7 +863,7 @@ certificate policies [(RFC 5280, 4.2.1.4)](https://www.rfc-editor.org/rfc/rfc528
 But if you need to create your own extension, or use an unsupported one, you can
 also write a custom extension like:
 
-```json
+```go
 {
   ...
   "extensions": [
@@ -898,7 +898,7 @@ Here's [an example of a CPS from Let's Encrypt](https://letsencrypt.org/document
 Let's add a policy extension with a CPS to an X.509 template.
 We'll need to construct some ASN.1 for this.
 
-```
+```go
 {
   ...
   "extensions": [
@@ -931,7 +931,7 @@ key usages not available in the default templates.
 
 This is a template you can use in a provisioner signing OpenVPN client certificates:
 
-```
+```go
 {
   "subject": {"commonName": {{ toJson .Insecure.CR.Subject.CommonName }}},
   "sans": {{ toJson .SANs }},
@@ -943,7 +943,7 @@ This is a template you can use in a provisioner signing OpenVPN client certifica
 And the following template can be used for a provisioner signing OpenVPN server
 certificates:
 
-```
+```go
 {
   "subject": {{ toJson .Subject }},
   "sans": {{ toJson .SANs }},
@@ -970,7 +970,7 @@ Which is great: The same certificates that let you SSH into your servers now als
 
 Here's an SSH template that supports the GitHub custom SSH certificate extension:
 
-```bash
+```go
 {
 	"type": {{ toJson .Type }},
 	"keyId": {{ toJson .KeyID }},
@@ -1092,7 +1092,7 @@ First, configure a custom `groups` claim with your identity provider, and add th
 In this example, we're assuming the `groups` claim contains a space-separated list of possible group accounts.
 
 Then, use the following template to merge the group accounts with the user's own principals (derived from the `email` claim):
-  ```json
+  ```go
   {
     "type": {{ toJson .Type }},
     "keyId": {{ toJson .KeyID }},
