@@ -920,7 +920,7 @@ We'll need to construct some ASN.1 for this.
 
 First, the public OID `2.5.29.32` represents the Certificate Policies extension.
 In the value for this extension, we have two policies.
-The first references Policy OID `1.3.6.1.4.1.99999.1.1.1`, a custom policy OID that would be defined by our organization.
+The first references Policy OID `1.3.6.1.4.1.99999.1.1.1`, a custom policy OID defined by our example organization.
 The second policy contains both the well-defined OID  `1.3.6.1.5.5.7.2.1` [representing a CPS pointer](https://www.rfc-editor.org/rfc/rfc5280.html#section-4.2.1.4), and the CPS pointer `http://example.com/cps`.
 
 #### X.509 OpenVPN certificates
