@@ -1,4 +1,5 @@
 ---
+updated_at: April 08, 2025
 title: Install step
 html_title: Installing open source step command
 description: Learn how to install the step command
@@ -21,13 +22,13 @@ It's trivial to install the `step` binary on your local machine.
 
 - [macOS](#macos)
 - [Linux Packages](#linux-packages-amd64)
-  - [Debian](#debian-ubuntu)
+  - [Debian/Ubuntu](#debian-ubuntu)
+  - [RHEL/Fedora](#rhel-fedora)
   - [Arch Linux](#arch-linux)
-  - [RedHat](#redhat)
   - [Alpine Linux](#alpine-linux)
-  - [Wolfi](#wolfi)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
+  - [Wolfi](#wolfi)
 - [Linux Binaries](#linux-binaries)
 - [Signature Verification](#binary-signature-verification)
 - [Windows](#windows)
@@ -46,14 +47,40 @@ To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configurati
 
 #### Debian/Ubuntu
 
-Download and install the Debian package from our [latest release](https://github.com/smallstep/cli/releases/latest):
+To add Smallstep as a source and install the `step-cli` package on Debian or Ubuntu distributions, run the following as `root`:
 
-```shell
-wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.deb
-sudo dpkg -i step-cli_amd64.deb
+```
+apt-get update && apt-get install -y --no-install-recommends curl vim gpg ca-certificates
+curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
+    echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
+    | tee /etc/apt/sources.list.d/smallstep.list
+apt-get update && apt-get -y install step-cli
 ```
 
+Alternatively, to manually install a `.deb` for `step-cli`, find the package you need for your platform on our GitHub release pages for [`smallstep/cli`](https://github.com/smallstep/cli/releases/latest) (`step-cli`).
+
 To uninstall, run `sudo dpkg -r step-cli` and remove the `$HOME/.step` configuration directory.
+
+#### RHEL/Fedora
+
+To add Smallstep as a source and install the `step-cli` packages on RHEL or Fedora distributions, run the following as `root`:
+
+```
+cat <<EOT > /etc/yum.repos.d/smallstep.repo
+[smallstep]
+name=Smallstep
+baseurl=https://packages.smallstep.com/stable/fedora/
+enabled=1
+repo_gpgcheck=0
+gpgcheck=1
+gpgkey=https://packages.smallstep.com/keys/smallstep-0x889B19391F774443.gpg
+EOT
+dnf makecache && dnf install -y step-cli step-ca
+```
+
+Alternatively, to manually install an `.rpm` for `step-cli`, find the packages you need for your platform on our GitHub release pages for [`smallstep/cli`](https://github.com/smallstep/cli/releases/latest) (`step-cli`).
+
+To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` configuration directory.
 
 #### Arch Linux
 
@@ -76,29 +103,6 @@ To uninstall, run `sudo pacman -R step-cli` and remove the `$HOME/.step` configu
 
 Big shout out to the maintainers of these packages! We appreciate you.
 
-#### RedHat
-
-Download and install the RPM package from our [latest release](https://github.com/smallstep/cli/releases/latest):
-
-```shell
-wget https://dl.smallstep.com/cli/docs-cli-install/latest/step-cli_amd64.rpm
-sudo rpm -i step-cli_amd64.rpm
-```
-
-To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` configuration directory.
-
-#### Wolfi
-
-[Wolfi](https://wolfi.dev) has a maintained `step` package.
-
-Use apk to install `step`:
-
-```
-apk add step
-```
-
-To uninstall, run `apk del step` and remove the `$HOME/.step` configuration directory.
-
 #### Alpine Linux
 
 There is a community-maintained [`step-cli` package](https://pkgs.alpinelinux.org/packages?name=step-cli&branch=edge&repo=&arch=&maintainer=) for Alpine Linux.
@@ -120,6 +124,18 @@ Install the [`step-cli`](https://search.nixos.org/packages?channel=20.09&show=st
 #### FreeBSD
 
 Install the [`step-cli`](https://www.freshports.org/security/step-cli/) package on FreeBSD.
+
+#### Wolfi
+
+[Wolfi](https://wolfi.dev) has a maintained `step` package.
+
+Use apk to install `step`:
+
+```
+apk add step
+```
+
+To uninstall, run `apk del step` and remove the `$HOME/.step` configuration directory.
 
 ### Linux Binaries
 

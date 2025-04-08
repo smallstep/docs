@@ -1,4 +1,5 @@
 ---
+updated_at: April 08, 2025
 title: Install step-ca
 html_title: Installing open source step-ca
 description: Learn how to install step-ca
@@ -22,12 +23,13 @@ Learn how to to install the `step-ca` binary on your local machine.
   - [Winget Package](#winget-package)
   - [Scoop Package](#scoop-package)
 - [Linux Packages](#linux-packages-amd64)
-  - [Debian/Ubuntu](#debianubuntu)   
+  - [Debian/Ubuntu](#debian-ubuntu)
+  - [RHEL/Fedora](#rhel-fedora)
   - [Arch Linux](#arch-linux)
-  - [RedHat](#redhat)
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
+  - [Wolfi](#wolfi)
 - [Linux Binaries](#linux-binaries)
 - [Binary Signature Verification](#binary-signature-verification)
 - [Kubernetes](#kubernetes)
@@ -83,23 +85,45 @@ To uninstall, run `scoop uninstall`, then remove the configuration directory `$H
 
 #### Debian/Ubuntu
 
-To install `step`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
-    
-    ```shell
-    wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.deb
-    sudo dpkg -i step-cli_amd64.deb
-    ```
+To add Smallstep as a source and install the `step-cli` and `step-ca` packages on Debian or Ubuntu distributions, run the following as `root`:
 
-To install `step-ca`, download and install the Debian package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
+```
+apt-get update && apt-get install -y --no-install-recommends curl vim gpg ca-certificates
+curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
+    echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
+    | tee /etc/apt/sources.list.d/smallstep.list
+apt-get update && apt-get -y install step-cli step-ca
+```
 
-    ```shell
-    wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.deb
-    sudo dpkg -i step-ca_amd64.deb
-    ```
+Alternatively, to manually install a `.deb` for `step-cli` and `step-ca`, find the packages you need for your platform on our GitHub release pages for [`smallstep/cli`](https://github.com/smallstep/cli/releases/latest) (`step-cli`) and [`smallstep/certificates`](https://github.com/smallstep/certificates/releases/latest) (`step-ca`).
 
 To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
 
 To uninstall, run `dpkg -r step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
+
+#### RHEL/Fedora
+
+To add Smallstep as a source and install the `step-cli` and `step-ca` packages on RHEL or Fedora distributions, run the following as `root`:
+
+```
+cat <<EOT > /etc/yum.repos.d/smallstep.repo
+[smallstep]
+name=Smallstep
+baseurl=https://packages.smallstep.com/stable/fedora/
+enabled=1
+repo_gpgcheck=0
+gpgcheck=1
+gpgkey=https://packages.smallstep.com/keys/smallstep-0x889B19391F774443.gpg
+EOT
+dnf makecache && dnf install -y step-cli step-ca
+```
+
+
+Alternatively, to manually install an `.rpm` for `step-cli` and `step-ca`, find the packages you need for your platform on our GitHub release pages for [`smallstep/cli`](https://github.com/smallstep/cli/releases/latest) (`step-cli`) and [`smallstep/certificates`](https://github.com/smallstep/certificates/releases/latest) (`step-ca`).
+
+To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
+
+To uninstall, run `dnf remove step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
 
 #### Arch Linux
 
@@ -118,26 +142,6 @@ The binary tarballs can be found here:
 To uninstall, run `pacman -R step-ca step-cli`, then remove the configuration directory `$HOME/.step`.
 
 Big shout out to the maintainers of these packages! We appreciate you.
-
-#### RedHat
-
-To install `step`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/cli/releases/latest):
-    
-    ```shell
-    wget https://dl.smallstep.com/cli/docs-ca-install/latest/step-cli_amd64.rpm
-    sudo rpm -i step-cli_amd64.rpm
-    ```
-
-To install `step-ca`, download and install the RPM package for your platform from our [latest release](https://github.com/smallstep/certificates/releases/latest):
-
-    ```shell
-    wget https://dl.smallstep.com/certificates/docs-ca-install/latest/step-ca_amd64.rpm
-    sudo rpm -i step-ca_amd64.rpm
-    ```
-
-To configure `step-ca` as a daemon, see our [systemd configuration guide][systemd-setup].
-
-To uninstall, run `dnf remove step-cli step-ca`, then remove the configuration directory `$HOME/.step`.
 
 #### Alpine Linux
 
@@ -172,6 +176,18 @@ There are community-maintained packages for FreeBSD:
 To install both packages in a FreeBSD jail, follow the steps in this [installation transcript](https://github.com/smallstep/certificates/discussions/572#discussioncomment-751271).
 
 Big shout out to the maintainers of these packages! We appreciate you.
+
+#### Wolfi
+
+[Wolfi](https://wolfi.dev) has a maintained `step-ca` package.
+
+Use apk to install `step-ca`:
+
+```
+apk add step-ca
+```
+
+To uninstall, run `apk del step-ca` and remove the `$HOME/.step` configuration directory.
 
 ### Linux Binaries
 
