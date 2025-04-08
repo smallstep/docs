@@ -9,10 +9,9 @@ description: This tutorial describes how to set up web browsers to access resour
 
 Certificate-based authentication in web browsers
 offers excellent security characteristics, thanks to mutual TLS.
-
 However, the user experience has traditionally been poor,
-with mysterious certificate errors,
-confusing certificate authentication dialogs,
+with mysterious TLS errors,
+confusing certificate selection dialogs,
 and differing behaviors between browsers.
 
 Smallstep addresses these issues
@@ -23,10 +22,16 @@ so the user can have a seamless experience.
 
 Smallstep browser certificates are available for macOS, Windows, and Linux devices.
 
+## Before you begin
+
 Before you begin, make sure:
 
-1. Your devices are [added to Smallstep](https://smallstep.com/docs/platform/enrollment-guide/).
-2. Someone from [our support team](https://support.smallstep.com/kb-tickets/new) has helped you get set up. Your Smallstep team is configured properly for the resource that you are using client certificates to protect.
+1. Your devices are [enrolled into your Smallstep inventory](https://smallstep.com/docs/platform/enrollment-guide/).
+2. Someone from [our support team](https://support.smallstep.com/kb-tickets/new) has helped you get set up. Client certificates can be used in several ways. Confirm that your Smallstep team is configured for the resource that you are using client certificates to protect.
+
+You will need a list of URLs that will require a client certificate on your devices.
+
+These URLs will vary by use case.
 
 ## macOS
 
@@ -167,8 +172,8 @@ For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chr
 5. Restart the browser.
 6. Confirm the policy change.
 
-  - In Chrome, check <a href="chrome://policy">chrome://policy</a>.
-  - In Edge, check <a href="edge://policy">edge://policy</a>.
+   - In Chrome, check <a href="chrome://policy">chrome://policy</a>.
+   - In Edge, check <a href="edge://policy">edge://policy</a>.
 
 To test the certificate, restart the browser and visit one your target URLs.
 You should not see any certificate selection dialogs.
@@ -207,6 +212,8 @@ Don't see it? Check that the Smallstep agent is installed correctly.
 
 To test the certificate, restart the browser and visit one your target URLs.
 You should not see any certificate selection dialogs.
+
+### Firefox
 
 #### Client certificate auto-selection
 
