@@ -35,18 +35,6 @@ The steps are very similar for other MDMs, however.
 
 ### Firefox
 
-#### Authority configuration
-
-Firefox has its own trust store for CAs.
-
-To install the root CA certificate, run:
-
-```
-step certificate install root_ca.crt --firefox
-```
-
-To confirm root CA trust, restart Firefox and visit <a href="about:certificate">about:certificate</a>. Navigate to the Authorities tab. `Smallstep Accounts Intermediate CA` should be listed.
-
 #### Client certificate auto-selection
 
 A [configuration profile](https://support.mozilla.org/en-US/kb/customizing-firefox-macos-using-configuration-prof) can be used to set Firefox's certificate preferences
@@ -90,12 +78,9 @@ when a protected resource is accessed.
 5. Upload the plist file to Jamf.
 6. Deploy the configuration profile to your test device.
 
-To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, restart the browser and visit one your target URLs.
 
 ### Chrome
-
-#### Authority configuration
-
 
 #### Client certificate auto-selection
 
@@ -143,20 +128,15 @@ when a protected resource is accessed.
 6. Deploy the configuration profile to a test device.
 7. On the device, restart Chrome and visit the [policies tab](chrome://policy/) to verify the applied policy.
 
-To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, restart the browser and visit one your target URLs.
 
 ### Safari
-
-#### Authority configuration
-
-Safari will trust CA certificates in Keychain Access, as long as their trust setting for SSL is turned on.
-The easiest way to deploy a trusted CA to a fleet of Apple devices is via MDM.
 
 #### Client certificate auto-selection
 
 Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
 
-To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, restart the browser and visit one your target URLs.
 
 ## Windows
 
@@ -168,33 +148,34 @@ To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/he
    Look inside Certificates - Current User → Personal → Certificates.
    You should see a certificate issued by `Smallstep Accounts Intermediate CA`.
 
-2. In Chrome, confirm that your certificate is visible in <a href="chrome://settings/certificates">chrome://settings/certificates</a>. If not, restart Chrome.
+2. Confirm your client certificate is visible in your browser. If not, restart the browser.
+
+   - In Chrome, check <a href="chrome://settings/certificates">chrome://settings/certificates</a>.
+   - In Edge, check <a href="edge://settings/privacy/securitySubPage">edge://settings/privacy/securitySubPage</a> and choose "Manage certificates".
 
 For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy to prevent the certificate selection dialog from appearing.
 
 1. Open the Registry Editor (`regedit`)
-2. Navigate to `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome` for Chrome, or `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge` for Edge. If the key you're looking for doesn't exist, you may need to create the `Google` and `Google/Chrome` keys or the `Edge` key.
+2. Navigate to to the key for your browser.
+
+   - For Chrome, visit `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome`
+   - For Edge, visit `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge`
+   - If the key you're looking for doesn't exist, you may need to create the `Google` and `Google/Chrome` keys or the `Edge` key.
+
 3. In the registry path for your browser, create a new String Value named `AutoSelectCertificateForUrls`
 4. Set the value to `["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]`, substituting `$URL` for the URL you want to use with the Smallstep client certificate.
-5. Restart the browser. In Chrome, visit <a href="chrome://policies">chrome://policies</a> to confirm the policy change.
-6. Visit the URL you want to use the client certificate for. Your certificate should be selected automatically.
+5. Restart the browser.
+6. Confirm the policy change.
+
+  - In Chrome, check <a href="chrome://policy">chrome://policy</a>.
+  - In Edge, check <a href="edge://policy">edge://policy</a>.
+
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
 
 ## Linux
 
 ### Google Chrome
-
-#### Authority configuration
-
-Since Chrome trusts the Linux system trust store, we need to install the root CA certificate there.
-
-1. Install your root CA certificate to the trusted location:
-
-
-   ```
-   sudo step certificate install your-root-ca.crt
-   ```
-
-2. Restart your web browser
 
 #### Client certificate auto-selection
 
@@ -217,32 +198,20 @@ We can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/po
    }
    ```
 
-3. Restart Chrome, and visit the [policies tab](chrome://policy/) to verify the applied policy.
+3. Restart Chrome, and visit the [policies tab](chrome://policy) to verify the applied policy.
 
 Finally, let's verify that the user has a client certificate from the Smallstep agent.
-1. Run `certutil -d sql:$HOME/.pki/nssdb -L`. You should see `Smallstep Accounts Intermediate CA` in the list.
-2. Restart Chrome, and verify that the client certificate is in <a href="chrome://settings/certificates">Chrome's Certificate Manager</a>
+
+Restart Chrome, and verify that the client certificate is in <a href="chrome://settings/certificates">Chrome's Certificate Manager</a>
 Don't see it? Check that the Smallstep agent is installed correctly.
 
-To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
-
-### Firefox
-
-#### Authority configuration
-
-Firefox has its own trust store for CAs.
-
-To install the root CA certificate, run:
-
-```
-step certificate install root_ca.crt --firefox
-```
-
-To confirm root CA trust, restart Firefox and visit <a href="about:certificate">about:certificate</a>. Navigate to the Authorities tab. `Smallstep Accounts Intermediate CA` should be listed there.
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
 
 #### Client certificate auto-selection
 
 Use the <a href="about:certificate">about:certificate</a> URL to see all of the client certificates installed in Firefox's certificate database.
 
-To test the certificate, visit `https://accounts.[team-id].ca.smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
 
