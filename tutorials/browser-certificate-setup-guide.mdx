@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: April 02, 2025
+updated_at: April 08, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -157,6 +157,27 @@ The easiest way to deploy a trusted CA to a fleet of Apple devices is via MDM.
 Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
 
 To test the certificate, visit `https://accounts.ca.[team-id].smallstep.com/-/hello-mtls`. You can find your Team ID in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+## Windows
+
+### Microsoft Edge and Google Chrome
+
+#### Client certificate auto-selection
+
+1. Confirm that a client certificate has been issued, run `certmgr` from PowerShell.
+   Look inside Certificates - Current User → Personal → Certificates.
+   You should see a certificate issued by `Smallstep Accounts Intermediate CA`.
+
+2. In Chrome, confirm that your certificate is visible in <a href="chrome://settings/certificates">chrome://settings/certificates</a>. If not, restart Chrome.
+
+For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy to prevent the certificate selection dialog from appearing.
+
+1. Open the Registry Editor (`regedit`)
+2. Navigate to `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome` for Chrome, or `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge` for Edge. If the key you're looking for doesn't exist, you may need to create the `Google` and `Google/Chrome` keys or the `Edge` key.
+3. In the registry path for your browser, create a new String Value named `AutoSelectCertificateForUrls`
+4. Set the value to `["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]`, substituting `$URL` for the URL you want to use with the Smallstep client certificate.
+5. Restart the browser. In Chrome, visit <a href="chrome://policies">chrome://policies</a> to confirm the policy change.
+6. Visit the URL you want to use the client certificate for. Your certificate should be selected automatically.
 
 ## Linux
 
