@@ -23,12 +23,13 @@ Learn how to to install the `step-ca` binary on your local machine.
   - [Winget Package](#winget-package)
   - [Scoop Package](#scoop-package)
 - [Linux Packages](#linux-packages-amd64)
-  - [Debian/Ubuntu](#debianubuntu)   
-  - [RHEL/Fedora](#rhelfedora)
+  - [Debian/Ubuntu](#debian-ubuntu)
+  - [RHEL/Fedora](#rhel-fedora)
   - [Arch Linux](#arch-linux)
   - [Alpine Linux](#alpine-linux)
   - [NixOS](#nixos)
   - [FreeBSD](#freebsd)
+  - [Wolfi](#wolfi)
 - [Linux Binaries](#linux-binaries)
 - [Binary Signature Verification](#binary-signature-verification)
 - [Kubernetes](#kubernetes)
@@ -175,6 +176,18 @@ There are community-maintained packages for FreeBSD:
 To install both packages in a FreeBSD jail, follow the steps in this [installation transcript](https://github.com/smallstep/certificates/discussions/572#discussioncomment-751271).
 
 Big shout out to the maintainers of these packages! We appreciate you.
+
+#### Wolfi
+
+[Wolfi](https://wolfi.dev) has a maintained `step-ca` package.
+
+Use apk to install `step-ca`:
+
+```
+apk add step-ca
+```
+
+To uninstall, run `apk del step-ca` and remove the `$HOME/.step` configuration directory.
 
 ### Linux Binaries
 
