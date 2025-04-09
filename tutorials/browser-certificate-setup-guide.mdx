@@ -1,0 +1,226 @@
+---
+title: Configure Web Browser Certificates
+updated_at: April 09, 2025
+html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
+description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
+---
+
+## Before we begin
+
+Certificate-based authentication in web browsers
+offers excellent security characteristics, thanks to mutual TLS.
+However, the user experience has traditionally been poor,
+with mysterious TLS errors,
+confusing certificate selection dialogs,
+and differing behaviors between browsers.
+
+Smallstep addresses these issues
+by keeping certificates renewed,
+offering simple remediation flows when an error occurs,
+and ensuring that web browers are configured to find client certificates automatically,
+so the user can have a seamless experience.
+
+Smallstep browser certificates are available for macOS, Windows, and Linux devices.
+
+## Before you begin
+
+Before you begin, make sure:
+
+1. Your devices are [enrolled into your Smallstep inventory](https://smallstep.com/docs/platform/enrollment-guide/).
+2. Someone from [our support team](https://support.smallstep.com/kb-tickets/new) has helped you get set up. Client certificates can be used in several ways. Confirm that your Smallstep team is configured for the resource that you are using client certificates to protect.
+
+You will need a list of URLs that will require a client certificate on your devices.
+
+These URLs will vary by use case.
+
+## macOS
+
+For this tutorial, we'll assume you're using Jamf Pro as your MDM.
+The steps are very similar for other MDMs, however.
+
+### Firefox
+
+#### Client certificate auto-selection
+
+A [configuration profile](https://support.mozilla.org/en-US/kb/customizing-firefox-macos-using-configuration-prof) can be used to set Firefox's certificate preferences
+so that the Smallstep certificate is automatically selected
+when a protected resource is accessed.
+
+1. In Jamf, navigate to **Computers > Configuration Profiles**
+2. Create a new Configuration Profile and find the **Application & Custom Settings** > **Upload** page.
+3. For Preference Domain, specify `org.mozilla.firefox`.
+4. Create a plist file called `org.mozilla.firefox.plist`, and populate it with the following:
+
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+     <dict>
+       <key>EnterprisePoliciesEnabled</key>
+       <true/>
+       <key>PayloadDisplayName</key>
+       <string>Firefox ESR Policies</string>
+       <key>PayloadEnabled</key>
+       <true/>
+       <key>PayloadIdentifier</key>
+       <string>org.mozilla.firefox.BCADDC78-843E-4112-936A-DAB8EEEF514C</string>
+       <key>PayloadType</key>
+       <string>org.mozilla.firefox</string>
+       <key>PayloadUUID</key>
+       <string>BCADDC78-843E-4112-936A-DAB8EEEF514C</string>
+       <key>PayloadVersion</key>
+       <integer>1</integer>
+       <key>Preferences</key>
+       <dict>
+         <key>security.default_personal_cert</key>
+         <string>Select Automatically</string>
+         <key>security.osclientcerts.autoload</key>
+         <true/>
+       </dict>
+     </dict>
+   </plist>
+   ```
+5. Upload the plist file to Jamf.
+6. Deploy the configuration profile to your test device.
+
+To test the certificate, restart the browser and visit one your target URLs.
+
+### Chrome
+
+#### Client certificate auto-selection
+
+A [configuration profile](https://support.google.com/chrome/a/answer/9020077?hl=en) can be used to set Chrome's certificate preferences
+so that the Smallstep certificate is automatically selected
+when a protected resource is accessed.
+
+1. In Jamf, navigate to **Computers > Configuration Profiles**
+2. Create a new Configuration Profile and find the **Application & Custom Settings** > **Upload** page.
+3. For Preference Domain, specify `com.google.Chrome`.
+4. Create a plist file called `com.google.Chrome.plist`, and populate it with the following:
+
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+     <dict>
+       <key>AutoSelectCertificateForUrls</key>
+       <array>
+         <dict>
+           <key>pattern</key>
+           <string>[Server URL]</string>
+           <key>filter</key>
+           <dict>
+              <key>ISSUER</key>
+              <dict>
+                <key>CN</key>
+                <string>Smallstep [Team Slug] Accounts Intermediate CA</string>
+              </dict>
+           </dict>
+         </dict>
+       </array>
+     </dict>
+   </plist>
+   ```
+
+   Replace `[Server URL]` with the server that requires certificate authentication.
+   Replace `[Team Slug]` with your Smallstep team slug.
+   This field is an [Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
+
+   Note: According to [Understand Chrome policy management](https://support.google.com/chrome/a/answer/9037717),
+   Chrome will *not* merge multiple `AutoSelectCertificateForUrls` policies.
+   You must add all of your certificate selection preferences into a single managed configuration profile.
+
+5. Upload the plist file to Jamf.
+6. Deploy the configuration profile to a test device.
+7. On the device, restart Chrome and visit the [policies tab](chrome://policy/) to verify the applied policy.
+
+To test the certificate, restart the browser and visit one your target URLs.
+
+### Safari
+
+#### Client certificate auto-selection
+
+Safari relies on the Keychain and system-level certificate trust settings, rather than per-app policies like Chrome and Firefox. Certificate selection in Safari is mostly automatic, but it may prompt the user if multiple matching client certificates exist. Smallstep's agent will set identity preferences as needed.
+
+To test the certificate, restart the browser and visit one your target URLs.
+
+## Windows
+
+### Microsoft Edge and Google Chrome
+
+#### Client certificate auto-selection
+
+1. Confirm that a client certificate has been issued, run `certmgr` from PowerShell.
+   Look inside Certificates - Current User → Personal → Certificates.
+   You should see a certificate issued by a Smallstep Accounts Intermediate CA.
+
+2. Confirm your client certificate is visible in your browser. If not, restart the browser.
+
+   - In Chrome, check <a href="chrome://settings/certificates">chrome://settings/certificates</a>.
+   - In Edge, check <a href="edge://settings/privacy/securitySubPage">edge://settings/privacy/securitySubPage</a> and choose "Manage certificates".
+
+For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy to prevent the certificate selection dialog from appearing.
+
+1. Open the Registry Editor (`regedit`)
+2. Navigate to to the key for your browser.
+
+   - For Chrome, visit `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome`
+   - For Edge, visit `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge`
+   - If the key you're looking for doesn't exist, you may need to create the `Google` and `Google/Chrome` keys or the `Edge` key.
+
+3. In the registry path for your browser, create a new String Value named `AutoSelectCertificateForUrls`
+4. Set the value to `["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep $TEAM Accounts Intermediate CA\"}}}"]`, substituting `$URL` for the URL you want to use with the Smallstep client certificate, and `$TEAM` for your Smallstep team slug.
+5. Restart the browser.
+6. Confirm the policy change.
+
+   - In Chrome, check <a href="chrome://policy">chrome://policy</a>.
+   - In Edge, check <a href="edge://policy">edge://policy</a>.
+
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
+
+## Linux
+
+### Google Chrome
+
+#### Client certificate auto-selection
+
+We can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) Chrome policy to automatically select the client certificate without presenting a dialog:
+1. As root, create a policy file: `/etc/opt/chrome/policies/managed/auto_select_cert.json` 
+2. Add the following content:
+
+   ```
+   {
+       "AutoSelectCertificateForUrls": ["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep $TEAM Accounts Intermediate CA\"}}}"]
+   }
+   ```
+
+   Replace `$URL` with the server that requires certificate authentication.
+   Replace `$TEAM` with your Smallstep team slug.
+   For example:
+   
+   ```json
+   {
+       "AutoSelectCertificateForUrls": ["{\"pattern\":\"https://example.id.smallstep.com\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep example Accounts Intermediate CA\"}}}"]
+   }
+   ```
+
+3. Restart Chrome, and visit the [policies tab](chrome://policy) to verify the applied policy.
+
+Finally, let's verify that the user has a client certificate from the Smallstep agent.
+
+Restart Chrome, and verify that the client certificate is in <a href="chrome://settings/certificates">Chrome's Certificate Manager</a>
+Don't see it? Check that the Smallstep agent is installed correctly.
+
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
+
+### Firefox
+
+#### Client certificate auto-selection
+
+Use the <a href="about:certificate">about:certificate</a> URL to see all of the client certificates installed in Firefox's certificate database.
+
+To test the certificate, restart the browser and visit one your target URLs.
+You should not see any certificate selection dialogs.
+

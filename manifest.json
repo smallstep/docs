@@ -30,10 +30,6 @@
             {
               "title": "Smallstep API",
               "path": "/platform/smallstep-api.mdx"
-            },
-            {
-              "title": "Smallstep App",
-              "path": "/platform/smallstep-app.mdx"
             }
           ]
         },
@@ -52,6 +48,19 @@
               "title": "Connect Jamf Pro",
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             }
+          ]
+        },
+        {
+          "title": "Configure Devices for Smallstep",
+          "routes": [
+              {
+                "title": "Install the Smallstep App",
+                "path": "/platform/smallstep-app.mdx"
+              },
+              {
+                  "title": "Configure Browser Certificates",
+                  "path": "/tutorials/browser-certificate-setup-guide.mdx"
+              }
           ]
         },
         {
