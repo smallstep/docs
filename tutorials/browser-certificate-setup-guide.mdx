@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: April 08, 2025
+updated_at: April 09, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -113,7 +113,7 @@ when a protected resource is accessed.
               <key>ISSUER</key>
               <dict>
                 <key>CN</key>
-                <string>Smallstep Accounts Intermediate CA</string>
+                <string>Smallstep [Team Slug] Accounts Intermediate CA</string>
               </dict>
            </dict>
          </dict>
@@ -123,6 +123,7 @@ when a protected resource is accessed.
    ```
 
    Replace `[Server URL]` with the server that requires certificate authentication.
+   Replace `[Team Slug]` with your Smallstep team slug.
    This field is an [Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
 
    Note: According to [Understand Chrome policy management](https://support.google.com/chrome/a/answer/9037717),
@@ -151,7 +152,7 @@ To test the certificate, restart the browser and visit one your target URLs.
 
 1. Confirm that a client certificate has been issued, run `certmgr` from PowerShell.
    Look inside Certificates - Current User → Personal → Certificates.
-   You should see a certificate issued by `Smallstep Accounts Intermediate CA`.
+   You should see a certificate issued by a Smallstep Accounts Intermediate CA.
 
 2. Confirm your client certificate is visible in your browser. If not, restart the browser.
 
@@ -168,7 +169,7 @@ For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chr
    - If the key you're looking for doesn't exist, you may need to create the `Google` and `Google/Chrome` keys or the `Edge` key.
 
 3. In the registry path for your browser, create a new String Value named `AutoSelectCertificateForUrls`
-4. Set the value to `["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]`, substituting `$URL` for the URL you want to use with the Smallstep client certificate.
+4. Set the value to `["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep $TEAM Accounts Intermediate CA\"}}}"]`, substituting `$URL` for the URL you want to use with the Smallstep client certificate, and `$TEAM` for your Smallstep team slug.
 5. Restart the browser.
 6. Confirm the policy change.
 
@@ -190,16 +191,17 @@ We can use the [AutoSelectCertificateForUrls](https://chromeenterprise.google/po
 
    ```
    {
-       "AutoSelectCertificateForUrls": ["{\"pattern\":${url},\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]
+       "AutoSelectCertificateForUrls": ["{\"pattern\":\"$URL\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep $TEAM Accounts Intermediate CA\"}}}"]
    }
    ```
 
-   Replace `${url}` with the server that requires certificate authentication.
+   Replace `$URL` with the server that requires certificate authentication.
+   Replace `$TEAM` with your Smallstep team slug.
    For example:
    
    ```json
    {
-       "AutoSelectCertificateForUrls": ["{\"pattern\":\"https://example.id.smallstep.com\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep Accounts Intermediate CA\"}}}"]
+       "AutoSelectCertificateForUrls": ["{\"pattern\":\"https://example.id.smallstep.com\",\"filter\":{\"ISSUER\":{\"CN\":\"Smallstep example Accounts Intermediate CA\"}}}"]
    }
    ```
 
