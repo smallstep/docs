@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: April 10, 2025
+updated_at: April 24, 2025
 html_title: Configure your web browsers to use Smallstep hardware-bound device identtiy certificates.
 description: This tutorial describes how to set up web browsers to access resources using mutual TLS and Smallstep certificates.
 ---
@@ -107,7 +107,7 @@ when a protected resource is accessed.
        <array>
          <dict>
            <key>pattern</key>
-           <string>[Server URL]</string>
+           <string>[Server URL pattern]</string>
            <key>filter</key>
            <dict>
               <key>ISSUER</key>
@@ -122,8 +122,10 @@ when a protected resource is accessed.
    </plist>
    ```
 
-   Replace `[Server URL]` with the server that requires certificate authentication.
-   This field is an [Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
+   Replace `[Server URL pattern]` with the server that requires certificate authentication. This field is a [Chrome Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
+
+   - Example: `[.*]xample.com` matches `xample.com` and `hello.xample.com` for any scheme, port, and path. It will not match `example.com`.
+   - For more examples, see [the Chrome Enterprise docs](https://chromeenterprise.google/policies/url-patterns/).
 
    Replace `[Team Slug]` with your Smallstep team slug.
 
