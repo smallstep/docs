@@ -1,0 +1,267 @@
+---
+updated_at: May 08, 2025
+title: Connect Intune to Smallstep
+html_title: Connect Intune to Smallstep
+description: Configure Intune to deploy the Smallstep Agent and distribute certificates and configuration to Mac clients.
+---
+
+Smallstep can integrate with Microsoft Intune to synchronize your device inventory, to excahnge SCEP tokens, and to enroll your fleet with Smallstep using the Smallstep Agent. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep for bootstrapping.
+
+In this document, we will configure your Microsoft Intune instance for use with your Smallstep team and any Windows endpoints.
+
+To configure the connection, let’s first set up an Application in Entra ID. Then, we’ll add the client credentials to Smallstep.
+
+# Prerequisites
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Microsoft Azure / Entra ID](https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account?icid=azurefreeaccount) Tenant
+- A [Microsoft Intune](https://www.microsoft.com/en-us/security/business/microsoft-intune) Tenant
+- A test device to enroll for management. This can be a Windows VM, but you may need a physical device or additional Wi-Fi adapter if you are testing an Enterprise Wi-Fi connection.
+
+Client requirements:
+
+- The agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  ```
+- Windows 10 (Anniversary Edition) or higher is supported. Windows Home is not supported.
+
+# Step-by-step instructions
+
+### 1. Register an Entra ID Application
+
+You’ll need to register an Application in Entra ID that connects Smallstep to Intune. 
+
+In the Entra Admin Center, [Register an Application](https://entra.microsoft.com/#view/Microsoft_AAD_RegisteredApps/CreateApplicationBlade/quickStartType~/null/isMSAApp~/false) with the following properties:
+
+- Name the application “Smallstep”
+- Leave all other values alone
+- Select **Register**
+
+In your new App Registration, copy the **Application (client) ID** value, which you will register with Smallstep later.
+
+Next, visit the **Certificates & secrets** blade.
+
+Select **＋ New client secret**, and use the following properties:
+
+- Name the secret “Smallstep Secret”
+- Select **Add** to create the secret
+
+Copy the **Client Secret Value**, which you will register with Smallstep later.
+
+Choose a validity period that matches your security policies. When your client secret expires, you will need to update it in your Smallstep settings.
+
+### 2. Grant API Permissions
+
+Now we’ll connect the App Registration to Intune by adding application permissions.
+
+In the App Registration, visit the **API Permissions** blade.
+
+First, add the following permissions:
+
+- Microsoft Graph → Application permissions → `Application.Read.All`
+- Microsoft Graph → Application permissions → `DeviceManagementManagedDevices.Read.All`
+- Intune → Application permissions → `scep_challenge_provider`
+- Intune → Application permissions → `get_data_warehouse`
+
+Next, select **✓ Grant admin consent** on the API permissions page, and confirm.
+
+Here’s how the Configured permissions should look:
+
+![](/graphics/Intune_permissions.png)
+
+You’ve completed the App Registration setup.
+
+### 3. Configure Smallstep
+
+In Smallstep, navigate to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices).
+
+Configure the Integration with the values you gathered above:
+
+- The Entra ID tenant **Primary domain**, from your [Entra ID Tenant Overview](https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView) (eg. `contoso.onmicrosoft.com`)
+- The App Registration **Application (client) ID**
+- The App Registration **Secret Value**
+
+Within a few minutes, you will see all of your Intune devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory is synced approximately every four hours.
+
+### 4. Add the Smallstep Agent for app distribution
+
+In this step, we’ll add the Smallstep Agent to Intune for distribution to devices.
+
+1. In Intune,
+    1. Start at [Windows Apps](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/AppsWindowsMenu/~/windowsApps)
+    2. Choose **+ Create,** and then select **Windows App (Win32)**
+    3. [Download the Smallstep agent package](https://github.com/smallstep/agent/releases/download/intune-win-prerelease/step-agent-plugin-Setup_amd64_0.43.0.intunewin) and select it for upload in Intune.
+    - For the App Information tab:
+        - Under Publisher, use “Smallstep”
+        - Choose “Next”
+    - For the Program tab:
+        - For Install Command, use:
+          ```
+          step-agent-plugin-Setup_amd64_<version>.exe /silent
+          ```
+          Replace `<version>` with the version of the Smallstep Agent being distributed.
+        - For Uninstall Command, use:
+          ```
+          msiexec /x "{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}"
+          ```
+        - Choose “Next”
+    - For the Requirements tab:
+        - Operating System Architecture: 64-bit
+        - Minimum operating system: Windows 10 1607
+    - For the Detection rules tab:
+        - Rules format: Manually configure detection rules
+        - Choose **+ Add**
+            - Rule Type: Registry
+            - Key Path:
+              ```
+              HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}}_is1
+              ```
+            - Value Name: `VersionMinor`
+            - Detection Method: Integer Comparison
+            - Operator: Greater than or equal to
+            - Value: `<smallstep-agent-minor-version>`
+                - Make sure you replace this with the current **minor** version (using SemVer conventions) of the Smallstep Agent being distributed. For example: `51` for version `0.51.0`.
+        - Choose “Next”
+    - For the Dependencies tab:
+        - Choose “Next”
+    - For the Supersedence tab:
+        - Choose “Next”
+    - For the Assignments tab:
+        - Assign the app to devices as desired.
+    - On “Review and Create” click **Create**
+
+### 5. Configure Agent Enrollment Policy Set
+
+In this step, we’ll tie everything together by creating Windows policy to enroll devices using the Smallstep Agent.
+
+1. In the Smallstep dashboard, visit [Device Settings](https://smallstep.com/app/?next=/settings/devices) and choose your Intune connection.
+    1. Select the **Settings** tab from the left-
+    2. Download the Root Certificate
+    3. Download the Intermediate Certificate
+    4. Copy and temporarily save the **SCEP server URL** shown on the page, eg. `https://agents.example.ca.smallstep.com/scep/integration-intune-b967f507`
+2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
+    1. Copy and temporarily save the **Team ID** value
+
+### Create a Policy in Intune
+
+1. In Intune, choose 🖥️ **Devices**
+2. Under the **Manage Devices** tab, Choose **Configuration**
+3. From the tabs at the top, select **Import ADMX**
+    1. Select **Import**
+    2. ADMX file: (upload [smallstep.admx](https://files.smallstep.com/intune/smallstep.admx))
+    3. ADML file for the default language:  (upload [smallstep-en-US.adml](https://files.smallstep.com/intune/smallstep-en-US.adml))
+    4. Click **Next**
+    5. On “Review and Create”, click **Create**
+4. From the tabs at the top, select **Policies**
+5. Click **Create** and then select **New Policy**
+    1. Select **Platform**
+        - Windows 10 and Later
+    2. Select **Profile Type**
+        - Templates
+    3. Select **Template Name**:
+        - Imported Administrative templates (Preview)
+    4. Configure the policy
+        1. Name: “Smallstep Agent”
+        2. Choose “Next”
+        3. Choose Setting Name: Smallstep → Settings → Smallstep Enrollment Settings
+        4. Within the settings pane:
+            1. Supported on: Enabled
+            2. Team Slug: (paste the Team ID you saved earlier)
+            3. Certificate URI:
+               ```
+               capi:store-location=machine;store=My;issuer=Smallstep (<TeamSlug>) Agents Intermediate CA;cn=step-agent-bootstrap
+               ```
+               Replace `<TeamSlug>` in the “Certificate URI” with your team’s slug.
+            4. Leave the other settings as is.
+            5. Choose “OK”
+    5. In the Assignments tab:
+        1. Assign the same devices that you deployed the Smallstep app to.
+    6. Click **Next**
+    7. On “Review and Create”, click **Create**
+6. Again, select **New Policy**
+    1. Select **Platform**
+        - Windows 10 and Later
+    2. Select **Profile Type**
+        - Templates
+    3. Select **Template Name**
+        - Trusted Certificate
+    4. Choose “Create”
+    5. Configure the policy
+        - Name: **Smallstep Agents Authority Root**
+        - In Configuration Settings
+            - Certificate file: (upload the Root certificate you downloaded earlier)
+    6. Set assignments
+        1. Set the assignments as desired
+    7. Click **Next** until “Review and Create”
+    8. Click **Create**
+7. Again, select **New Policy**
+    1. Select **Platform**
+        - Windows 10 and Later
+    2. Select **Profile Type**
+        - Templates
+    3. Select **Template Name**
+        - Trusted Certificate
+    4. Choose “Create”
+    5. Configure the policy
+        - Name: **Smallstep Agents Authority Intermediate**
+        - In Configuration Settings
+            - Certificate file: (upload the Intermediate certificate you downloaded earlier)
+            - Destination store: Computer Certificate Store — Root
+                
+                For legacy reasons, even though we are uploading an Intermediate CA here, we want to store it in the Root store, *not* the Intermediate store.
+                
+    6. Set assignments
+        1. Set the assignments as desired
+    7. Click **Next** until “Review and Create”
+    8. Click **Create**
+8. Click **Create** and then select **New Policy**
+    1. Select **Platform**
+        - Windows 10 and Later
+    2. Select **Profile Type**
+        - Templates
+    3. Select **Template Name**
+        1. SCEP Certificate
+    4. Configure the policy
+        - Name: **Smallstep SCEP**
+        - Under Configuration Settings
+            - Certificate Type: Device
+            - Subject name format: `CN=step-agent-bootstrap`
+            - Certificate validity period: 1 year (default)
+            - Key storage provider (KSP): **Enroll to Trusted Platform Module (TPM) KSP** (if present), or **Software KSP**
+            - Key usage: Digital Signature, Key Encipherment
+            - Key Size: 2048
+            - Hash Algorithm: SHA-2
+            - Root Certificate: **Smallstep Agents Authority Intermediate**
+            - Extended Key Usage:
+                - Choose “Client Authentication” in the Predefined Values column
+            - SCEP Server URLs: (paste the SCEP server URL you saved earlier)
+    5. Set assignments
+        1. Set the assignments as desired
+    6. Click **Next** until “Review and Create”
+    7. Click **Create**
+
+Your Smallstep team is now linked to Intune. The devices that you scoped will receive a certificate and have the agent installed and running.
+
+### Confirmation
+
+There's two ways to confirm installation on an endpoint:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- When viewing a Windows/Intune device in the Smallstep UI, you can review device logs to confirm connectivity to the platform and issued certificates.
+
+### Uninstall Smallstep on Intune
+
+In Intune, go to Apps and choose the Smallstep agent app.
+
+Under the Assignments tab, remove all devices from Required and Available sections, and add all devices to the Uninstall section.
+
+[OMA-URI Settings for Intune Wifi and Smallstep Agent](https://www.notion.so/OMA-URI-Settings-for-Intune-Wifi-and-Smallstep-Agent-1d6d17a91249808a8f29ee3a88f3394c?pvs=21)
