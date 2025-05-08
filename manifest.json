@@ -47,6 +47,10 @@
             {
               "title": "Connect Jamf Pro",
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Intune",
+              "path": "/tutorials/connect-intune-to-smallstep.mdx"
             }
           ]
         },
