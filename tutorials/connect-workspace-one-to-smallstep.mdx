@@ -1,0 +1,191 @@
+---
+updated_at: May 13, 2025
+title: Connect Workspace One UEM to Smallstep
+html_title: Connect Workspace One to Smallstep
+description: Configure Workspace One UEM to deploy the Smallstep Agent and distribute certificates and configuration to clients.
+---
+
+Smallstep can integrate with [Omnissa Workspace ONE UEM](https://www.omnissa.com/products/workspace-one-unified-endpoint-management/) to keep your device inventory in sync and to exchange SCEP tokens. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep.
+
+To configure the connection, let’s first set up an Application in Entra ID. Then, we’ll add the client credentials to Smallstep.
+
+# Prerequisites
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Workspace ONE UEM](https://www.omnissa.com/products/workspace-one-unified-endpoint-management/) tenant
+- A test device to enroll for management
+    - This can be a Windows VM, but you may need a physical device or additional Wi-Fi adapter for testing an Enterprise Wi-Fi connection. Windows Home edition is not supported.
+
+# Step-by-step instructions
+
+## Connect Smallstep to Workspace ONE via OAuth
+
+First, we’ll create a scoped API role for Smallstep:
+
+1. In Workspace ONE UEM, navigate to **Accounts → Admin Roles** and choose **+ Add Role**
+2. Create a role named “Smallstep” with a description of “Smallstep Integration”
+3. Smallstep needs Read access to Devices, using the REST API:
+Choose API → REST on the left, and choose ✅ Read for the row “Devices”
+    
+    ![Workspace ONE API Panel](workspace-one/api-panel.png)
+ 
+4. Choose **Save**
+
+Next, we’ll create an OAuth client for Smallstep:
+
+1. In Workspace ONE UEM, navigate to **Groups & Settings → Configurations** and find **OAuth Client Management** in the list.
+2. Choose **Add** and add a new client with a name of “Smallstep” and description of “Smallstep MDM Integration for Device Sync”
+3. For **Organization Group**, select the group most appropriate for managing your desired device inventory.
+4. For **Role**, choose **Smallstep**
+5. Choose **Save.**
+6. Copy the resulting client ID and secret value.
+
+### 2. Configure Smallstep OAuth settings
+
+In Smallstep, navigate to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices).
+
+Configure a new Omnissa Workspace ONE Integration with the values you gathered above:
+
+- The Workspace ONE UEM REST API URL for your tenant.
+    - This URL is shown in UEM’s settings. Navigate to
+    
+    **Groups and Settings** → **All Settings →** **System** → **Advanced** → **API** → **Rest API**
+    
+    and copy the REST API URL from that page.
+    
+- The Workspace ONE UEM [OAuth 2.0 Token URL for your region](https://docs.omnissa.com/bundle/WorkspaceONE-UEM-Console-BasicsVSaaS/page/UsingUEMFunctionalityWithRESTAPI.html#datacenter_and_token_urls_for_oauth_20_support)
+- The OAuth client ID and secret you saved in Step 1
+
+After saving the Workspace ONE connection, you will see settings for your integration. Copy the following details for later:
+
+- SCEP URL
+- SCEP Challenge URL
+- Challenge Basic Authentication Username
+- Challenge Basic Authentication Password
+
+Within a few minutes after adding the connection, you should see all of your Workspace ONE devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Device inventory is synced approximately every four hours.
+
+### 3. Deploy and configure the Smallstep Agent
+
+In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
+
+1. In Workspace One UEM,
+    - Go to Resources → Native Apps.
+    - Choose Add → Application File.
+    - Download the [latest version](https://github.com/smallstep/step-agent-plugin/releases/latest) of `step-agent-plugin_amd64_<version>.msi` and select it for upload to UEM. Note the version number you downloaded—you’ll need it later.
+    - Choose **Continue**
+2. In the Add Application panel’s **Details tab**,
+    - Set Supported Processor Architecture to `64-bit` (or `ARM64` if used)
+    - For Minimum OS, select Windows 10 (10.0.15063)
+3. In the Add Application panel’s **Deployment Options** tab,
+    - Set Install Context to **Device**
+4. FInally, choose **Save & Assign**
+
+### For ARM64 devices
+
+If you also are deploying to ARM-based devices, repeat these steps for the `arm64` MSI installer from the [releases page](https://github.com/smallstep/step-agent-plugin/releases/latest).
+
+Workspace ONE will try to distribute *both* installers to both `arm64` and `amd64` devices. You’ll need to segregate your devices by OS and CPU Architecture. To do this, create two new Smart Groups in Groups & Settings → Assignment Groups—one for `arm64` devices, and one for `amd64` devices. Assign each application to the appropriate Smart Group.
+
+The Application Distribution Assignment page appears next.
+
+1. Give the Assignment a name
+2. Choose the groups you’d like to assign the application to. Assign the app to a single devices or a small group of test devices for a staged rollout.
+3. Select App Delivery Method: Auto
+4. Create the Assignment.
+5. Choose **Save**
+6. Choose **Publish** to begin distributing the app.
+
+### Create a script for Smallstep Agent configuration
+
+1. In Workspace One UEM, visit **Resources → Scripts**
+2. Choose **Add** and then **Windows**
+    1. In the General tab, provide a name for the script, such as “Smallstep Agent Enrollment”
+    2. On the Details tab, ensure the **Language** is “Poweshell” and the **Execution Context & Privileges** is “System Context”
+    3. Use the following snippet as the **Code**, making sure to replace `<team-id>` with the Team ID value you copied from the Smallstep UI earlier.
+        
+        ```xml
+        New-Item -Path "HKLM:\Software\Policies\Smallstep"
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-id>) Agents Intermediate CA;cn=$env:DEVICE_ID"
+        ```
+        
+    4. In the Variables tab, click **Add**. Set the variable **Key** to `DEVICE_ID` and the variable **Value** to `{DeviceUuId}` 
+
+### 4. Configure Agent Enrollment Profiles
+
+In this step, we’ll tie everything together by creating Windows policy to enroll devices using the Smallstep Agent.
+
+### Gather required details
+
+1. You’ll need the following values from when your configuration your Workspace ONE connection:
+    - SCEP URL
+    - SCEP Challenge URL
+    - Challenge Basic Authentication Username
+    - Challenge Basic Authentication Password
+    
+    If you need to retrieve these again, you can always visit: [**Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
+    
+
+### Add a Workspace ONE CA resource
+
+For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s Dynamic SCEP and NDES enrollment protocols.
+
+1. In Workspace One UEM, visit **Resources → Certificate Authorities**
+2. Choose **+ Add**
+    1. Provide a name for the CA connection, e.g. Smallstep Agents CA
+    2. For Authority Type, choose `Microsoft ADCS`
+    3. For Protocol, choose `SCEP` 
+    4. For Version, choose `NDES 2008/2012` ([NDES for SCEP](https://docs.omnissa.com/bundle/CertificateAuthorityIntegrationsV2410/page/NDESforSCEP.html))
+    5. Provide the SCEP URL from Step 1
+    6. For Challenge Type, choose `Dynamic`
+    7. Provide the Challenge Username and Password from Step 1
+    8. No client certificate is needed
+    9. Provide the SCEP Challenge URL from Step 1
+    10. Choose **Show Advanced Options**
+        - For SCEP Challenge Length, choose `32`
+    11. Choose **Test Connection** and wait for a ✅ success modal
+3. Choose **Save and Add Template**
+
+### Add a Workspace ONE certificate request template
+
+A new modal screen will be presented with the empty Request Template configuration
+
+1. Provide a name for the Template, e.g. `Smallstep Agents`
+2. For Certificate Authority, choose the Smallstep CA you just connected
+3. For the subject name, use a value of `CN={DeviceUuid}`
+4. For Private Key Length, use 2048
+5. For Private Key Type, choose both Signing and Encryption
+6. Add a new SAN Type of type URL, and set the value to `deviceid://{DeviceUuid}`
+7. For Automatic Certificate Renewal, choose Enabled
+    - Pick an appropriate Auto Renewal Period (5 days is common)
+8. Ensure Publish Private Key is Disabled
+9. Choose **Save**
+
+### Creating a Windows Profile
+
+1. In Workspace One UEM,
+    1. Go to Resources → Profiles.
+    2. Click Add, and pick Add Profile from the drop-down
+    3. Click Windows, and then select Windows again
+    4. Click Device Profile
+    5. Under General, Provide a name (e.g. “Smallstep Device Enrollment”)
+        1. Select the All Devices group in the Smart Groups dropdown
+        2. Other options can be left as-is
+        3. Optionally, click the View Device Assignment button to see the devices to which the profile will be distributed
+    6. Add a Credential by clicking the **Configure** button , and set the following settings:
+        1. Credential Store: Defined Certificate Authority
+        2. Certificate Authority: Choose the CA connection you created earlier
+        3. The certificate template should be selected automatically. If not, select an appropriate one.
+        4. Key Location: TPM Required
+        5. Certificate Store: Personal
+    7. Click Save and Publish to finalize the configuration of the profile.
+    8. A modal screen will be shown with the devices to which the profile will be distributed. Click Publish if the assignment looks OK.
+
+### Confirmation
+
+There's two ways to confirm installation on an endpoint:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
