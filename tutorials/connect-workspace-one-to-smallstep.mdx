@@ -20,14 +20,13 @@ You will need:
 
 # Step-by-step instructions
 
-## Connect Smallstep to Workspace ONE via OAuth
+### 1. Connect Smallstep to Workspace ONE via OAuth
 
 First, we’ll create a scoped API role for Smallstep:
 
 1. In Workspace ONE UEM, navigate to **Accounts → Admin Roles** and choose **+ Add Role**
 2. Create a role named “Smallstep” with a description of “Smallstep Integration”
-3. Smallstep needs Read access to Devices, using the REST API:
-Choose API → REST on the left, and choose ✅ Read for the row “Devices”
+3. Smallstep needs Read access to Devices, using the REST API. Choose API → REST on the left, and choose ✅ Read for the row “Devices”
     
     ![Workspace ONE API Panel](workspace-one/api-panel.png)
  
@@ -35,12 +34,12 @@ Choose API → REST on the left, and choose ✅ Read for the row “Devices”
 
 Next, we’ll create an OAuth client for Smallstep:
 
-1. In Workspace ONE UEM, navigate to **Groups & Settings → Configurations** and find **OAuth Client Management** in the list.
+1. In Workspace ONE UEM, navigate to **Groups & Settings → Configurations** and find **OAuth Client Management** in the list
 2. Choose **Add** and add a new client with a name of “Smallstep” and description of “Smallstep MDM Integration for Device Sync”
-3. For **Organization Group**, select the group most appropriate for managing your desired device inventory.
+3. For **Organization Group**, select the group most appropriate for managing your desired device inventory
 4. For **Role**, choose **Smallstep**
-5. Choose **Save.**
-6. Copy the resulting client ID and secret value.
+5. Choose **Save**
+6. Copy the resulting client ID and secret value
 
 ### 2. Configure Smallstep OAuth settings
 
@@ -49,12 +48,9 @@ In Smallstep, navigate to [Settings → Device Management](https://smallstep.com
 Configure a new Omnissa Workspace ONE Integration with the values you gathered above:
 
 - The Workspace ONE UEM REST API URL for your tenant.
-    - This URL is shown in UEM’s settings. Navigate to
-    
-    **Groups and Settings** → **All Settings →** **System** → **Advanced** → **API** → **Rest API**
-    
-    and copy the REST API URL from that page.
-    
+    - This URL is shown in UEM’s settings. Navigate to  
+      **Groups and Settings** → **All Settings →** **System** → **Advanced** → **API** → **Rest API**
+    - Copy the REST API URL from that page
 - The Workspace ONE UEM [OAuth 2.0 Token URL for your region](https://docs.omnissa.com/bundle/WorkspaceONE-UEM-Console-BasicsVSaaS/page/UsingUEMFunctionalityWithRESTAPI.html#datacenter_and_token_urls_for_oauth_20_support)
 - The OAuth client ID and secret you saved in Step 1
 
@@ -67,38 +63,7 @@ After saving the Workspace ONE connection, you will see settings for your integr
 
 Within a few minutes after adding the connection, you should see all of your Workspace ONE devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Device inventory is synced approximately every four hours.
 
-### 3. Deploy and configure the Smallstep Agent
-
-In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
-
-1. In Workspace One UEM,
-    - Go to Resources → Native Apps.
-    - Choose Add → Application File.
-    - Download the [latest version](https://github.com/smallstep/step-agent-plugin/releases/latest) of `step-agent-plugin_amd64_<version>.msi` and select it for upload to UEM. Note the version number you downloaded—you’ll need it later.
-    - Choose **Continue**
-2. In the Add Application panel’s **Details tab**,
-    - Set Supported Processor Architecture to `64-bit` (or `ARM64` if used)
-    - For Minimum OS, select Windows 10 (10.0.15063)
-3. In the Add Application panel’s **Deployment Options** tab,
-    - Set Install Context to **Device**
-4. FInally, choose **Save & Assign**
-
-### For ARM64 devices
-
-If you also are deploying to ARM-based devices, repeat these steps for the `arm64` MSI installer from the [releases page](https://github.com/smallstep/step-agent-plugin/releases/latest).
-
-Workspace ONE will try to distribute *both* installers to both `arm64` and `amd64` devices. You’ll need to segregate your devices by OS and CPU Architecture. To do this, create two new Smart Groups in Groups & Settings → Assignment Groups—one for `arm64` devices, and one for `amd64` devices. Assign each application to the appropriate Smart Group.
-
-The Application Distribution Assignment page appears next.
-
-1. Give the Assignment a name
-2. Choose the groups you’d like to assign the application to. Assign the app to a single devices or a small group of test devices for a staged rollout.
-3. Select App Delivery Method: Auto
-4. Create the Assignment.
-5. Choose **Save**
-6. Choose **Publish** to begin distributing the app.
-
-### Create a script for Smallstep Agent configuration
+### 3. Create a script for Smallstep Agent configuration
 
 1. In Workspace One UEM, visit **Resources → Scripts**
 2. Choose **Add** and then **Windows**
@@ -114,11 +79,45 @@ The Application Distribution Assignment page appears next.
         
     4. In the Variables tab, click **Add**. Set the variable **Key** to `DEVICE_ID` and the variable **Value** to `{DeviceUuId}` 
 
-### 4. Configure Agent Enrollment Profiles
+### 4. Deploy and configure the Smallstep Agent
+
+In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
+
+1. In Workspace One UEM,
+    - Go to Resources → Native Apps.
+    - Choose Add → Application File.
+    - Download the [latest version](https://github.com/smallstep/step-agent-plugin/releases/latest) of `step-agent-plugin_amd64_<version>.msi` and select it for upload to UEM. Note the version number you downloaded—you’ll need it later.
+    - Choose **Continue**
+2. In the Add Application panel’s **Details tab**,
+    - Set Supported Processor Architecture to `64-bit` (or `ARM64` if used)
+    - For Minimum OS, select Windows 10 (10.0.15063)
+3. In the Add Application panel’s **Deployment Options** tab,
+    - Set Install Context to **Device**
+4. FInally, choose **Save & Assign**
+
+<Alert severity="info">
+<div>
+    **Got ARM64 devices?**<br />
+    If you also are deploying to ARM-based devices, add another Native App for the `arm64` version of our [MSI installer](https://github.com/smallstep/step-agent-plugin/releases/latest). Workspace ONE will try to distribute *both* installers to both `arm64` and `amd64` devices. To avoid this, segregate your devices by OS and CPU Architecture. To do this, create two new Smart Groups in **Groups & Settings → Assignment Groups**—one for `arm64` devices, and one for `amd64` devices. Assign each application to the appropriate Smart Group.
+</div>
+</Alert>
+
+#### Assigning the application
+
+After saving the Native App, you'll see the Application Assignment panel.
+
+1. Give the Assignment a name
+2. Choose the groups you’d like to assign the application to. Assign the app to a single devices or a small group of test devices for a staged rollout.
+3. Select App Delivery Method: Auto
+4. Create the Assignment.
+5. Choose **Save**
+6. Choose **Publish** to begin distributing the app.
+
+### 5. Configure Agent Enrollment Profiles
 
 In this step, we’ll tie everything together by creating Windows policy to enroll devices using the Smallstep Agent.
 
-### Gather required details
+#### Gather required details
 
 1. You’ll need the following values from when your configuration your Workspace ONE connection:
     - SCEP URL
@@ -128,8 +127,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
     
     If you need to retrieve these again, you can always visit: [**Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
     
-
-### Add a Workspace ONE CA resource
+#### Add a Workspace ONE CA resource
 
 For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s Dynamic SCEP and NDES enrollment protocols.
 
@@ -149,7 +147,7 @@ For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s 
     11. Choose **Test Connection** and wait for a ✅ success modal
 3. Choose **Save and Add Template**
 
-### Add a Workspace ONE certificate request template
+#### Add a Workspace ONE certificate request template
 
 A new modal screen will be presented with the empty Request Template configuration
 
@@ -164,7 +162,7 @@ A new modal screen will be presented with the empty Request Template configurati
 8. Ensure Publish Private Key is Disabled
 9. Choose **Save**
 
-### Creating a Windows Profile
+#### Create a Windows Profile
 
 1. In Workspace One UEM,
     1. Go to Resources → Profiles.

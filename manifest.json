@@ -51,6 +51,10 @@
             {
               "title": "Connect Intune",
               "path": "/tutorials/connect-intune-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Workspace One UEM",
+              "path": "/tutorials/connect-workspace-one-to-smallstep.mdx"
             }
           ]
         },
