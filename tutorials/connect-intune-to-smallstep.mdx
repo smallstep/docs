@@ -1,5 +1,5 @@
 ---
-updated_at: May 08, 2025
+updated_at: May 13, 2025
 title: Connect Intune to Smallstep
 html_title: Connect Intune to Smallstep
 description: Configure Intune to deploy the Smallstep Agent and distribute certificates and configuration to Mac clients.
@@ -99,7 +99,7 @@ In this step, we’ll add the Smallstep Agent to Intune for distribution to devi
 1. In Intune,
     1. Start at [Windows Apps](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/AppsWindowsMenu/~/windowsApps)
     2. Choose **+ Create,** and then select **Windows App (Win32)**
-    3. [Download the Smallstep agent package](https://github.com/smallstep/agent/releases/download/intune-win-prerelease/step-agent-plugin-Setup_amd64_0.43.0.intunewin) and select it for upload in Intune.
+    3. [Download the Smallstep agent package](https://github.com/smallstep/step-agent-plugin/releases/latest) and select it for upload in Intune.
     - For the App Information tab:
         - Under Publisher, use “Smallstep”
         - Choose “Next”
@@ -151,7 +151,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
 2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
     1. Copy and temporarily save the **Team ID** value
 
-### Create a Policy in Intune
+### 6. Create a Policy in Intune
 
 1. In Intune, choose 🖥️ **Devices**
 2. Under the **Manage Devices** tab, Choose **Configuration**
