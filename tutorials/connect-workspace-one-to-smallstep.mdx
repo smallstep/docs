@@ -1,5 +1,5 @@
 ---
-updated_at: May 14, 2025
+updated_at: May 19, 2025
 title: Connect Workspace One UEM to Smallstep
 html_title: Connect Workspace One to Smallstep
 description: Configure Workspace One UEM to deploy the Smallstep Agent and distribute certificates and configuration to clients.
@@ -28,7 +28,7 @@ First, we’ll create a scoped API role for Smallstep:
 2. Create a role named “Smallstep” with a description of “Smallstep Integration”
 3. Smallstep needs Read access to Devices, using the REST API. Choose API → REST on the left, and choose ✅ Read for the row “Devices”
     
-    ![Workspace ONE API Panel](workspace-one/api-panel.png)
+    ![Workspace ONE API Panel](workspace-one-api-panel.png)
  
 4. Choose **Save**
 
@@ -125,7 +125,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
     - Challenge Basic Authentication Username
     - Challenge Basic Authentication Password
     
-    If you need to retrieve these again, you can always visit: [**Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
+    If you need to retrieve these again, you can always visit: **[Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
     
 #### Add a Workspace ONE CA resource
 
