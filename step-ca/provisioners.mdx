@@ -645,6 +645,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
   "configurationEndpoint": "https://accounts.google.com/.well-known/openid-configuration",
   "admins": ["you@smallstep.com"],
   "domains": ["smallstep.com"],
+  "scopes": ["openid", "email"],
   "listenAddress": ":10000",
   "claims": {
     "maxTLSCertDuration": "8h",
@@ -678,7 +679,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 
 - **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
 
-- **scopes**: a space-separated list of scopes OAuth clients should request. This is used by the `step` CLI. The default value is `openid email`.
+- **scopes**: a list of scopes OAuth clients should request. This is used by the `step` CLI. The default value is `["openid","email"]`. Note: `step oauth` also accepts a `--scope` flag for supplying scopes on the client side.
 
 - **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
