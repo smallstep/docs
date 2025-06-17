@@ -677,7 +677,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 
 - **domains**<Reference id="star3" marker="*" />: is the list of domains valid. If provided only the emails with the provided domains will be able to authenticate.
 
-- **scopes**: a list of scopes OAuth clients should request. This is used by the `step` CLI. The default value is `["openid","email"]`. Note: `step oauth` also accepts a `--scope` flag for overriding scopes on the client side.
+- **scopes**: a list of scopes OAuth clients should request. This is used by the `step` CLI. The default value is `["openid","email"]`.
 
 - **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
 
