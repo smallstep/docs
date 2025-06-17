@@ -1,5 +1,5 @@
 ---
-updated_at: March 27, 2025
+updated_at: June 17, 2025
 title: Configuring `step-ca` Provisioners
 html_title: Configuring open source step-ca Provisioners
 description: Learn how to configure step-ca Provisioners
@@ -645,6 +645,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
   "configurationEndpoint": "https://accounts.google.com/.well-known/openid-configuration",
   "admins": ["you@smallstep.com"],
   "domains": ["smallstep.com"],
+  "scopes": ["openid", "email"],
   "listenAddress": ":10000",
   "claims": {
     "maxTLSCertDuration": "8h",
@@ -675,6 +676,8 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 - **admins**<Reference id="star3" marker="*" />: These privileged users may request certificates with arbitrary subject names (custom SANs). Non-privileged users may only request certificates for their email address.
 
 - **domains**<Reference id="star3" marker="*" />: is the list of domains valid. If provided only the emails with the provided domains will be able to authenticate.
+
+- **scopes**: a list of scopes OAuth clients should request. This is used by the `step` CLI. The default value is `["openid","email"]`.
 
 - **listenAddress**<Reference id="star3" marker="*" />: is the address (`:port` or `host:port`) where the authorization server will redirect the client's web browser at the end of the authorization flow. By default, the `step` client will bind to 127.0.0.1 on a random port. This parameter is only required if the authorization server demands a specific port for loopback IP redirect URIs.
 
