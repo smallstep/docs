@@ -69,7 +69,7 @@ Once you have a high-assurance device inventory, you still need enrollment, rene
 
 The Smallstep Agent uses a **provisional identity** (eg. an MDM-issued certificate) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
 
-The provisional identity is a pre-enrollment credential that allows the device to begin the enrollment process and potentially auto-approved. Note that a device inventory must already be imported or synced (eg. from an MDM) before bootstrapping.
+The provisional identity is a pre-enrollment credential that allows the device to begin the enrollment process and potentially be auto-approved. Note that a device inventory must already be imported or synced (eg. from an MDM) before bootstrapping.
 
 ```mermaid
 sequenceDiagram
@@ -226,7 +226,7 @@ These provisioned credentials are short-lived. Their key protection level varies
 | Safari | Smallstep attested | device attested | not available | not available |
 | Chrome | Smallstep attested | not available | device attested | device attested |
 | Firefox | software | not available | ? | ? |
-| Edge | not available | not available | device attested | device attested |
+| Edge | not available | not available | device attested | not available |
 | IPSec VPN | Smallstep attested | device attested | ? | ? |
 | Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested |
 
