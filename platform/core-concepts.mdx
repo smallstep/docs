@@ -11,7 +11,7 @@ This document describes the core concepts integral to the Smallstep platform.
 
 ## Device Inventory
 
-The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers**.** It forms the basis of your device-based authentication policies. 
+The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers. It forms the basis of your device-based authentication policies. 
 
 In order to build an inventory, we need to understand how to identify a device, and how to bootstrap trust with devices.
 
@@ -100,7 +100,7 @@ Here’s a typical step-by-step bootstrapping and enrollment workflow on a devic
 5. The agent requests a device attestation certificate from Smallstep’s Attestation CA. The Attestation CA verifies that the request is coming from a device in your inventory where the Endorsement Key (EK) is resident.
 6. Upon successful verification, the Smallstep Attestation CA signs an Attestation Certificate for the agent. This Attestation Certificate is used for remote key attestation.
 7. The agent uses the Attestation certificate to complete an ACME `device-attest-01` challenge from the **Smallstep Agent CA** to obtain a Smallstep **device certificate**. The device certificate cryptographically proves both the identity of the device and the hardware binding of the private key.
-8. Finally, the agent uses the device certificate to enroll short-lived client credentials needed for accessing protected resources. These come from the **Smallstep Account CA** or the **Smallstep Devices CA**, depending on the use case**.**
+8. Finally, the agent uses the device certificate to enroll short-lived client credentials needed for accessing protected resources. These come from the **Smallstep Account CA** or the **Smallstep Devices CA**, depending on the use case.
 
 ## Other enrollment workflows
 
@@ -245,7 +245,7 @@ Smallstep integrates with three types of enforcement points.
 ### Direct (eg. mutual TLS)
 
 ```mermaid
-graph TD
+graph DR
   Device --> Resource
 ```
 
