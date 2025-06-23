@@ -1,5 +1,5 @@
 ---
-updated_at: June 18, 2025
+updated_at: June 23, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -67,7 +67,7 @@ Once you have a high-assurance device inventory, you still need enrollment, rene
 
 ## Device Bootstrapping and Enrollment
 
-The Smallstep Agent uses a **provisional identity** (eg. an MDM-issued certificate) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
+The Smallstep Agent uses a **provisional identity** (eg. an SCEP certificate issued via MDM) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
 
 The provisional identity is a pre-enrollment credential that allows the device to begin the enrollment process and potentially be auto-approved. Note that a device inventory must already be imported or synced (eg. from an MDM) before bootstrapping.
 
@@ -149,8 +149,6 @@ sequenceDiagram
 	CA->>D: Hardware-protected SCEP Certificate (Device Identity)
 ```
 
-The device’s Endorsement public key must already be approved in the Smallstep device inventory.
-
 After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, Network Relays, VPNs, S/MIME, or client certificates for Safari.
 
 # Key Protection
@@ -189,7 +187,7 @@ This attests that the client is in possession of the key, but it does not prove 
 
 Locally, with a CLI tool, it’s possible to confirm that the key the CA has issued a certificate for is stored in the Secure Enclave on the device.
 
-This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increase attack cost to a level that is sufficient for some use cases, but its easier to bypass in practice than hardware attestations. 
+This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increases attack cost to a level that is sufficient for some use cases, but its easier to bypass in practice than hardware attestations. 
 
 This protection level depends on trusted compute primitives available on some platforms (e.g., system integrity protection, binary authorization).
 
@@ -203,7 +201,7 @@ With a hardware attested key, the secure element produces an attestation stateme
 
 **Device attested keys**
 
-This allows a third party to prove that a specific key is stored on *a specific device* or secure element. The device attestation includes cryptographic proof of the device’s serial number or other unique hardware identifier. Having the hardware identifier aids in bootstrapping and enrollment flows, but it doesn’t 
+This allows a third party to prove that a specific key is stored on *a specific device* or secure element. The device attestation includes cryptographic proof of the device’s serial number or other unique hardware identifier. Having the hardware identifier aids in zero-touch bootstrapping and enrollment flows.
 
 - Trust profile: To keep these keys safe, you’re trusting the secure element manufacturer
 
@@ -217,17 +215,17 @@ This allows a third party to prove that a specific key is stored on *a specific 
 
 Because many client apps are unable to directly use hardware bound keys, Smallstep’s agent may issue **provisioned credentials** from the CA—using hardware bound key for authentication to the CA—as a compatibility tradeoff.
 
-These provisioned credentials are short-lived. Their key protection level varies based on the application and operating system:
+These provisioned credentials are short-lived. Their key attestation level varies based on the application and operating system:
 
 |  | macOS (Smallstep agent) | macOS (agentless) | Windows | Linux |
 | --- | --- | --- | --- | --- |
 | Wi-Fi | Smallstep attested | device attested | device attested | device attested |
-| SSH | Smallstep attested | not available | device attested | device attested |
+| SSH | Smallstep attested | not supported | device attested | device attested |
 | Safari | Smallstep attested | device attested | not available | not available |
-| Chrome | Smallstep attested | not available | device attested | device attested |
-| Firefox | software | not available | ? | ? |
-| Edge | not available | not available | device attested | not available |
-| IPSec VPN | Smallstep attested | device attested | ? | ? |
+| Chrome | Smallstep attested | not supported | device attested | device attested |
+| Firefox | software key | not supported | talk to us | device attested |
+| Edge | talk to us | not supported | device attested | not available |
+| IPSec VPN | Smallstep attested | device attested | talk to us | talk to us |
 | Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested |
 
 ### A note about fallbacks
@@ -306,7 +304,7 @@ Pros
 - Works for most network resources
 - High assurance device authentication
 - Continuous authentication
-- IP allow lists are broadly support by Public SaaS applications
+- IP allow lists are broadly supported by Public SaaS applications
 
 Cons
 
