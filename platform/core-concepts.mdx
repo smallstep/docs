@@ -11,7 +11,7 @@ This document describes the core concepts integral to the Smallstep platform.
 
 ## Device Inventory
 
-The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers**.** It forms the basis of your device-based authentication policies. 
+The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers. It forms the basis of your device-based authentication policies. 
 
 In order to build an inventory, we need to understand how to identify a device, and how to bootstrap trust with devices.
 
@@ -100,7 +100,7 @@ Here’s a typical step-by-step bootstrapping and enrollment workflow on a devic
 5. The agent requests a device attestation certificate from Smallstep’s Attestation CA. The Attestation CA verifies that the request is coming from a device in your inventory where the Endorsement Key (EK) is resident.
 6. Upon successful verification, the Smallstep Attestation CA signs an Attestation Certificate for the agent. This Attestation Certificate is used for remote key attestation.
 7. The agent uses the Attestation certificate to complete an ACME `device-attest-01` challenge from the **Smallstep Agent CA** to obtain a Smallstep **device certificate**. The device certificate cryptographically proves both the identity of the device and the hardware binding of the private key.
-8. Finally, the agent uses the device certificate to enroll short-lived client credentials needed for accessing protected resources. These come from the **Smallstep Account CA** or the **Smallstep Devices CA**, depending on the use case**.**
+8. Finally, the agent uses the device certificate to enroll short-lived client credentials needed for accessing protected resources. These come from the **Smallstep Account CA** or the **Smallstep Devices CA**, depending on the use case.
 
 ## Other enrollment workflows
 
@@ -155,7 +155,7 @@ After enrollment, the resulting device identity certificate can be used for any 
 
 Now let’s turn our attention toward the client credentials issued by Smallstep.
 
-Smallstep [uses](https://www.notion.so/Docs-HOWTO-799081c270f24d188dd2c7966f5997ea?pvs=21) secure elements to offer the most advanced hardware key protection available today. And while secure elements are ubiquitous, application support for them is still uneven. Our goal is to smooth that out by offering the strongest key protection available for a given platform and application.
+Smallstep uses secure elements to offer the most advanced hardware key protection available today. And while secure elements are ubiquitous, application support for them is still uneven. Our goal is to smooth that out by offering the strongest key protection available for a given platform and application.
 
 Smallstep uses several private key protection levels depending on the use case, deployment method, and operating system.
 
@@ -181,13 +181,17 @@ But, without cryptographic proof of the key’s provenance, a relying party can�
 
 To support some applications on Apple platforms, our agent can emulate TPM remote key attestation. We use a process similar to the Trusted Computing Group’s remote attestation process. This is not device attestation, however.
 
-For this workflow, the Smallstep agent creates a key pair, gets a challenge from the attestation authority, activates the credential in the secure element, and proves that the secure element is in possession of the key by having it sign over a challenge. Finally, we send the signed challenge to the Smallstep CA, which is able to issue a cert.
+Here's the workflow:
+1. The Smallstep agent creates a key pair. The private key is generated in the Secure Enclave, and the public key is sent to the Smallstep attestation authority.
+2. The attestation authority responds with an encrypted secret that can only be decrypted using the private key.
+3. The Smallstep agent then proves to the attestation authority that is in possession of the private key by sending the decrypted secret.
+4. Finally, the attestation authority returns a signed attestation certificate.
 
-This attests that the client is in possession of the key, but it does not prove that the key is stored in a genuine Apple Secure Enclave.
+This certificate attests that the client is in possession of the private key, but it cannot prove that the key is stored in a genuine Apple Secure Enclave.
 
-Locally, with a CLI tool, it’s possible to confirm that the key the CA has issued a certificate for is stored in the Secure Enclave on the device.
+Locally, with a CLI tool, it’s possible to confirm that the key the CA has issued a certificate for matches the private key protected by the Secure Enclave.
 
-This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increases attack cost to a level that is sufficient for some use cases, but its easier to bypass in practice than hardware attestations. 
+This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increases attack cost to a level that is sufficient for some use cases. But in practice, its easier to bypass than hardware attestations. 
 
 This protection level depends on trusted compute primitives available on some platforms (e.g., system integrity protection, binary authorization).
 
@@ -223,7 +227,7 @@ These provisioned credentials are short-lived. Their key attestation level varie
 | SSH | Smallstep attested | not supported | device attested | device attested |
 | Safari | Smallstep attested | device attested | not available | not available |
 | Chrome | Smallstep attested | not supported | device attested | device attested |
-| Firefox | software key | not supported | talk to us | device attested |
+| Firefox | Smallstep attested | not supported | device attested | device attested |
 | Edge | talk to us | not supported | device attested | not available |
 | IPSec VPN | Smallstep attested | device attested | talk to us | talk to us |
 | Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested |
@@ -245,7 +249,7 @@ Smallstep integrates with three types of enforcement points.
 ### Direct (eg. mutual TLS)
 
 ```mermaid
-graph TD
+graph DR
   Device --> Resource
 ```
 
