@@ -1,5 +1,5 @@
 ---
-updated_at: June 23, 2025
+updated_at: June 24, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -280,8 +280,7 @@ There are other variants of this architecture, in which the resource is configur
 
 Examples
 
-- Wi-Fi, using WPA3 Enterprise EAP-TLS
-- Ethernet, using 802.1X
+- Wi-Fi, using WPA3 Enterprise EAP-TLS. In this scenario, an Access Point delegates authentication to a RADIUS server. But the delegation flow is an inverted form of what delegated SSO looks like: The client authenticates directly with the authentication server, which then makes a decision and tells the access point (resource) what to do. Because of this inversion, there is no bearer token needed on the client side. Wi-Fi could be considered is a variant of both direct and delegated authentication methods.
 - GitHub Enterprise repositories, using an [SSH Certificate Authority](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-git-access-to-your-organizations-repositories/about-ssh-certificate-authorities)
 - AWS API, using [AWS IAM Roles Anywhere](https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html)
 - Passkeys with Enterprise Attestation. An extension to the Passkey protocol, supported on managed Apple devices, adds certificate-based authentication to a Passkey authentication flow. This approach seems promising for SaaS and internal web applications.
@@ -330,7 +329,7 @@ sequenceDiagram
 
 The resource is configured to trust SSO for login. The Single Sign-on (SSO) provider (aka Identity Provider or IdP) is configured to require a hardware-bound device certificate at login.
 
-An important nuance to this pattern is that the IdP only verifies Device Identity during sign-on as a condition of issuing a *bearer token*. The bearer token—not the device certificate—is then used to access the Resource. Bearer tokens can’t be device-bound. They can be exfiltrated **and used on different devices. Key protection is hardware bound **at login, but it is software protected at access time.
+An important nuance to this pattern is that the IdP only verifies Device Identity during sign-on as a condition of issuing a *bearer token*. The bearer token—not the device certificate—is then used to access the Resource. Bearer tokens can’t be device-bound. They can be exfiltrated and used on different devices. Key protection is hardware bound at login, but it is software protected at access time.
 
 This pattern can be combined with the middlebox pattern, if the middlebox is configured to authenticate the IdP-issued bearer token.
 

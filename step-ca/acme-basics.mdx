@@ -1,4 +1,5 @@
 ---
+updated_at: June 24, 2025
 title: ACME Basics
 html_title: ACME Basics
 description: An introduction to ACME, the common ACME challenge types, and how to use ACME clients with `step-ca`
@@ -116,7 +117,15 @@ Further reading:
 * [Managed Device Attestation: ACME as the Bottom Turtle in Mobile Device Management](https://smallstep.com/blog/managed-device-attestation/)
 * [ACME Device Attestation Explained](https://smallstep.com/blog/acme-managed-device-attestation-explained/) focuses Device Attestation for MDM certificate enrollment on Apple devices.
 
-## Configure `step-ca` for ACME
+## Secure a `step-ca` host for ACME
+
+The `dns-01`, `http-01`, and `tls-alpn-01` challenge types
+depend on the CA having a trusted DNS service.
+You can configure the DNS resolver on your `step-ca` host
+to use either DNS over TLS or DNSSEC to authenticate its queries with DNS servers.
+Traditional, unauthenticated DNS is not recommended.
+
+## Configure a `step-ca` server for ACME
 
 Let's get an X.509 certificate via the ACME `http-01` challenge, using `step-ca`.
 
