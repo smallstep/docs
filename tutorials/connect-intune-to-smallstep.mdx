@@ -1,5 +1,5 @@
 ---
-updated_at: June 18, 2025
+updated_at: June 25, 2025
 title: Connect Intune to Smallstep
 html_title: Connect Intune to Smallstep
 description: Configure Intune to deploy the Smallstep Agent and distribute certificates and configuration to Mac clients.
@@ -16,8 +16,8 @@ To configure the connection, let’s first set up an Application in Entra ID. Th
 You will need:
 
 - A [Smallstep team](https://smallstep.com/signup)
-- A [Microsoft Azure / Entra ID](https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account?icid=azurefreeaccount) Tenant
-- A [Microsoft Intune](https://www.microsoft.com/en-us/security/business/microsoft-intune) Tenant
+- A [Microsoft Azure / Entra ID](https://azure.microsoft.com/en-us/pricing/purchase-options/azure-account?icid=azurefreeaccount) Tenant. A Global Administrator role is required to grant tenant-wide API consent.
+- A [Microsoft Intune](https://www.microsoft.com/en-us/security/business/microsoft-intune) Tenant. An Intune Administrator role is required.
 - A test device to enroll for management. This can be a Windows VM, but you may need a physical device or additional Wi-Fi adapter if you are testing an Enterprise Wi-Fi connection.
 
 Client requirements:
@@ -46,18 +46,17 @@ In the Entra Admin Center, [Register an Application](https://entra.microsoft.com
 - Leave all other values alone
 - Select **Register**
 
-In your new App Registration, copy the **Application (client) ID** value, which you will register with Smallstep later.
+Find your new App Registration, and copy the **Application (client) ID** value, which you will register with Smallstep later.
 
 Next, visit the **Certificates & secrets** blade.
 
 Select **＋ New client secret**, and use the following properties:
 
 - Name the secret “Smallstep Secret”
+- Choose a validity period that matches your security policies. When you rotate the client secret, you will need to update it in your Smallstep settings.
 - Select **Add** to create the secret
 
 Copy the **Client Secret Value**, which you will register with Smallstep later.
-
-Choose a validity period that matches your security policies. When your client secret expires, you will need to update it in your Smallstep settings.
 
 ### 2. Grant API Permissions
 
