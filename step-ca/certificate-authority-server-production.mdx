@@ -2,7 +2,7 @@
 title: Production considerations when running a certificate authority server
 html_title: Certificate authority server production considerations
 description: Learn about the important production considerations and sane cryptographic defaults that operators should know about when running a certificate authority server
-updated_at: February 12, 2024
+updated_at: July 07, 2025
 ---
 
 
@@ -554,6 +554,12 @@ There's a few things you should know before you deploy this setup:
   (or set `STEP_MTLS` to `false`).
   This will trigger an alternative renewal flow that employs authentication tokens.
   (See `step ca renew --help` for more details.)
+- The authentication token is a JWT that contains the CA URL in its audience claim. 
+  The CA expects the audience to match one of its configured DNS names.
+  If your proxy server is available on a different domain than your CA, 
+  your CA needs to be configured to have the domain of your proxy server
+  as one of its DNS names in the `dnsNames` property in `ca.json`.
+  (See [configuration options](./configuration.mdx#basic-configuration-options) for more details.)
 - By design, `step-ca` does not have an option to run in HTTP only.
   Philosophically, we value perimeterless security
   and we believe people should use encryption everywhere.

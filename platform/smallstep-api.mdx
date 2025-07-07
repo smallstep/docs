@@ -1,27 +1,28 @@
 ---
+updated_at: July 07, 2025
 title: Smallstep API
 html_title: Smallstep API
 description: The Smallstep platform is used across security, IT, and DevOps teams to enable end-to-end network encryption, privileged access management, passwordless authentication, and much more.
 ---
 
-With the Smallstep API, you can:
+With the Smallstep API, you can manage:
 
-- Register new devices in your Smallstep inventory
-- Manage your high-level protected resources, such as Wi-Fi or VPN configurations
-- Manage low-level resources like X.509 CAs, Attestation authorities, and provisioners
-- Manage hosts, host grants, and tags for [Smallstep SSH](../ssh/README.mdx)
+- Devices in your Smallstep inventory
+- High-level protected resources, such as Wi-Fi or VPN configurations
+- Lower-level PKI resources like X.509 CAs and provisioners
+- [Smallstep SSH](../ssh/README.mdx) hosts, host grants, and tags (use the [2023-11-01](https://gateway.smallstep.com/v2023-11-01) API version for this)
 - And more!
 
 The Smallstep API is [OpenAPI conformant](https://www.openapis.org/), with JSON requests and responses.
 
 ### Smallstep API Setup and Usage
 
-👉 [Smallstep API Specification and Playground](https://gateway.smallstep.com)
+👉 [Smallstep API Specification and Playground](https://gateway.smallstep.com/v2025-01-01)
 
 You can get an API token in two ways:
-- **Long-term token**: In your [Smallstep settings](https://smallstep.com/app?next=/settings). Under **API Tokens**, choose **+ Add Token.** This token has a 10 year validity period and will only be displayed once. Please store it in a safe place!
-- **Short-term token**: On the command line, using the [`step` CLI](../step-cli/README.mdx). The [`step api token create`](../step-cli/reference/api/token/create/README.mdx) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token with a 1 hour validity period.
-  To use this option, you must configure a trusted root CA in your [Smallstep settings](https://smallstep.com/app?next=/settings). The trusted root can be a Smallstep CA or an external CA. Only one trusted root CA may be configured.
+- **Smallstep UI**: [Add a token in Smallstep settings](https://smallstep.com/app/?next=/settings/api/tokens/add). You can choose the validity period and scopes here.
+- **Command Line**: On the command line, using the [`step` CLI](../step-cli/README.mdx). The [`step api token create`](../step-cli/reference/api/token/create/README.mdx) command accepts a client certificate and private key to authenticate with Smallstep and issue a temporary API token with a 1 hour validity period.
+  To use this option, you must [configure one or more trusted root CAs in the Smallstep UI](https://smallstep.com/app/?next=/settings/api/trusted-roots/edit). Trusted roots can be Smallstep CAs or external CAs.
 
 ### API Clients
 
@@ -36,34 +37,24 @@ Devices added via API are automatically approved.
 but they will not be marked as high-assurance
 until Smallstep receives an attestation from the device.
 
-For each device, use the [Save Collection Instance](https://gateway.smallstep.com/v2023-11-01/operations/PutCollectionInstance) endpoint to create a device.
-- For the `collectionSlug`, use `default`
-- For Apple devices, the `instanceID` must be the device's serial number.
-- For TPM 2.0 devices, the `instanceID` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
-
-For the body of the request,
-create a user using the following value 
-(replacing `carl@smallstep.com` with the device owner's email address):
-
-```
-{
-  "data": {
-    "name": "Carl's MacBook Pro",
-    "smallstep:identity": "carl@smallstep.com"
-  }
-}
-```
+Use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
+- For Apple devices, the `permanentIdentifier` must be the device's 9-character serial number.
+- For TPM 2.0 devices, the `permanentIdentifier` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
+- To create and assign a user to a device, fill in the `user` fields.
 
 Once added,
 the devices will be automatically approved.
 
-You can see the device using the [ListCollectionInstances](https://gateway.smallstep.com/v2023-11-01/operations/ListCollectionInstances) endpoint:
+You can see the device using the [List Devices](https://gateway.smallstep.com/v2025-01-01/operations/ListDevices) endpoint:
 
 ```bash
 set +o history
-echo "Authorization: Bearer [your token]" > api_headers
+echo "Authorization: Bearer [your API token]" > api_headers
 set -o history
-curl -sH @api_headers https://gateway.smallstep.com/api/collections/default/items | jq
+curl -sH @api_headers --request GET \
+  --url https://gateway.smallstep.com/api/devices \
+  --header 'Accept: application/json' \
+  --header 'x-smallstep-api-version: 2025-01-01' | jq
 ```
 
 Or, in your Smallstep dashboard,

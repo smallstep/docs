@@ -1,91 +1,346 @@
 ---
+updated_at: July 07, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
-description: High-level overview of the major components and concepts you’ll encounter while working with the Smallstep platform, and how they interact/relate with one another to protect your resources and provide strong assurance of device identity.
+description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
 ---
-![Device Identity Attestation Flow](/graphics/tpm-attestation.png)
 
-# Workflow Overview
+Device Identity ensures that only company-owned devices can access your enterprise's most sensitive resources, from Wi-Fi networks to SaaS apps. By using certificates to bind access to hardware, Smallstep neutralizes security threats and ensures compliance and governance across your organization.
 
-Smallstep protects your organisation from phishing and data breach attacks, by limiting access to corporate resources to only company-owned or approved devices.
-
-This document provides an overview of the major components and concepts you’ll encounter in the Smallstep platform, and how they work together to protect your resources and provide strong assurance of device identity.
-
-Here's how Smallstep gets the right certificates to your devices. In this example, we'll assume we're enrolling a Windows or Linux device with a TPM 2.0 crypto processor chip. Apple devices enroll with Secure Enclave, but the workflow is similar.
-
-1. As an administrator, you register your company-owned or approved devices in the Smallstep web UI, using a permanent identifier for the device, such as the TPM 2.0 Endorsement Public Key (EKPub). Smallstep has an API and integrations that simplify syncing device identiers from other services such as MDM servers or IT asset management services.
-2. You (or your employee) installs the **Smallstep app** on a registered device. 
-3. The Smallstep app kicks off the device identity trust bootstrapping process by instructing the cryptographic processor (TPM) to create an Attestation Key (AK) pair.
-4. The Smallstep app requests a device attestation certificate (AKCert) from the **Smallstep Attestation CA**.
-5. The Smallstep Attestation CA verifies that:  
-   a) The request is coming from a company-owned or company-approved device, by checking if the EKPub is registered on your Smallstep team device inventory, and  
-   b) The request is coming from a device where the Endorsement Key is resident, by asking the TPM to decrypt a challenge encrypted by the CA using the EKPub. 
-6. Upon verification, the Smallstep Attestation CA signs an Attestation Certificate for the app. The Attestation Certificate cannot be used for any purpose other than attestation. 
-7. The app uses the Attestation certificate complete an ACME `device-attest-01` challenge from the **Agent CA** to obtain a Smallstep device certificate. 
-8. Finally, the app uses the Smallstep device certificate via an X5C **Provisioner** to obtain client certificates needed by the device, from your **Smallstep Account CA**. 
-
-This workflow requires no credentials be configured in the app. No passwords. The Smallstep device certificate is stored only in memory, never saved to disk. The client certificates may be short-lived or have TPM-protected private keys, depending on what the operating system and the target application can support.
-
-# Definitions
-
-## Device Identifiers
-
-Before restricting access to organizational resources to only your devices, you must register your devices. Smallstep offers a device API to register and document your devices.
-
-Cryptographic processors used to establish trust in a device workflow come with a unique per-device asymmetric key pair that is hardcoded during manufacturing. For TPM modules, this key pair is known as the Endorsement Key. Sometimes, the TPM's manufacturer signs and includes an Endorsement Key Certificate (EKcert). For Apple's Secure Enclave, this is the Secure Enclave UID, a root cryptographic key fused to the secure enclave during manufacturing, and is inaccessible even to Apple. 
-
-A third party could verify possession of an Endorsement Key pair by encrypting a small piece of data with the public key and asking the TPM to decrypt it with the private key. This simple device authentication mechanism offers the highest assurance that a request originates from a known device, compared to the SCEP + MDM enrolment process.
-
-## Smallstep app
-The Smallstep app is a desktop app that offers a uniform experience for device identity across macOS, Windows, and Linux. It is the foundation for Smallstep's high-assurance device identity attestation workflow, automating the issuance of certificates to devices and configuring the components that depend on these certificates. 
-
-The app is installed on individual company-managed devices and only collects the device security context essential for your organisation's administrative policy configuration.
-
-After proving its identity to the Smallstep Attestation CA, the app obtains a device identity certificate. This device certificate is then used to obtain short-lived client resources for accessing organisational resources such as Wi-Fi or VPN networks, ensuring that sensitive organisational resources are only accessible from trusted company-managed devices.
-
-## Smallstep Attestation CA
-The Smallstep Attestation CA service is responsible for verifying the identity of a device that is authenticating itself. It confirms that the key presented by the device is hardware-bound and that the device is a known device registered to your Smallstep team account.
-
-The Attestation CA carries out a challenge/response protocol with the attestor (the device with the TPM) to validate the TPM's identity and issue an attestation certificate to the device. Subsequently, the device uses the attestation certificate to acquire a device identity certificate from the Agent CA.
-
-For a device to successfully complete an ACME Device Attestation challenge and obtain a high-assurance device identity certificate, it must present a valid attestation certificate (chain) signed by a trusted Attestation CA.
-
-Devices like Apple and Yubikeys have an Attestation CA maintained by their manufacturers. However, not all devices with TPMs (and similar tech) operate in environments where an Attestation CA is available that can (remotely) attest to device identity.
-
-The Attestation CA was built into the Smallstep platform to provide a uniform standard device identity attestation protocol.
-
-## Agent CA
-The Agent CA is the certificate authority responsible for issuing, renewing, and revoking device certificates for device identity. It is configured to trust the Smallstep Attestation CA. As a result, when the app receives an Attestation Certificate from the Smallstep Attestation CA, it can use this certificate to procure a device identity certificate from the Agent CA by completing an ACME device-attest-01 challenge or another certificate enrollment method, in cases where the former is not possible.
-
-## Attestation Key (AK) Certificate
-An Attestation Certificate (AKcert) is a type of device identity certificate stored in the TPM, with its private key hardware-bound. The Attestation Certificate is provided to a trusted device after the Smallstep Attestation CA has verified its authenticity.
-
-To obtain an Attestation Certificate, the device must demonstrate to the Attestation CA that it possesses the hardware-bound private key of the cryptoprocessor. This Attestation Certificate is only used to establish a trust relationship with the device. The device uses it to acquire a device certificate, which is then used as an authentication token for client certificates.
-
-## Account
-An account is the means by which an end-user can access a resource protected by Smallstep, such as Wi-Fi, VPN, or a website. For instance, employees (their registered devices) in an organization who need access to a Wi-Fi network are issued Wi-Fi account certificates for their devices.
-
-## Account CA
-The Account CA is the certificate authority responsible for issuing 24-hour short-lived certificates for securely accessing different resources. When you create a Wi-Fi or VPN account via the Smallstep web app UI or API, the Agent obtains the respective Wi-Fi or VPN access certificate from the Account CA.
-
-Every Smallstep team has one Account Certificate Authority (CA). For each account created, an X5C provisioner is created.
-
-After the Agent has obtained a device identity certificate from the Agent CA, it uses this certificate to obtain the necessary client certificate from the Account CA via an X5C provisioner. The Account CA trusts the Agent CA as a root of trust and verifies every request against the Agent CA’s public key.
+This document describes the core concepts integral to the Smallstep platform.
 
 ## Device Inventory
 
-Your Device Inventory is your canonical list of corporate-owned devices.
-It forms the basis of your device-based authentication policies.
+The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers. It forms the basis of your device-based authentication policies. 
 
-## Provisioners
+In order to build an inventory, we need to understand how to identify a device, and how to bootstrap trust with devices.
 
-Provisioners provide various mechanism to authenticate certificate signing requests. The role of a Certificate Authority is to issue certificates to end entities, and it needs to somehow verify that the entity is authorised to make a certificate request.
+And trust is a gradient.
 
-Used to help bootstrap new entities into the PKI, each Provisioner addresses a particular environment. A certificate authority can have support different provisioners for enabling different use cases. A few examples include:
+### Assurance levels
 
-- **X5C provisioner** - Useful for when a client can authenticate a certificate request using an existing X.509 certificate from a different CA. It allows clients to use a different PKI to bootstrap trust. Configure this provisioner with a root CA certificate, and any certificate that chains up to that root can be used in a certificate request.
-- **ACME Provisioner** - Useful for automating TLS certificates, the ACME provisioner provides CSR generation, domain ownership verification, certificate download, and installation. With support for all of the ACME challenge types supported by Let’s Encrypt (HTTP, DNS, ALPN), the ACME provisioner unlocks the entire ACME ecosystem of tools and clients.
-- **The SCEP Provisioner** - Useful for signing and renewing certificates using the SCEP protocol ([RFC8894](https://datatracker.ietf.org/doc/html/rfc8894)). SCEP is very popular for use in network equipment and mobile device management (MDM). It runs over HTTP using POSTed binary data or base64-encoded GET parameters, using CMS (PKCS#7) and CSR (PKCS#10) data formats, and a (shared) secret authenticates clients to the CA.
-- **Cloud API Provisioners** - Useful for issuing certificates to public cloud virtual machines, Cloud API Provisioners use the native cloud provider API and instance identity documents to automate certificates. With support for AWS, GCP, and Azure metadata APIs, the Cloud API provisioner accelerates secure cloud operations.
-- **OIDC Provisioner** - Useful for getting certificates to people, the OAuth/OpenID Connect (OIDC) Provisioner uses identity tokens for authentication. With this provisioner, you can use single sign-on with G Suite, Okta, Azure Active Directory, or any other OAuth OIDC provider to verify the user's identity before issuing a certificate.
-- **JWK Provisioner** - Useful for a broad range of workflows, the JWK provisioner provides a flexible JSON Web Token-based authentication flow. Often paired with infrastructure automation solutions, the JWK Provisioner can deliver one-time tokens to a new workload to later be exchanged for an x.509 certificate.
+For decades, devices were identified by a nominal identifier such as a MAC address or IP address. Because they are self-reported and mutable, MAC and IP addresses are **device identifiers with no assurance**. These identifiers don’t offer a stable foundation for a device security policy.
+
+So, then, how can we identify devices without the ground shifting beneath our feet?
+
+We can improve our assurance of a device’s identity by having a user self-identify the device. They might literally DM the IT security team and say, “My device’s serial number is XA47ADKM5.” Let’s call this a **low-assurance device identifier**. The team has to trust the user to confirm the serial number. But, at least they have an identifier that is permanent, immutable, and unique.
+
+When the company purchases a device, an IT administrator can directly inspect it and retrieve some device identifiers. That gives us better assurance of the identifiers, and we can start building an inventory from this.
+
+### Device attestation
+
+But having an inventory doesn’t solve the whole problem. When we start interacting with the devices in our inventory over a network, how do we authenticate them? What prevents a device from spoofing its serial number?
+
+What we need is cryptographic proof of a device’s identity.
+
+And for that, we need a **secure element**. A secure element is a crypto processor chip or firmware—TPM 2.0 or Secure Enclave are examples. It contains permanent device identifiers that can be cryptographically proven (”attested”) to a third party by the manufacturer. This is the foundation for **high-assurance device identity**.
+
+And with a secure element, a third party (aka “relying party”) can prove not only the identity of the device, but the residency of keys generated in the secure element. 
+
+A secure element is capable of generating and storing keys that are **hardware bound**. The keys can be used by the device, but there’s no way to extract them without exploit or destructive disassembly in a semiconductor forensics lab.
+
+A secure element solves the authentication issue and gives us a great foundation for device identity. And, it unlocks another gift: **Zero-touch provisioning**. It’s possible to enroll devices into Smallstep with no credentials required on the client side, thanks to cryptographic device attestation.
+
+### Building an inventory
+
+Smallstep uses the following attestable device identifiers to build a high-assurance inventory:
+
+- On Apple platforms, the device’s serial number or hardware UDID.
+- On Windows and Linux devices with TPMs, there is a hardware Endorsement Key
+
+With Smallstep, you can build a device inventory by syncing devices from your MDM, via our API, or by having users self-register (with optional SSO).
+
+See our [Enrollment Guide](https://smallstep.com/docs/platform/enrollment-guide/) for details.
+
+<Alert severity="info">
+    <div>
+    A note on BYO devices
+    <p>
+    BYO devices pose a privacy challenge: Unique hardware identifiers cannot not be exposed to the organization when a device is used for both personal and organizational work. But, as long as we have a continuity of device identity across interactions with BYO devices, we don’t need to use permanent hardware identifiers. Instead, cryptographically secure software identifiers—scoped to the organization—can form a foundation for policy and authentication. BYO device identifiers aren’t usable for trust bootstrapping, though. The device’s owner will need to prove possession of the device before its identity can be trusted.
+    </p>
+    </div>
+</Alert>
+
+## Smallstep Agent
+
+Once you have a high-assurance device inventory, you still need enrollment, renewal, and revocation of certificates for those devices. That’s where the **Smallstep Agent** comes in. The Smallstep Agent is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources.
+
+## Device Bootstrapping and Enrollment
+
+The Smallstep Agent uses a **provisional identity** (eg. an SCEP certificate issued via MDM) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
+
+The provisional identity is a pre-enrollment credential that allows the device to begin the enrollment process and potentially be auto-approved. Note that a device inventory must already be imported or synced (eg. from an MDM) before bootstrapping.
+
+```mermaid
+sequenceDiagram
+	autonumber
+  participant MDM as MDM
+  participant D as Device
+	participant AG as Smallstep Agent
+	participant CA as Smallstep CA
+	participant SP as Smallstep Platform
+	MDM->>D: SCEP Payload
+	D->>CA: SCEP
+	CA->>SP: Device Registration
+	CA->>D: SCEP Certificate (Provisional Identity)
+	MDM->>D: Install Agent
+	AG->>SP: Authenticate using Provisional Identity
+	SP->>SP: Device Enrichment
+	SP->>AG: Configuration
+	AG->>CA: ACME-DA
+	CA->>AG: Hardware-protected Certificate (Agent Identity)
+```
+
+Here’s a typical step-by-step bootstrapping and enrollment workflow on a device with a TPM. Bootstrapping (aka “credential activation”) is standardized by the [Trusted Computing Group](https://trustedcomputinggroup.org/):
+
+1. The **Smallstep agent** is installed on a device that is not yet in the Smallstep inventory.
+2. A provisional identity is also procured from Smallstep, via an MDM SCEP payload or short-lived bootstrapping token.
+3. When the agent starts up, it kicks off a device trust bootstrapping process, using the provisional identity to establish a mutual TLS channel to Smallstep.
+4. The agent creates an Attestation Key pair in the TPM.
+5. The agent requests a device attestation certificate from Smallstep’s Attestation CA. The Attestation CA verifies that the request is coming from a device in your inventory where the Endorsement Key (EK) is resident.
+6. Upon successful verification, the Smallstep Attestation CA signs an Attestation Certificate for the agent. This Attestation Certificate is used for remote key attestation.
+7. The agent uses the Attestation certificate to complete an ACME `device-attest-01` challenge from the **Smallstep Agent CA** to obtain a Smallstep **device certificate**. The device certificate cryptographically proves both the identity of the device and the hardware binding of the private key.
+8. Finally, the agent uses the device certificate to enroll short-lived client credentials needed for accessing protected resources. These come from the **Smallstep Account CA** or the **Smallstep Devices CA**, depending on the use case.
+
+## Other enrollment workflows
+
+### Self-registration
+
+With self-registration, an end user can use our agent to sign into Smallstep (optionally via SSO) and register their device. The device is added to the team’s device inventory. An admin must approve the device before any certificates will be issued to it.
+
+### Agentless MDM enrollment
+
+On Apple platforms, Smallstep can be used without our agent software, with some limitations. For this workflow, there is no bootstrapping required. The device needs to be in the Smallstep inventory and marked as trusted before enrolling.
+
+Here’s an ACME Device Attestation enrollment workflow on an Apple device:
+
+### ACME-based MDM Enrollment (agentless)
+
+```mermaid
+sequenceDiagram
+	autonumber
+  participant MDM as MDM
+  participant D as Device
+  participant A as Apple
+	participant CA as Smallstep CA
+	participant SP as Smallstep Platform
+	MDM->>D: ACME Certificate Payload
+	D->>A: Attestation CSR
+	A->>D: Attestation Certificate
+	D->>CA: ACME Order
+	CA->>SP: Device Registration
+	CA->>D: Hardware-protected ACME Certificate (Device Identity)
+```
+
+Here’s a Windows device doing a SCEP-based enrollment with Intune:
+
+### SCEP-Based MDM Enrollment (agentless)
+
+```mermaid
+sequenceDiagram
+	autonumber
+  participant MDM as MDM
+  participant D as Device
+	participant CA as Smallstep CA
+	participant SP as Smallstep Platform
+	MDM->>D: SCEP Payload
+	D->>CA: SCEP
+	CA->>SP: Device Registration
+	CA->>D: Hardware-protected SCEP Certificate (Device Identity)
+```
+
+After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, Network Relays, VPNs, S/MIME, or client certificates for Safari.
+
+# Key Protection
+
+Now let’s turn our attention toward the client credentials issued by Smallstep.
+
+Smallstep uses secure elements to offer the most advanced hardware key protection available today. And while secure elements are ubiquitous, application support for them is still uneven. Our goal is to smooth that out by offering the strongest key protection available for a given platform and application.
+
+Smallstep uses several private key protection levels depending on the use case, deployment method, and operating system.
+
+Let’s clarify what’s available and explore how Smallstep helps smooth out some of the differences to offer a seamless UX for end users. We are here to lead the way on best practices in this arena, and we hope that our work will encourage broader support for hardware key protection.
+
+## Private key protection levels
+
+### **Software protected keys**
+
+**Software protected** private keys are either resident in memory (eg. a key in an OpenSSH agent) or stored on the file system (eg. a key in an NSS database). This is the weakest key protection level.
+
+- Trust profile: To keep software protected keys safe, a third party must trust the OS, applications, and end users
+
+### **Hardware bound keys**
+
+**Hardware protected** private keys are generated and stored inside a secure element such as a TPM, Secure Enclave, or YubiKey. These keys are bound to the hardware. They are *not exportable*, which means they can only be used for signing or decryption operations.
+
+From the perspective of the local system, hardware protected keys are much stronger than keys stored in memory or on disk. They provides assurance *to the application and its users* that keys cannot be exfiltrated.
+
+But, without cryptographic proof of the key’s provenance, a relying party can’t differentiate hardware keys from software keys. There is no *proof* (”attestation”) that a given key was generated in a secure element.
+
+**Smallstep Attested keys**
+
+To support some applications on Apple platforms, our agent can emulate TPM remote key attestation. We use a process similar to the Trusted Computing Group’s remote attestation process. This is not device attestation, however.
+
+Here's the workflow:
+1. The Smallstep agent creates a key pair. The private key is generated in the Secure Enclave, and the public key is sent to the Smallstep attestation authority.
+2. The attestation authority responds with an encrypted secret that can only be decrypted using the private key.
+3. The Smallstep agent then proves to the attestation authority that is in possession of the private key by sending the decrypted secret.
+4. Finally, the attestation authority returns a signed attestation certificate.
+
+This certificate attests that the client is in possession of the private key, but it cannot prove that the key is stored in a genuine Apple Secure Enclave.
+
+Locally, with a CLI tool, it’s possible to confirm that the key the CA has issued a certificate for matches the private key protected by the Secure Enclave.
+
+This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increases attack cost to a level that is sufficient for some use cases. But in practice, its easier to bypass than hardware attestations. 
+
+This protection level depends on trusted compute primitives available on some platforms (e.g., system integrity protection, binary authorization).
+
+- Trust profile: To keep these keys safe, you’re trusting system integrity protection, a specific application, and the secure element.
+
+**Hardware attested keys**
+
+With a hardware attested key, the secure element produces an attestation statement that proves that the key is hardware bound. Approaches here vary, from [Apple Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) to [Chrome Verified Access](https://developers.google.com/chrome/verified-access/developer-guide), but the industry is standardizing around ACME `device-attest-01`.
+
+- Trust profile: To keep these keys safe, you’re trusting the secure element manufacturer
+
+**Device attested keys**
+
+This allows a third party to prove that a specific key is stored on *a specific device* or secure element. The device attestation includes cryptographic proof of the device’s serial number or other unique hardware identifier. Having the hardware identifier aids in zero-touch bootstrapping and enrollment flows.
+
+- Trust profile: To keep these keys safe, you’re trusting the secure element manufacturer
+
+<Alert severity="info">
+    <div>
+    Apple platforms do not provide user-space APIs for device attestations due to privacy concerns – hardware identifiers used for attestation can be used to identify a device and correlate end-user activity across remote systems in a way that violates end-user privacy expectations. For this reason, Apple limits hardware attestations to the Managed Device Attestation (MDA) workflow, using ACME DA, which is only available to managed devices in Supervised mode.
+    </div>
+</Alert>
+
+### A note about provisioned credentials
+
+Because many client apps are unable to directly use hardware bound keys, Smallstep’s agent may issue **provisioned credentials** from the CA—using hardware bound key for authentication to the CA—as a compatibility tradeoff.
+
+These provisioned credentials are short-lived. Their key attestation level varies based on the application and operating system:
+
+|  | macOS (Smallstep agent) | macOS (agentless) | Windows | Linux |
+| --- | --- | --- | --- | --- |
+| Wi-Fi | Smallstep attested | device attested | device attested | device attested |
+| SSH | Smallstep attested | not supported | device attested | device attested |
+| Safari | Smallstep attested | device attested | not available | not available |
+| Chrome | Smallstep attested | not supported | device attested | device attested |
+| Firefox | Smallstep attested | not supported | device attested | device attested |
+| Edge | talk to us | not supported | device attested | not available |
+| IPSec VPN | Smallstep attested | device attested | talk to us | talk to us |
+| Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested |
+
+### A note about fallbacks
+
+Due to uneven support for hardware protection and attestation across operating systems and use cases, Smallstep’s agent offers an optional “hardware protection with fallback” approach. With this option, our software will use the highest key protection level available for a given environment.
+
+For example, Apple platforms support device attested keys for Enterprise Wi-Fi certificates. But Windows has no native ACME Device Attestation support, so we can only offer Smallstep attested keys for Enterprise Wi-Fi on Windows.
+
+## Enforcement Points
+
+Now let’s look at the other end of the handshake: enforcement points.
+
+When an access request is made to a protected resource, *something* needs to check whether the device making the request has a valid certificate
+
+Smallstep integrates with three types of enforcement points.
+
+### Direct (eg. mutual TLS)
+
+```mermaid
+graph LR
+  Device --> Resource
+```
+
+The most straightforward way to ensure device authentication is with **direct enforcement**. Some protected resources support direct certificate-based authentication with clients, usually with mutual TLS authentication (**mTLS**).
+
+Pros
+
+- Simple architecture
+- High-assurance device authentication
+
+Cons
+
+- Not widely supported
+- Can be hard to configure certificates and enforcement points
+- Each enforcement point adds a maintenance burden
+
+Examples
+
+- Google Workplace Apps (Docs, Sheets, Drive, etc), using [context-aware access](https://support.google.com/a/answer/9275380?hl=en)
+- GCP Portal, using [certificate-based access](https://cloud.google.com/beyondcorp-enterprise/docs/securing-resources-with-certificate-based-access)
+- Microsoft Office365 and other Apps, using [conditional access](https://learn.microsoft.com/en-us/entra/identity/conditional-access/overview)
+- Microsoft Entra, using [certificate-based access](https://learn.microsoft.com/en-us/entra/identity/authentication/concept-certificate-based-authentication)
+- Databases like MySQL & Postgres using certificates & mTLS
+
+**Variants**
+
+There are other variants of this architecture, in which the resource is configured to enforce device identity using some mechanism other than mutual TLS.
+
+Examples
+
+- Wi-Fi, using WPA3 Enterprise EAP-TLS
+- Ethernet, using 802.1X
+- GitHub Enterprise repositories, using an [SSH Certificate Authority](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-git-access-to-your-organizations-repositories/about-ssh-certificate-authorities)
+- AWS API, using [AWS IAM Roles Anywhere](https://docs.aws.amazon.com/rolesanywhere/latest/userguide/introduction.html)
+- Passkeys with Enterprise Attestation. An extension to the Passkey protocol, supported on managed Apple devices, adds certificate-based authentication to a Passkey authentication flow. This approach seems promising for SaaS and internal web applications.
+
+### Middlebox (eg. ZTNA)
+
+```mermaid
+graph TD
+    A(Device) -->|Mutual TLS| B(Relay or VPN)
+    B --> C(Resource)
+
+```
+
+A lot of SaaS apps don’t support mutual TLS. We can use a middlebox approach instead.
+
+In this scenario, a relay or VPN server is configured to use mTLS. The resource is configured to only accept connections from the relay.
+
+Either the relay is the only way to connect into a private network segment where the resource resides, or the resource may be on the public internet, but configured to only accept connections from the relay’s egress IP address.
+
+Pros
+
+- Simple and fast to deploy and maintain
+- Very well-known pattern
+- Works for most network resources
+- High assurance device authentication
+- Continuous authentication
+- IP allow lists are broadly supported by Public SaaS applications
+
+Cons
+
+- Device Identity is not enforced if an attacker can get around the relay
+- The relay is a failure point, network choke-point, or latency concern
+
+### Delegated (eg. SSO)
+
+```mermaid
+sequenceDiagram
+	participant D as Device
+  participant S as IdP
+  participant R as Resource
+  D ->> S: User Credentials
+  D ->> S: Device Authentication (mutual TLS)
+  S ->> D: Bearer Token
+  D ->> R: Bearer Token
+```
+
+The resource is configured to trust SSO for login. The Single Sign-on (SSO) provider (aka Identity Provider or IdP) is configured to require a hardware-bound device certificate at login.
+
+An important nuance to this pattern is that the IdP only verifies Device Identity during sign-on as a condition of issuing a *bearer token*. The bearer token—not the device certificate—is then used to access the Resource. Bearer tokens can’t be device-bound. They can be exfiltrated **and used on different devices. Key protection is hardware bound **at login, but it is software protected at access time.
+
+This pattern can be combined with the middlebox pattern, if the middlebox is configured to authenticate the IdP-issued bearer token.
+
+Pros
+
+- Simple and fast to deploy and maintain
+- Independent configuration of the enforcement point
+- One enforcement point covers many applications
+
+Cons
+
+- Bearer tokens are software protected
+
