@@ -1602,7 +1602,7 @@ In the `ca.json`, a GCP provisioner looks like:
 - **projectIDs**<Reference id="star9" marker="*" />: the list of project identifiers that are allowed to
   use this provisioner. If non is specified all project will be valid.
 
-- **organizationID**: an optional GCP organization ID. If provided, the provisioner will verify that all **projectIDs** belong to the GCP organization, using the `projects.getAncestry` call in the Cloud Resource Manager API.
+- **organizationID**: an optional GCP organization ID. If provided, the provisioner will verify that the project ID in the token belongs to the GCP organization, using the `projects.getAncestry` call in the Cloud Resource Manager API.
 
 - **disableCustomSANs**<Reference id="star9" marker="*" />: by default custom SANs are valid, but if this
   option is set to true only the SANs available in the instance identity
