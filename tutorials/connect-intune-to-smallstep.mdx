@@ -1,5 +1,5 @@
 ---
-updated_at: July 01, 2025
+updated_at: July 09, 2025
 title: Connect Intune to Smallstep
 html_title: Connect Intune to Smallstep
 description: Configure Intune to deploy the Smallstep Agent and distribute certificates and configuration to Mac clients.
@@ -100,9 +100,10 @@ In this step, we’ll add the Smallstep Agent to Intune for distribution to devi
     2. Choose **+ Create**, and then select **Windows App (Win32)**
     3. [Download the Smallstep agent `.intunewin` package for `amd64`](https://files.smallstep.com/intune/step-agent-plugin_amd64.intunewin) and select it for upload in Intune. (Contact Smallstep if you need an `arm64` installer).
     - For the App Information tab:
-        - Under Publisher, use “Smallstep”
-        - Note the minor version number. You'll need it below.
+        - For Publisher, use “Smallstep”
+        - Note the version number. You'll need it below.
         - Choose “Next”
+    - Continue to the Requirements tab
     - For the Requirements tab:
         - For **Check Operating System Architecture**, choose "Yes"
         - Select "Install on x64 systems"
@@ -111,17 +112,12 @@ In this step, we’ll add the Smallstep Agent to Intune for distribution to devi
     - For the Detection rules tab:
         - Rules format: Manually configure detection rules
         - Choose **+ Add**
-            - Rule Type: Registry
-            - Key Path:
-              ```
-              HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}}_is1
-              ```
-            - Value Name: `VersionMinor`
-            - Detection Method: Integer Comparison
+            - Rule Type: MSI 
+            - MSI product version check: Yes
             - Operator: Greater than or equal to
-            - Value: `<smallstep-agent-minor-version>`
-                - Make sure you replace this with the current **minor** version (using SemVer conventions) of the Smallstep Agent being distributed. For example: `51` for version `0.51.0`.
-        - Choose “Next”
+            - Value: Paste in the version number you noted earlier
+        - Choose “Ok”
+    - Continue to the Assignments tab
     - For the Assignments tab:
         - Assign the app to devices as desired.
     - On “Review and Create” click **Create**
