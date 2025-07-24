@@ -1,5 +1,5 @@
 ---
-updated_at: April 10, 2025
+updated_at: July 24, 2025
 title: Smallstep Agent for Linux
 html_title: Install the Smallstep Agent on a Linux endpoint
 description: The Smallstep agent is used across security, IT, and DevOps teams to enable end-to-end network encryption, privileged access management, passwordless authentication, and much more.
@@ -188,21 +188,26 @@ curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sud
     ```
     
 
-## Register the endpoint
+## Registering and approving endpoints
 
-### Auto-registration
+### Self-registration
 
-To configure the agent and register your Linux device with your Smallstep team, run:
+Users can configure the agent and register their Linux device with your Smallstep team by running:
 
 ```jsx
 sudo step-agent-plugin register [team name]
 ```
 
-### Manual registration
+By default, self-registration is not trust-on-first-use (TOFU).
+Devices must be approved by an admin before they can be used.
 
-Alternatively, you can configure the agent manually:
-1. First, [register and approve your devices via API](./enrollment-guide.mdx#add-devices-via-api).
-2. On your endpoints, update the `/etc/step-agent/agent.yaml` config file with your Smallstep team name and Smallstep Agent CA fingerprint.
+### Pre-registration via API
+
+Alternatively, you can pre-register all of your team's devices:
+
+1. [Register and approve your devices via API](./enrollment-guide.mdx#add-devices-via-api).
+   The devices you add via API will be pre-approved.
+2. Then, on your endpoints, update the `/etc/step-agent/agent.yaml` config file with your Smallstep team name and Smallstep Agent CA fingerprint.
 
    ```jsx
    team: "myteamname"
