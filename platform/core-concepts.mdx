@@ -1,5 +1,5 @@
 ---
-updated_at: July 07, 2025
+updated_at: July 24, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -107,6 +107,11 @@ Here’s a typical step-by-step bootstrapping and enrollment workflow on a devic
 ### Self-registration
 
 With self-registration, an end user can use our agent to sign into Smallstep (optionally via SSO) and register their device. The device is added to the team’s device inventory. An admin must approve the device before any certificates will be issued to it.
+
+### Bulk registration via API
+
+Admins can add devies that are not in MDM, including Linux endpoints, to your team's device inventory via the [Smallstep API](./smallstep-api.mdx).
+Devices added via API will be marked as approved for use with [the Smallstep agent](./smallstep-agent.mdx).
 
 ### Agentless MDM enrollment
 
