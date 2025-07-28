@@ -1,5 +1,5 @@
 ---
-updated_at: July 24, 2025
+updated_at: July 28, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -162,7 +162,7 @@ Now let’s turn our attention toward the client credentials issued by Smallstep
 
 Smallstep uses secure elements to offer the most advanced hardware key protection available today. And while secure elements are ubiquitous, application support for them is still uneven. Our goal is to smooth that out by offering the strongest key protection available for a given platform and application.
 
-Smallstep uses several private key protection levels depending on the use case, deployment method, and operating system.
+Smallstep uses several private key protection levels depending on the use case, protection method, and operating system.
 
 Let’s clarify what’s available and explore how Smallstep helps smooth out some of the differences to offer a seamless UX for end users. We are here to lead the way on best practices in this arena, and we hope that our work will encourage broader support for hardware key protection.
 
@@ -243,13 +243,14 @@ Due to uneven support for hardware protection and attestation across operating s
 
 For example, Apple platforms support device attested keys for Enterprise Wi-Fi certificates. But Windows has no native ACME Device Attestation support, so we can only offer Smallstep attested keys for Enterprise Wi-Fi on Windows.
 
-## Enforcement Points
+## Protection Patterns
 
-Now let’s look at the other end of the handshake: enforcement points.
+Now let’s look at the other end of the handshake:
+What happens at the enforcement point?
 
-When an access request is made to a protected resource, *something* needs to check whether the device making the request has a valid certificate
+When an access request is made to a protected resource, *something* needs to check whether the device making the request has a valid certificate.
 
-Smallstep integrates with three types of enforcement points.
+Smallstep integrates with three types of protection patterns.
 
 ### Direct (eg. mutual TLS)
 
@@ -268,8 +269,8 @@ Pros
 Cons
 
 - Not widely supported
-- Can be hard to configure certificates and enforcement points
-- Each enforcement point adds a maintenance burden
+- Can be hard to configure enforcement points and certificates
+- Every enforcement point adds a maintenance burden
 
 Examples
 
@@ -281,7 +282,7 @@ Examples
 
 **Variants**
 
-There are other variants of this architecture, in which the resource is configured to enforce device identity using some mechanism other than mutual TLS.
+There are other variants of this pattern, in which the resource is configured to enforce device identity using some mechanism other than mutual TLS.
 
 Examples
 
