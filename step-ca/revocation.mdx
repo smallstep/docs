@@ -1,4 +1,5 @@
 ---
+updated_at: August 19, 2025
 title: Certificate Revocation
 ---
 
@@ -27,14 +28,6 @@ Contrast this with _active revocation_ techniques used on the public internet.
 Web TLS certificates are valid for up to a year.
 Web browsers have to check CRLs (Certificate Revocation Lists) or use OCSP (Online Certificate Status Protocol) to verify that every certificate they receive has not been revoked.
 Active revocation requires clients to take an active role in certificate validation for the benefit of real-time certificate status.
-
-<Alert severity="info">
-  <AlertTitle>Need active revocation?</AlertTitle>
-  <div>
-    <Code>step-ca</Code> does not currently support active revocation mechanisms like a Certificate Revocation List (CRL) or Online Certificate Status Protocol (OCSP).
-	If you're sure you need it, our <a href="https://smallstep.com/signup?product=cm">Certificate Manager Advanced Authority</a> service supports active revocation.
-  </div>
-</Alert>
 
 This section will walk through a few examples for revoking X.509 certificates using `step-ca`.
 
