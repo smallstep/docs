@@ -38,7 +38,7 @@ And for that, we need a **secure element**. A secure element is a crypto process
 A high-assurance device identity requires:
 * Proof of the device's identity (using a platform certificate issued by the device's manufacturer, eg. Lenovo, Dell)
 * Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufactuerer, eg. Infineon, STMicro)
-* Cryptograhic binding between the trusted platform and the trusted secure element (provided by the platform)
+* Cryptographic binding between the trusted platform and the trusted secure element (provided by the platform)
 * Proof that a private key associated with the device is **hardware-bound** on its secure element. Hardware-bound keys can be used by the device, but there’s no way to extract them without an exploit or destructive disassembly in a semiconductor forensics lab.
 
 Once this identity is established and a device certificate is issued, a third party (aka “relying party”) can trust not only the identity of the device, but the residency of keys generated in its secure element. 
