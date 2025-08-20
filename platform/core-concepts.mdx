@@ -35,18 +35,22 @@ What we need is cryptographic proof of a device’s identity.
 
 And for that, we need a **secure element**. A secure element is a crypto processor chip or firmware—TPM 2.0 or Secure Enclave are examples. It contains permanent device identifiers that can be cryptographically proven (”attested”) to a third party by the manufacturer. This is the foundation for **high-assurance device identity**.
 
-And with a secure element, a third party (aka “relying party”) can prove not only the identity of the device, but the residency of keys generated in the secure element. 
+A high-assurance device identity requires:
+* Proof of the device's identity (using a platform certificate issued by the device's manufacturer, eg. Lenovo, Dell)
+* Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufactuerer, eg. Infineon, STMicro)
+* Cryptographic binding between the trusted platform and the trusted secure element (provided by the platform)
+* Proof that a private key associated with the device is **hardware-bound** on its secure element. Hardware-bound keys can be used by the device, but there’s no way to extract them without an exploit or destructive disassembly in a semiconductor forensics lab.
 
-A secure element is capable of generating and storing keys that are **hardware bound**. The keys can be used by the device, but there’s no way to extract them without exploit or destructive disassembly in a semiconductor forensics lab.
+Once this identity is established and a device certificate is issued, a third party (aka “relying party”) can trust not only the identity of the device, but also verify the residency of keys generated in its secure element. 
 
-A secure element solves the authentication issue and gives us a great foundation for device identity. And, it unlocks another gift: **Zero-touch provisioning**. It’s possible to enroll devices into Smallstep with no credentials required on the client side, thanks to cryptographic device attestation.
+Now we have a great foundation for device identity. And, we've unlocked another gift: **Zero-touch provisioning**. It's possible for new devices to automatically enroll themselves on their first boot, with no credentials required.
 
 ### Building an inventory
 
 Smallstep uses the following attestable device identifiers to build a high-assurance inventory:
 
 - On Apple platforms, the device’s serial number or hardware UDID.
-- On Windows and Linux devices with TPMs, there is a hardware Endorsement Key
+- On Windows and Linux devices with TPMs, there is a TPM Endorsement Key and a Platform Certificate.
 
 With Smallstep, you can build a device inventory by syncing devices from your MDM, via our API, or by having users self-register (with optional SSO).
 
