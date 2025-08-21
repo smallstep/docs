@@ -59,9 +59,9 @@ This API client will allow Smallstep to read your Jamf device inventory and mana
 5. Choose **Generate client secret**
 6. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
 
-## Connect Jamf to Smallstep
+## Connect Jamf Pro to Smallstep
 
-Let’s add the Jamf API credentials you just created to Smallstep.
+Let’s add the Jamf Pro API credentials you just created to Smallstep.
 
 1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
 2. Under Jamf, choose ➕ **Connect**
@@ -86,45 +86,12 @@ For compatibility reasons, Smallstep may use ACME or SCEP for certificate enroll
     5. Webhook Event: SCEPChallenge
 4. Choose **Save**
 
-Your Smallstep team is now linked to Jamf. Smallstep will do a partial sync of your device inventory from Jamf every hour, and a full sync every 8 hours.
+Your Smallstep team is now linked to Jamf Pro. Smallstep will do a partial sync of your device inventory from Jamf every hour, and a full sync every 8 hours.
 
 ## Install the Smallstep agent
 
-There's two ways to install the agent: Using Jamf, or using a separate software management tool.
+There's two ways to install the agent: Using Jamf Pro, or using a separate software management tool.
 For example, [Munki](https://www.munki.org/munki/) is a popular option for managing macOS apps in a large IT organizatoin.
-
-### Option: Install using a software management tool
-
-If you're using a software management tool:
-
-1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
-2. Distribute and install the package on your endpoints
-3. Add the following user launch agent file in `/Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist`:
- 
-   ```
-   <?xml version="1.0" encoding="UTF-8"?>
-   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-   <plist version="1.0">
-   <dict>
-       <key>Label</key>
-       <string>com.smallstep.launchd.Agent</string>
-       <key>ProgramArguments</key>
-       <array>
-           <string>/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent</string>
-           <string>start</string>
-           <string>managed</string>
-       </array>
-       <key>KeepAlive</key>
-       <true/>
-       <key>RunAtLoad</key>
-       <true/>
-       <key>AssociatedBundleIdentifiers</key>
-       <string>com.smallstep.Agent</string>
-   </dict>
-   </plist>
-   ```
-
-4. Register the launch agent with `launchctl load /Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist`
 
 ### Option: Install the agent via Jamf
 
@@ -140,7 +107,7 @@ In this step, you’ll upload the Smallstep agent package to Jamf’s distributi
     2. Filename: (upload from step #1)
 5. Choose **Save**
 
-### Create an Agent Bootstrap Script
+#### Create an Agent Bootstrap Script
 
 This step will install a script on your client devices that bootstraps the connection between your devices and Smallstep.
 
@@ -159,7 +126,7 @@ This step will install a script on your client devices that bootstraps the conne
             
 4. Choose **Save**
 
-### Create an Agent Installation Policy
+#### Create an Agent Installation Policy
 
 Next, we’ll configure the Script we just created to run on your client devices.
 
@@ -182,7 +149,7 @@ Next, we’ll configure the Script we just created to run on your client devices
     4. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
 4. Choose **Save**
 
-### Configure an Agent Enrollment Profile
+#### Configure an Agent Enrollment Profile
 
 In this step, we’ll tie everything together by creating a managed policy to enroll devices using the Smallstep Agent.
 
@@ -253,6 +220,46 @@ In this step, we’ll tie everything together by creating a managed policy to en
             3. Choose Save
 
 The devices that you scoped will receive a certificate and have the agent installed and running.
+
+### Option: Install using a software management tool
+
+If you're using a software management tool:
+
+1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+2. Distribute and install the package on your desired endpoints
+3. Create a user launch agent file on the endpoint, in `/Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist` for the primary user of the device.
+
+   The Smallstep agent does not yet support multi-user deployments on macOS&mdash;it must be installed for a single user:
+ 
+   ```
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>Label</key>
+       <string>com.smallstep.launchd.Agent</string>
+       <key>ProgramArguments</key>
+       <array>
+           <string>/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent</string>
+           <string>start</string>
+           <string>managed</string>
+       </array>
+       <key>KeepAlive</key>
+       <true/>
+       <key>RunAtLoad</key>
+       <true/>
+       <key>AssociatedBundleIdentifiers</key>
+       <string>com.smallstep.Agent</string>
+   </dict>
+   </plist>
+   ```
+
+4. On the endpoint, register the launch agent by running the following:
+
+   ```
+   launchctl load /Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist`
+   ```
+
 
 ## Confirmation
 
