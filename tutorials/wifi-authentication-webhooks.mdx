@@ -1,0 +1,164 @@
+---
+updated_at: September 04, 2025
+title: "Wi-Fi Authentication Webhooks"
+html_title: "Wi-Fi Authentication Webhooks"
+description: Smallstep's RADIUS server can call external webhooks for EAP-TLS authorization decisions.
+---
+
+> This feature is available to Smallstep Enterprise RADIUS customers.
+
+## Overview
+
+With Wi-Fi authentication webhooks, you can integrate Smallstep’s RADIUS authentication workflow with your own device posture or authorization checks during EAP-TLS Wi-Fi connection requests. All you need is a webhook server that Smallstep can reach out to. Your webhook server will evaluate or log the presented client certificate, and return an authorization decision.
+
+Smallstep can authenticate to your webhook server a bearer token or HTTP basic authentication.
+
+## Configuring a RADIUS Webhook in Smallstep
+
+Our [customer support team](https://support.smallstep.com/kb-tickets/new) can configure a new RADIUS webhook for you.
+
+## RADIUS Webhook specification
+
+Your webhook server should use a TLS server certificate issued by a public Web PKI CA.
+
+### Request format
+
+Your webhook server should expect the following request format:
+
+- Method: `POST`
+- Content-Type: `application/json`
+- Headers:
+    - `X-Smallstep-Webhook-ID:` A UUID for the RADIUS webhook making the request
+    - `X-Smallstep-Signature:` Hex‑encoded HMAC‑SHA256 of the raw request body using the webhook’s signing secret
+    - `Authorization:` Optional. Either "Bearer <token>" or HTTP Basic auth, if configured.
+- Body (JSON):
+    - `timestamp`: The RFC8222 timestamp of the request
+    - `x509Certificate`: A JSON representation of the certificate that follows [this data structure](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L17). Additionally, there is a `raw`  field containing a base64-encoded DER representation of the client certificate.
+
+Example request body:
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:00Z",
+  "x509Certificate": {
+    "subject": {
+      "country": ["US"],
+      "organization": ["Example Corp"],
+      "organizationalUnit": ["Engineering"],
+      "locality": ["San Francisco"],
+      "province": ["CA"],
+      "streetAddress": ["123 Main St"],
+      "postalCode": ["94105"],
+      "serialNumber": "123456",
+      "commonName": "craig@smallstep.com",
+      "names": [
+        {
+          "type": "2.5.4.3",
+          "value": "craig@smallstep.com"
+        }
+      ],
+      "extraNames": []
+    },
+    "issuer": {
+      "country": ["US"],
+      "organization": ["Example CA"],
+      "organizationalUnit": ["CA Unit"],
+      "locality": ["San Francisco"],
+      "province": ["CA"],
+      "streetAddress": ["456 CA St"],
+      "postalCode": ["94105"],
+      "serialNumber": "CA123",
+      "commonName": "Example Root CA",
+      "names": [],
+      "extraNames": []
+    },
+    "serialNumber": "270390854734985720984572058347298347234",
+    "sans": [
+      {
+        "type": "email",
+        "value": "craig@smallstep.com"
+      }
+    ],
+    "emailAddresses": ["craig@smallstep.com"],
+    "ipAddresses": [],
+    "uris": [],
+    "extensions": [],
+    "keyUsage": ["digitalSignature", "keyEncipherment"],
+    "extKeyUsage": ["serverAuth", "clientAuth"],
+    "unknownExtKeyUsage": [],
+    "subjectKeyId": "base64EncodedSKID==",
+    "authorityKeyId": "base64EncodedAKID==",
+    "ocspServer": ["http://ocsp.example.com"],
+    "issuingCertificateURL": ["http://ca.example.com/ca.crt"],
+    "dnsNames": ["example.com", "www.example.com"],
+    "permittedDNSDomainsCritical": false,
+    "permittedDNSDomains": [],
+    "excludedDNSDomains": [],
+    "permittedIPRanges": [],
+    "excludedIPRanges": [],
+    "permittedEmailAddresses": [],
+    "excludedEmailAddresses": [],
+    "permittedURIDomains": [],
+    "excludedURIDomains": [],
+    "crlDistributionPoints": ["http://crl.example.com/ca.crl"],
+    "policyIdentifiers": [],
+    "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...",
+    "publicKeyAlgorithm": "RSA",
+    "notBefore": "2024-01-01T00:00:00Z",
+    "notAfter": "2025-01-01T00:00:00Z",
+    "raw": "MIIDXTCCAkWgAwIBAgIJAKb..."
+  }
+}
+```
+
+### Signature verification
+
+For signature verification, you will need the signing secret associated with `X-Smallstep-Webhook-ID`, which was given to you when your Smallstep support representative configured the webhook on your behalf. To verify the signature:
+
+1. Compute HMAC‑SHA256 over the raw request body bytes
+2. Hex‑encode the result and compare to the `X-Smallstep-Signature:` request header value
+
+### Response format
+
+Your server should respond with the following:
+
+- Content-Type: `application/json`
+- HTTP status codes:
+    - `200`: Webhook processed successfully
+    - Anything else: Authorization will be denied by RADIUS
+- Body (JSON):
+    - `allow`: boolean. Should the Wi-Fi client authentication request be allowed?
+        
+        Minimal success response:
+        
+        ```json
+        { "allow": true }
+        ```
+        
+    - `error`: object (optional). If an error is passed, it will be visible in your Smallstep event log.
+        
+        Deny with reason:
+        
+        ```json
+        {
+          "allow": false,
+          "error": { 
+             "message": "Device non-compliant with posture check",
+             "code": "E1002"
+           }
+        }
+        ```
+        
+
+## Example Code
+
+As a starting point for your implementation, Smallstep offers an [example RADIUS webhook server](https://github.com/smallstep/radius-webhooks/), written in Go.
+
+## Operational guidance
+
+- Multiple webhooks are supported. Webhooks are called after a client certificate is verified by Smallstep. They are called sequentially, but without any guarantee of order.
+- Timeouts (10 seconds) or non-`200` HTTP status codes result in a denial decision by Smallstep. Build for high availability and fast failover. Run at least two replicas behind a load balancer.
+- Smallstep may retry briefly if it receives a transient `5xx` HTTP status codes
+- Deny known‑bad cases using `"allow": false`; reserve non‑`200` HTTP status codes for unexpected failures. This will avoid incidental denies.
+- Store the signing secret securely. Rotate the secret by creating a new webhook, distributing its secret, then decommissioning the old one.
+- It is recommended that you log request IDs, the webhook ID, and your decision for auditing. If possible, avoid logging full certificates.
