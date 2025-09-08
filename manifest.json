@@ -85,8 +85,12 @@
             {
               "title": "Deploy EAP-TLS Wi-Fi with Intune",
               "path": "/tutorials/intune-mdm-setup-guide.mdx"
+            },
+            {
+              "title": "Wi-Fi Authentication Webhooks",
+              "path": "/tutorials/wifi-authentication-webhooks.mdx"
             }
-          ]
+           ]
         },
         {
           "title": "Smallstep for Certificate-Based VPN",
