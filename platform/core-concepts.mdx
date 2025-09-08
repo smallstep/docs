@@ -1,5 +1,5 @@
 ---
-updated_at: July 28, 2025
+updated_at: September 08, 2025
 title: Core Concepts
 html_title: Smallstep Core Concepts
 description: High-level overview of Smallstep platform components and concepts, and how they work together to protect your resources and provide strong assurance of device identity.
@@ -340,7 +340,7 @@ sequenceDiagram
 
 The resource is configured to trust SSO for login. The Single Sign-on (SSO) provider (aka Identity Provider or IdP) is configured to require a hardware-bound device certificate at login.
 
-An important nuance to this pattern is that the IdP only verifies Device Identity during sign-on as a condition of issuing a *bearer token*. The bearer token—not the device certificate—is then used to access the Resource. Bearer tokens can’t be device-bound. They can be exfiltrated **and used on different devices. Key protection is hardware bound **at login, but it is software protected at access time.
+An important nuance to this pattern is that the IdP only verifies Device Identity during sign-on as a condition of issuing a *bearer token*. The bearer token—not the device certificate—is then used to access the Resource. Bearer tokens can’t be device-bound. They can be exfiltrated and used on different devices. Key protection is hardware bound at login, but it is software protected at access time.
 
 This pattern can be combined with the middlebox pattern, if the middlebox is configured to authenticate the IdP-issued bearer token.
 

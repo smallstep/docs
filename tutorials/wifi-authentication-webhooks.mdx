@@ -30,7 +30,7 @@ Your webhook server should expect the following request format:
 - Headers:
     - `X-Smallstep-Webhook-ID:` A UUID for the RADIUS webhook making the request
     - `X-Smallstep-Signature:` Hex‑encoded HMAC‑SHA256 of the raw request body using the webhook’s signing secret
-    - `Authorization:` Optional. Either "Bearer <token>" or HTTP Basic auth, if configured.
+    - `Authorization:` Optional. Either "Bearer &lt;token&gt;" or HTTP Basic auth, if configured.
 - Body (JSON):
     - `timestamp`: The RFC8222 timestamp of the request
     - `x509Certificate`: A JSON representation of the certificate that follows [this data structure](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L17). Additionally, there is a `raw`  field containing a base64-encoded DER representation of the client certificate.
