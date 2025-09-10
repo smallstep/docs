@@ -1,5 +1,5 @@
 ---
-updated_at: July 24, 2025
+updated_at: September 10, 2025
 title: Smallstep Agent for Linux
 html_title: Install the Smallstep Agent on a Linux endpoint
 description: The Smallstep agent is used across security, IT, and DevOps teams to enable end-to-end network encryption, privileged access management, passwordless authentication, and much more.
@@ -37,7 +37,7 @@ In this document, we will install, configure, and start the Smallstep Agent on a
 On a system with `bash` and `curl`, run the following:
 
 ```bash
-curl -sL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo bash
+curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo env STEP_AGENT_TEAM=[your-team] bash
 ```
 
 
