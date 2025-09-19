@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: September 19, 2025
 title: Connect Jamf Pro to Smallstep
 html_title: Integrate Jamf Pro with Smallstep Tutorial
 description: Integrate Jamf Pro with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -223,7 +223,7 @@ The devices that you scoped will receive a certificate and have the agent instal
 
 #### Configure Jamf to prevent re-deploying identical packages (optional)
 
-By default, Jamf will attempt to re-deploy the configured package profile to every scoped Computer on a cadence. Each Computer will attempt to install the distributed package, regardless of any existing version already installed. The Smallstep Agent pkg has built in logic to skip any unnecessary install logic when the currently installed version matches the version being distributed. However, configuring Jamf to prevent identical package re-deploys can reduce wasted cycles across your entire fleet of managed computers as well as reduce resource usage of your Jamf tenant.
+By default, Jamf will attempt to re-deploy the configured package profile to every scoped Computer on a cadence. Each Computer will attempt to install the distributed package, regardless of any existing version already installed. The Smallstep Agent pkg has built-in logic to skip any unnecessary install logic when the currently installed version matches the version being distributed. However, configuring Jamf to prevent identical package re-deploys can reduce wasted cycles across your entire fleet of managed computers as well as reduce resource usage of your Jamf tenant.
 
 1. In Jamf Pro Configure an Extension Attribute that reports the currently installed version on each computers
     1. In Jamf Pro under Settings → Computer Management → Extension Attributes → New
@@ -259,7 +259,7 @@ By default, Jamf will attempt to re-deploy the configured package profile to eve
         - Select "SmallstepAgent Version" from the available criteria
             - If "SmallstepAgent Version" is not visible in the initially displayed list, select "Show Advanced Criteria" to display a more complete list
         - Operator: Is
-        - Value: <Current version of the SmallstepAgent pkg that was configured earlier in the Package Distribution step, e.g., '0.60.1'>
+        - Value: Current version of the SmallstepAgent pkg that was configured earlier in the Package Distribution step, e.g., '0.60.1'
         - Save
 3. Restrict Smallstep Agent installation policy to the newly created Smart Computer Group
     1. In Jamf Pro, go to Computers → Profiles → Smallstep Agent
@@ -276,7 +276,7 @@ By default, Jamf will attempt to re-deploy the configured package profile to eve
     2. Follow the steps in the section titled "Create an Agent Package for Distribution" above with the new version
 2. Update the Smart Computer Group criteria (optional)
 
-    This step is ony required if you have configured a Smart Computer Group.
+    This step is only required if you have configured a Smart Computer Group.
     1. In Jamf Pro, go to Computers → Smart Computer Groups → Needs SmallstepAgent Version
     2. Choose the Criteria tab, then choose Edit
     3. Set the value to the new version that you uploaded in the previous step.
