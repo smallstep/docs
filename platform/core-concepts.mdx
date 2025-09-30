@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: September 30, 2025
 title: Core Concepts
 html_title: Platform Core Security Concepts Explained
 description: Fundamental concepts of device identity platform. Understand trust models, attestation, and certificate lifecycle management.
@@ -50,7 +50,7 @@ Now we have a great foundation for device identity. And, we've unlocked another 
 Smallstep uses the following attestable device identifiers to build a high-assurance inventory:
 
 - On Apple platforms, the device’s serial number or hardware UDID.
-- On Windows and Linux devices with TPMs, there is a TPM Endorsement Key and a Platform Certificate.
+- On Windows, Linux, and ChromeOS devices with TPMs, there is a TPM Endorsement Key and a Platform Certificate.
 
 With Smallstep, you can build a device inventory by syncing devices from your MDM, via our API, or by having users self-register (with optional SSO).
 
@@ -230,16 +230,16 @@ Because many client apps are unable to directly use hardware bound keys, Smallst
 
 These provisioned credentials are short-lived. Their key attestation level varies based on the application and operating system:
 
-|  | macOS (Smallstep agent) | macOS (agentless) | Windows | Linux |
-| --- | --- | --- | --- | --- |
-| Wi-Fi | Smallstep attested | device attested | device attested | device attested |
-| SSH | Smallstep attested | not supported | device attested | device attested |
-| Safari | Smallstep attested | device attested | not available | not available |
-| Chrome | Smallstep attested | not supported | device attested | device attested |
-| Firefox | Smallstep attested | not supported | device attested | device attested |
-| Edge | talk to us | not supported | device attested | not available |
-| IPSec VPN | Smallstep attested | device attested | talk to us | talk to us |
-| Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested |
+|  | macOS (Smallstep agent) | macOS (agentless) | Windows | Linux | ChromeOS |
+| --- | --- | --- | --- | --- | --- |
+| Wi-Fi | Smallstep attested | device attested | device attested | device attested | device attested |
+| SSH | Smallstep attested | n/a | device attested | device attested | n/a |
+| Safari | Smallstep attested | device attested | n/a | n/a | n/a |
+| Chrome | Smallstep attested | n/a | device attested | device attested | device attested |
+| Firefox | Smallstep attested | n/a | device attested | device attested | n/a |
+| Edge | talk to us | n/a | device attested | talk to us | n/a |
+| IPSec VPN | Smallstep attested | device attested | talk to us | talk to us | n/a |
+| Relay (MASQUE) | Smallstep attested | device attested | device attested | device attested | n/a |
 
 ### A note about fallbacks
 
