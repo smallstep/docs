@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: October 02, 2025
 title: ACME Basics
 html_title: ACME Protocol Basics for step-ca Users
 description: Learn ACME protocol fundamentals for step-ca. Implement automated certificate management using industry-standard protocols.
@@ -26,8 +26,8 @@ ACME is a modern, standardized protocol for automatic validation and issuance of
 
 ## Requirements
 
-- **Open source -** This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](./getting-started.mdx)).
-- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** follow the instructions provided in the Certificate Manager [ACME documentation](../certificate-manager/acme/README.mdx).
+This tutorial assumes you have initialized and started up a `step-ca` server (see [Getting Started](./getting-started.mdx)),
+[Smallstep Certificate Manager](https://smallstep.com/certificate-manager), or other ACME server.
 
 ## Overview
 
@@ -40,15 +40,12 @@ ACME is a modern, standardized protocol for automatic validation and issuance of
 ## Why ACME?
 
 With ACME, machines can get certificates from a CA without any human interaction involved.
+It is used by public Web PKI CAs (eg. Let's Encrypt) and by private, internal CAs.
 
-For example, you can:
-
-- Use ACME in production to issue X.509 certificates to internal workloads, proxies, queues, databases, etc. so you can use mutual TLS for authentication and encryption.
-- Simulate Let’s Encrypt’s certificate authority in development and
-  pre-production scenarios where connecting to [Let’s Encrypt’s staging
-  server][le-staging] is problematic.
-
-[le-staging]: https://letsencrypt.org/docs/staging-environment/
+ACME allows the CA to prove that a client controls a set of resources for the purpose of certificate issuance.
+ACME doesn't restrict _who_ can make requests of the CA.
+There is an extension to ACME called External Account Binding (EAB) which adds keys for ACME accounts,
+and this feature is available in Smallstep's commercial CA software.
 
 ## A Typical ACME Flow
 

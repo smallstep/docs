@@ -2,7 +2,7 @@
 title: Use step-ca with your existing CA
 html_title: Deploy Intermediate CA with Existing Root
 description: Use step-ca as intermediate CA with existing infrastructure. Modernize PKI while preserving root certificate investments and trust chains.
-updated_at: September 17, 2025
+updated_at: October 02, 2025
 ---
 
 Need to extend or migrate from an existing CA to a Smallstep CA?
@@ -24,7 +24,7 @@ while still issuing certificates trusted by your existing clients.
 </Alert>
 
 This tutorial covers three ways of bootstrapping a Smallstep CA
-using an existing PKI.
+that can run in parallel with your existing PKI.
 
 ## About this tutorial
 
@@ -35,13 +35,13 @@ using an existing PKI.
 
 <Alert severity="info">
   <div>
-    If you run into any issues please let us know <a href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</a>.
+    If you run into any issues please let us know <a href="https://github.com/smallstep/certificates/discussions">in GitHub Discussions</a> or <a href="https://u.step.sm/discord">Discord</a>.
   </div>
 </Alert>
 
 ## Requirements
 
-This tutorial assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
+This tutorial assumes you have initialized and started a `step-ca` instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
 You'll also need the ability to sign a new intermediate CA
 using your existing CA.
 You can use your existing root
@@ -157,6 +157,8 @@ To generate those artifacts run:
 ```shell
 step certificate create "Intermediate CA Name" intermediate.csr intermediate_ca_key --csr
 ```
+
+In this example, we're generating the Intermediate CA key on the filesystem. For stronger key protection, use our [cryptographic protection](../step-ca/cryptographic-protection.mdx) features to generate the signing key inside a Key Management System (KMS) instead.
 
 ### 3. Transfer the CSR file and get it signed.
 

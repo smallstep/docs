@@ -1,5 +1,5 @@
 ---
-updated_at: September 19, 2025
+updated_at: October 02, 2025
 title: Connect Jamf Pro to Smallstep
 html_title: Integrate Jamf Pro with Smallstep Tutorial
 description: Integrate Jamf Pro with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -44,20 +44,17 @@ This API client will allow Smallstep to read your Jamf device inventory and mana
 1. In Jamf Pro, choose ⚙️ **Settings**
 2. Under the **System** tab, choose **API Roles and Clients**
 3. Add an **API Role**
-
-    Display name: Smallstep
-
-    For Privileges, choose:
-
-    - Read Mobile Devices
-    - Read Computers
+    - Display name: Smallstep
+    - Privileges:
+      - Read Mobile Devices
+      - Read Computers
 4. Next, in the **API Clients** tab, add a **Client**
     - Display name: Smallstep
     - API Roles: Smallstep
     - Enabled: Yes, choose Enable
-    - Choose **Save**
-5. Choose **Generate client secret**
-6. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
+5. Choose **Save**
+6. Choose **Generate client secret**
+7. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
 
 ## Connect Jamf Pro to Smallstep
 
@@ -76,14 +73,14 @@ For compatibility reasons, Smallstep may use ACME or SCEP for certificate enroll
 1. In Jamf Pro, choose ⚙️ **Settings**
 2. Under the **Global** tab, Choose **Webhooks**
 3. Add a new Webhook
-    1. Display name: Smallstep
-    2. Webhook URL: (details from step #2)
-    3. Authentication Type: Basic
-        1. Basic Authentication Username: (details from step #2)
-        2. Basic Authentication Password: (details from step #2)
-        3. Basic Authentication Verify Password: (details from step #2)
-    4. Content Type: JSON
-    5. Webhook Event: SCEPChallenge
+    - Display name: Smallstep
+    - Webhook URL: (details from step #2)
+    - Authentication Type: Basic
+        - Basic Authentication Username: (details from step #2)
+        - Basic Authentication Password: (details from step #2)
+        - Basic Authentication Verify Password: (details from step #2)
+    - Content Type: JSON
+    - Webhook Event: SCEPChallenge
 4. Choose **Save**
 
 Your Smallstep team is now linked to Jamf Pro. Smallstep will do a partial sync of your device inventory from Jamf every hour, and a full sync every 8 hours.
@@ -103,8 +100,8 @@ In this step, you’ll upload the Smallstep agent package to Jamf Pro’s softwa
 2. In Jamf Pro, choose ⚙️ **Settings**
 3. Under the **Computer Management** tab, Choose **Packages**
 4. Add a new Package
-    1. Display name: Smallstep Agent
-    2. Filename: (upload from step #1)
+    - Display name: Smallstep Agent
+    - Filename: (upload from step #1)
 5. Choose **Save**
 
 #### Create an Agent Bootstrap Script
@@ -113,9 +110,9 @@ This step will install a script on your client devices that bootstraps the conne
 
 1. In Jamf Pro, choose ⚙️ **Settings**
 2. Under the **Computer Management** tab, Choose **Scripts**
-3. Add a new Script
-    1. In the **General tab**, for **Display Name**: `Smallstep Agent Install`
-    2. In the Script tab:
+3. Add a new Script:
+    - In the **General tab**, for **Display Name**: `Smallstep Agent Install`
+    - In the Script tab:
         - Mode: `Shell/Bash`
         - Content:
 
@@ -225,14 +222,15 @@ The devices that you scoped will receive a certificate and have the agent instal
 
 By default, Jamf will attempt to re-deploy the configured package profile to every scoped Computer on a cadence. Each Computer will attempt to install the distributed package, regardless of any existing version already installed. The Smallstep Agent pkg has built-in logic to skip any unnecessary install logic when the currently installed version matches the version being distributed. However, configuring Jamf to prevent identical package re-deploys can reduce wasted cycles across your entire fleet of managed computers as well as reduce resource usage of your Jamf tenant.
 
-1. In Jamf Pro Configure an Extension Attribute that reports the currently installed version on each computers
+1. In Jamf Pro, Configure an Extension Attribute that reports the currently installed version on each computers
     1. In Jamf Pro under Settings → Computer Management → Extension Attributes → New
         - Display Name: SmallstepAgent Version
         - Data type: String
         - Inventory display: General
         - Input Type: Script
             - Mode: Shell/Bash
-            -
+            - Content:
+
                 ```shell
                 #!/bin/bash
 
@@ -251,7 +249,7 @@ By default, Jamf will attempt to re-deploy the configured package profile to eve
                 fi
                 ```
         - Save
-2. In Jamf Pro Create a new Smart Computer Group
+2. In Jamf Pro, Create a new Smart Computer Group
     1. In Jamf Pro, go to Computers → Smart Computer Groups → New
     2. On the Computer Group tab
         - Display Name: Needs SmallstepAgent Version
