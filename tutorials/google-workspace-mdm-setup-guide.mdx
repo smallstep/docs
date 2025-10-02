@@ -1,0 +1,68 @@
+---
+updated_at: October 02, 2025
+title: Deploy EAP-TLS Wi-Fi certificates to ChromeOS devices with Smallstep and Google Workspace
+html_title: Deploy EAP-TLS to Wi-Fi certificates
+description: Configure EAP-TLS Wi-Fi certificates for Chromebooks using . Complete guide for iOS and macOS wireless security deployment at scale.
+---
+
+Smallstep can integrate with Google Workspace to exchange a SCEP challenge. The SCEP challenge is a shared secret that's used by devices to get a client certificate from Smallstep for a certificate-based Wi-Fi network or VPN server.
+
+## Prerequisites
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A Google Workspace tenant, and device management ability
+- A ChromeOS device to enroll for testing
+
+## Before you begin
+
+First, follow the instructions in [Connect Google Workspace](./connect-google-workspace-to-smallstep.mdx) to sync your device inventory to Smallstep.
+
+## Step-by-step instructions
+
+### Create a SCEP Profile in Google Workspace
+
+*This section only applies if you want SCEP to be used to enroll clients.*
+
+1. In Smallstep, visit [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices). Choose your existing Google Workspace integration. Copy the following values:
+    - SCEP URL
+    - SCEP Static Challenge
+2. In Google Admin, visit [Devices → Networks → Secure SCEP](https://admin.google.com/ac/networks/scep).
+3. Create a new SCEP configuration by clicking **Add Secure SCEP Profile**.
+    
+    The profile can be created at the organizational level, or within an Organization Unit (OU). For testing purposes, you can create a new OU and create the policy there.
+    
+4. In the modal, configure the following:
+    - Check **Chromebook (Device)**
+    - Provide a name in **SCEP profile name**, e.g. `Smallstep`
+    - Set the **Subject name format** to **Fully distinguished name**
+        - Set **Common Name** to `${DEVICE_SERIAL_NUMBER}`
+        - Other properties can be filled as needed
+    - For **Subject Alternative Name**, choose **None**
+    - For **Key Usage**, choose
+        - Key encipherment
+        - Signing
+    - For Key Size, choose **2048**
+    - Set **Strict** attestation requirements
+    - Set the **SCEP server URL** to the SCEP URL obtained earlier. It should look like:
+        
+        ```
+        https://<team>.scep.smallstep.com/p/devices/google-workspace-integration-<hex>
+        ```
+        
+    - For **Certificate validity period**, choose **1 year**
+    - For **Renew Within Days**, use **330**
+    - For **Extended key usage**, check **Client authentication**
+    - For **Challenge type**, use **Static**, and fill in the SCEP challenge obtained earlier
+    - **Template name** is for informational purposes and can be left empty.
+    - For **Certificate Authority**, Pick the name of the issuing (intermediate) CA for the Wi-Fi certificate. This is usually `Smallstep Devices Intermediate`
+- For **Network type this profile applies to**, choose Wi-Fi
+
+### Confirmation
+
+After the SCEP Profile is configured, it will be applied to the device once policy is synchronized. You can force this by restarting the device. Reloading policies from the `chrome://policy` screen may not immediately force the SCEP policy to be evaluated for certificate issuance. From there, the configuration can be verified in several ways, including:
+
+- In the Smallstep UI, navigate to Certificate Manager → Certificates. A certificate should’ve been issued by the SCEP provisioner on the Devices authority.
+- On the target device, visit `chrome://policy` in Chrome. Search for the `RequiredClientCertificateForDevice` policy. You should see an entry corresponding to the SCEP profile configured previously.
+- On the target device, visit `chrome://settings/certificates` in Chrome. Under “Your certificates”, you should see a certificate matching the device serial number. Inspecting the certificate will revealed the issuer, which should be your Smallstep Devices CA.

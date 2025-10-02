@@ -83,12 +83,16 @@
               "path": "/tutorials/wifi-setup-guide.mdx"
             },
             {
+              "title": "Deploy EAP-TLS Wi-Fi with Intune",
+              "path": "/tutorials/intune-mdm-setup-guide.mdx"
+            },
+            {
               "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro",
               "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
             },
             {
-              "title": "Deploy EAP-TLS Wi-Fi with Intune",
-              "path": "/tutorials/intune-mdm-setup-guide.mdx"
+              "title": "Deploy EAP-TLS Wi-Fi with Google Workspace",
+              "path": "/tutorials/google-workspace-mdm-setup-guide.mdx"
             },
             {
               "title": "Wi-Fi Authentication Webhooks",
