@@ -45,12 +45,16 @@
               "path": "/platform/smallstep-agent.mdx"
             },
             {
-              "title": "Connect Jamf Pro",
-              "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
+              "title": "Connect Google Workspace",
+              "path": "/tutorials/connect-google-workspace-to-smallstep.mdx"
             },
-            {
+             {
               "title": "Connect Intune",
               "path": "/tutorials/connect-intune-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Jamf Pro",
+              "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             },
             {
               "title": "Connect Workspace One UEM",

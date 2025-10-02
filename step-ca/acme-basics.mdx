@@ -42,10 +42,21 @@ This tutorial assumes you have initialized and started up a `step-ca` server (se
 With ACME, machines can get certificates from a CA without any human interaction involved.
 It is used by public Web PKI CAs (eg. Let's Encrypt) and by private, internal CAs.
 
-ACME allows the CA to prove that a client controls a set of resources for the purpose of certificate issuance.
-ACME doesn't restrict _who_ can make requests of the CA.
-There is an extension to ACME called External Account Binding (EAB) which adds keys for ACME accounts,
-and this feature is available in Smallstep's commercial CA software.
+ACME allows the CA to prove that a client controls an identifier
+(a domain name, for example)
+for the purpose of certificate issuance.
+It _authenticates_ certificate requests,
+but it does not _authorize_ them.
+ACME can't determine whether a client
+is the rightful owner of the identifier,
+or merely an entity currently controlling it.
+
+It's up to you to add authorization or policy enforcement layers to your infrastructure,
+and to protect your network, hosts, and DNS appropriately.
+
+There is an extension to ACME called External Account Binding (EAB) which adds an authorization layer,
+using pre-registered client credentials.
+This feature is available in Smallstep's commercial CA software.
 
 ## A Typical ACME Flow
 
