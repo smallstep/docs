@@ -1,5 +1,5 @@
 ---
-updated_at: October 02, 2025
+updated_at: October 20, 2025
 title: ACME Basics
 html_title: ACME Protocol Basics for step-ca Users
 description: Learn ACME protocol fundamentals for step-ca. Implement automated certificate management using industry-standard protocols.
@@ -44,17 +44,19 @@ It is used by public Web PKI CAs (eg. Let's Encrypt) and by private, internal CA
 
 ACME allows the CA to prove that a client controls an identifier
 (a domain name, for example)
-for the purpose of certificate issuance.
-It _authenticates_ certificate requests,
-but it does not _authorize_ them.
-ACME can't determine whether a client
+for the purpose of authorizing a certificate request.
+However, ACME can't determine whether a client
 is the rightful owner of the identifier,
 or merely an entity currently controlling it.
 
-It's up to you to add authorization or policy enforcement layers to your infrastructure,
-and to protect your network, hosts, and DNS appropriately.
-
-There is an extension to ACME called External Account Binding (EAB) which adds an authorization layer,
+Therefore, ACME's security model leans heavily on DNS and network security,
+an ACME administrator must ensure
+that host IP assignment and DNS resolution
+are appropriately secured.
+And in some organizations,
+an additional client credential acts as a useful backstop here.
+There is an extension to ACME called External Account Binding (EAB)
+which adds an authorization layer,
 using pre-registered client credentials.
 This feature is available in Smallstep's commercial CA software.
 
