@@ -1,5 +1,5 @@
 ---
-updated_at: October 01, 2025
+updated_at: October 20, 2025
 title: Smallstep Agent for Linux
 html_title: Smallstep Agent for Device Management Guide
 description: Deploy and configure Smallstep Agent on Linux. Automated device identity management and certificate renewal for enterprise Linux fleets.
@@ -236,11 +236,15 @@ If you get any errors, check the agent’s status:
 sudo systemctl status step-agent.service
 ```
 
-## **PKCS#11 Support**
+### OpenSSL and PKCS#11 Support
 
-The Smallstep agent provides a PKCS#11 server that can be used for a variety of integration use cases, such as NetworkManager and `wpa_supplicant` connections or web browser certificates. The PKCS#11 server is exposed as a UNIX socket at `$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`. 
+The Smallstep agent stores the certificate on the filesystem alongside a TPM TSS2-formatted file, which is a reference to a TPM-bound key. So, any software that integrates with OpenSSL's `tpm2-openssl` provider, or with the underlying `libtpm2-tss`, can use the TPM-bound key for TLS handshakes or other purposes.
 
-### Example usage: Google Chrome
+Because PKCS#11 is a common integration point, the Smallstep agent also provides a PKCS#11 server
+for use with software like NetworkManager, `wpa_supplicant`, or web browsers.
+The PKCS#11 server is exposed as a UNIX socket at `$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`. 
+
+#### Example usage: Google Chrome
 
 For this example, we’re using Ubuntu 24.04. The location of `p11-kit-client.so` may vary.
 
@@ -260,7 +264,7 @@ In Chrome, you should now have access to certificates managed by Smallstep.
 
 For regular usage, add `P11_KIT_SERVER_ADDRESS` to your environment more permanently. For example, you might add `P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`  to your global `/etc/environment` file.
 
-### Troubleshooting
+#### Troubleshooting
 
 The agent produces a log file or journal entries in systemd, depending on how it is installed and run.
 
@@ -272,3 +276,4 @@ pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
 ```
 
 See the [p11-kit](https://p11-glue.github.io/p11-glue/p11-kit/manual/) documentation for more details.
+
