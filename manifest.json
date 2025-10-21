@@ -91,10 +91,6 @@
               "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
             },
             {
-              "title": "Deploy EAP-TLS Wi-Fi with Google Workspace",
-              "path": "/tutorials/google-workspace-mdm-setup-guide.mdx"
-            },
-            {
               "title": "Wi-Fi Authentication Webhooks",
               "path": "/tutorials/wifi-authentication-webhooks.mdx"
             }
