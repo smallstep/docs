@@ -45,12 +45,16 @@
               "path": "/platform/smallstep-agent.mdx"
             },
             {
-              "title": "Connect Jamf Pro",
-              "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
+              "title": "Connect Google Workspace",
+              "path": "/tutorials/connect-google-workspace-to-smallstep.mdx"
             },
             {
               "title": "Connect Intune",
               "path": "/tutorials/connect-intune-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Jamf Pro",
+              "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             },
             {
               "title": "Connect Workspace One UEM",
@@ -79,12 +83,12 @@
               "path": "/tutorials/wifi-setup-guide.mdx"
             },
             {
-              "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro",
-              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
-            },
-            {
               "title": "Deploy EAP-TLS Wi-Fi with Intune",
               "path": "/tutorials/intune-mdm-setup-guide.mdx"
+            },
+            {
+              "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro",
+              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
             },
             {
               "title": "Wi-Fi Authentication Webhooks",
