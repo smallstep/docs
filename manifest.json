@@ -48,7 +48,7 @@
               "title": "Connect Google Workspace",
               "path": "/tutorials/connect-google-workspace-to-smallstep.mdx"
             },
-             {
+            {
               "title": "Connect Intune",
               "path": "/tutorials/connect-intune-to-smallstep.mdx"
             },
