@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: October 22, 2025
 title: Configure step-ca with an RSA certificate chain
 html_title: Configure RSA Certificate Chain Tutorial
 description: Set up RSA certificate chains with step-ca. Complete guide for RSA-based PKI implementation with proper chain configuration.
@@ -19,7 +19,14 @@ However, the CA can sign leaf certificates
 using RSA, ECDSA, or Ed25519 key types,
 regardless of the key types of the root and intermediate CA.
 
-This tutorial uses RSA-PSS and SHA256 for the signature algorithm. RSA-PSS appeared in 2003 in [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447). Both [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447) and the updated [RFC 8017](https://www.rfc-editor.org/rfc/rfc8017) recommend RSA-PSS (aka RSASSA-PSS) over RSA PKCS#1 v1.5. RSA-PSS has a security proof and is (in theory) more robust than RSA PKCS #1 v1.5. Nevertheless, PKCS #1 v1.5 has no known security weaknesses as of May 2023.
+## Before you begin
+
+This tutorial uses RSA-PSS and SHA256 for the signature algorithm. RSA-PSS appeared in 2003 in [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447). Both [RFC 3447](https://www.rfc-editor.org/rfc/rfc3447) and the updated [RFC 8017](https://www.rfc-editor.org/rfc/rfc8017) recommend RSA-PSS (aka RSASSA-PSS) over RSA PKCS#1 v1.5 (from 1993). RSA-PSS has a security proof and is (in theory) more robust than RSA PKCS #1 v1.5.
+
+While PKCS #1 v1.5 has no known security weaknesses as of October 2025, it is not recommended for new applications.
+However, for compatibility with some Apple use cases,
+RSA PKCS #1 v1.5 [may be necessary](https://github.com/smallstep/certificates/discussions/1447),
+so we've provided alternative instructions below.
 
 ## Requirements
 
@@ -83,7 +90,38 @@ step certificate create "Example Intermediate CA" \
 Change the certificate subject names as desired.
 You'll be prompted to supply a password to encrypt your private keys.
 
-You can now restart `step-ca` server.
+You may now restart `step-ca` server.
+
+## Alternative: Using RSA PKCS#1 v1.5 (not recommended)
+
+Although the algorithm is widely deprecated, RSA PKCS #1 v1.5 CAs [may be necessary for some Apple clients](https://github.com/smallstep/certificates/discussions/1447).
+
+First, stop your `step-ca` server if it is running.
+
+Next, delete your existing PKI and create RSA root and intermediate certificates and keys.
+**This step will overwrite your existing CA.**
+
+```bash
+step certificate create "Example Root CA" \
+    $(step path)/certs/root_ca.crt \
+    $(step path)/secrets/root_ca_key \
+    --kty RSA \
+    --not-after 87660h \
+    --size 3072
+step certificate create "Example Intermediate CA" \
+    $(step path)/certs/intermediate_ca.crt \
+    $(step path)/secrets/intermediate_ca_key \
+    --ca $(step path)/certs/root_ca.crt \
+    --ca-key $(step path)/secrets/root_ca_key \
+    --kty RSA \
+    --not-after 87660h \
+    --size 3072
+```
+
+Change the certificate subject names as desired.
+You'll be prompted to supply a password to encrypt your private keys.
+
+You may now restart `step-ca` server.
 
 ## Optional: Restricting issuance to RSA
 
