@@ -76,6 +76,15 @@
           ]
         },
         {
+          "title": "Add Users to Smallstep",
+          "routes": [
+            {
+              "title": "Sync Okta Users (SCIM)",
+              "path": "/tutorials/sync-okta-users-to-smallstep.mdx"
+            }
+          ]
+         },
+         {
           "title": "Smallstep for WPA-Enterprise Wi-Fi",
           "routes": [
             {
