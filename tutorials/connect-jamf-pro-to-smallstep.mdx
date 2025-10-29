@@ -1,5 +1,5 @@
 ---
-updated_at: October 02, 2025
+updated_at: October 29, 2025
 title: Connect Jamf Pro to Smallstep
 html_title: Integrate Jamf Pro with Smallstep Tutorial
 description: Integrate Jamf Pro with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -133,9 +133,10 @@ Next, we’ll configure the Script we just created to run on your client devices
     1. Under Options → General:
         - Display name: Smallstep Agent
         - Trigger: Login
-        - Execution Frequency: Ongoing
+        - Execution Frequency: Once every week
 
-        *Note: With this policy, the package will be installed at the device’s next check-in, typically within 15 minutes.*
+        *Note: Adjust this policy as needed for your organization.
+        In this example, the package will be installed once a week, at the next login on the device.*
 
     2. Under Options → Packages → Configure
         - Choose the **Smallstep Agent** package you created earlier
