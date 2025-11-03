@@ -79,8 +79,12 @@
           "title": "Add Users to Smallstep",
           "routes": [
             {
-              "title": "Sync Okta Users (SCIM)",
+              "title": "Sync Okta Users",
               "path": "/tutorials/sync-okta-users-to-smallstep.mdx"
+            },
+            {
+              "title": "Sync Entra ID Users",
+              "path": "/tutorials/sync-entra-id-users-to-smallstep.mdx"
             }
           ]
          },
