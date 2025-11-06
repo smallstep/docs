@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: November 06, 2025
 title: Configure popular ACME clients to use a private CA with the ACME protocol
 html_title: Configure ACME Clients with step-ca Tutorial
 description: Configure popular ACME clients with step-ca. Support for Certbot, acme.sh, and other ACME implementations for automated certificate management.
@@ -97,6 +97,7 @@ Choose a renewal period that is two-thirds of the entire certificate's lifetime,
 * [Certbot](#certbot)
 * [acme.sh](#acmesh)
 * [lego](#lego)
+* [acme-tiny](#acme-tiny)
 * [win-acme](#win-acme)
 * [Caddy v2](#caddy-v2)
 * [NGINX](#nginx)
@@ -232,6 +233,40 @@ You can automate renewal with a simple `cron` entry:
 ```shell
 */15 * * * * root LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" lego --email=you@example.com -d foo.internal --http renew
 ```
+
+### acme-tiny
+
+[acme-tiny][] is a minimalist ACME client that provides just what you need for automated certificate issuance—nothing more.
+It's written in Python and is designed to be simple, auditable, and easy to understand.
+
+[acme-tiny]: https://github.com/diafygi/acme-tiny
+
+To get a certificate from `step-ca` using `acme-tiny` you need to:
+
+1. Point `acme-tiny` at your ACME directory URL using the `--directory-url` flag
+2. Tell `acme-tiny` to trust your root certificate using the `REQUESTS_CA_BUNDLE` environment variable
+
+For example:
+
+```shell
+REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt \
+    python acme_tiny.py \
+    --account-key account.key \
+    --csr domain.csr \
+    --acme-dir /var/www/challenges/ \
+    --directory-url https://ca.internal/acme/acme/directory \
+    > signed_chain.crt
+```
+
+`acme-tiny` uses the `http-01` challenge type, where it writes challenge files to a directory that your web server serves. You'll need to configure your web server to serve files from the directory specified by `--acme-dir`.
+
+You can automate renewal with a simple `cron` entry:
+
+```shell
+0 0 * * * REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt python /path/to/acme_tiny.py --account-key /path/to/account.key --csr /path/to/domain.csr --acme-dir /var/www/challenges/ --directory-url https://ca.internal/acme/acme/directory > /path/to/signed_chain.crt 2>> /var/log/acme_tiny.log
+```
+
+Like with `certbot`, you'll want to adjust the renewal frequency based on your certificate lifetime. For `step-ca`'s default 24-hour certificate lifetimes, you may want to run renewals more frequently.
 
 ### win-acme
 
