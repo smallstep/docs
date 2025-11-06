@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Microsoft Entra ID Quickstart
 html_title: SSH with Microsoft Entra ID (Azure AD)
 description: Integrate SSH certificates with Microsoft Entra ID. Enable single sign-on for SSH using enterprise identity providers for unified access.
@@ -43,7 +43,7 @@ When creating your groups, give them names and accept the defaults on all other 
 
 ### Step 2. Tell us your directory's Tenant ID
 
-1. In the Smallstep SSH dashboard, under the Users tab, choose Azure.
+1. In the Smallstep SSH console, under the Users tab, choose Azure.
 2. Paste your Tenant ID from the [Active Directory Overview](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview) blade into the "Add Your Team" dialog:
 
    ![](/graphics/quickstart/azure-onboarding.png)
@@ -89,7 +89,7 @@ Your Users and Groups list should now look something like this:
 1.  Choose **Provisioning** on the left and choose **Get Started**.
 2.  Set the provisioning mode to **Automatic**.
 4.  Expand **Admin Credentials:**
-    * Supply the SCIM **Tenant URL** and **Secret Token** from the Smallstep dashboard.
+    * Supply the SCIM **Tenant URL** and **Secret Token** from the Smallstep console.
     * Choose **Test Connection** and make sure that it works.
 	* Save.
 
@@ -131,7 +131,7 @@ Your Users and Groups list should now look something like this:
 
 ### Step 5. Confirm the directory connection
 
-Return to the Smallstep dashboard.
+Return to the Smallstep console.
 
 * Navigate to the LOGS menu. You should see a list of success messages assocated with `SCIM-SYNC` catagory items.
 

@@ -1,4 +1,5 @@
 ---
+updated_at: November 06, 2025
 title: Okta Quickstart
 description: SSH Okta Quickstart | Smallstep Documentation
 ---
@@ -45,7 +46,7 @@ In this quickstart, we will:
 
 ### **Step 1. Create Okta OIDC Application**
 
-1. Start at your Okta admin dashboard (access via "Admin" button next to "+ Add Apps" after successful log in)
+1. Start at your Okta admin console (access via "Admin" button next to "+ Add Apps" after successful log in)
 2. Go to Applications → Create App Integration
 3. In the pop up select "OIDC - OpenID Connect" as the sign-in method and specify "Native Application" for the Application type.
 
@@ -73,7 +74,7 @@ In this quickstart, we will:
      * Repeat this process for any other groups you created for controlling SSH/sudo access
 7. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
 
-### Step 2. Enter your OIDC Details into the Smallstep dashboard
+### Step 2. Enter your OIDC Details into the Smallstep console
 
 1. Open a new browser tab and log in to Smallstep: `https://smallstep.com/app/[TEAM-NAME]`
 2. Navigate the Onboarding Dialog. If the dialog is not open, you can relaunch it by visiting the **Users** tab.
@@ -127,9 +128,9 @@ In this quickstart, we will:
 
   ![](/graphics/quickstart/okta-enable-api.png "Enable API")
 
-* Return to the Smallstep dashboard, or open a new browser tab and sign into the Smallstep dashboard: `https://smallstep.com/app/[TEAM-NAME]`
+* Return to the Smallstep console, or open a new browser tab and sign into the Smallstep console: `https://smallstep.com/app/[TEAM-NAME]`
 * Navigate to the Onboarding UI → Add Your Team → SCIM Details
-* Copy **Base URL,** and **API Token** from Smallstep dashboard, and paste into Okta Provisioning form.
+* Copy **Base URL,** and **API Token** from Smallstep console, and paste into Okta Provisioning form.
 * In Okta, choose **Test API Credentials**. After successful verification, choose **Save**.
 
   ![](/graphics/quickstart/okta-api-auth.png "API Auth")

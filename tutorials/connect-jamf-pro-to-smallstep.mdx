@@ -1,5 +1,5 @@
 ---
-updated_at: October 29, 2025
+updated_at: November 06, 2025
 title: Connect Jamf Pro to Smallstep
 html_title: Integrate Jamf Pro with Smallstep Tutorial
 description: Integrate Jamf Pro with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -151,13 +151,13 @@ Next, we’ll configure the Script we just created to run on your client devices
 
 In this step, we’ll tie everything together by creating a managed policy to enroll devices using the Smallstep Agent.
 
-1. In the Smallstep dashboard, choose **Certificate Manager**
+1. In the Smallstep console, choose **Certificate Manager**
     1. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
     2. Select the **Smallstep Agents** authority
     3. Download the Root Certificate
     4. Under the Provisioners section of the page, choose the provisioner beginning with **`integration-jamf`**
     5. Temporarily save the **URL shown on the page, eg.** `https://agents.example.ca.smallstep.com/scep/integration-jamf-b967f507`
-2. In the Smallstep dashboard, choose ⚙️ **Settings**
+2. In the Smallstep console, choose ⚙️ **Settings**
     1. Temporarily save the **Team Slug** value
 3. In Jamf Pro, choose 🖥️ **Computers**
 4. Under the **Content Management** tab, Choose **Configuration Profiles**
@@ -197,7 +197,7 @@ In this step, we’ll tie everything together by creating a managed policy to en
                     "TeamSlug": {
                       "type": "string",
                       "title": "Smallstep Details: Team",
-                      "description": "The slug for your organization's Smallstep team, available in the Smallstep dashboard under Settings.",
+                      "description": "The slug for your organization's Smallstep team, available in the Smallstep console under Settings.",
                       "property_order": 10
                     },
                     "Certificate": {

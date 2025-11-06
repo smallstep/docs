@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Okta UID GID Sync Guide
 description: Synchronize Unix user and group IDs with Okta for SSH access. Maintain consistent identity across SSH infrastructure for unified management.
 html_title: Okta UID/GID Sync for SSH Access Control
@@ -92,12 +92,12 @@ Already have UID and GID fields for your users? Skip to Step 2.
   ![](/graphics/quickstart/okta-gid-finalmap.png)
 
 ### Step 4. Verify syncing with smallstep before going into production
-* These changes should trigger a sync of the UID and GID values to the smallstep dashboard. 
+* These changes should trigger a sync of the UID and GID values to the smallstep console. 
 * If the values do not show up, try removing and re-adding the group assignments:
   * Open the **smallstep provisioning app integration** application within OKTA.
   * Go to the **Assignments** tab, select **groups**, and **remove all the groups** (remember these group names). 
-  * Wait until the users are removed from the smallstep dashboard (a few seconds).
+  * Wait until the users are removed from the smallstep console (a few seconds).
   * Then re-add the groups using the **assign** button. 
-  * This will trigger a push, and you will see the new uid and gid values in the smallstep dashboard.
+  * This will trigger a push, and you will see the new uid and gid values in the smallstep console.
 
 Send an email to [support@smallstep.com.](mailto:support@smallstep.com)

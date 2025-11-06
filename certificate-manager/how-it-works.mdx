@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Smallstep Certificate Manager How It Works
 html_title: Certificate Manager Architecture Guide
 description: Technical architecture of Certificate Manager. Understand components, workflows, and security model for enterprise PKI deployment planning.
@@ -41,7 +41,7 @@ configuration management, or use
 or [`step ca root`](https://smallstep.com/docs/step-cli/reference/ca/root) to
 securely download your root certificate from an issuing authority. You can also
 download the root certificate for your authorities from the Certificate Manager
-dashboard.
+console.
 
 - [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap)
   configures `step` to trust your root CA and use a particular issuing
@@ -159,7 +159,7 @@ default for the `OIDC` provisioner).
 Some use cases demand an option to renew expired certificates.
 For example, intermittently-connected devices may not be able to reach the CA in time for a renewal.
 The ability to renew expired certificates can be enabled on a per-provisioner basis.
-Enable it in the Smallstep dashboard when you create a new provisioner,
+Enable it in the Smallstep console when you create a new provisioner,
 or on the command line for an existing provisioner.
 While sometimes necessary, this feature comes with risks and is disabled by default.
 

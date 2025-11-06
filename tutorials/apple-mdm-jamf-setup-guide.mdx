@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Deploy EAP-TLS Wi-Fi certificates to Apple devices with Smallstep and Jamf Pro
 html_title: Deploy EAP-TLS to Apple Devices via Jamf
 description: Configure EAP-TLS Wi-Fi certificates for Apple devices using Jamf MDM. Complete guide for iOS and macOS wireless security deployment at scale.
@@ -71,7 +71,7 @@ These include a webhook URL, username and password to be used when configuring a
 First, you'll need to add a SCEP Challenge webhook to your Jamf tenant configuration.
 You'll only need to do this once.
 
-1. In the Jamf dashboard, go to `Settings` and search for `Webhooks`
+1. In the Jamf console, go to `Settings` and search for `Webhooks`
 2. Click **+ New**
 3. Fill out the form as follows:
     - Set a descriptive name, e.g. `SCEP Challenge`
@@ -90,7 +90,7 @@ You'll only need to do this once.
 
 Next, upload the Configuration Profile you downloaded from Smallstep, and map it to a test device.
 
-1. In the Jamf Dashboard, go to Configuration Profiles (for Computers or Devices)
+1. In the Jamf console, go to Configuration Profiles (for Computers or Devices)
 2. Choose **Upload**.
 3. **Choose File** and select the `.mobileconfig` template you downloaded from Smallstep
 4. Choose the Scope tab, and select a device or user for testing. For the device to appear, the device should already be enrolled with a basic Jamf MDM profile.
@@ -126,7 +126,7 @@ Link the Certificate Trust settings for your `Wi-Fi` Payload to your RADIUS serv
 ### Troubleshooting
 
 - Check the expected certificates have been deployed to the right stores on macOS: user vs. device; trusted roots; personal certificates.
-    - Jamf does show some states in the dashboard and there’s a bit of logging available, but they don’t provide many details, and sometimes they’re not up-to-date.
+    - Jamf does show some states in the console and there’s a bit of logging available, but they don’t provide many details, and sometimes they’re not up-to-date.
     - Logging can be found by navigating to the Configuration Profile and looking for the `Logs` option in the bottom right. You can then navigate to the right device. Check out the `History` → `Management History` tab for the device.
 - Use the macOS Console application to diagnose issues. SCEP related (error) logs can be found by searching for “scep” (won’t catch all related log entries, but usually does the job). It’s also possible to follow these logs in realtime.
 - The `.mobileconfig` file is a text file and sometimes it can be useful to inspect it for debugging purposes.

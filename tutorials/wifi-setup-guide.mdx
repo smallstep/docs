@@ -1,6 +1,6 @@
 ---
 title: Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on your Access Point
-updated_at: May 19, 2025
+updated_at: November 06, 2025
 html_title: Configure your Wi-Fi Access Point to use Enterprise EAP-TLS certificate-based authentication with Smallstep
 description: This tutorial describes how to set up Smallstep's certificate-based Wi-Fi on several popular Access Point models
 ---
@@ -146,7 +146,7 @@ For more information, see [MicroTik Documentation](https://help.mikrotik.com/doc
 
 First, create a new RADIUS profile:
 
-1. On the Aerohive dashboard, go to **Configuration**→ **Common Objects**→ **Authentication**→ **External RADIUS Servers,** and click on “**+**” to create a new RADIUS server
+1. On the Aerohive console, go to **Configuration**→ **Common Objects**→ **Authentication**→ **External RADIUS Servers,** and click on “**+**” to create a new RADIUS server
 2. Provide a **Name** for the server
 3. Enter the RADIUS server IP address, port, and shared secret you received from Smallstep into their respective fields
 4. Click **Save**
@@ -184,7 +184,7 @@ First, create a new RADIUS profile:
 
 Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and link your new Smallstep RADIUS profile to it. 
 
-1. On the dashboard, go to **Configuration** → **WLAN**, then click the **+** icon to add a new WLAN
+1. On the console, go to **Configuration** → **WLAN**, then click the **+** icon to add a new WLAN
 2. On the **General** tab:
     1. For **Name (SSID),** enter a name for the SSID
     2. For **Primary usage**, select the **Employee** option
@@ -205,7 +205,7 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 ## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on **Meraki**
 
-1. On your Meraki dashboard, navigate to **Wireless** >  **Configure** >  **SSIDs**
+1. On your Meraki console, navigate to **Wireless** >  **Configure** >  **SSIDs**
 2. Enable an **Unconfigured SSID**
 3. Under the newly **Unconfigured SSID**, click on **rename**, name the SSID accordingly,  then click **Save Changes**
 4. Click on **edit settings**. This will will take you to the Access control tab for the SSID
@@ -239,7 +239,7 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 First, create a new RADIUS profile: 
 
-1. On your Extreme Networks dashboard, navigate to **ONBOARD** > **AAA**
+1. On your Extreme Networks console, navigate to **ONBOARD** > **AAA**
 2. On the Default AAA Configuration page, scroll to **RADIUS Servers**, and click **Add** 
 3. Provide the **RADIUS Server IP address**, **RADIUS Port**, and **Shared Secret** provided by Smallstep
 4. Click **Save**
@@ -313,7 +313,7 @@ These instructions follow setup for RT-AX1800S. However you should find most cur
 
 *Tip: To set up an 802.1x EAP-TLS Enterprise Wi-Fi WLAN on your Asus router, start with a separate dual band setup so that you have a break-glass connection to a WPA2 Password connection in the event that your settings are not allowing access to the configured band.*
 
-1. On the Asus Router dashboard, navigate to **Advanced Settings > Wireless**
+1. On the Asus Router console, navigate to **Advanced Settings > Wireless**
     
     ![ASUS EAP-TLS setup](/graphics/asus-eaptls.png)
     

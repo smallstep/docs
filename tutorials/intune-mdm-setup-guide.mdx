@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Deploy EAP-TLS Wi-Fi certificates to Windows devices with Smallstep and Intune
 html_title: Deploy EAP-TLS Wi-Fi to Windows via Intune
 description: Configure EAP-TLS Wi-Fi certificates for Windows devices using Intune MDM. Enterprise guide for secure wireless network access.
@@ -81,7 +81,7 @@ You’ve completed the App Registration setup.
 
 ## 3. Configure Smallstep
 
-In your Smallstep dashboard,
+In your Smallstep console,
 visit the **Integrations** tab,
 and choose **Intune**.
 
@@ -211,7 +211,7 @@ Once you've saved your profile, you'll be ready to test and verify your Wi-Fi co
 # Troubleshooting
 
 - Check the expected certificates have been deployed to the right stores on Windows: user vs. device; trusted roots; trusted intermediates; personal certificates.
-    - Intune does show states in the dashboard, and you can generate reports, but they don’t provide many details, and sometimes they’re not up-to-date.
+    - Intune does show states in the console, and you can generate reports, but they don’t provide many details, and sometimes they’re not up-to-date.
 - On the client side, use **Settings → Accounts → Access work or school → Info** to check the last sync status.
     - You can also trigger a Sync on this screen
     - Sometimes restarting Windows is required to trigger (re-)enrollment / profile deployment. This can happen if the machine has been online for a while, has been suspended for a while, etc. It may have been disconnected from WNS in this case, resulting in no notifications being received.
