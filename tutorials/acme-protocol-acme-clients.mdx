@@ -234,7 +234,7 @@ You can automate renewal with a simple `cron` entry:
 */15 * * * * root LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" lego --email=you@example.com -d foo.internal --http renew
 ```
 
-### tiny-acme
+### acme-tiny
 
 [acme-tiny][] is a minimalist ACME client that provides just what you need for automated certificate issuance—nothing more.
 It's written in Python and is designed to be simple, auditable, and easy to understand.
