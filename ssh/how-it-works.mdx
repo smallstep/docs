@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: Smallstep SSH How It Works
 html_title: How SSH Certificates Work - Technical Guide
 description: Technical overview of SSH certificate authentication. Learn how certificates replace keys for better security and management in modern SSH.
@@ -31,11 +31,11 @@ From here, the ssh handshake continues seamlessly. <br />
 
 <br />
 
-If Alice wants to connect from a different device, it's easier for her to run `step ssh login` (or let `step ssh proxycommand` run it for her transparently) than it is to extract her certificate from `ssh-agent` and copy it over. Bastion hosts are supported, too! You can ssh to the server using its internal DNS name, and the connection will flow through your bastion. All connection requests to the host are logged and reported in the smallstep dashboard.
+If Alice wants to connect from a different device, it's easier for her to run `step ssh login` (or let `step ssh proxycommand` run it for her transparently) than it is to extract her certificate from `ssh-agent` and copy it over. Bastion hosts are supported, too! You can ssh to the server using its internal DNS name, and the connection will flow through your bastion. All connection requests to the host are logged and reported in the smallstep console.
 
 ### Manage SSH Access From Your Identity Provider
 
-All user and group information is maintained in your existing identity provider. We pull basic information from your IdP using the SCIM protocol or native APIs. In the smallstep dashboard, you'll tag groups that need SSH access. When you add or remove users in one of these groups in your IdP, it will automatically flow to your entire managed fleet of hosts. No need to kick off automation flows to push key changes. Access is instantly added, changed, or revoked.
+All user and group information is maintained in your existing identity provider. We pull basic information from your IdP using the SCIM protocol or native APIs. In the smallstep console, you'll tag groups that need SSH access. When you add or remove users in one of these groups in your IdP, it will automatically flow to your entire managed fleet of hosts. No need to kick off automation flows to push key changes. Access is instantly added, changed, or revoked.
 
 ### Standard, Secure Connections
 

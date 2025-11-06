@@ -1,5 +1,5 @@
 ---
-updated_at: October 23, 2025
+updated_at: November 06, 2025
 title: Sync Okta Users to Smallstep
 description: Smallstep Okta User SCIM synchronization
 ---
@@ -40,7 +40,7 @@ In this quickstart, we will:
 
 ### **Step 1. Create Okta OIDC Application**
 
-1. Start at your Okta admin dashboard (access via "Admin" button next to "+ Add Apps" after successful log in)
+1. Start at your Okta admin console (access via "Admin" button next to "+ Add Apps" after successful log in)
 2. Go to Applications → Create App Integration
 3. In the pop up select "OIDC - OpenID Connect" as the sign-in method and specify "Native Application" for the Application type.
 4. New Native App Integration Page
@@ -56,7 +56,7 @@ In this quickstart, we will:
 7. Assign any groups that will need access to Smallstep to the `smallstep-oidc` app
 8. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
 
-### Step 2. Enter your OIDC Details into the Smallstep dashboard
+### Step 2. Enter your OIDC Details into the Smallstep console
 
 1. Start at [Connect an Okta IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/okta/connect)
 2. Copy and paste your **Client ID** and **Client Secret** from Okta.

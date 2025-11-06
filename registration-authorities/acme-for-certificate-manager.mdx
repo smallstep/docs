@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: November 06, 2025
 title: ACME Registration Authority for Smallstep Certificate Manager
 html_title: Deploy ACME RA with Certificate Manager
 description: Deploy ACME Registration Authority with Certificate Manager. Enable distributed ACME certificate issuance at enterprise scale.
@@ -166,7 +166,7 @@ Setting up an RA manually involves the following steps:
 
 1. Create an Authority in Certificate Manager with a JWK provisioner
 
-    First, create a hosted Authority in the Certificate Manager dashboard if you haven't already, and configure your local `step` CLI to access this Authority, using `step ca bootstrap`.
+    First, create a hosted Authority in the Certificate Manager console if you haven't already, and configure your local `step` CLI to access this Authority, using `step ca bootstrap`.
 
     Now, as a Super Administrator, add a JWK provisioner to the Authority, and give it a name (eg. `acme-ra-jwk`):
     <FormValues>
@@ -266,7 +266,7 @@ If you're running Kubernetes, you can run an ACME Registration Authority in your
 
 1. Create an Authority in Certificate Manager with a JWK provisioner
 
-    First, create a hosted Authority in the Certificate Manager dashboard if you haven't already, install the `step` CLI locally (`brew install step`), and configure `step` to access your Authority, using `step ca bootstrap`.
+    First, create a hosted Authority in the Certificate Manager console if you haven't already, install the `step` CLI locally (`brew install step`), and configure `step` to access your Authority, using `step ca bootstrap`.
 
     Now, as a Super Administrator, add a JWK provisioner to the Authority, and give it a name (eg. `registration-authority`):
 
