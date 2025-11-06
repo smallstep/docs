@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: November 03, 2025
 title: Configuring step-ca
 html_title: Configuring open source step-ca
 description: Learn how to configure step-ca
@@ -256,31 +256,31 @@ the `--password-file` flag accepts
 
   - **policy**: authority-wide policy for certificate identifiers. See [Policies](./policies.mdx).
 
-  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
+  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing. All time duration values follow [Go's `time.Duration` string format](https://pkg.go.dev/time#ParseDuration).
 
   - **claims**: default validation for requested attributes in the certificate request. Can be overridden by similar claims objects defined by individual provisioners.
 
-    - **minTLSCertDuration**: do not allow certificates with a duration less than this value.
+    - **minTLSCertDuration**: do not allow TLS certificates with a duration less than this value.
 
-    - **maxTLSCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxTLSCertDuration**: do not allow TLS certificates with a duration greater than this value.
 
-    - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultTLSCertDuration**: if no TLS certificate validity period is specified, use this value. 
 
     - **disableRenewal**: do not allow any certificates to be renewed. The default is false.
 
     - **allowRenewalAfterExpiry**: ☠️  allow expired certificates to be renewed. The default is false. This option adds security risk; proceed with caution and consider alternatives.
 
-    - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
+    - **minUserSSHCertDuration**: do not allow SSH user certificates with a duration less than this value.
 
-    - **maxUserSSHCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxUserSSHCertDuration**: do not allow SSH user certificates with a duration greater than this value.
 
-    - **defaultUserSSHCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultUserSSHCertDuration**: if no SSH user certificate validity period is specified by the client, use this value.
 
-    - **minHostSSHCertDuration**: do not allow certificates with a duration less than this value.
+    - **minHostSSHCertDuration**: do not allow SSH host certificates with a duration less than this value.
 
-    - **maxHostSSHCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxHostSSHCertDuration**: do not allow SSH host certificates with a duration greater than this value.
 
-    - **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultHostSSHCertDuration**: if no SSH host certificate validity period is specified by the client, use this value.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
