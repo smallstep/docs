@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: November 11, 2025
 title: Device Enrollment Guide
 html_title: Device Enrollment Implementation Guide
 description: Step-by-step guide for device enrollment and inventory management. Set up secure certificate enrollment for all enterprise devices.
@@ -14,7 +14,7 @@ To build a high-assurance device inventory,
 so that only your organization's devices
 can access protected resources.
 
-While a lot of organizations
+While many organizations
 have device inventories in various locations
 (IT Asset Management systems, device management platforms, etc),
 these are not usually high-assurance inventories.
@@ -23,9 +23,10 @@ and device attestation
 to help you develop a high-assurance inventory
 that can be the foundation for device authentication.
 
-There's a few ways to bring devices into your Smallstep inventory:
+Here's a few ways to bring high-assurance device identifiers
+into your Smallstep inventory:
 
-### Self-enrollment
+### Manual self-enrollment
 
 You can [manually invite users
 to join your Smallstep team](https://smallstep.com/app/?next=/users/invite),
@@ -38,20 +39,21 @@ must approve a new device
 before it can access any of your resources.
 You can change this in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
-### Connect Smallstep to your identity provider
+### IdP self-enrollment via SSO
 
 This option requires IdP self-enrollment in [Team Settings](https://smallstep.com/app/?next=/settings/team) to be enabled.
 It is disabled by default.
 
-When you connect Smallstep to your identity provider,
+With IdP self-enrollment enabled,
+when you connect Smallstep to your identity provider,
 your users will be able to self-enroll
 via single sign-on,
 using the [Smallstep Desktop App](./smallstep-app.mdx)
-or the [Smallstep Agent for Linux](./smallstep-agent.mdx).
+or the [Smallstep Agent](./smallstep-agent.mdx).
 
 By default, administrators
-must approve a new device
-before it can access any of your resources.
+must approve newly-enrolled devices
+before they can access any of your resources.
 You can change this in [Team Settings](https://smallstep.com/app/?next=/settings/team).
 
 ### Sync Smallstep to an MDM
@@ -69,7 +71,6 @@ until Smallstep receives an attestation from the device.
 For a concrete example,
 see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx)
 
-
 ### Add devices via API
 
 You can import devices from any source into Smallstep using our API.
@@ -80,20 +81,10 @@ until Smallstep receives an attestation from the device.
 
 #### Example: I have a list of device identifiers
 
-For each device, use the [Save Collection Instance](https://gateway.smallstep.com/v2023-11-01/operations/PutCollectionInstance) endpoint to create a device.
-- For the `collectionSlug`, use `default`
-- For Apple devices, the `instanceID` must be the device's serial number.
-- For TPM 2.0 devices, the `instanceID` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
+For each device, use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
 
-For the body of the request,
-create a user using the following value 
-(replacing `carl@smallstep.com` with the device owner's email address):
-
-```
-{ "data": { "smallstep:identity": "carl@smallstep.com" } }
-```
+Devices are automatically approved when added via API.
 
 Once added,
-you'll see the device in your Smallstep console,
-under Recent Devices,
-and it will be automatically approved.
+you'll see devices in the Smallstep console,
+under [Devices](https://smallstep.com/app/?next=/devices).

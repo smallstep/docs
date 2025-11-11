@@ -37,7 +37,7 @@
           "title": "Add Devices to Smallstep",
           "routes": [
             {
-              "title": "Device Enrollment Guide",
+              "title": "Build Your Inventory",
               "path": "/platform/enrollment-guide.mdx"
             },
             {
@@ -59,6 +59,10 @@
             {
               "title": "Connect Workspace One UEM",
               "path": "/tutorials/connect-workspace-one-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Fleet DM",
+              "path": "/tutorials/connect-fleet-dm-to-smallstep.mdx"
             }
           ]
         },
