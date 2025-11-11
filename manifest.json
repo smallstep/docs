@@ -41,10 +41,6 @@
               "path": "/platform/enrollment-guide.mdx"
             },
             {
-              "title": "Deploy to Linux",
-              "path": "/platform/smallstep-agent.mdx"
-            },
-            {
               "title": "Connect Google Workspace",
               "path": "/tutorials/connect-google-workspace-to-smallstep.mdx"
             },
@@ -72,6 +68,10 @@
             {
               "title": "Install the Smallstep App",
               "path": "/platform/smallstep-app.mdx"
+            },
+            {
+              "title": "Deploy to Linux",
+              "path": "/platform/smallstep-agent.mdx"
             },
             {
               "title": "Configure Browser Certificates",
