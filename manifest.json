@@ -70,7 +70,7 @@
               "path": "/platform/smallstep-app.mdx"
             },
             {
-              "title": "Deploy to Linux",
+              "title": "Deploy the Agent",
               "path": "/platform/smallstep-agent.mdx"
             },
             {

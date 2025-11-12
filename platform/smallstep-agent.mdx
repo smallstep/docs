@@ -1,19 +1,31 @@
 ---
-updated_at: November 06, 2025
-title: Smallstep Agent for Linux
-html_title: Smallstep Agent for Device Management Guide
-description: Deploy and configure Smallstep Agent on Linux. Automated device identity management and certificate renewal for enterprise Linux fleets.
+updated_at: November 12, 2025
+title: Deploy the Agent
+html_title: Deploy the Smallstep Agent
+description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
 ---
-The Smallstep Agent for Linux is a background component of the [Smallstep Desktop App](./smallstep-app.mdx).
-Choose one or the other depending on your deployment needs.
+
+The Smallstep Agent brings automated certificate management, device identity, and configuration management features to your endpoints.
+It is a background component of the [Smallstep Desktop App](./smallstep-app.mdx).
+Most organizations choose only to deploy the agent.
 
 # Introduction
 
-While macOS, Windows, and ChromeOS can manage certificates and authentication settings via Mobile Device Management (MDM), Linux does not include automated remote management facilities. The Smallstep Agent brings vital certificate management features to your Linux users and endpoints. It can be installed independently on any Linux device running systemd.
+This guide covers manual installation of the Smallstep Agent on Linux, macOS, and Windows.
+Use this guide if you
+want to install the agent
+via a software management tool separate from your MDM (eg Ansible, Munki),
+or if your MDM only supports script-based software management.
 
-In this document, we will install, configure, and start the Smallstep Agent on a Linux device running systemd. We also show how to use the agent’s built-in PKCS#11 (smart card) service. With the PKCS#11 service, you can access Smallstep certificates and keys from applications that support PKCS#11.
+For MDM-based deployments, see:
+- [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx) (macOS)
+- [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
+- [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
+
 
 # System Requirements
+
+## Linux
 
 - Supported operating systems:
     - Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
@@ -22,26 +34,43 @@ In this document, we will install, configure, and start the Smallstep Agent on a
     - Fedora (Current Releases)
 - A TPM 2.0 module is required. Smallstep depends on TPMs to create a high-assurance device inventory.
 - We support `amd64` and `arm64` architectures
- The following directories are used by default:
+- The following directories are used by default:
     - runtime state in `/run/step-agent`
     - configuration in `/etc/step-agent`
-    - certificates in`/var/lib/step-agent` and in your configured locations
-- The agent will connect to the following Smallstep hosts:
-    - Your CA:  `<your-team>.ca.smallstep.com` and subdomains
-    - Agent API: `control.infra.smallstep.com`
-    - Smallstep API: `gateway.smallstep.com`
-    - TPM Attestation CA: `att.smallstep.com`
+    - certificates in `/var/lib/step-agent` and in your configured locations
 
-# Quick Install
+## macOS
 
-On a system with `bash` and `curl`, run the following:
+- macOS 10.15 (Catalina) or later
+- The agent must be installed for a single user (multi-user deployments are not yet supported)
+- Installation location: `/Applications/SmallstepAgent.app`
+
+## Windows
+
+- Windows 10 (Anniversary Edition) or later
+- Windows Home is not supported
+- A TPM 2.0 module is required
+- We support `amd64` and `arm64` architectures
+
+## Network Requirements (All Platforms)
+
+The agent will connect to the following Smallstep hosts:
+- Your CA: `<your-team>.ca.smallstep.com` and subdomains
+- Agent API: `control.infra.smallstep.com`
+- Smallstep API: `gateway.smallstep.com`
+- TPM Attestation CA: `att.smallstep.com`
+
+# Linux Installation
+
+## Quick Install
+
+On a Linux system with `bash` and `curl`, run the following:
 
 ```bash
 curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo env STEP_AGENT_TEAM=[your-team] bash
 ```
 
-
-# Manual Install
+## Manual Install
 
 ### Fedora
 
@@ -194,7 +223,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 
 Users can configure the agent and register their Linux device with your Smallstep team by running:
 
-```jsx
+```bash
 sudo step-agent-plugin register [team name]
 ```
 
@@ -209,7 +238,7 @@ Alternatively, you can pre-register all of your team's devices:
    The devices you add via API will be pre-approved.
 2. Then, on your endpoints, update the `/etc/step-agent/agent.yaml` config file with your Smallstep team name and Smallstep Agent CA fingerprint.
 
-   ```jsx
+   ```bash
    team: "myteamname"
    fingerprint: "40523785c1d1d11EXAMPLE017b660d52a5fa5f2cb94cf0e1a9e9209dbea0826"
    ```
@@ -225,14 +254,14 @@ Alternatively, you can pre-register all of your team's devices:
 
 Finally, enable and start the agent:
 
-```jsx
+```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now step-agent
 ```
 
 If you get any errors, check the agent’s status:
 
-```jsx
+```bash
 sudo systemctl status step-agent.service
 ```
 
@@ -276,4 +305,175 @@ pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
 ```
 
 See the [p11-kit](https://p11-glue.github.io/p11-glue/p11-kit/manual/) documentation for more details.
+
+## Uninstall
+
+To uninstall the Smallstep Agent from a Linux system:
+
+1. Stop and disable the agent service:
+
+   ```bash
+   sudo systemctl stop step-agent
+   sudo systemctl disable step-agent
+   ```
+
+2. Remove the agent package:
+
+   **For Fedora/RHEL/Enterprise Linux:**
+   ```bash
+   sudo dnf remove step-agent-plugin
+   ```
+
+   **For Debian/Ubuntu:**
+   ```bash
+   sudo apt-get remove step-agent-plugin
+   ```
+
+3. Optionally, remove configuration and certificate files:
+
+   ```bash
+   sudo rm -rf /etc/step-agent /var/lib/step-agent /run/step-agent
+   ```
+
+# macOS Installation
+
+## Manual Install
+
+1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+
+2. Install the package on your endpoint (double-click the `.pkg` file, or use the `installer` command)
+
+3. Create a user launch agent file on the endpoint, in `/Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist` for the primary user of the device.
+
+   The Smallstep agent does not yet support multi-user deployments on macOS—it must be installed for a single user:
+
+   ```xml
+   <?xml version="1.0" encoding="UTF-8"?>
+   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+   <plist version="1.0">
+   <dict>
+       <key>Label</key>
+       <string>com.smallstep.launchd.Agent</string>
+       <key>ProgramArguments</key>
+       <array>
+           <string>/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent</string>
+           <string>start</string>
+           <string>managed</string>
+       </array>
+       <key>KeepAlive</key>
+       <true/>
+       <key>RunAtLoad</key>
+       <true/>
+       <key>AssociatedBundleIdentifiers</key>
+       <string>com.smallstep.Agent</string>
+   </dict>
+   </plist>
+   ```
+
+4. On the endpoint, register the launch agent by running:
+
+   ```bash
+   launchctl load /Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist
+   ```
+
+## Registering the Agent
+
+
+## Confirmation
+
+There's two ways to confirm installation on a macOS endpoint:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- On the device itself, run `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
+
+## Uninstall
+
+To uninstall the Smallstep Agent from a macOS system:
+
+1. Stop and remove the launch agent:
+
+   ```bash
+   launchctl stop com.smallstep.launchd.Agent
+   launchctl remove com.smallstep.launchd.Agent
+   ```
+
+2. Run the agent's uninstall command:
+
+   ```bash
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
+   ```
+
+3. Remove the application directory:
+
+   ```bash
+   rm -rf /Applications/SmallstepAgent.app
+   ```
+
+4. Remove the package receipt:
+
+   ```bash
+   if pkgutil --packages | grep -q com.smallstep.Agent; then
+       pkgutil --forget com.smallstep.Agent
+   fi
+   ```
+
+# Windows Installation
+
+## Manual Install
+
+1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
+   - For most systems: `step-agent-plugin_amd64_<version>.msi`
+   - For ARM64 systems: `step-agent-plugin_arm64_<version>.msi`
+   - EXE installer also available: `step-agent-plugin-Setup_amd64_<version>.exe`
+
+2. Install the agent silently:
+
+   **For MSI installer:**
+   ```powershell
+   msiexec.exe /i "path\to\step-agent-plugin_amd64.msi" /quiet
+   ```
+
+   **For EXE installer:**
+   ```powershell
+   step-agent-plugin-Setup_amd64_<version>.exe /silent
+   ```
+
+3. Configure the agent using PowerShell (run as Administrator):
+
+   ```powershell
+   New-Item -Path "HKLM:\Software\Policies\Smallstep"
+   Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
+   Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-id>) Agents Intermediate CA;cn=step-agent-bootstrap"
+   ```
+
+   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
+
+   If your team was created before October 2024, your issuer CA may have a common name without the team slug ("Smallstep Agents Intermediate CA"). Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities) to confirm.
+
+## Registering the Agent
+
+After installation and configuration, the agent should automatically register with your Smallstep team. You can verify registration in the Smallstep UI by checking the device's profile page for an **Enrolled At** timestamp in the **Device Registration** section.
+
+## Confirmation
+
+To confirm the agent is installed and running on Windows:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- On Windows, check that the agent service is running in the Services control panel, or run: `sc query "Smallstep Agent"`
+
+## Uninstall
+
+To uninstall the Smallstep Agent from a Windows system:
+
+```powershell
+msiexec /x "{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}" /quiet
+```
+
+**Note:** The GUID shown above (`{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}`) is the product code for the Smallstep Agent MSI. To find the correct GUID for your installed version, you can run:
+
+```powershell
+Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*Smallstep*" } | Select-Object Name, IdentifyingNumber
+```
+
+Alternatively, uninstall via the Windows "Add or Remove Programs" settings.
 
