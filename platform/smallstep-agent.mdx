@@ -1,5 +1,5 @@
 ---
-updated_at: November 12, 2025
+updated_at: November 17, 2025
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
@@ -11,21 +11,34 @@ Most organizations choose only to deploy the agent.
 
 # Introduction
 
-This guide covers manual installation of the Smallstep Agent on Linux, macOS, and Windows.
+This guide covers manual installation of the Smallstep Agent on:
+
+* [Linux](#linux-installation)
+* [macOS](#macos-installation)
+* [Windows](#windows-installation)
+
 Use this guide if you
 want to install the agent
 via a software management tool separate from your MDM (eg Ansible, Munki),
-or if your MDM only supports script-based software management.
+or if your MDM only supports limited software management workflows.
 
-For MDM-based deployments, see:
+If you manage package deployments via MDM, see:
 - [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx) (macOS)
 - [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
 
 
-# System Requirements
+# Network Access
 
-## Linux
+The agent will connect to the following Smallstep hosts:
+- Your CA: `<your-team>.ca.smallstep.com` and subdomains
+- Agent API: `control.infra.smallstep.com`
+- Smallstep API: `gateway.smallstep.com`
+- TPM Attestation CA: `att.smallstep.com`
+
+# Linux Installation
+
+## System Requirements
 
 - Supported operating systems:
     - Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
@@ -38,29 +51,6 @@ For MDM-based deployments, see:
     - runtime state in `/run/step-agent`
     - configuration in `/etc/step-agent`
     - certificates in `/var/lib/step-agent` and in your configured locations
-
-## macOS
-
-- macOS 10.15 (Catalina) or later
-- The agent must be installed for a single user (multi-user deployments are not yet supported)
-- Installation location: `/Applications/SmallstepAgent.app`
-
-## Windows
-
-- Windows 10 (Anniversary Edition) or later
-- Windows Home is not supported
-- A TPM 2.0 module is required
-- We support `amd64` and `arm64` architectures
-
-## Network Requirements (All Platforms)
-
-The agent will connect to the following Smallstep hosts:
-- Your CA: `<your-team>.ca.smallstep.com` and subdomains
-- Agent API: `control.infra.smallstep.com`
-- Smallstep API: `gateway.smallstep.com`
-- TPM Attestation CA: `att.smallstep.com`
-
-# Linux Installation
 
 ## Quick Install
 
@@ -337,11 +327,17 @@ To uninstall the Smallstep Agent from a Linux system:
 
 # macOS Installation
 
+## System Requirements
+
+- macOS 10.15 (Catalina) or later
+- The agent must be installed for a single user (multi-user deployments are not yet supported)
+- Installation location: `/Applications/SmallstepAgent.app`
+
 ## Manual Install
 
 1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
 
-2. Install the package on your endpoint (double-click the `.pkg` file, or use the `installer` command)
+2. Install the package on your endpoint (double-click the `.pkg` file, or use the built-in `installer` command)
 
 3. Create a user launch agent file on the endpoint, in `/Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist` for the primary user of the device.
 
@@ -370,7 +366,7 @@ To uninstall the Smallstep Agent from a Linux system:
    </plist>
    ```
 
-4. On the endpoint, register the launch agent by running:
+4. On the endpoint, register the `launchd` agent by running:
 
    ```bash
    launchctl load /Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist
@@ -378,6 +374,19 @@ To uninstall the Smallstep Agent from a Linux system:
 
 ## Registering the Agent
 
+Your agent needs to enroll with your team. There's a few ways to do this:
+
+1. **User self-enrollment** To self-enroll a device, run:
+
+   ```
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-id>
+   ```
+
+   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
+
+2. **Enroll via API**
+
+   If you have a list of Apple serial numbers for your devices, you can [enroll all of them via our API](https://smallstep.com/docs/platform/smallstep-api/#example-add-devices-via-the-api). Once added, they will be automatically approved.
 
 ## Confirmation
 
@@ -419,12 +428,19 @@ To uninstall the Smallstep Agent from a macOS system:
 
 # Windows Installation
 
+## System Requirements
+
+- Windows 10 (Anniversary Edition) or later
+- Windows Home is not supported
+- A TPM 2.0 module is required
+- We support `amd64` and `arm64` architectures
+
 ## Manual Install
 
 1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
    - For most systems: `step-agent-plugin_amd64_<version>.msi`
    - For ARM64 systems: `step-agent-plugin_arm64_<version>.msi`
-   - EXE installer also available: `step-agent-plugin-Setup_amd64_<version>.exe`
+   - Setup (exe) installer also available: `step-agent-plugin-Setup_amd64_<version>.exe`
 
 2. Install the agent silently:
 
@@ -433,7 +449,7 @@ To uninstall the Smallstep Agent from a macOS system:
    msiexec.exe /i "path\to\step-agent-plugin_amd64.msi" /quiet
    ```
 
-   **For EXE installer:**
+   **For Setup (exe) installer:**
    ```powershell
    step-agent-plugin-Setup_amd64_<version>.exe /silent
    ```
@@ -452,7 +468,7 @@ To uninstall the Smallstep Agent from a macOS system:
 
 ## Registering the Agent
 
-After installation and configuration, the agent should automatically register with your Smallstep team. You can verify registration in the Smallstep UI by checking the device's profile page for an **Enrolled At** timestamp in the **Device Registration** section.
+After installation and configuration, the agent will automatically register with your Smallstep team. You can verify registration in the Smallstep UI by checking the device's profile page for an **Enrolled At** timestamp in the **Device Registration** section.
 
 ## Confirmation
 
