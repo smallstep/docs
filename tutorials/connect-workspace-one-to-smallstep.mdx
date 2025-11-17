@@ -1,13 +1,11 @@
 ---
-updated_at: November 12, 2025
+updated_at: November 17, 2025
 title: Connect Workspace One UEM to Smallstep
 html_title: VMware Workspace ONE Integration Guide
 description: Connect Workspace ONE UEM to Smallstep for unified device identity. Enterprise guide for cross-platform device security management.
 ---
 
 Smallstep can integrate with [Omnissa Workspace ONE UEM](https://www.omnissa.com/products/workspace-one-unified-endpoint-management/) to keep your device inventory in sync and to exchange SCEP tokens. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep.
-
-**Note:** If you're not using Workspace ONE UEM or need to install the agent manually or via scripts, see the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
 
 To configure the connection, let's first set up an Application in Entra ID. Then, we'll add the client credentials to Smallstep.
 
@@ -66,6 +64,8 @@ After saving the Workspace ONE connection, you will see settings for your integr
 Within a few minutes after adding the connection, you should see all of your Workspace ONE devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Device inventory is synced approximately every four hours.
 
 ### 3. Create a script for Smallstep Agent configuration
+
+**Note:** If don't want to use Workspace ONE UEM to install the agent, see the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
 
 1. In Workspace One UEM, visit **Resources → Scripts**
 2. Choose **Add** and then **Windows**
