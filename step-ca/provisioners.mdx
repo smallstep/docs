@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: November 12, 2025
 title: Configuring step-ca Provisioners
 html_title: Configure Certificate Provisioners in step-ca
 description: Master step-ca provisioners for flexible certificate issuance. Support multiple authentication methods from OIDC to cloud metadata.
@@ -1129,10 +1129,10 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
    ```bash
    {
      YUBIKEY_SERIAL_NO=123EXAMPLE90
-     step ca certificate 
-      --attestation-uri 'yubikey:slot-id=9a' \
-      --kms 'yubikey:?pin-value=123456' \
-      --provisioner acme-da $YUBIKEY_SERIAL_NO yubikey.crt
+     step ca certificate \
+     --attestation-uri 'yubikey:slot-id=9a?pin-value=123456' \
+     --provisioner acme-da \
+     $YUBIKEY_SERIAL_NO yubikey.crt
    }
    ```
 

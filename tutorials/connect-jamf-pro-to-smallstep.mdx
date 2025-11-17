@@ -106,25 +106,6 @@ In this step, you’ll upload the Smallstep agent package to Jamf Pro’s softwa
     - Filename: (upload from step #1)
 5. Choose **Save**
 
-#### Create an Agent Bootstrap Script
-
-This step will install a script on your client devices that bootstraps the connection between your devices and Smallstep.
-
-1. In Jamf Pro, choose ⚙️ **Settings**
-2. Under the **Computer Management** tab, Choose **Scripts**
-3. Add a new Script:
-    - In the **General tab**, for **Display Name**: `Smallstep Agent Install`
-    - In the Script tab:
-        - Mode: `Shell/Bash`
-        - Content:
-
-            ```console
-            launchctl stop com.smallstep.launchd.Agent
-            /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc install
-            ```
-
-4. Choose **Save**
-
 #### Create an Agent Installation Policy
 
 Next, we’ll configure the Script we just created to run on your client devices.
@@ -144,9 +125,7 @@ Next, we’ll configure the Script we just created to run on your client devices
         - Choose the **Smallstep Agent** package you created earlier
         - Distribution Point: (choose desired distribution point)
         - Action: Install
-    3. Under Options → Scripts → Configure
-        - Add the **Smallstep Agent Install** script you created earlier
-    4. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
+    3. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
 4. Choose **Save**
 
 #### Configure an Agent Enrollment Profile
