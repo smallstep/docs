@@ -86,10 +86,13 @@ Within a few minutes after adding the connection, you should see all of your Wor
 
 In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
 
+- [Download the Smallstep Agent for x64](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
+- [Download the Smallstep Agent for Arm64](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_arm64.msi)
+
 1. In Workspace One UEM,
     - Go to Resources → Native Apps.
     - Choose Add → Application File.
-    - Download the [latest version](https://github.com/smallstep/step-agent-plugin/releases/latest) of `step-agent-plugin_amd64_<version>.msi` and select it for upload to UEM. Note the version number you downloaded—you’ll need it later.
+    - Download the latest version of the agent from the links above and select it for upload to UEM.
     - Choose **Continue**
 2. In the Add Application panel’s **Details tab**,
     - Set Supported Processor Architecture to `64-bit` (or `ARM64` if used)
