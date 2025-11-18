@@ -69,18 +69,23 @@ Within a few minutes after adding the connection, you should see all of your Wor
 2. Choose **Add** and then **Windows**
     1. In the General tab, provide a name for the script, such as “Smallstep Agent Enrollment”
     2. On the Details tab, ensure the **Language** is “Poweshell” and the **Execution Context & Privileges** is “System Context”
-    3. Use the following snippet as the **Code**, making sure to replace `<team-id>` with the Team ID value you copied from the Smallstep UI earlier.
+    3. Use the following snippet as the **Code**, making sure to replace `<team-id>` with the Team ID value you copied from the Smallstep UI earlier. `<team-name>` should be replaced with your full Team name shown in the Smallstep dashboard.
         
         ```xml
         New-Item -Path "HKLM:\Software\Policies\Smallstep"
         Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-id>) Agents Intermediate CA;cn=$env:DEVICE_ID"
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=$env:DEVICE_ID"
         ```
         
        If your team was created before October, 2024,
        your issuer CA may have a common name without the team slug ("Smallstep Agents Intermediate CA").
        Not sure? Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities).
-    4. In the Variables tab, click **Add**. Set the variable **Key** to `DEVICE_ID` and the variable **Value** to `{DeviceUuId}` 
+    4. In the Variables tab, click **Add**. Set the variable **Key** to `DEVICE_ID` and the variable **Value** to `{DeviceUuId}`
+    5. Click **Save** to save the script.
+    6. Select the newly created script and click the **Assign** button.
+    7. Name the assignment as desired and select the appropriate Smart Group. Click **Next**.
+    8. For **Deployment**, select "Run Once Immediately" for the **Triggers**. Click **Add**.
+    9. Click **Save and Publish**. Click **Publish** on the additional prompt if one is shown.
 
 ### 4. Deploy and configure the Smallstep Agent
 
