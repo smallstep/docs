@@ -72,7 +72,12 @@ Within a few minutes after adding the connection, you should see all of your Wor
     3. Use the following snippet as the **Code**, making sure to replace `<team-id>` with the Team ID value you copied from the Smallstep UI earlier.
         
         ```xml
-        New-Item -Path "HKLM:\Software\Policies\Smallstep"
+        $RegistryPath = "HKLM:\Software\Policies\Smallstep"
+
+        If (-NOT (Test-Path $RegistryPath)) {
+          New-Item -Path $RegistryPath
+        }
+
         Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
         Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-id>) Agents Intermediate CA;cn=$env:DEVICE_ID"
         ```
