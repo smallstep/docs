@@ -1,13 +1,11 @@
 ---
-updated_at: November 17, 2025
+updated_at: November 18, 2025
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
 ---
 
 The Smallstep Agent brings automated certificate management, device identity, and configuration management features to your endpoints.
-It is a background component of the [Smallstep Desktop App](./smallstep-app.mdx).
-Most organizations choose only to deploy the agent.
 
 # Introduction
 
@@ -339,54 +337,16 @@ To uninstall the Smallstep Agent from a Linux system:
 
 2. Install the package on your endpoint (double-click the `.pkg` file, or use the built-in `installer` command)
 
-3. Create a user launch agent file on the endpoint, in `/Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist` for the primary user of the device.
-
-   The Smallstep agent does not yet support multi-user deployments on macOS—it must be installed for a single user:
-
-   ```xml
-   <?xml version="1.0" encoding="UTF-8"?>
-   <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-   <plist version="1.0">
-   <dict>
-       <key>Label</key>
-       <string>com.smallstep.launchd.Agent</string>
-       <key>ProgramArguments</key>
-       <array>
-           <string>/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent</string>
-           <string>start</string>
-           <string>managed</string>
-       </array>
-       <key>KeepAlive</key>
-       <true/>
-       <key>RunAtLoad</key>
-       <true/>
-       <key>AssociatedBundleIdentifiers</key>
-       <string>com.smallstep.Agent</string>
-   </dict>
-   </plist>
-   ```
-
-4. On the endpoint, register the `launchd` agent by running:
-
-   ```bash
-   launchctl load /Users/<USER>/Library/LaunchAgents/com.smallstep.launchd.Agent.plist
-   ```
-
 ## Registering the Agent
 
-Your agent needs to enroll with your team. There's a few ways to do this:
-
-1. **User self-enrollment** To self-enroll a device, run:
+Your agent needs to enroll with your team.
+To self-enroll a device, run:
 
    ```
    /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-id>
    ```
 
    Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
-
-2. **Enroll via API**
-
-   If you have a list of Apple serial numbers for your devices, you can [enroll all of them via our API](https://smallstep.com/docs/platform/smallstep-api/#example-add-devices-via-the-api). Once added, they will be automatically approved.
 
 ## Confirmation
 
@@ -453,18 +413,6 @@ To uninstall the Smallstep Agent from a macOS system:
    ```powershell
    step-agent-plugin-Setup_amd64_<version>.exe /silent
    ```
-
-3. Configure the agent using PowerShell (run as Administrator):
-
-   ```powershell
-   New-Item -Path "HKLM:\Software\Policies\Smallstep"
-   Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
-   Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-id>) Agents Intermediate CA;cn=step-agent-bootstrap"
-   ```
-
-   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
-
-   If your team was created before October 2024, your issuer CA may have a common name without the team slug ("Smallstep Agents Intermediate CA"). Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities) to confirm.
 
 ## Registering the Agent
 
