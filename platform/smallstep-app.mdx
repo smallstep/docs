@@ -1,20 +1,22 @@
 ---
 updated_at: September 17, 2025
-title: The Smallstep App
-html_title: Smallstep App User Documentation Guide
-description: Complete guide to the Smallstep App for enterprise security workflows. Manage certificates, devices, and identity from a unified interface.
+title: The Smallstep Agent
+html_title: Smallstep Agent User Documentation Guide
+description: Complete guide to the Smallstep Agent for enterprise security workflows. Manage certificates, devices, and identity from a unified interface.
 ---
-Smallstep ensures that access to financial data, code repositories, PII, and other sensitive resources is only possible from trusted devices. 
+Smallstep ensures that access to financial data, code repositories, PII, and other sensitive resources is only possible from trusted devices.
 
-The Smallstep desktop app offers a uniform experience for device identity across macOS, Windows, and Linux, and is foundational to Smallstep's high-assurance device attestation workflow, automating the enrollment and delivery of client certificates, and configuring the components that depend on them.
+The Smallstep Agent offers a uniform experience for device identity across macOS, Windows, and Linux, and is foundational to Smallstep's high-assurance device attestation workflow, automating the enrollment and delivery of client certificates, and configuring the components that depend on them.
 
-The Smallstep app operates differently for Linux. For Linux specific instructions, see [Smallstep Agent for Linux](./smallstep-agent.mdx). 
+The agent runs as a background service on all platforms. On macOS and Windows, the agent includes an optional desktop app that provides visibility into the agent's status and aids in troubleshooting.
+
+The Smallstep Agent operates differently for Linux. For Linux specific instructions, see [Smallstep Agent for Linux](./smallstep-agent.mdx). 
 
 ## Download
 
 <Alert severity="info">
-The Smallstep App includes the <a href="/docs/platform/smallstep-agent">Smallstep Agent</a>,
-which runs in the background.
+On macOS and Windows, the Smallstep Agent includes an optional desktop app UI for transparency and troubleshooting.
+The agent runs as a background service on all platforms.
 </Alert>
 
 Installers for macOS, Windows and Linux can be also be downloaded from [GitHub releases](https://github.com/smallstep/smallstep-desktop/releases). Releases are signed with, and can be verified, by cosign.
@@ -53,20 +55,29 @@ All platforms require an internet connection for normal operation.
 
 ### Windows
 
-- *Administrator privileges* - the Smallstep app requires privilege escalation to be able to communicate to the TPM
+- *Administrator privileges* - the Smallstep Agent requires privilege escalation to be able to communicate to the TPM
 
 ### macOS
 
-- *Location permission* - to enable management of Wifi networks, the Smallstep app needs location permission
-- *Keychain access* - the Smallstep app uses the macOS keychain to store both keys and certificates it manages
-- *Network Extension entitlement* - the Smallstep app requests the *Network Extension* entitlement so that it can manage VPN connections
+- *Location permission* - to enable management of Wifi networks, the Smallstep Agent needs location permission
+- *Keychain access* - the Smallstep Agent uses the macOS keychain to store both keys and certificates it manages
+- *Network Extension entitlement* - the Smallstep Agent requests the *Network Extension* entitlement so that it can manage VPN connections
 
 ### Linux
 
-- *TPM read/write permission* - the Smallstep app communicates to the TPM from user-space using `tpm-tss2`, and the running user must have read/write permissions to the TPM resource manager (typically `/dev/tpmrm0`)
+- *TPM read/write permission* - the Smallstep Agent communicates to the TPM from user-space using `tpm-tss2`, and the running user must have read/write permissions to the TPM resource manager (typically `/dev/tpmrm0`)
+
+## Connectivity Requirements
+
+The Smallstep Agent connects to the following Smallstep hosts:
+- Your CA: `<your-team>.ca.smallstep.com` and subdomains
+- Agent API: `control.infra.smallstep.com`
+- Smallstep API: `gateway.smallstep.com`
+- TPM Attestation CA: `att.smallstep.com`
 
 ## File Access
-On all platforms, the Smallstep app creates and manages a directory on the filesystem in a well-known location for management of keys and certificates. However, it does not access any other file on a device except the one it creates. 
+
+On all platforms, the Smallstep Agent creates and manages a directory on the filesystem in a well-known location for management of keys and certificates. However, it does not access any other file on a device except the one it creates.
 
 - On macOS: `$HOME/Library/Application Support/Smallstep`
 - On Windows: `%LOCALAPPDATA%/Smallstep`
@@ -74,7 +85,7 @@ On all platforms, the Smallstep app creates and manages a directory on the files
 
 ## Telemetry
 
-The Smallstep app collects and reports some data from the host device as part of its normal operation. These are:
+The Smallstep Agent collects and reports some data from the host device as part of its normal operation. These are:
 
 - Device Identifiers from TPM-enabled platforms
 - Device/Computer Name
