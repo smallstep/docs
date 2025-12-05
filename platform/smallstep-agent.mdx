@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: December 05, 2025
 title: Smallstep Agent for Linux
 html_title: Smallstep Agent for Device Management Guide
 description: Deploy and configure Smallstep Agent on Linux. Automated device identity management and certificate renewal for enterprise Linux fleets.
@@ -118,17 +118,22 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 ### Debian
 
 1. In the Terminal, install dependencies:
-    
+
     ```bash
     sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gpg ca-certificates
     ```
-    
+
 2. Add our package repository to your system:
-    
+
     ```bash
-    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
-        echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://pkgs.infra.smallstep.com/stable/debian debs main' \
-        | sudo tee /etc/apt/sources.list.d/smallstep.list
+    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
+    cat << EOF | sudo tee /etc/apt/sources.list.d/smallstep.sources
+    Types: deb
+    URIs: https://pkgs.infra.smallstep.com/stable/debian
+    Suites: debs
+    Components: main
+    Signed-By: /etc/apt/keyrings/smallstep.asc
+    EOF
     ```
     
 3. Install the Smallstep agent:
@@ -154,18 +159,23 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 ### Ubuntu
 
 1. In the Terminal, install dependencies:
-    
+
     ```bash
     DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gpg ca-certificates
     ```
-    
+
 2. Add our package repository to your system:
-    
+
     ```bash
-    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
-        echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
-        | sudo tee /etc/apt/sources.list.d/smallstep.list
+    sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
+    cat << EOF | sudo tee /etc/apt/sources.list.d/smallstep.sources
+    Types: deb
+    URIs: https://packages.smallstep.com/stable/debian
+    Suites: debs
+    Components: main
+    Signed-By: /etc/apt/keyrings/smallstep.asc
+    EOF
     ```
     
 3. Install the Smallstep agent
