@@ -11,8 +11,7 @@ To get your Relay set up, you will need to give Smallstep the following informat
 
 - **Relay Trust Bundle**. This will be used by the Relay to verify client certificates.
 This bundle needs to include both Root and Intermediate CA certificates for any CAs you want your Relay to trust.
-These can include Smallstep or custom CAs.
-A typical configuration will include the Smallstep Account Root and Intermediate CA.
+A typical configuration will include your team's Smallstep Accounts Root and Intermediate CA.
 - **Relay Region**. The GCP region for the relay, eg. `US_CENTRAL1`
 
 ## Client Configuration
@@ -30,17 +29,17 @@ The Relay’s server certificate is issued by your team’s Workloads Intermedia
 So, your clients will need to trust the Workloads Root CA.
 You can download the Workloads Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
 
-## Example: Create a Jamf Configuration Profile
+## Example: Jamf Pro Configuration Profile
 
 In this example, we’ll use Jamf Pro to configure endpoints connecting to a Smallstep Relay.
 
 **In the Smallstep console:**
 
-1. Visit [Authorities](https://smallstep.com/app/?next=/cm/authorities).
+1. Visit [Authorities](https://smallstep.com/app/?next=/cm/authorities)
     1. Select the **Smallstep Accounts** authority
     2. Download the Root Certificate
     3. Under the Provisioners section of the page, choose the provisioner named `acme-da`
-    4. Temporarily save the **URL shown on the page, eg.** `https://accounts.example.ca.smallstep.com/acme/acme-da/directory`
+    4. Temporarily save the **URL shown on the page**, eg. `https://accounts.example.ca.smallstep.com/acme/acme-da/directory`
 2. Return to [Authorities](https://smallstep.com/app/?next=/cm/authorities)
     1. Select the **Smallstep Workloads** authority
     2. Download the Root Certificate
@@ -52,12 +51,12 @@ In this example, we’ll use Jamf Pro to configure endpoints connecting to a Sma
 3. Add a new Configuration Profile
     1. Choose **Options → General**
         - Name: Smallstep
-    2. For ACME CA trust, add a [**Certificate payload**](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/web)
+    2. For ACME CA trust, add a **[Certificate payload](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/web)**
         - Certificate Name: **Smallstep Accounts Authority**
         - Certificate Option: **Upload**
         - Certificate Upload: (upload the Accounts Root CA certificate)
         - Allow all apps access: ☑️
-    3. For Relay server trust, add a [**Certificate payload](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/web)** 
+    3. For Relay server trust, add a **[Certificate payload](https://support.apple.com/guide/deployment/certificates-payload-settings-dep91d2eb26/web)** 
         - Certificate Name: **Smallstep Workloads Authority**
         - Certificate Option: **Upload**
         - Certificate Upload: (upload the Workloads Root CA certificate)
