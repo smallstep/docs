@@ -20,13 +20,12 @@ Once we have your details,
 Smallstep will create your relay server and give you the Relay URL,
 which you’ll need to configure clients.
 
-Your new Relay will accept client certificates from the CAs you asked us to configure in the Relay Trust Bundle.
-Usually this will include your team’s Accounts Intermediate CA.
-If they will use ACME Device Attestation, your clients will need to trust the Accounts Root CA.
+For most customers, the Relay will accept client certificates from your team's Smallstep Accounts CA.
+And, therefore, your clients will need to trust your team's Smallstep Accounts Root CA.
 You can download the Accounts Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
 
-The Relay’s server certificate is issued by your team’s Workloads Intermediate CA.
-So, your clients will need to trust the Workloads Root CA.
+For most customers, the Relay’s server certificate is issued by your team’s Workloads CA.
+And, therefore, your clients will need to trust your team's Smallstep Workloads Root CA.
 You can download the Workloads Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
 
 ## Example: Jamf Pro Configuration Profile
