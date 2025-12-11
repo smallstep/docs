@@ -74,13 +74,13 @@ We offer integrations for any MDMs for Apple, Windows, and ChromeOS devices that
 ![Jamf MDM Marketecture.png](/graphics/Jamf_MDM_Marketecture.png)
 
 <Alert severity="info">
-  <div>
-    <p><strong>💡 What about MDM’s that do not support Dynamic SCEP?  </strong></p>
-    <p>There are two main approaches to using SCEP as a certificate enrollment protocol: static and dynamic. </p>
+  **💡 What about MDM’s that do not support Dynamic SCEP?**
+  
+  There are two main approaches to using SCEP as a certificate enrollment protocol: static and dynamic.
 
-    <p>In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.</p>
-    <p>In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices.</p>
-  </div>
+  In static SCEP, a single challenge password is in every SCEP payload for every device. This practice is insecure and not recommended. Furthermore, it only shows a single user in reporting. We do not support this because we believe it's crucial to provide the most secure options for your infrastructure.
+
+  In contrast, for Dynamic SCEP, webhooks are used to generate new challenges and unique passwords for each device, and you would be able to see reporting for all devices.
 </Alert>
 
 Smallstep can also be used as a drop-in replacement for Active Directory Certificate Services (ADCS), allowing you to transition from ADCS while still serving legacy workloads. We provide backwards-compatible support for SCEP and NDES, and also let you bring your existing Root CA with you, so you can get up and running in minutes.

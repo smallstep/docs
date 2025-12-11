@@ -57,12 +57,9 @@ With Smallstep, you can build a device inventory by syncing devices from your MD
 See our [Enrollment Guide](https://smallstep.com/docs/platform/enrollment-guide/) for details.
 
 <Alert severity="info">
-    <div>
     A note on BYO devices
-    <p>
-    BYO devices pose a privacy challenge: Unique hardware identifiers cannot not be exposed to the organization when a device is used for both personal and organizational work. But, as long as we have a continuity of device identity across interactions with BYO devices, we don’t need to use permanent hardware identifiers. Instead, cryptographically secure software identifiers—scoped to the organization—can form a foundation for policy and authentication. BYO device identifiers aren’t usable for trust bootstrapping, though. The device’s owner will need to prove possession of the device before its identity can be trusted.
-    </p>
-    </div>
+
+    BYO devices pose a privacy challenge: Unique hardware identifiers cannot not be exposed to the organization when a device is used for both personal and organizational work. But, as long as we have a continuity of device identity across interactions with BYO devices, we don’t need to use permanent hardware identifiers. Instead, cryptographically secure software identifiers—scoped to the organization—can form a foundation for policy and authentication. BYO device identifiers aren’t usable for trust bootstrapping, though. The device’s owner will need to prove possession of the device before its identity can be trusted. 
 </Alert>
 
 ## Smallstep Agent
@@ -219,9 +216,7 @@ This allows a third party to prove that a specific key is stored on *a specific 
 - Trust profile: To keep these keys safe, you’re trusting the secure element manufacturer
 
 <Alert severity="info">
-    <div>
-    Apple platforms do not provide user-space APIs for device attestations due to privacy concerns – hardware identifiers used for attestation can be used to identify a device and correlate end-user activity across remote systems in a way that violates end-user privacy expectations. For this reason, Apple limits hardware attestations to the Managed Device Attestation (MDA) workflow, using ACME DA, which is only available to managed devices in Supervised mode.
-    </div>
+  Apple platforms do not provide user-space APIs for device attestations due to privacy concerns – hardware identifiers used for attestation can be used to identify a device and correlate end-user activity across remote systems in a way that violates end-user privacy expectations. For this reason, Apple limits hardware attestations to the Managed Device Attestation (MDA) workflow, using ACME DA, which is only available to managed devices in Supervised mode.
 </Alert>
 
 ### A note about provisioned credentials
