@@ -76,6 +76,10 @@
             {
               "title": "Configure Browser Certificates",
               "path": "/tutorials/browser-certificate-setup-guide.mdx"
+            },
+            {
+              "title": "Configure Enterprise Relay",
+              "path": "/tutorials/configure-enterprise-relay.mdx"
             }
           ]
         },
