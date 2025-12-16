@@ -1,32 +1,37 @@
 ---
 title: Configure your endpoints for Smallstep Enterprise Relay
-updated_at: December 08, 2025
+updated_at: December 16, 2025
 html_title: Configure your Apple endponts to use Smallstep's Enterprise MASQUE Relay
 description: This tutorial describes how to deploy Smallstep's enterprise MASQUE relay service
 ---
 
 ## Before you begin
 
-To get your Relay set up, you will need to give Smallstep the following information:
+To create your Relay server, you will need to give Smallstep the following information:
 
-- **Relay Trust Bundle**. This will be used by the Relay to verify client certificates.
-This bundle needs to include both Root and Intermediate CA certificates for any CAs you want your Relay to trust.
-A typical configuration will include your team's Smallstep Accounts Root and Intermediate CA.
 - **Relay Region**. The GCP region for the relay, eg. `US_CENTRAL1`
-
-## Client Configuration
+- **Relay Trust Bundle** (optional). This will be used by the Relay to verify client certificates.
+This bundle needs to include both Root and Intermediate CA certificates for any CAs you want your Relay to trust.
+By default, your team's Smallstep Accounts Root and Intermediate CAs are trusted.
+- **Relay Issuing Authority** (optional). The CA that will issue the Relay's server TLS certificate.
+This must be a Smallstep CA in your team.
+By default, your team's Smallstep Workloads CA is used.
 
 Once we have your details,
-Smallstep will create your relay server and give you the Relay URL,
-which you’ll need to configure clients.
+Smallstep will create your relay server and respond with a **Relay URL**,
+which you’ll need for configuring clients.
 
-For most customers, the Relay will accept client certificates from your team's Smallstep Accounts CA.
-And, therefore, your clients will need to trust your team's Smallstep Accounts Root CA.
-You can download the Accounts Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
+## Typical Client Configuration
 
-For most customers, the Relay’s server certificate is issued by your team’s Workloads CA.
-And, therefore, your clients will need to trust your team's Smallstep Workloads Root CA.
+On Apple platforms, a typical client could be configured as follows:
+
+- **Workloads CA Trust**: The Relay’s server certificate is issued by your team’s Workloads CA.
+Therefore, the client must trust your team's Workloads Root CA to connect to the relay.
 You can download the Workloads Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
+- **Accounts CA Trust**: To obtain its client certificate, the client must trust your team's Smallstep Accounts Root CA
+You can download the Accounts Root CA certificate from your [Authorities](https://smallstep.com/app/?next=/cm/authorities) page.
+- **Client Certificate**: An [ACMECertificate MDM payload](https://support.apple.com/guide/deployment/automated-certificate-management-environment-depb95c66a07/web) is used to obtain a client certificate for accessing the Relay.
+- **Relay Configuration**: The Relay is configured using a [Relay MDM payload](https://developer.apple.com/documentation/devicemanagement/relay)
 
 ## Example: Jamf Pro Configuration Profile
 
@@ -71,7 +76,7 @@ In this example, we’ll use Jamf Pro to configure endpoints connecting to a Sma
         - Hardware Bound: ✅
         - Attest: ✅
         - Key Usage: `0xB`
-        - Extended Key Usage: `1.3.6.1.5.5.7.3.2\`
+        - Extended Key Usage: `1.3.6.1.5.5.7.3.2`
     5. Add a [Relay payload](https://developer.apple.com/documentation/devicemanagement/relay)
         1. Relays: Add the URL for your Smallstep Enterprise Relay
         2. Match domains: Up to you
