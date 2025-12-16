@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: December 05, 2025
 title: Install step-ca
 html_title: Install step-ca Certificate Authority Guide
 description: Install step-ca certificate authority on any platform. Quick deployment guide for private PKI infrastructure with comprehensive setup instructions.
@@ -88,10 +88,15 @@ To uninstall, run `scoop uninstall`, then remove the configuration directory `$H
 To add Smallstep as a source and install the `step-cli` and `step-ca` packages on Debian or Ubuntu distributions, run the following as `root`:
 
 ```
-apt-get update && apt-get install -y --no-install-recommends curl vim gpg ca-certificates
-curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
-    echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
-    | tee /etc/apt/sources.list.d/smallstep.list
+apt-get update && apt-get install -y --no-install-recommends curl gpg ca-certificates
+curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
+cat << EOF > /etc/apt/sources.list.d/smallstep.sources
+Types: deb
+URIs: https://packages.smallstep.com/stable/debian
+Suites: debs
+Components: main
+Signed-By: /etc/apt/keyrings/smallstep.asc
+EOF
 apt-get update && apt-get -y install step-cli step-ca
 ```
 
