@@ -74,6 +74,10 @@
               "path": "/platform/smallstep-agent.mdx"
             },
             {
+              "title": "Troubleshooting the Agent",
+              "path": "/platform/troubleshooting-agent.mdx"
+            },
+            {
               "title": "Configure Browser Certificates",
               "path": "/tutorials/browser-certificate-setup-guide.mdx"
             },
