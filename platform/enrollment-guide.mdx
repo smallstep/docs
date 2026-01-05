@@ -79,6 +79,8 @@ Devices added via API are automatically approved.
 but they will not be marked as high-assurance
 until Smallstep receives an attestation from the device.
 
+You'll need [an API token](https://smallstep.com/app/?next=/settings/api/tokens/add) with all “device” scopes (put-device, patch-device, etc.).
+
 Use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
 - For Apple devices, the `permanentIdentifier` must be the device's 9-character serial number.
 - For TPM 2.0 devices, the `permanentIdentifier` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)

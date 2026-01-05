@@ -417,6 +417,44 @@ To uninstall the Smallstep Agent from a macOS system:
 
 ## Registering the Agent
 
+### Using the Smallstep API
+
+Before you begin, [create an API token](https://smallstep.com/app/?next=/settings/api/tokens/add) with at least all “device” scopes (put-device, patch-device, etc.)
+
+1. On the device, configure the agent for enrollment:
+
+```
+New-Item -Path "HKLM:\Software\Policies\Smallstep"
+Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-slug>"
+Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "CAFingerprint" -Value "<agents-ca-fingerprint>"
+```
+
+Replace `<team-slug>` and `<agents-ca-fingerprint>` with your Smallstep [team ID](https://smallstep.com/app/?next=/settings) and the CA fingerprint of your Smallstep Agents CA.
+
+2. On the device, navigate to the agent installation directory and obtain the device's TPM fingerprint:
+
+```
+cd 'C:\Program Files\Smallstep\SmallstepApp\'
+.\smallstep-agent.exe tpm --fingerprint
+```
+
+3. Register the device's TPM [using Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) and the following request body:
+
+```
+{
+  "os": "Windows",
+  "ownership": "company",
+  "permanentIdentifier": "<tpm-ek-fingerprint>",
+  "user": {
+    "email": "<user-binding-email>"
+  }
+}
+```
+
+4. [Approve the device in the Smallstep console](https://smallstep.com/app/?next=/devices)
+
+5. Restart the device OR manually ensure the `Smallstep Agent` Windows service is started
+
 After installation and configuration, the agent will automatically register with your Smallstep team. You can verify registration in the Smallstep UI by checking the device's profile page for an **Enrolled At** timestamp in the **Device Registration** section.
 
 ## Confirmation
