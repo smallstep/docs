@@ -1,5 +1,5 @@
 ---
-updated_at: November 18, 2025
+updated_at: January 05, 2026
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
@@ -9,7 +9,7 @@ The Smallstep Agent brings automated certificate management, device identity, an
 
 # Introduction
 
-This guide covers manual installation of the Smallstep Agent on:
+This guide covers **manual installation** of the Smallstep Agent on:
 
 * [Linux](#linux-installation)
 * [macOS](#macos-installation)
@@ -20,11 +20,12 @@ want to install the agent
 via a software management tool separate from your MDM (eg Ansible, Munki),
 or if your MDM only supports limited software management workflows.
 
-If you manage package deployments via MDM, see:
+<Alert severity="info">
+Using an MDM? See:
 - [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx) (macOS)
 - [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
-
+</Alert>
 
 # Network Access
 
@@ -400,7 +401,7 @@ To uninstall the Smallstep Agent from a macOS system:
 1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
    - For most systems: `step-agent-plugin_amd64_<version>.msi`
    - For ARM64 systems: `step-agent-plugin_arm64_<version>.msi`
-   - Setup (exe) installer also available: `step-agent-plugin-Setup_amd64_<version>.exe`
+   - A Setup (exe) installer is also available: `step-agent-plugin-Setup_amd64_<version>.exe`
 
 2. Install the agent silently:
 
