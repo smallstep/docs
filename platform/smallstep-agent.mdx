@@ -1,5 +1,5 @@
 ---
-updated_at: January 05, 2026
+updated_at: January 06, 2026
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
@@ -299,14 +299,7 @@ See the [p11-kit](https://p11-glue.github.io/p11-glue/p11-kit/manual/) documenta
 
 To uninstall the Smallstep Agent from a Linux system:
 
-1. Stop and disable the agent service:
-
-   ```bash
-   sudo systemctl stop step-agent
-   sudo systemctl disable step-agent
-   ```
-
-2. Remove the agent package:
+1. Remove the agent package:
 
    **For Fedora/RHEL/Enterprise Linux:**
    ```bash
@@ -318,7 +311,7 @@ To uninstall the Smallstep Agent from a Linux system:
    sudo apt-get remove step-agent-plugin
    ```
 
-3. Optionally, remove configuration and certificate files:
+2. Optionally, remove configuration and certificate files:
 
    ```bash
    sudo rm -rf /etc/step-agent /var/lib/step-agent /run/step-agent
@@ -360,17 +353,12 @@ There's two ways to confirm installation on a macOS endpoint:
 
 To uninstall the Smallstep Agent from a macOS system:
 
-1. Stop and remove the launch agent:
-
-   ```bash
-   launchctl stop com.smallstep.launchd.Agent
-   launchctl remove com.smallstep.launchd.Agent
-   ```
-
-2. Run the agent's uninstall command:
+1. Run the following to uninstall the launch agent and remove runtime state:
 
    ```bash
    /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent reset
+   rm /Library/LaunchAgents/com.smallstep.launchd.Agent.plist
    ```
 
 3. Remove the application directory:
@@ -401,18 +389,11 @@ To uninstall the Smallstep Agent from a macOS system:
 1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
    - For most systems: `step-agent-plugin_amd64_<version>.msi`
    - For ARM64 systems: `step-agent-plugin_arm64_<version>.msi`
-   - A Setup (exe) installer is also available: `step-agent-plugin-Setup_amd64_<version>.exe`
 
 2. Install the agent silently:
 
-   **For MSI installer:**
    ```powershell
    msiexec.exe /i "path\to\step-agent-plugin_amd64.msi" /quiet
-   ```
-
-   **For Setup (exe) installer:**
-   ```powershell
-   step-agent-plugin-Setup_amd64_<version>.exe /silent
    ```
 
 ## Registering the Agent
@@ -470,12 +451,6 @@ To uninstall the Smallstep Agent from a Windows system:
 
 ```powershell
 msiexec /x "{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}" /quiet
-```
-
-**Note:** The GUID shown above (`{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}`) is the product code for the Smallstep Agent MSI. To find the correct GUID for your installed version, you can run:
-
-```powershell
-Get-WmiObject -Class Win32_Product | Where-Object { $_.Name -like "*Smallstep*" } | Select-Object Name, IdentifyingNumber
 ```
 
 Alternatively, uninstall via the Windows "Add or Remove Programs" settings.
