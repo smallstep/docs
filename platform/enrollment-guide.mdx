@@ -1,5 +1,5 @@
 ---
-updated_at: November 11, 2025
+updated_at: January 05, 2026
 title: Device Enrollment Guide
 html_title: Device Enrollment Implementation Guide
 description: Step-by-step guide for device enrollment and inventory management. Set up secure certificate enrollment for all enterprise devices.
@@ -32,7 +32,7 @@ You can [manually invite users
 to join your Smallstep team](https://smallstep.com/app/?next=/users/invite),
 and they will be able to self-enroll devices
 using the [Smallstep Desktop App](./smallstep-app.mdx)
-or the [Smallstep Agent for Linux](./smallstep-agent.mdx).
+or the [Smallstep Agent](./smallstep-agent.mdx).
 
 By default, administrators
 must approve a new device
@@ -79,12 +79,27 @@ Devices added via API are automatically approved.
 but they will not be marked as high-assurance
 until Smallstep receives an attestation from the device.
 
-#### Example: I have a list of device identifiers
+You'll need [an API token](https://smallstep.com/app/?next=/settings/api/tokens/add) with all “device” scopes (put-device, patch-device, etc.).
 
-For each device, use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
-
-Devices are automatically approved when added via API.
+Use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
+- For Apple devices, the `permanentIdentifier` must be the device's 9-character serial number.
+- For TPM 2.0 devices, the `permanentIdentifier` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
+- To create and assign a user to a device, fill in the `user` fields.
 
 Once added,
-you'll see devices in the Smallstep console,
+the devices will be automatically approved.
+
+You can see the device using the [List Devices](https://gateway.smallstep.com/v2025-01-01/operations/ListDevices) endpoint:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your API token]" > api_headers
+set -o history
+curl -sH @api_headers --request GET \
+  --url https://gateway.smallstep.com/api/devices \
+  --header 'Accept: application/json' \
+  --header 'x-smallstep-api-version: 2025-01-01' | jq
+```
+
+You'll also see new devices in the Smallstep console,
 under [Devices](https://smallstep.com/app/?next=/devices).

@@ -9,7 +9,7 @@ Smallstep can integrate with Microsoft Intune to synchronize your device invento
 
 In this document, we will configure your Microsoft Intune instance for use with your Smallstep team and any Windows endpoints.
 
-To configure the connection, let’s first set up an Application in Entra ID. Then, we’ll add the client credentials to Smallstep.
+To configure the connection, let's first set up an Application in Entra ID. Then, we'll add the client credentials to Smallstep.
 
 # Prerequisites
 
@@ -92,6 +92,8 @@ Configure the Integration with the values you gathered above:
 Within a few minutes, you will see all of your Intune devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory is synced approximately every four hours.
 
 ### 4. Add the Smallstep Agent for app distribution
+
+**Note:** If you do not want to install the agent via Intune, see our [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
 
 In this step, we’ll add the Smallstep Agent to Intune for distribution to devices.
 

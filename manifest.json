@@ -70,8 +70,12 @@
               "path": "/platform/smallstep-app.mdx"
             },
             {
-              "title": "Deploy to Linux",
+              "title": "Deploy the Agent",
               "path": "/platform/smallstep-agent.mdx"
+            },
+            {
+              "title": "Troubleshooting the Agent",
+              "path": "/platform/troubleshooting-agent.mdx"
             },
             {
               "title": "Configure Browser Certificates",
