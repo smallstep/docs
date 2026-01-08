@@ -1,0 +1,371 @@
+---
+updated_at: January 06, 2026
+title: Troubleshooting the Smallstep Agent
+html_title: Smallstep Agent Troubleshooting Guide
+description: Troubleshoot common issues with the Smallstep Agent. Learn how to use the doctor command and resolve connectivity, certificate, and configuration problems.
+---
+
+This guide helps you diagnose and resolve common issues with the Smallstep Agent. The agent includes built-in diagnostic tools to help identify problems quickly.
+
+## Prerequisites
+
+Before troubleshooting, ensure your system meets the requirements:
+- Review [System Requirements](./smallstep-app.mdx#system-requirements)
+- Check [Runtime Requirements](./smallstep-app.mdx#runtime-requirements)
+- Verify [Connectivity Requirements](./smallstep-app.mdx#connectivity-requirements)
+
+## Using the Doctor Command
+
+The Smallstep Agent includes a `doctor` command that performs automated health checks and provides diagnostic information. This is the recommended first step when troubleshooting issues.
+
+### Running the Doctor Command
+
+**On macOS:**
+```bash
+step-agent-plugin doctor
+```
+
+**On Windows:**
+```powershell
+& 'C:\Program Files\Smallstep\SmallstepApp\smallstep-agent.exe' doctor
+```
+
+**On Linux:**
+```bash
+sudo step-agent-plugin doctor
+```
+
+The doctor command runs a series of checks and displays results in a table format:
+
+```
++------------------------------------------+--------+-------------+
+| Check                                    | Status | Description |
++------------------------------------------+--------+-------------+
+| Check runtime requirements               | PASS   |             |
+| Ping the agent                           | PASS   |             |
+| Check attestation CA connectivity        | PASS   |             |
+| Check API gateway connectivity           | PASS   |             |
+| Check mission control connectivity       | PASS   |             |
+| Bootstrap certificate authorities        | PASS   |             |
+| Verify issued certificates               | PASS   |             |
+| Sign with endpoint keys                  | PASS   |             |
+| Enumerate PKCS#11 objects                | PASS   |             |
++------------------------------------------+--------+-------------+
+```
+
+### Understanding Doctor Output
+
+Each check validates a specific aspect of the agent's functionality. A **PASS** status means the check succeeded, while **FAIL** indicates a problem that needs attention.
+
+#### Check Runtime Requirements
+
+**What it checks:** Verifies that your system has the necessary components for the agent to function:
+- **TPM 2.0 availability** - Ensures the Trusted Platform Module is accessible and can create/delete keys
+- **systemd** (Linux only) - Confirms systemd is running for managing network connections
+
+**Common failure reasons:**
+- No TPM 2.0 module present or enabled in BIOS/UEFI
+- TPM is locked or inaccessible
+- User lacks permissions to access the TPM (Linux)
+- systemd is not the init system (Linux)
+
+**Troubleshooting steps:**
+1. Verify TPM 2.0 is enabled in your system BIOS/UEFI settings
+2. On Linux, check TPM permissions: `ls -l /dev/tpm*`
+3. On Linux, ensure the user has read/write access to `/dev/tpmrm0`
+4. On Windows, verify TPM is enabled: Run `tpm.msc` or check Device Manager
+5. On Linux, confirm systemd is running: `ps -p 1 -o comm=`
+
+#### Ping the Agent
+
+**What it checks:** Verifies the agent background service is running and responding to IPC requests.
+
+**Common failure reasons:**
+- Agent service is not running
+- Agent service crashed or failed to start
+- IPC socket is inaccessible
+
+**Troubleshooting steps:**
+1. Check if the agent service is running:
+   - **macOS:** Look for Smallstep in Activity Monitor
+   - **Windows:** Check Task Manager for the Smallstep Agent process
+   - **Linux:** Run `sudo systemctl status step-agent`
+2. Restart the agent service:
+   - **macOS/Windows:** Restart from the desktop app or System Settings
+   - **Linux:** Run `sudo systemctl restart step-agent`
+3. Check agent logs for error messages:
+   - **Linux:** Run `sudo journalctl -u step-agent -n 50`
+
+#### Check Attestation CA Connectivity
+
+**What it checks:** Tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
+
+**Common failure reasons:**
+- Firewall blocking outbound HTTPS connections
+- Proxy configuration required but not set
+- Network connectivity issues
+- DNS resolution failure
+
+**Troubleshooting steps:**
+1. Test connectivity manually: `curl -v https://att.smallstep.com`
+2. Check firewall rules allow HTTPS to `att.smallstep.com`
+3. If behind a proxy, ensure proxy settings are configured
+4. Verify DNS resolution: `nslookup att.smallstep.com`
+
+#### Check API Gateway Connectivity
+
+**What it checks:** Tests network connectivity to `gateway.smallstep.com` (Smallstep API).
+
+**Common failure reasons:**
+- Same as attestation CA connectivity issues
+
+**Troubleshooting steps:**
+1. Test connectivity manually: `curl -v https://gateway.smallstep.com`
+2. Check firewall rules allow HTTPS to `gateway.smallstep.com`
+3. Review network and proxy configuration
+
+#### Check Mission Control Connectivity
+
+**What it checks:** Tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
+
+**Common failure reasons:**
+- Firewall blocking port 443 for gRPC traffic
+- Deep packet inspection interfering with gRPC
+- Proxy not configured for gRPC
+
+**Troubleshooting steps:**
+1. Test connectivity manually: `curl -v https://control.infra.smallstep.com`
+2. Check firewall rules allow HTTPS/gRPC to `control.infra.smallstep.com`
+3. Some corporate firewalls may block gRPC - work with your network team
+
+#### Bootstrap Certificate Authorities
+
+**What it checks:** Verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
+
+**Common failure reasons:**
+- Connectivity issues to `<your-team>.ca.smallstep.com`
+- Invalid or expired CA fingerprint in configuration
+- Agent not properly registered with your team
+
+**Troubleshooting steps:**
+1. Verify connectivity to your CA: `curl -v https://<your-team>.ca.smallstep.com`
+2. Check the agent configuration file for correct team name and fingerprint:
+   - **macOS/Windows:** Configuration in app settings
+   - **Linux:** Check `/etc/step-agent/agent.yaml`
+3. Ensure the device is approved in your Smallstep console
+
+#### Verify Issued Certificates
+
+**What it checks:** Validates that all endpoint certificates are currently valid (not expired or not yet valid).
+
+**Common failure reasons:**
+- Certificates expired due to agent being offline
+- System clock is incorrect
+- Certificate renewal failed
+
+**Troubleshooting steps:**
+1. Verify system clock is accurate: `date`
+2. If clock was wrong, correct it and restart the agent
+3. Check when certificates will expire (look in agent logs or desktop app)
+4. Run doctor with `--renew` flag to force certificate renewal (see below)
+
+#### Sign with Endpoint Keys
+
+**What it checks:** Tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
+
+**Common failure reasons:**
+- TPM/Secure Enclave access issues
+- Keys were deleted or corrupted
+- Permission issues accessing keys
+
+**Troubleshooting steps:**
+1. Verify TPM/Secure Enclave is accessible (see runtime requirements above)
+2. Check agent logs for key access errors
+3. If keys are corrupted, the agent may need to re-register
+
+#### Enumerate PKCS#11 Objects
+
+**What it checks:** (Linux/macOS only) Verifies that certificates and keys are accessible via the PKCS#11 interface.
+
+**Common failure reasons:**
+- PKCS#11 server not running
+- `P11_KIT_SERVER_ADDRESS` environment variable not set correctly
+- p11-kit not installed or configured
+
+**Troubleshooting steps:**
+1. Verify the PKCS#11 socket exists:
+   ```bash
+   ls -l $XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+   ```
+2. Check the environment variable:
+   ```bash
+   echo $P11_KIT_SERVER_ADDRESS
+   ```
+3. Test PKCS#11 manually:
+   ```bash
+   pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so --list-slots
+   ```
+4. See [PKCS#11 Support](./smallstep-agent.mdx#openssl-and-pkcs11-support) for configuration details
+
+### Advanced Doctor Options
+
+#### Force Certificate Renewal
+
+To test certificate renewal as part of the doctor checks, use the `--renew` flag:
+
+```bash
+step-agent-plugin doctor --renew
+```
+
+This will attempt to renew all endpoint certificates and report any failures. This is useful when:
+- Certificates are close to expiration
+- Testing the renewal workflow
+- Recovering from a certificate expiration issue
+
+<Alert severity="warning">
+The `--renew` flag will trigger certificate renewal for all endpoints, which may briefly interrupt services using those certificates.
+</Alert>
+
+#### JSON Output
+
+For scripting or integration with monitoring tools, use the `--json` flag:
+
+```bash
+step-agent-plugin doctor --json
+```
+
+This outputs check results in JSON format:
+
+```json
+{
+	"authorities": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"certificates": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"network-attestation": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"network-control": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"network-gateway": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"ping": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"preflight": {
+		"Description": "",
+		"State": "PASS"
+	},
+	"sign": {
+		"Description": "",
+		"State": "PASS"
+	}
+}
+```
+
+## Common Issues and Solutions
+
+### Agent Won't Start
+
+**Symptoms:**
+- Agent service fails to start
+- Desktop app shows "Agent not running"
+- Doctor ping check fails
+
+**Solutions:**
+1. Check system requirements are met
+2. Run `step-agent-plugin doctor` to identify specific issues
+3. Check agent logs for startup errors
+4. Restart the system if the TPM is in an inconsistent state
+5. On Linux, check for conflicting services using the same ports
+
+### Network Connectivity Issues
+
+**Symptoms:**
+- All network checks fail in doctor output
+- Agent shows "offline" status
+- Certificate renewal fails
+
+**Solutions:**
+1. Verify internet connectivity: `ping 8.8.8.8`
+2. Test DNS resolution: `nslookup gateway.smallstep.com`
+3. Review [Connectivity Requirements](./smallstep-app.mdx#connectivity-requirements)
+4. Check corporate firewall and proxy settings
+5. Ensure all required Smallstep hosts are allowlisted
+
+### Certificate Expired or Invalid
+
+**Symptoms:**
+- "Verify issued certificates" check fails
+- Applications can't authenticate
+- Certificate errors in browser or VPN
+
+**Solutions:**
+1. Check system clock is accurate
+2. Run `step-agent-plugin doctor --renew` to force renewal
+3. If agent was offline for extended period, certificates may have expired
+4. Check agent logs for renewal errors
+5. Verify connectivity to your team's CA
+
+### TPM/Secure Enclave Access Issues
+
+**Symptoms:**
+- Runtime requirements check fails
+- "Sign with endpoint keys" check fails
+- Agent can't create or access keys
+
+**Solutions:**
+1. **Windows:**
+   - Run agent with administrator privileges
+   - Verify TPM is enabled in Device Manager
+   - Check TPM status: `Get-Tpm` in PowerShell
+2. **macOS:**
+   - Ensure app has keychain access permission
+   - Check System Settings > Privacy & Security > Keychain
+3. **Linux:**
+   - Check TPM permissions: `ls -l /dev/tpmrm0`
+   - Add user to tss group: `sudo usermod -a -G tss $USER`
+   - Verify tpm2-tss is installed
+
+### PKCS#11 Not Working (Linux/macOS)
+
+**Symptoms:**
+- Applications can't access certificates via PKCS#11
+- Chrome/Firefox don't see Smallstep certificates
+- NetworkManager can't use agent certificates
+
+**Solutions:**
+1. Verify PKCS#11 socket exists and is accessible
+2. Set environment variable correctly:
+   ```bash
+   export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+   ```
+3. Install p11-kit if not present
+4. Test with `pkcs11-tool --list-slots`
+5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#openssl-and-pkcs11-support)
+
+## Getting Help
+
+If you've tried the troubleshooting steps above and still have issues:
+
+1. **Run doctor command** and save the output
+2. **Collect agent logs:**
+   - **Linux:** `sudo journalctl -u step-agent -n 200`
+   - **macOS/Windows:** Export logs from the desktop app
+3. **Note your configuration:**
+   - Operating system and version
+   - Smallstep Agent version (`step-agent-plugin version`)
+   - Any error messages or failure descriptions
+4. **Contact Smallstep support** with the information above
+
+For security issues or private questions, email support@smallstep.com.

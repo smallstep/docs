@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: November 18, 2025
 title: Connect Intune to Smallstep
 html_title: Connect Microsoft Intune to Smallstep Tutorial
 description: Connect Microsoft Intune to Smallstep for Windows device identity. Step-by-step guide for enterprise device trust with MDM integration.
@@ -9,7 +9,7 @@ Smallstep can integrate with Microsoft Intune to synchronize your device invento
 
 In this document, we will configure your Microsoft Intune instance for use with your Smallstep team and any Windows endpoints.
 
-To configure the connection, let’s first set up an Application in Entra ID. Then, we’ll add the client credentials to Smallstep.
+To configure the connection, let's first set up an Application in Entra ID. Then, we'll add the client credentials to Smallstep.
 
 # Prerequisites
 
@@ -93,6 +93,8 @@ Within a few minutes, you will see all of your Intune devices in the [Devices](h
 
 ### 4. Add the Smallstep Agent for app distribution
 
+**Note:** If you do not want to install the agent via Intune, see our [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
+
 In this step, we’ll add the Smallstep Agent to Intune for distribution to devices.
 
 1. In Intune,
@@ -132,7 +134,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
     3. Download the Intermediate Certificate
     4. Copy and temporarily save the **SCEP server URL** shown on the page, eg. `https://agents.example.ca.smallstep.com/scep/integration-intune-b967f507`
 2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
-    1. Copy and temporarily save the **Team ID** value
+    1. Copy and temporarily save the **Team Name** and **Team ID** values
 
 ### 6. Create a Policy in Intune
 
@@ -161,11 +163,11 @@ In this step, we’ll tie everything together by creating Windows policy to enro
             2. Team Slug: (paste the Team ID you saved earlier)
             3. Certificate URI:
                ```
-               capi:store-location=machine;store=My;issuer=Smallstep (<TeamSlug>) Agents Intermediate CA;cn=step-agent-bootstrap
+               capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=step-agent-bootstrap
                ```
-               Replace `<TeamSlug>` in the “Certificate URI” with your team’s slug.
+               Replace `<team-name>` in the “Certificate URI” with your full team name.
                If your team was created before October, 2024,
-               your issuer CA may have a common name without the team slug ("Smallstep Agents Intermediate CA").
+               your issuer CA may have a common name without the team name ("Smallstep Agents Intermediate CA").
                Not sure? Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities).
             4. Leave the other settings as is.
             5. Choose “OK”
