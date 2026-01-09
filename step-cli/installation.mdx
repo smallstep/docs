@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: December 05, 2025
 title: Install step
 html_title: Install Step CLI on Any Platform Guide
 description: Install step CLI on any platform. Quick setup instructions for the command-line tool for certificates and cryptography with easy installation.
@@ -50,10 +50,15 @@ To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configurati
 To add Smallstep as a source and install the `step-cli` package on Debian or Ubuntu distributions, run the following as `root`:
 
 ```
-apt-get update && apt-get install -y --no-install-recommends curl vim gpg ca-certificates
-curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/trusted.gpg.d/smallstep.asc && \
-    echo 'deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main' \
-    | tee /etc/apt/sources.list.d/smallstep.list
+apt-get update && apt-get install -y --no-install-recommends curl gpg ca-certificates
+curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
+cat << EOF > /etc/apt/sources.list.d/smallstep.sources
+Types: deb
+URIs: https://packages.smallstep.com/stable/debian
+Suites: debs
+Components: main
+Signed-By: /etc/apt/keyrings/smallstep.asc
+EOF
 apt-get update && apt-get -y install step-cli
 ```
 
