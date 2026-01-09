@@ -100,11 +100,10 @@ provisioner for a given workload.
 Use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
 
 <Alert severity="warning">
-  <div>
-	<p><b>May I edit <Code>ca.json</Code> directly?</b></p>
-    <p>You may edit your <Code>ca.json</Code> configuration file directly, but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner"><Code>step ca provisioner</Code></a> commands instead.
-Fields in <Code>ca.json</Code> may be encoded differently than you expect.</p>
-	</div>
+	**May I edit `ca.json` directly?**
+
+  You may edit your `ca.json` configuration file directly, but we strongly recommend using <a href="https://smallstep.com/docs/step-cli/reference/ca/provisioner">`step ca provisioner`</a> commands instead.
+  Fields in `ca.json` may be encoded differently than you expect.
 </Alert>
 
 Some provisioner options override global defaults for your CA.
@@ -711,28 +710,26 @@ $ STEP_CONSOLE=true step ssh certificate carl carl.crt
 #### Notes
 
 <Alert severity="info">
-  <div>
-    <b>Why is the OAuth client secret unprotected?</b>
+  **Why is the OAuth client secret unprotected?**
 
-When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's <Code>/provisioners</Code> API endpoint.
-Counterintuitively, this is a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
-And it is the same approach that Google's <Code>gcloud</Code> CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
+  When using the OIDC provisioner, you may notice that your OAuth client secret is visible to anyone via the CA's `/provisioners` API endpoint.
+  Counterintuitively, this is a secure implementation of OAuth that conforms to the OAuth Best Current Practices for Native Apps (<a href="https://www.rfc-editor.org/rfc/rfc8252.html">RFC8252 / IETF BCP212</a>).
+  And it is the same approach that Google's `gcloud` CLI tool uses for Google Cloud Platform authentication: An OAuth client secret is hardcoded into its source code.
 
-So, what makes it secure?
-The Authorization Code flow for native OAuth apps requires the redirect URI hostname be hardcoded as `127.0.0.1` (or `localhost`) in the client configuration.
-This constraint obviates the need for a client secret, because the loopback address is inherently resistant to network attacks that the client secret is designed to mitigate in other, non-native app flows.
+  So, what makes it secure?
+  The Authorization Code flow for native OAuth apps requires the redirect URI hostname be hardcoded as `127.0.0.1` (or `localhost`) in the client configuration.
+  This constraint obviates the need for a client secret, because the loopback address is inherently resistant to network attacks that the client secret is designed to mitigate in other, non-native app flows.
 
-An attacker in posession of the client secret would need local access to your device in order to compromise the flow.
-OAuth in general is not very resistant to local attacks, so the threat model for the native app flow with an exposed client secret is the same as with any other OAuth flow:
-It assumes that if you have a local attacker on your device, it's unlikely that this kind of attack is going to be your biggest threat.
+  An attacker in posession of the client secret would need local access to your device in order to compromise the flow.
+  OAuth in general is not very resistant to local attacks, so the threat model for the native app flow with an exposed client secret is the same as with any other OAuth flow:
+  It assumes that if you have a local attacker on your device, it's unlikely that this kind of attack is going to be your biggest threat.
 
-The client secret is superfluous in the Authorization Code flow for native apps.
-In fact, BCP212 has recommended that OAuth identity providers offer a special OAuth client type that has no client secret.
-In practice, very few OAuth providers have implemented this "secretless" approach, so we don't yet support it.
-Functionally, however, it is equivalent to having a public secret.
+  The client secret is superfluous in the Authorization Code flow for native apps.
+  In fact, BCP212 has recommended that OAuth identity providers offer a special OAuth client type that has no client secret.
+  In practice, very few OAuth providers have implemented this "secretless" approach, so we don't yet support it.
+  Functionally, however, it is equivalent to having a public secret.
 
-Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted and considered secure.
-  </div>
+  Bottom line, the OAuth flow implemented in `step` and `step-ca` is widely vetted and considered secure.
 </Alert>
 
 #### Further reading
@@ -748,10 +745,9 @@ It allows clients to use a different PKI to bootstrap trust.
 Configure this provisioner with a root CA certificate, and any certificate that chains up to that root can be used in a certificate request.
 
 <Alert severity="warning">
-  <div>
-	<p><b>May I configure my CA's X5C provisioner accept its own root?</b></p>
-    <p>We do not recommend it, because it will allow any user with a valid certificate from your PKI to get any kind of certificate. Configure X5C with the root of a more restricted CA, to ensure only specific people or machines can use the provisioner.</p>
-	</div>
+  **May I configure my CA's X5C provisioner accept its own root?**
+
+  We do not recommend it, because it will allow any user with a valid certificate from your PKI to get any kind of certificate. Configure X5C with the root of a more restricted CA, to ensure only specific people or machines can use the provisioner.
 </Alert>
 
 - Clients may request an X.509 or SSH certificate
@@ -1268,12 +1264,8 @@ This operation cannot be performed using an ECDSA key.
 Because [`step ca init`](../step-cli/reference/ca/init) creates an ECDSA chain by default, you will need to [convert your CA to use an RSA CA chain](../tutorials/rsa-chain.mdx) before using the SCEP provisioner.
 
 <Alert severity="info">
-  <div>
-	  <p>
-      <strong>Note:</strong> Some SCEP clients may fail if the intermediate CA certificate does not contain the right key usage extensions or does contain otherwise unexpected content. 
-      Consult the documentation of your SCEP client for specific configuration required or ask us on <a href="https://u.step.sm/discord">Discord</a> or in <a href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</a> if you hit a blocker.
-    </p>
-  </div>
+  **Note:** Some SCEP clients may fail if the intermediate CA certificate does not contain the right key usage extensions or does contain otherwise unexpected content. 
+  Consult the documentation of your SCEP client for specific configuration required or ask us on <a href="https://u.step.sm/discord">Discord</a> or in <a href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</a> if you hit a blocker.
 </Alert>
 
 #### Configure the Provisioner
@@ -1334,9 +1326,7 @@ Finally, restart `step-ca`.
 Your SCEP provisioner is now available at the endpoint `http://ca.example.com:8080/scep/my_scep_provisioner`.
 
 <Alert severity="info">
-  <div>
-	<p><strong>Note:</strong> Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.</p>
-  </div>
+	**Note:** Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.
 </Alert>
 
 ### K8sSA - Kubernetes Service Account
