@@ -1,13 +1,27 @@
 ---
-updated_at: November 18, 2025
+updated_at: January 05, 2026
 title: Connect Intune to Smallstep
 html_title: Connect Microsoft Intune to Smallstep Tutorial
 description: Connect Microsoft Intune to Smallstep for Windows device identity. Step-by-step guide for enterprise device trust with MDM integration.
 ---
+# Introduction
 
 Smallstep can integrate with Microsoft Intune to synchronize your device inventory, to excahnge SCEP tokens, and to enroll your fleet with Smallstep using the Smallstep Agent. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep for bootstrapping.
 
-In this document, we will configure your Microsoft Intune instance for use with your Smallstep team and any Windows endpoints.
+In this tutorial, we will:
+- Connect Microsoft Entra ID to Smallstep via an Entra ID App Registration.
+- Configure Smallstep to sync your devices from Intune
+- Configure Intune to deploy the Smallstep agent to your devices
+- Configure Intune to add your Smallstep CA certificate to your devices
+- Configure Intune to issue a provisional SCEP certificate to your devices from your Smallstep CA. 
+
+Once you've completed this tutorial, your devices will get a provisional SCEP certificate from Smallstep:
+
+![](/graphics/Intune_flow_diagram.png)
+
+This certificate allows our agent to silently bootstrap trust with Smallstep.
+Once bootstrapped, the Smallstep agent obtains a device certificate using ACME Device Attestation.
+The device certificate is used to issue resource-specific certificates.
 
 To configure the connection, let's first set up an Application in Entra ID. Then, we'll add the client credentials to Smallstep.
 
