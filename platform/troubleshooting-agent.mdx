@@ -1,24 +1,141 @@
 ---
-updated_at: January 06, 2026
-title: Troubleshooting the Smallstep Agent
-html_title: Smallstep Agent Troubleshooting Guide
-description: Troubleshoot common issues with the Smallstep Agent. Learn how to use the doctor command and resolve connectivity, certificate, and configuration problems.
+updated_at: January 13, 2026
+title: Troubleshooting Guide
+html_title: Smallstep Troubleshooting Guide
+description: Troubleshoot Smallstep Device Identity issues. Diagnose platform, MDM, and endpoint problems with step-by-step guidance.
 ---
 
-This guide helps you diagnose and resolve common issues with the Smallstep Agent. The agent includes built-in diagnostic tools to help identify problems quickly.
+This guide helps you diagnose and resolve issues with Smallstep Device Identity. Whether you're onboarding new devices or managing a mature deployment, use this guide to discover and resolve problems at their source.
 
-## Prerequisites
+## Where to begin?
 
-Before troubleshooting, ensure your system meets the requirements:
+Troubleshooting is easier when you identify what changed. Ask yourself:
+
+- **Did you recently set up Smallstep or connect a new MDM?** Start with [Platform & MDM Troubleshooting](#platform--mdm-troubleshooting).
+- **Did you change MDM credentials, SCEP settings, or Smallstep configuration?** Start with [Platform & MDM Troubleshooting](#platform--mdm-troubleshooting).
+- **Is this a single device that stopped working?** Start with [Agent & Endpoint Troubleshooting](#agent--endpoint-troubleshooting).
+- **Are certificates expired or is an app unable to connect?** Start with [Agent & Endpoint Troubleshooting](#agent--endpoint-troubleshooting).
+
+If you're not sure, start with the [Platform & MDM Troubleshooting](#platform--mdm-troubleshooting) section—platform-level issues affect more users and are faster to rule out.
+
+---
+
+## Platform & MDM Troubleshooting
+
+This section covers issues with the Smallstep console, MDM integrations, and configuration that affect multiple devices.
+
+### Check for Alerts
+
+First, check your Smallstep dashboard for any alerts. If you've exceeded device quotas or have configuration issues, you'll see a banner on the [Devices](https://smallstep.com/app/?next=/devices) page.
+
+### MDM Sync Issues
+
+**Symptoms:**
+- "I'm not seeing any devices sync from the MDM"
+- "My devices are no longer syncing from the MDM"
+- "I'm not seeing a particular device sync from the MDM"
+
+<Alert severity="info">
+Smallstep performs a partial device sync with connected MDMs at least every hour, and a full sync every 8 hours.
+</Alert>
+
+**Troubleshooting steps:**
+1. In **Settings → Device Management**, select your MDM provider.
+2. Check that the status shows **Connected**.
+3. Visit the **Logs** tab:
+   - **Authentication errors**: API credentials may not match between the MDM and Smallstep, or may have expired. Check the Overview tab for the API Client ID and Client Secret.
+     - For Entra ID: Ensure there's only one Client Secret associated with the Smallstep Entra ID Application.
+   - **Other errors**: Contact Smallstep support with the error details via an escalation channel.
+
+### Incomplete Device Data
+
+**Symptoms:**
+- "My devices are syncing, but I'm not seeing all the data associated with devices"
+- "The synced devices aren't binding to users"
+
+**Troubleshooting steps:**
+1. Wait for the next partial sync.
+2. If data is still missing, contact Smallstep support via an escalation channel.
+
+### Permission Issues
+
+**Symptoms:**
+- "I can see my own device on smallstep.com, but I can't view or manage other devices"
+- "I can't approve devices"
+
+**Solution:** Your Smallstep user doesn't have the correct permissions. Contact your account owner to request the appropriate role.
+
+### SCEP Certificate Failures
+
+**Symptoms:**
+- "The SCEP Certificate payload is failing for every device"
+- "SCEP enrollment isn't working"
+
+**Troubleshooting steps:**
+1. Confirm that the SCEP URL in your MDM matches the URL in Smallstep settings.
+2. Verify the SCEP credentials (username/password) are identical in both the MDM and Smallstep.
+3. Check if credentials have expired. If so, update them in both places. 
+4. Retry the SCEP payload.
+5. If the issue persists, contact Smallstep support via an escalation channel.
+
+### Device Approval and Attestation
+
+**Symptom:** "The device is approved in Smallstep, but it's Pending Attestation"
+
+The agent may not be installed or may not be running on the device.
+
+**Troubleshooting steps:**
+1. Check your MDM or package management logs to verify the agent was installed successfully.
+   - Check for any errors related to agent installation.
+2. If not using MDM, verify installation by checking the agent version on the device (see [Platform-Specific Reference](#platform-specific-reference)).
+3. In the Smallstep console, open the device and check the **Logs** tab. Has the agent logged in? Look for `MISSION_CONTROL_AGENT_LOGIN` events:
+
+   ![Device Logs showing agent login events](/graphics/device-logs-agent-login.png)
+
+   - If not, the service manager may not be starting the agent properly.
+   - Check if the agent process is running on the device.
+   - Try rebooting the device.
+4. If the agent still hasn't logged in, contact Smallstep support.
+
+**Symptom:** "The device is approved, but it's not converting to a Smallstep-managed device (no green dot)"
+
+**Troubleshooting steps:**
+1. Ensure the device is awake and connected to the internet.
+2. The agent checks in with Smallstep every minute by default.
+3. Check the device's Logs tab in the console for errors.
+4. If the status remains not-green, proceed to [Agent & Endpoint Troubleshooting](#agent--endpoint-troubleshooting).
+
+### Resource and Certificate Issues
+
+**Symptom:** "The device doesn't have the resources it should have" (e.g., missing SSH certificate configuration)
+
+**Troubleshooting steps:**
+1. Verify the device is in a collection that has the expected resources assigned.
+2. Check the device's **Resources** tab in the console.
+3. Ensure any required conditions (device posture, user groups) are met.
+
+**Symptom:** "The device has resources but no valid certificates"
+
+The agent may be checking in but not obtaining credentials properly. Proceed to [Agent & Endpoint Troubleshooting](#agent--endpoint-troubleshooting).
+
+---
+
+## Agent & Endpoint Troubleshooting
+
+This section covers issues with individual devices, the Smallstep Agent, and endpoint-specific problems.
+
+### Prerequisites
+
+Before troubleshooting endpoint issues, verify the device meets requirements:
 - Review [System Requirements](./smallstep-app.mdx#system-requirements)
 - Check [Runtime Requirements](./smallstep-app.mdx#runtime-requirements)
 - Verify [Connectivity Requirements](./smallstep-app.mdx#connectivity-requirements)
 
-## Using the Doctor Command
+### Using the Doctor Command
 
-The Smallstep Agent includes a `doctor` command that performs automated health checks and provides diagnostic information. This is the recommended first step when troubleshooting issues.
+The Smallstep Agent includes a `doctor` command that performs automated health checks and provides diagnostic information. This is the recommended first step when troubleshooting endpoint issues.
 
-### Running the Doctor Command
+#### Running the Doctor Command
 
 **On macOS:**
 ```bash
@@ -53,11 +170,11 @@ The doctor command runs a series of checks and displays results in a table forma
 +------------------------------------------+--------+-------------+
 ```
 
-### Understanding Doctor Output
+#### Understanding Doctor Output
 
 Each check validates a specific aspect of the agent's functionality. A **PASS** status means the check succeeded, while **FAIL** indicates a problem that needs attention.
 
-#### Check Runtime Requirements
+##### Check Runtime Requirements
 
 **What it checks:** Verifies that your system has the necessary components for the agent to function:
 - **TPM 2.0 availability** - Ensures the Trusted Platform Module is accessible and can create/delete keys
@@ -76,7 +193,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 4. On Windows, verify TPM is enabled: Run `tpm.msc` or check Device Manager
 5. On Linux, confirm systemd is running: `ps -p 1 -o comm=`
 
-#### Ping the Agent
+##### Ping the Agent
 
 **What it checks:** Verifies the agent background service is running and responding to IPC requests.
 
@@ -96,7 +213,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. Check agent logs for error messages:
    - **Linux:** Run `sudo journalctl -u step-agent -n 50`
 
-#### Check Attestation CA Connectivity
+##### Check Attestation CA Connectivity
 
 **What it checks:** Tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
 
@@ -112,7 +229,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. If behind a proxy, ensure proxy settings are configured
 4. Verify DNS resolution: `nslookup att.smallstep.com`
 
-#### Check API Gateway Connectivity
+##### Check API Gateway Connectivity
 
 **What it checks:** Tests network connectivity to `gateway.smallstep.com` (Smallstep API).
 
@@ -124,7 +241,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check firewall rules allow HTTPS to `gateway.smallstep.com`
 3. Review network and proxy configuration
 
-#### Check Mission Control Connectivity
+##### Check Mission Control Connectivity
 
 **What it checks:** Tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
 
@@ -138,7 +255,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check firewall rules allow HTTPS/gRPC to `control.infra.smallstep.com`
 3. Some corporate firewalls may block gRPC - work with your network team
 
-#### Bootstrap Certificate Authorities
+##### Bootstrap Certificate Authorities
 
 **What it checks:** Verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
 
@@ -154,7 +271,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
    - **Linux:** Check `/etc/step-agent/agent.yaml`
 3. Ensure the device is approved in your Smallstep console
 
-#### Verify Issued Certificates
+##### Verify Issued Certificates
 
 **What it checks:** Validates that all endpoint certificates are currently valid (not expired or not yet valid).
 
@@ -169,7 +286,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. Check when certificates will expire (look in agent logs or desktop app)
 4. Run doctor with `--renew` flag to force certificate renewal (see below)
 
-#### Sign with Endpoint Keys
+##### Sign with Endpoint Keys
 
 **What it checks:** Tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
 
@@ -183,7 +300,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check agent logs for key access errors
 3. If keys are corrupted, the agent may need to re-register
 
-#### Enumerate PKCS#11 Objects
+##### Enumerate PKCS#11 Objects
 
 **What it checks:** (Linux/macOS only) Verifies that certificates and keys are accessible via the PKCS#11 interface.
 
@@ -207,9 +324,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
    ```
 4. See [PKCS#11 Support](./smallstep-agent.mdx#openssl-and-pkcs11-support) for configuration details
 
-### Advanced Doctor Options
+#### Advanced Doctor Options
 
-#### Force Certificate Renewal
+##### Force Certificate Renewal
 
 To test certificate renewal as part of the doctor checks, use the `--renew` flag:
 
@@ -226,7 +343,7 @@ This will attempt to renew all endpoint certificates and report any failures. Th
 The `--renew` flag will trigger certificate renewal for all endpoints, which may briefly interrupt services using those certificates.
 </Alert>
 
-#### JSON Output
+##### JSON Output
 
 For scripting or integration with monitoring tools, use the `--json` flag:
 
@@ -273,9 +390,9 @@ This outputs check results in JSON format:
 }
 ```
 
-## Common Issues and Solutions
+### Common Issues and Solutions
 
-### Agent Won't Start
+#### Agent Won't Start
 
 **Symptoms:**
 - Agent service fails to start
@@ -289,7 +406,7 @@ This outputs check results in JSON format:
 4. Restart the system if the TPM is in an inconsistent state
 5. On Linux, check for conflicting services using the same ports
 
-### Network Connectivity Issues
+#### Network Connectivity Issues
 
 **Symptoms:**
 - All network checks fail in doctor output
@@ -303,7 +420,7 @@ This outputs check results in JSON format:
 4. Check corporate firewall and proxy settings
 5. Ensure all required Smallstep hosts are allowlisted
 
-### Certificate Expired or Invalid
+#### Certificate Expired or Invalid
 
 **Symptoms:**
 - "Verify issued certificates" check fails
@@ -317,7 +434,7 @@ This outputs check results in JSON format:
 4. Check agent logs for renewal errors
 5. Verify connectivity to your team's CA
 
-### TPM/Secure Enclave Access Issues
+#### TPM/Secure Enclave Access Issues
 
 **Symptoms:**
 - Runtime requirements check fails
@@ -337,7 +454,7 @@ This outputs check results in JSON format:
    - Add user to tss group: `sudo usermod -a -G tss $USER`
    - Verify tpm2-tss is installed
 
-### PKCS#11 Not Working (Linux/macOS)
+#### PKCS#11 Not Working (Linux/macOS)
 
 **Symptoms:**
 - Applications can't access certificates via PKCS#11
@@ -354,6 +471,23 @@ This outputs check results in JSON format:
 4. Test with `pkcs11-tool --list-slots`
 5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#openssl-and-pkcs11-support)
 
+#### Cannot Access a Resource (Wi-Fi, VPN, Web App)
+
+**Symptoms:**
+- "I can't connect to Wi-Fi / VPN / web application"
+- Authentication failures when accessing protected resources
+
+**Troubleshooting steps:**
+1. Find the device in the [Smallstep console](https://smallstep.com/app/?next=/devices) and verify it shows a green status.
+2. Ensure the device is awake and connected to the internet.
+3. In your MDM, check for any failed commands for the device.
+4. Verify the SCEP Webhook URL and credentials match between your MDM and Smallstep settings.
+5. Open the device's **Certificates** tab in the console. Verify the resource you're trying to access is listed and has a valid certificate.
+   - **If a certificate exists**: The issue is between the Smallstep Agent and the client application. Check the client's certificate configuration. See [Platform-Specific Reference](#platform-specific-reference) for certificate locations.
+   - **If no certificate exists**: The resource may not be assigned to this device, or there may be an agent issue. Check the device's **Resources** tab and run `doctor`.
+
+---
+
 ## Getting Help
 
 If you've tried the troubleshooting steps above and still have issues:
@@ -369,3 +503,76 @@ If you've tried the troubleshooting steps above and still have issues:
 4. **Contact Smallstep support** with the information above
 
 For security issues or private questions, email support@smallstep.com.
+
+---
+
+## Platform-Specific Reference
+
+Quick reference for platform-specific commands and file locations.
+
+### macOS
+
+| Task | Command or Location |
+|------|---------------------|
+| Check if agent is running | Activity Monitor → search for `SmallstepAgent` |
+| Check agent version | `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` |
+| Restart agent | `launchctl stop com.smallstep.launchd.SmallstepAgent` |
+| Run doctor | `step-agent-plugin doctor` |
+| Certificate location | `/Users/<user>/Library/Application Support/Smallstep/certificates/` |
+| Inspect a certificate | `step certificate inspect --bundle /path/to/cert.crt` |
+| Collect logs | `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent logs collect /tmp/smallstep.log` | 
+
+### Windows
+
+| Task | Command or Location |
+|------|---------------------|
+| Check if agent is running | Task Manager → search for `Smallstep` |
+| Check agent version | `& "C:\Program Files\Smallstep\SmallstepApp\smallstep-agent.exe" version` |
+| Run doctor | `& "C:\Program Files\Smallstep\SmallstepApp\smallstep-agent.exe" doctor` |
+| Certificate location | Windows Certificate Store (`certmgr.msc` for Current User, `certlm.msc` for Local Machine) |
+| Collect logs | `& "C:\Program Files\Smallstep\SmallstepApp\smallstep-agent.exe" logs collect` |
+
+### Linux
+
+| Task | Command or Location |
+|------|---------------------|
+| Check if agent is running | `systemctl status step-agent` |
+| Check agent version | `step-agent-plugin version` |
+| Restart agent | `sudo systemctl restart step-agent` |
+| Run doctor | `sudo step-agent-plugin doctor` |
+| Certificate location | `/var/lib/step-agent/certificates/` |
+| Agent logs | `/var/lib/step-agent/logs/` or `sudo journalctl -u step-agent` |
+| Collect logs | `step-agent-plugin logs collect --log-dir /var/lib/step-agent/logs` |
+| Agent configuration | `/etc/step-agent/agent.yaml` |
+
+<Alert severity="info">
+If the agent won't start, check for this message in the logs:
+```
+step-agent.service was skipped because of an unmet condition check
+(ConditionPathIsReadWrite=/etc/step-agent/agent.yaml)
+```
+This may indicate the device needs to be registered and approved. See [Registering and Approving Endpoints](./smallstep-agent.mdx#registering-and-approving-endpoints).
+</Alert>
+
+### ChromeOS
+
+![ChromeOS extension popup showing device status and version](/graphics/chromeos-extension-popup.png)
+
+| Task | How to Check |
+|------|--------------|
+| Check extension version | Click the Smallstep extension icon in Chrome toolbar (version shown at bottom) |
+| Verify device enrollment | Device must be enrolled in Google Workspace for enterprise/education |
+| Check policies | Navigate to `chrome://policy` and look for `Smallstep Agent for ChromeOS` |
+| Verify certificates | Navigate to `chrome://certificate-manager` |
+
+**ChromeOS Requirements:**
+- Device enrolled in a Google Workspace domain
+- Device registered in Smallstep with matching serial number
+- Users must be managed Google Workspace users
+- Users and devices in the same Google Workspace domain (and OU, if used)
+- Required policies deployed via `chrome://policy`:
+  - `Smallstep Agent for ChromeOS` configuration with your team slug
+  - `ExtensionInstallForceList` containing the ChromeOS extension ID
+  - `AttestationExtensionAllowList` containing the ChromeOS extension ID
+
+The extension retries certificate issuance every ~30 seconds. If enrollment continues to fail, contact Smallstep support.
