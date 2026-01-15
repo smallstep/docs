@@ -45,8 +45,12 @@
               "path": "/tutorials/connect-google-workspace-to-smallstep.mdx"
             },
             {
-              "title": "Connect Intune",
+              "title": "Connect Intune (Windows)",
               "path": "/tutorials/connect-intune-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Intune (macOS)",
+              "path": "/tutorials/connect-intune-to-smallstep-macos.mdx"
             },
             {
               "title": "Connect Jamf Pro",
