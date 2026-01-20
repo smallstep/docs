@@ -12,6 +12,11 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
+      - name: Debug - list mdx files
+        run: |
+          echo "Current directory: $(pwd)"
+          echo "Number of .mdx files: $(find . -name '*.mdx' | wc -l)"
+          find . -name '*.mdx' | head -20
       - uses: tcort/github-action-markdown-link-check@v1
         with:
           file-extension: '.mdx'
