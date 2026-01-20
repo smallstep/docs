@@ -50,6 +50,9 @@
     },
     {
       "pattern": "^https://arubanetworking.hpe.com"
+    },
+    {
+      "pattern": "^https://www.w3.org"
     }
   ],
   "replacementPatterns": [
