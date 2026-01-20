@@ -12,14 +12,12 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - name: Debug - list mdx files
-        run: |
-          echo "Current directory: $(pwd)"
-          echo "Number of .mdx files: $(find . -name '*.mdx' | wc -l)"
-          find . -name '*.mdx' | head -20
-      - uses: tcort/github-action-markdown-link-check@v1
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          file-extension: '.mdx'
-          use-quiet-mode: 'no'
-          use-verbose-mode: 'yes'
-          config-file: '.github/mdl.config.json'
+          node-version: '20'
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+      - name: Check links
+        run: |
+          find . -name '*.mdx' -print0 | xargs -0 -n1 markdown-link-check --config .github/mdl.config.json -q
