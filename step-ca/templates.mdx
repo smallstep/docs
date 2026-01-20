@@ -2,7 +2,7 @@
 title: Configuring step-ca Templates
 html_title: Certificate Template Reference for step-ca
 description: Create and manage certificate templates in step-ca. Customize certificate attributes for specific use cases and compliance requirements.
-updated_at: September 18, 2025
+updated_at: January 20, 2026
 ---
 
 People use private CAs for all sorts of things, in many different contexts:
@@ -300,7 +300,7 @@ Here are some variables available in X.509 certificate templates:
 
 You can also import values
 from the `"templateData"` object
-in your provisioner's [configuration block](#configuring-the-ca-to-use-templates).
+in your provisioner's [configuration block](#configuring-step-ca-to-use-templates).
 
 ### ASN.1 Values
 
@@ -436,7 +436,7 @@ Here is `step-ca`'s default [SSH certificate template](https://github.com/smalls
 
 ### SSH Template Fields
 
-The [OpenSSH certificate protocol spec](https://github.com/openssh/openssh-portable/blob/master/PROTOCOL.certkeys) defines SSH certificate fields and the available Critical Options and Extensions.
+The [OpenSSH certificate protocol spec](https://datatracker.ietf.org/doc/draft-miller-ssh-cert/) defines SSH certificate fields and the available Critical Options and Extensions.
 Third parties can also add custom extensions.
 See [the complete list of fields supported by `step-ca` SSH template](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16).
 
@@ -500,7 +500,7 @@ Here are the most relevant parameters available in SSH certificate template:
   Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](../step-cli/reference/ssh/certificate).
 
 You can also import parameter values
-from your provisioner's [configuration block](#configuring-the-ca-to-use-templates).
+from your provisioner's [configuration block](#configuring-step-ca-to-use-templates).
 
 <Alert severity="warning">
   <div>
