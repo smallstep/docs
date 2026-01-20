@@ -29,6 +29,30 @@
     },
     {
       "pattern": "^https://www.arubanetworks.com"
+    },
+    {
+      "pattern": "^https://admin.google.com"
+    },
+    {
+      "pattern": "^https://azure.microsoft.com"
+    },
+    {
+      "pattern": "^https://www.gnu.org"
+    },
+    {
+      "pattern": "^https://freedesktop.org"
+    },
+    {
+      "pattern": "^https://www.hashicorp.com"
+    },
+    {
+      "pattern": "^https://github.com/Neilpang/acme.sh/issues/2422"
+    },
+    {
+      "pattern": "^https://arubanetworking.hpe.com"
+    },
+    {
+      "pattern": "^https://www.w3.org"
     }
   ],
   "replacementPatterns": [

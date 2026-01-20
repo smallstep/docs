@@ -1,5 +1,5 @@
 ---
-updated_at: November 12, 2025
+updated_at: January 20, 2026
 title: Configuring step-ca Provisioners
 html_title: Configure Certificate Provisioners in step-ca
 description: Master step-ca provisioners for flexible certificate issuance. Support multiple authentication methods from OIDC to cloud metadata.
@@ -431,7 +431,7 @@ Without the `encryptedKey` attribute, the private key must be provided by the cl
 - **claims**<Reference id="star2" marker="**" />: overwrites the default claims set in the authority.
 See [claims](configuration.mdx#claims) for details.
 
-- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star1" marker="*">Recommended</Footnote>
 <Footnote id="star2" marker="**">Optional</Footnote>
@@ -683,7 +683,7 @@ Example `ca.json` provisioner configuration for a Google provisioner:
 - **claims**<Reference id="star3" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star2" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
@@ -806,7 +806,7 @@ tokens.
 - **claims**<Reference id="star4" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star4" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star4" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star4" marker="*">Optional</Footnote>
 
@@ -918,7 +918,7 @@ An example SSHPOP provisioner in the `ca.json`:
 - **claims**<Reference id="star5" marker="*" />: overwrites the default `claims` set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star5" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star5" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star5" marker="*">Optional</Footnote>
 
@@ -990,7 +990,7 @@ Here's an example of an ACME provisioner configuration in `ca.json`:
 - **claims**<Reference id="star6" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star6" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 - **termsOfService**<Reference id="star6" marker="*" />: contains a URL pointing to the ACME server's terms of service. Defaults to empty.
 
@@ -1229,7 +1229,7 @@ Here's an example of an ACME provisioner with Wire support enabled in `$(step pa
 ```
 
 * **challenges**: to enable the Wire integration, `wire-oidc-01` and `wire-dpop-01` must be set. 
-* **options**<Reference id="star6" marker="*" />: with the Wire integration enabled, the certificate template can include (transformed) properties from the OIDC and DPoP tokens (e.g. `.Oidc.preferred_username`, and `.Dpop.sub`). See [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more template configuration details.
+* **options**<Reference id="star6" marker="*" />: with the Wire integration enabled, the certificate template can include (transformed) properties from the OIDC and DPoP tokens (e.g. `.Oidc.preferred_username`, and `.Dpop.sub`). See [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more template configuration details.
 * **discoveryBaseUrl**<Reference id="star6" marker="*" />: sets the OIDC discovery URL, automatically configuring the OIDC provider. If provided, the other  `oidc` configuration options are ignored.
 * **issuerUrl**<Reference id="star6" marker="*" />: sets the OIDC issuer URL. Ignored if `discoveryBaseUrl` is set.
 * **authorizationUrl**<Reference id="star6" marker="*" />: sets the OIDC authorization URL. Ignored if `discoveryBaseUrl` is set.
@@ -1386,7 +1386,7 @@ K8sSA tokens.
 - **claims**<Reference id="star7" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star7" marker="*">Optional</Footnote>
 
@@ -1536,7 +1536,7 @@ Limits certificate issuance to new instances to mitigate the risk of credential-
 - **claims**<Reference id="star8" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star8" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star8" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star8" marker="*">Optional</Footnote>
 
@@ -1610,7 +1610,7 @@ Limits certificate issuance to new instances to mitigate the risk of credential-
 - **claims**<Reference id="star9" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star7" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star9" marker="*">Optional</Footnote>
 
@@ -1678,6 +1678,6 @@ In the `ca.json`, an Azure provisioner looks like:
 - **claims**<Reference id="star10" marker="*" />: overwrites the default claims set in the authority,
 see the [claims](configuration.mdx#claims) section for all the options.
 
-- **options**<Reference id="star10" marker="*" />: see [template configuration](templates.mdx#configuring-the-ca-to-use-templates) for more details.
+- **options**<Reference id="star10" marker="*" />: see [template configuration](templates.mdx#configuring-step-ca-to-use-templates) for more details.
 
 <Footnote id="star10" marker="*">Optional</Footnote>

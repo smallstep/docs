@@ -1,9 +1,10 @@
-name: Check Markdown links in merges
+name: Check Markdown links
 
 on:
   push:
     branches:
       - main
+  pull_request:
 
 jobs:
   markdown-link-check:
@@ -11,8 +12,26 @@ jobs:
     timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
-      - uses: gaurav-nelson/github-action-markdown-link-check@v1
         with:
-          file-extension: '.mdx'
-          use-quiet-mode: 'yes'
-          config-file: '.github/mdl.config.json'
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install markdown-link-check
+        run: npm install -g markdown-link-check
+      - name: Check all links (push to main)
+        if: github.event_name == 'push'
+        run: |
+          find . -name '*.mdx' -print0 | xargs -0 -n1 markdown-link-check --config .github/mdl.config.json -q
+      - name: Check changed files only (PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.mdx')
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No .mdx files changed"
+            exit 0
+          fi
+          echo "Checking changed files:"
+          echo "$CHANGED_FILES"
+          echo "$CHANGED_FILES" | xargs -n1 markdown-link-check --config .github/mdl.config.json -q

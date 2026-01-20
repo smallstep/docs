@@ -2,7 +2,7 @@
 title: Production considerations when running a certificate authority server
 html_title: Certificate authority server production considerations
 description: Learn about the important production considerations and sane cryptographic defaults that operators should know about when running a certificate authority server
-updated_at: July 07, 2025
+updated_at: January 20, 2026
 ---
 
 
@@ -70,7 +70,7 @@ See [Cryptographic Protection](./cryptographic-protection.mdx) to learn more abo
 
 ### Use Strong Passwords and Store Them Well
 
-When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority),
+When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority-ca),
 the root and intermediate private keys will be encrypted with the same password.
 
 Use a password manager to generate random passwords, 
@@ -138,7 +138,7 @@ See our blog [How to Handle Secrets on the Command Line](https://smallstep.com/b
 
 ### Replace Your Default Provisioner
 
-When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority),
+When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority-ca),
 a default `JWK` provisioner will be created.
 If you're not going to use this provisioner,
 we recommend deleting it.
