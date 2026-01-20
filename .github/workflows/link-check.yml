@@ -15,5 +15,6 @@ jobs:
       - uses: tcort/github-action-markdown-link-check@v1
         with:
           file-extension: '.mdx'
-          use-quiet-mode: 'yes'
+          use-quiet-mode: 'no'
+          use-verbose-mode: 'yes'
           config-file: '.github/mdl.config.json'
