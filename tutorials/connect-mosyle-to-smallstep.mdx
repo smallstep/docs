@@ -1,0 +1,281 @@
+---
+updated_at: January 21, 2026
+title: Connect Mosyle to Smallstep
+html_title: Integrate Mosyle with Smallstep Tutorial
+description: Integrate Mosyle with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
+---
+
+Smallstep can integrate with Mosyle to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Mosyle instance for use with your Smallstep team.
+
+This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-mosyle).
+
+## Requirements & Limitations
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup) with Pro features enabled
+- A [Mosyle](https://mosyle.com/) Business or Fuse tenant
+
+Client requirements:
+
+- The agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  ```
+
+Limitations:
+
+- Mosyle supports static SCEP only; dynamic SCEP challenges are not available.
+- For VPN configurations, only IPSec VPNs are currently supported.
+- "Always-on VPN" or device-wide VPNs are not yet supported in Smallstep-managed configurations.
+
+## Step-by-step instructions
+
+## Create an API Token in Mosyle
+
+This API token will allow Smallstep to read your Mosyle device inventory for ongoing inventory syncing.
+
+1. In Mosyle, choose **Organization** from the top navigation
+2. In the left sidebar, expand **Integrations**
+3. Choose **Mosyle API Integration**
+4. Choose **Add new token**
+5. Configure the token:
+    - Profile name: `Smallstep`
+    - Access Method: `Public`
+    - Ensure **Allow all current and future endpoints** is checked
+6. Choose **Save**
+7. Temporarily save the **Access Token** that is displayed. You'll use it in the next step.
+
+## Connect Mosyle to Smallstep
+
+Let's add the Mosyle API credentials you just created to Smallstep.
+
+1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
+2. Under Mosyle, choose ➕ **Connect**
+3. Enter the API token from Mosyle
+4. Choose **Add Platform**. Your device inventory will start syncing from Mosyle to Smallstep.
+
+Your Smallstep team is now linked to Mosyle. Smallstep will do a partial sync of your device inventory from Mosyle every hour, and a full sync every 8 hours.
+
+## Configure Certificates in Mosyle
+
+### Download Smallstep Authority Certificates
+
+1. In the Smallstep console, choose **Certificate Manager**
+2. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
+3. Select the **Smallstep Agents** authority
+4. Download the **Root Certificate**
+5. Temporarily save the root certificate file
+
+### Get the SCEP Provisioner URL and Challenge
+
+1. In the Smallstep console, choose **Certificate Manager**
+2. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
+3. Select the **Smallstep Agents** authority
+4. Under the Provisioners section, choose the provisioner beginning with **`integration-mosyle`**
+5. Temporarily save:
+   - The **SCEP URL**, e.g., `https://agents.example.ca.smallstep.com/scep/integration-mosyle-abc123`
+   - The **Static Challenge** value shown on the page
+
+### Upload the Root Certificate to Mosyle
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Use the platform dropdown in the left sidebar to select **macOS**
+3. In the left sidebar, under **Management Profiles**, choose **Certificates / Custom Profiles**
+   - If this profile type is not visible, choose **Activate New Profile Type**, search for "Certificates", and activate **Certificates / Custom Profiles**
+4. Choose **Add new profile**
+5. Configure the certificate profile:
+    - Profile Name: `Smallstep Agents Root CA`
+    - Upload the root certificate file you downloaded earlier
+6. Under **Profile Assignment**, choose **+ Add Assignment** and select your desired device groups
+7. Choose **Save**
+
+### Create a SCEP Profile in Mosyle
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Use the platform dropdown in the left sidebar to select **macOS**
+3. In the left sidebar, under **Management Profiles**, choose **SCEP**
+   - If this profile type is not visible, choose **Activate New Profile Type**, search for "SCEP", and activate **SCEP**
+4. Choose **Add new profile**
+5. Configure the SCEP profile:
+    - Profile Name: `Smallstep`
+    - URL: (paste the SCEP provisioner URL you saved earlier)
+    - Subject: `CN=%DeviceName%` (or customize as needed using Mosyle variables)
+    - Challenge: (paste the static challenge you saved earlier)
+    - Key Size (in bits): `2048`
+    - Check ☑️ **Allow all apps to access the certificate in the keychain**
+6. Under **Profile Assignment**, choose **+ Add Assignment** and select your desired device groups
+7. Choose **Save**
+
+## Install the Smallstep agent
+
+There are two ways to install the agent:
+
+- **via Mosyle** (below): Use Mosyle's package distribution and policy management
+- **separately**: Use a separate software management tool like [Munki](https://www.munki.org/munki/), or install the agent manually via scripts. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#macos-installation) guide for detailed macOS installation instructions.
+
+### Install the agent via Mosyle
+
+#### Upload the Agent Package
+
+1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+2. In Mosyle, choose **Management** from the top navigation
+3. Use the platform dropdown in the left sidebar to select **macOS**
+4. In the left sidebar, under **Management Profiles**, choose **Install PKG**
+   - If this profile type is not visible, choose **Activate New Profile Type**, search for "Install PKG", and activate it
+5. Choose the **PKGs** tab, then choose **Add new package**
+6. Upload the package you downloaded
+7. Once uploaded, choose the **Profiles** tab, then choose **Add new profile**
+8. Configure the profile:
+    - Profile Name: `Smallstep Agent`
+    - Select the SmallstepAgent package you uploaded
+9. Under **Profile Assignment**, choose **+ Add Assignment** and select your desired device groups
+10. Choose **Save**
+
+#### Configure the Agent Settings
+
+The Smallstep Agent requires configuration settings to connect to your Smallstep team. Create a custom configuration profile:
+
+1. In the Smallstep console, choose ⚙️ **Settings**
+2. Temporarily save the **Team Slug** value
+3. In Mosyle, choose **Management** from the top navigation
+4. Ensure **macOS** is selected in the platform dropdown
+5. In the left sidebar, under **Management Profiles**, choose **Certificates / Custom Profiles**
+6. Choose **Add new profile**
+7. Create a `.mobileconfig` file with the following content and upload it:
+
+    ```xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+    <plist version="1.0">
+    <dict>
+        <key>PayloadContent</key>
+        <array>
+            <dict>
+                <key>PayloadType</key>
+                <string>com.smallstep.Agent</string>
+                <key>PayloadIdentifier</key>
+                <string>com.smallstep.Agent.config</string>
+                <key>PayloadUUID</key>
+                <string>YOUR-UNIQUE-UUID-HERE</string>
+                <key>PayloadVersion</key>
+                <integer>1</integer>
+                <key>TeamSlug</key>
+                <string>YOUR-TEAM-SLUG</string>
+                <key>Certificate</key>
+                <string>mackms:label=$PROFILE_IDENTIFIER;se=false;tag=</string>
+            </dict>
+        </array>
+        <key>PayloadDisplayName</key>
+        <string>Smallstep Agent Configuration</string>
+        <key>PayloadIdentifier</key>
+        <string>com.smallstep.Agent.profile</string>
+        <key>PayloadType</key>
+        <string>Configuration</string>
+        <key>PayloadUUID</key>
+        <string>YOUR-PROFILE-UUID-HERE</string>
+        <key>PayloadVersion</key>
+        <integer>1</integer>
+    </dict>
+    </plist>
+    ```
+
+    Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep, and generate unique UUIDs for the `PayloadUUID` fields (you can use `uuidgen` on macOS).
+
+8. Configure the profile:
+    - Profile Name: `Smallstep Agent Configuration`
+9. Under **Profile Assignment**, choose **+ Add Assignment** and select your desired device groups (should match the agent installation scope)
+10. Choose **Save**
+
+#### Configure Login Items (macOS)
+
+To ensure the Smallstep Agent starts automatically on macOS devices:
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Ensure **macOS** is selected in the platform dropdown
+3. In the left sidebar, under **Management Profiles**, choose **Login Items**
+   - If this profile type is not visible, choose **Activate New Profile Type**, search for "Login Items", and activate it
+4. Choose **Add new profile**
+5. Configure the profile:
+    - Profile Name: `Smallstep Login Item`
+    - Add a managed login item with:
+        - Rule Type: **Bundle Identifier**
+        - Rule Value: `com.smallstep.Agent`
+6. Under **Profile Assignment**, choose **+ Add Assignment** and select your desired device groups
+7. Choose **Save**
+
+## Confirmation
+
+There are two ways to confirm installation on an endpoint:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- Alternatively, on the device itself, run `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
+
+
+## Uninstall Smallstep Agent with Mosyle
+
+You can remove the Smallstep Agent from macOS endpoints managed by Mosyle.
+
+### Remove the Agent Installation Profile
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Use the platform dropdown in the left sidebar to select **macOS**
+3. In the left sidebar, under **Management Profiles**, choose **Install PKG**
+4. In the **Profiles** tab, find and delete the **Smallstep Agent** profile
+
+### Remove the Configuration Profiles
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Use the platform dropdown in the left sidebar to select **macOS**
+3. In the left sidebar, under **Management Profiles**, choose **Certificates / Custom Profiles**
+4. Find and delete the **Smallstep Agent Configuration** profile
+5. Find and delete the **Smallstep Agents Root CA** certificate profile
+
+### Remove the SCEP Profile
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Ensure **macOS** is selected in the platform dropdown
+3. In the left sidebar, under **Management Profiles**, choose **SCEP**
+4. Find and delete the **Smallstep** SCEP profile
+
+### Remove the Login Items Profile
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Ensure **macOS** is selected in the platform dropdown
+3. In the left sidebar, under **Management Profiles**, choose **Login Items**
+4. Find and delete the **Smallstep Login Item** profile
+
+### Create an Uninstall Script (Optional)
+
+For a complete cleanup, you can deploy an uninstall script:
+
+1. In Mosyle, choose **Management** from the top navigation
+2. Ensure **macOS** is selected in the platform dropdown
+3. In the left sidebar, under **Management Profiles**, choose **Custom Commands**
+4. Create a new command with the following script:
+
+    ```bash
+    #!/bin/bash
+
+    launchctl stop com.smallstep.launchd.Agent
+    launchctl remove com.smallstep.launchd.Agent
+
+    /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
+    rm -rf /Applications/SmallstepAgent.app
+    if pkgutil --packages | grep -q com.smallstep.Agent; then
+        pkgutil --forget com.smallstep.Agent
+    fi
+    ```
+
+5. Assign this command to the devices you want to uninstall from
+6. Once the uninstall is complete, remove the command profile
+
+### Confirm Uninstallation
+
+Verify that `/Applications/SmallstepAgent.app` no longer exists on target devices.
