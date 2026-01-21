@@ -13,8 +13,8 @@ This document also contains [uninstall instructions](#uninstall-smallstep-agent-
 
 You will need:
 
-- A [Smallstep team](https://smallstep.com/signup) with Pro features enabled
-- A [Mosyle](https://mosyle.com/) Business or Fuse tenant
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Mosyle](https://mosyle.com/) Business tenant
 
 Client requirements:
 
@@ -31,13 +31,16 @@ Client requirements:
 
 Limitations:
 
-- Mosyle supports static SCEP only; dynamic SCEP challenges are not available.
-- For VPN configurations, only IPSec VPNs are currently supported.
-- "Always-on VPN" or device-wide VPNs are not yet supported in Smallstep-managed configurations.
+- Devices must be assigned to a device group in Mosyle to be synced with Smallstep. Devices not in any device group will not appear in your Smallstep inventory.
+- Mosyle supports static SCEP
 
 ## Step-by-step instructions
 
 ## Create an API Token in Mosyle
+
+<Aside type="tip">
+We recommend creating a dedicated Mosyle administrator account for the Smallstep integration. This allows you to manage API access separately from personal administrator accounts and makes it easier to rotate credentials if needed. Use an account that has access to the device groups you will want to sync with Smallstep. 
+</Aside>
 
 This API token will allow Smallstep to read your Mosyle device inventory for ongoing inventory syncing.
 
@@ -54,34 +57,33 @@ This API token will allow Smallstep to read your Mosyle device inventory for ong
 
 ## Connect Mosyle to Smallstep
 
-Let's add the Mosyle API credentials you just created to Smallstep.
+Let's add the Mosyle credentials to Smallstep. You'll need the API token you created, plus the email and password of a Mosyle administrator account.
 
 1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
 2. Under Mosyle, choose ➕ **Connect**
-3. Enter the API token from Mosyle
-4. Choose **Add Platform**. Your device inventory will start syncing from Mosyle to Smallstep.
+3. Enter the following credentials:
+   - **Account Email**: The email address of a Mosyle administrator account
+   - **Account Password**: The password for that Mosyle administrator account
+   - **API Access Token**: The API token you created in the previous step
+   - **Name/Alias** (optional): A friendly name for this connection
+4. Choose **Connect MDM**. Your device inventory will start syncing from Mosyle to Smallstep.
 
 Your Smallstep team is now linked to Mosyle. Smallstep will do a partial sync of your device inventory from Mosyle every hour, and a full sync every 8 hours.
 
 ## Configure Certificates in Mosyle
 
-### Download Smallstep Authority Certificates
+### Get Smallstep CA Details
 
-1. In the Smallstep console, choose **Certificate Manager**
-2. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
-3. Select the **Smallstep Agents** authority
-4. Download the **Root Certificate**
-5. Temporarily save the root certificate file
+After connecting Mosyle to Smallstep, you'll find all the certificate details you need on the Platform Settings page:
 
-### Get the SCEP Provisioner URL and Challenge
+1. In the Smallstep console, go to [**Device Management**](https://smallstep.com/app/?next=/settings/devices) in **Settings**
+2. Click on your Mosyle connection
+3. From this page, you can:
+   - Download the **Root Certificate** file
+   - Copy the **SCEP URL** (e.g., `https://agents.example.ca.smallstep.com/scep/integration-mosyle-abc123`)
+   - Copy the **SCEP Challenge** value
 
-1. In the Smallstep console, choose **Certificate Manager**
-2. Select [Authorities](https://smallstep.com/app/?next=/cm/authorities)
-3. Select the **Smallstep Agents** authority
-4. Under the Provisioners section, choose the provisioner beginning with **`integration-mosyle`**
-5. Temporarily save:
-   - The **SCEP URL**, e.g., `https://agents.example.ca.smallstep.com/scep/integration-mosyle-abc123`
-   - The **Static Challenge** value shown on the page
+Keep this page open or save these values temporarily—you'll need them for the Mosyle configuration steps below.
 
 ### Upload the Root Certificate to Mosyle
 

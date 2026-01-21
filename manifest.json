@@ -53,6 +53,10 @@
               "path": "/tutorials/connect-intune-to-smallstep-macos.mdx"
             },
             {
+              "title": "Connect Mosyle",
+              "path": "/tutorials/connect-mosyle-to-smallstep.mdx"
+            },
+            {
               "title": "Connect Jamf Pro",
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             },
