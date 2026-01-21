@@ -1,5 +1,5 @@
 ---
-updated_at: January 06, 2026
+updated_at: January 21, 2026
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
@@ -457,10 +457,10 @@ To confirm the agent is installed and running on Windows:
 
 ## Uninstall
 
-To uninstall the Smallstep Agent from a Windows system:
+To uninstall the Smallstep Agent from a Windows system, run the following PowerShell:
 
 ```powershell
-msiexec /x "{EDB2FA84-917D-4156-AA1A-4BC5BB10C682}" /quiet
+& cmd /c "$(((Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Smallstep Agent*" }).UninstallString -replace '/I', '/X')) /quiet"
 ```
 
 Alternatively, uninstall via the Windows "Add or Remove Programs" settings.
