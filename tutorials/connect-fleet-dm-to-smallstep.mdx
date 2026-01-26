@@ -1,31 +1,275 @@
 ---
-updated_at: November 11, 2025
+updated_at: January 26, 2026
 title: Connect Fleet DM to Smallstep
-description: Connect Fleet DM with Smallstep for device security. Complete guide for deploying certificates to your managed fleet using Fleet's device management platform.
+html_title: Integrate Fleet DM with Smallstep Tutorial
+description: Connect Fleet DM with Smallstep for device security. Complete guide for deploying certificates and syncing device inventory using Fleet's device management platform.
 ---
 
-Smallstep can integrate with Fleet DM to deploy certificates to your Fleet-managed devices.
+Smallstep can integrate with [Fleet DM](https://fleetdm.com/) to deploy certificates to your Fleet-managed devices. Fleet has a native Smallstep integration that makes it easy to configure Dynamic SCEP for certificate enrollment.
+
+In this document, we will configure your Fleet instance for use with your Smallstep team.
 
 ## Requirements
 
 You will need:
 
-- A [Smallstep team](https://smallstep.com/signup)
-- A [Fleet DM](https://fleetdm.com/) instance
+- A [Smallstep team](https://smallstep.com/signup) with Pro features enabled
+- A [Fleet DM](https://fleetdm.com/) instance with MDM enabled for your target platforms
 
+Client requirements:
 
-## Configure device sync (coming soon)
+- For SCEP certificate enrollment, devices must be MDM-enrolled in Fleet
+- The Smallstep agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  ```
 
-To sync your devices from Fleet DM, create an [API-only user](https://fleetdm.com/guides/fleetctl#using-fleetctl-with-an-api-only-user) in Fleet DM, and then put the token into the Fleet settings in Smallstep.
+Supported platforms:
 
-## Configure Dynamic SCEP
+- macOS, iOS, iPadOS (via .mobileconfig profiles)
+- Windows (via .xml profiles)
 
-To configure Fleet to use Dynamic SCEP for certificate issuance to your endpoints, follow the instructions in **[Connect end user to WiFi with certificate (Smallstep)](https://fleetdm.com/guides/connect-end-user-to-wifi-with-certificate#smallstep)**
+## Step-by-step instructions
 
-## Deploy the Smallstep agent
+### 1. Get SCEP credentials from Smallstep
 
-Though not required, we suggest deploying the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent makes it easier to configure endpoints and manage certificates. You can deploy the agent [using Fleet's software management](https://fleetdm.com/guides/deploy-software-packages) and [scripting features](https://fleetdm.com/guides/scripts).
+First, you'll configure Smallstep and gather the SCEP credentials needed for Fleet.
 
-Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See [install via a software management tool](http://smallstep.com/docs/tutorials/connect-jamf-pro-to-smallstep/#option-2-install-via-a-software-management-tool) for details.
+1. In the Smallstep console, go to [**Settings → Device Management**](https://smallstep.com/app/?next=/settings/devices)
+2. Under Available Providers, find **Jamf** and click **Connect**
 
+   <Alert severity="info">
+   <div>
+   Fleet uses the same SCEP integration as Jamf. Select Jamf as the provider type in Smallstep.
+   </div>
+   </Alert>
+
+3. Enter your Jamf Pro Server URL (you can use a placeholder value like `https://fleet.example.com` since Fleet doesn't require this connection)
+4. After connecting, temporarily save the following values:
+   - **SCEP URL** (e.g., `https://wifi.example.ca.smallstep.com/scep/integration-jamf-abc123`)
+   - **SCEP Challenge URL** (e.g., `https://wifi.example.ca.smallstep.com/jamf/abc123-def456/challenge`)
+   - **Challenge Basic Authentication Username**
+   - **Challenge Basic Authentication Password**
+
+### 2. Add the Smallstep Certificate Authority in Fleet
+
+Now we'll add the Smallstep SCEP credentials to Fleet.
+
+1. In Fleet, go to **Settings** (click your profile icon in the top right)
+2. Navigate to **Integrations → Certificate authorities**
+3. Click **Add CA**
+4. From the dropdown, select **Smallstep**
+5. Fill in the fields:
+   - **Name**: A unique identifier using letters, numbers, and underscores only (e.g., `WIFI_CERTIFICATE`). Fleet will create configuration profile variables with this name as a suffix.
+   - **SCEP URL**: Paste the SCEP URL from Smallstep
+   - **Challenge URL**: Paste the SCEP Challenge URL from Smallstep
+   - **Username**: Paste the Challenge Basic Authentication Username
+   - **Password**: Paste the Challenge Basic Authentication Password
+6. Click **Add CA**
+
+### 3. Create a SCEP configuration profile
+
+Fleet deploys certificates to devices using configuration profiles. You'll need to create a profile that includes the SCEP payload with Fleet's dynamic variables.
+
+Fleet provides these variables for Smallstep certificate enrollment:
+
+| Variable | Description |
+|----------|-------------|
+| `$FLEET_VAR_SMALLSTEP_SCEP_CHALLENGE_{CA_NAME}` | The dynamic SCEP challenge string |
+| `$FLEET_VAR_SMALLSTEP_SCEP_PROXY_URL_{CA_NAME}` | The SCEP proxy URL for certificate requests |
+| `$FLEET_VAR_SCEP_RENEWAL_ID` | A unique renewal identifier for the device |
+| `$FLEET_VAR_HOST_END_USER_EMAIL_IDP` | The end user's email from the identity provider |
+
+Replace `{CA_NAME}` with the name you configured in Step 2 (e.g., `WIFI_CERTIFICATE`).
+
+#### Example macOS/iOS SCEP profile
+
+Create a `.mobileconfig` file with the following structure. This example is for Wi-Fi authentication:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadDisplayName</key>
+            <string>Smallstep SCEP</string>
+            <key>PayloadIdentifier</key>
+            <string>com.smallstep.scep</string>
+            <key>PayloadType</key>
+            <string>com.apple.security.scep</string>
+            <key>PayloadUUID</key>
+            <string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>PayloadContent</key>
+            <dict>
+                <key>Challenge</key>
+                <string>$FLEET_VAR_SMALLSTEP_SCEP_CHALLENGE_WIFI_CERTIFICATE</string>
+                <key>Key Type</key>
+                <string>RSA</string>
+                <key>Key Usage</key>
+                <integer>5</integer>
+                <key>Keysize</key>
+                <integer>2048</integer>
+                <key>Subject</key>
+                <array>
+                    <array>
+                        <array>
+                            <string>CN</string>
+                            <string>$FLEET_VAR_HOST_END_USER_EMAIL_IDP</string>
+                        </array>
+                    </array>
+                    <array>
+                        <array>
+                            <string>OU</string>
+                            <string>$FLEET_VAR_SCEP_RENEWAL_ID</string>
+                        </array>
+                    </array>
+                </array>
+                <key>URL</key>
+                <string>$FLEET_VAR_SMALLSTEP_SCEP_PROXY_URL_WIFI_CERTIFICATE</string>
+            </dict>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Smallstep Certificate</string>
+    <key>PayloadIdentifier</key>
+    <string>com.smallstep.certificate-profile</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>12345678-90AB-CDEF-1234-567890ABCDEF</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
+```
+
+<Alert severity="info">
+<div>
+Replace `WIFI_CERTIFICATE` in the variable names with the CA name you configured in Fleet.
+</div>
+</Alert>
+
+### 4. Deploy the configuration profile
+
+1. In Fleet, go to **Controls → OS settings → Custom settings**
+2. Click **Add profile**
+3. Upload your `.mobileconfig` file
+4. Assign the profile to your desired scope (teams or all devices)
+
+The profile will be deployed to devices at their next check-in. Fleet will automatically substitute the variables with the appropriate values for each device.
+
+## Deploy the Smallstep agent (optional)
+
+Though not required for SCEP certificate enrollment, we recommend deploying the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent makes it easier to configure endpoints and manage certificates for additional use cases like VPN authentication.
+
+You can deploy the agent using Fleet's software management features:
+
+1. Download the agent package:
+   - macOS: [step-agent-plugin_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+   - Windows (x64): [step-agent-plugin_latest_amd64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
+   - Windows (ARM64): [step-agent-plugin_latest_arm64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_arm64.msi)
+
+2. In Fleet, go to **Software** and add the package for distribution
+3. Use Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) to install the agent on your devices
+4. Configure the agent using Fleet's [scripting features](https://fleetdm.com/guides/scripts) or a separate configuration profile
+
+Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See [install via a software management tool](https://smallstep.com/docs/tutorials/connect-jamf-pro-to-smallstep/#option-2-install-via-a-software-management-tool) for details.
+
+## Confirmation
+
+To confirm certificate deployment:
+
+1. In Fleet, go to **Hosts** and select a device that received the profile
+2. Check the **OS settings** status to verify the profile was applied successfully
+3. In the Smallstep console, go to **Devices** to verify the device has enrolled and received a certificate
+
+On the device itself:
+
+- **macOS**: Open **Keychain Access** and look for a certificate issued by your Smallstep authority
+- **iOS/iPadOS**: Go to **Settings → General → VPN & Device Management** to view installed profiles
+- **Windows**: Open **certmgr.msc** and check the Personal certificates store
+
+## Device sync
+
+To sync your device inventory from Fleet to Smallstep, you'll create an API user in Fleet and configure the connection in Smallstep.
+
+### 1. Create an API-only user in Fleet
+
+An API-only user is a Fleet user that cannot log into the Fleet UI and is intended for automated integrations. The default **Observer** role provides read-only access to host information, which is all Smallstep needs for device sync.
+
+You'll need the [fleetctl CLI](https://fleetdm.com/guides/fleetctl#installing-fleetctl) tool installed and authenticated with admin privileges to create an API-only user.
+
+1. Configure fleetctl with your Fleet server address:
+
+   ```bash
+   fleetctl config set --address 'https://fleet.example.com'
+   ```
+
+2. Log in with your admin credentials:
+
+   ```bash
+   fleetctl login
+   ```
+
+3. Create the API-only user:
+
+   ```bash
+   fleetctl user create --name 'Smallstep' \
+     --email 'smallstep-api@example.com' \
+     --password 'your-secure-password' \
+     --api-only
+   ```
+
+4. The command will output an API token:
+
+   ```
+   Success! The API token for your new user is: <TOKEN>
+   ```
+
+   Copy this token—you'll need it for the next step.
+
+<Alert severity="info">
+<div>
+The default role for API-only users is **Observer**, which grants read-only access to hosts and device information. This is the appropriate permission level for Smallstep device sync.
+</div>
+</Alert>
+
+### 2. Connect Fleet to Smallstep
+
+Now you'll add your Fleet API credentials to Smallstep.
+
+1. In the Smallstep console, go to [**Settings → Device Management**](https://smallstep.com/app/?next=/settings/devices)
+2. Under Available Providers, find **Fleet** and click **Connect**
+3. Fill in the fields:
+   - **API Base URL**: Your Fleet server URL (e.g., `https://fleet.example.com`)
+   - **API Token**: Paste the API token from the previous step
+   - **Name/Alias**: An optional identifier for this connection (e.g., `Production Fleet`)
+4. Click **Connect MDM**
+
+Within a few minutes, you will see your Fleet devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory syncs from Fleet approximately every four hours.
+
+### Alternative: Get an API token from the Fleet UI
+
+If you prefer not to create a dedicated API-only user, you can generate an API token for an existing user:
+
+1. In Fleet, click your profile icon in the top right and select **My account**
+2. Click **Get API token**
+3. Copy the token and use it in Smallstep's Fleet connection settings
+
+<Alert severity="warning">
+<div>
+For production use, we recommend creating a dedicated API-only user rather than using a personal account token. This provides better security isolation and ensures the integration continues to work if individual users leave the organization.
+</div>
+</Alert>
 
