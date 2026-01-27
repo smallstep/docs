@@ -1,5 +1,5 @@
 ---
-updated_at: January 21, 2026
+updated_at: January 27, 2026
 title: Sync Entra ID Users to Smallstep
 html_title: Sync Microsoft Entra ID Users to Smallstep
 description: Integrate Smallstep with Microsoft Entra ID, syncing identity provider users for device identity.
@@ -53,6 +53,9 @@ The following provisioning features are supported:
     * **ID** token type
     * Select **email** and **preferred_username**
     * Choose **Add**
+15. Go to Manage -> Authentication blade and choose + Add Redirect URI
+16. Choose type "Web" and enter the URL: `https://api.smallstep.com/auth/openid/callback`
+17. Choose "Configure"
 
 ##### In Smallstep
 
