@@ -26,7 +26,7 @@ jobs:
       - name: Vale Lint
         uses: errata-ai/vale-action@v2
         with:
-          files: '["*.mdx", "**/*.mdx"]'
+          files: .
           fail_on_error: true
           reporter: github-pr-review
         env:
