@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: January 27, 2026
 title: ACME Registration Authority for Smallstep Certificate Manager
 html_title: Deploy ACME RA with Certificate Manager
 description: Deploy ACME Registration Authority with Certificate Manager. Enable distributed ACME certificate issuance at enterprise scale.
@@ -21,43 +21,6 @@ You will need:
 - An account on the Smallstep platform. Need one? [Register here](https://smallstep.com/signup?product=cm)
 - An Authority in Certificate Manager that will act as your upstream CA
 - A host or Kubernetes cluster where you can run the Registration Authority
-
-### Optional
-
-Use this form to pre-fill some of the examples with values from your setup.
-
-<DynamicDocForm formFields={[
-  {
-    label: "Certificate Manager Authority URL",
-    name: "caUrl",
-    placeholder: "https://example.mycompany.ca.smallstep.com",
-  },
-  {
-    label: "Certificate Manager Authority Fingerprint",
-    name: "fingerprint",
-    placeholder: "b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5",
-  },
-  {
-    label: "Certificate Manager JWK Provisioner Name",
-    name: "provisioner",
-    placeholder: "acme-ra-jwk",
-  },
-  {
-    label: "Registration Authority DNS Names",
-    name: "dns",
-    placeholder: "ra.example.com, ca.example.io",
-  },
-  {
-    label: "RA Bind Port or Address",
-    name: "address",
-    placeholder: ":443",
-  },
-  {
-    label: "Registration Authority URL",
-    name: "raUrl",
-    placeholder: "https://ra.example.com",
-  },
-]}/>
 
 ## Table of Contents
 
@@ -96,25 +59,21 @@ The script has the following requirements:
 
 To run the script:
 
-<FormValues>
-{({caUrl="https://example.mycompany.ca.smallstep.com", provisioner="acme-ra-jwk", dns="ra.example.com", address=":443", fingerprint="b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5"}) => (
 <CodeBlock language="shell-session" copyText={`curl -sSLO https://files.smallstep.com/install-step-ra.sh && \\
 bash install-step-ra.sh \\
-    --ca-url ${caUrl} \\
-    --fingerprint ${fingerprint} \\
-    --provisioner-name ${provisioner} \\
-    --dns-names ${dns} \\
-    --listen-address ${address}`}>
+    --ca-url https://example.mycompany.ca.smallstep.com \\
+    --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5 \\
+    --provisioner-name acme-ra-jwk \\
+    --dns-names ra.example.com \\
+    --listen-address :443`}>
 {`# curl -sSLO https://files.smallstep.com/install-step-ra.sh
 # bash install-step-ra.sh \\
-    --ca-url ${caUrl} \\
-    --fingerprint ${fingerprint} \\
-    --provisioner-name "${provisioner}" \\
-    --dns-names "${dns}" \\
-    --listen-address ${address}`}
+    --ca-url https://example.mycompany.ca.smallstep.com \\
+    --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5 \\
+    --provisioner-name "acme-ra-jwk" \\
+    --dns-names "ra.example.com" \\
+    --listen-address :443`}
 </CodeBlock>
-)}
-</FormValues>
 
 Your RA service should now be running. It is configured with a single ACME provisioner, but you can add other provisioners as needed.
 
@@ -122,19 +81,15 @@ Then follow the prompts to configure and start your RA.
 
 Check that your RA server is running properly:
 
-<FormValues>
-{({address=":443", fingerprint="b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5"}) => (
-<CodeBlock language="shell-session" copyText={`journalctl -fu step-ca.service`}>
+<CodeBlock language="shell-session" copyText="journalctl -fu step-ca.service">
 {`# journalctl -fu step-ca.service
 -- Logs begin at Wed 2021-07-28 18:57:26 UTC. --
 Jul 28 19:05:34 ip-172-31-28-100 systemd[1]: Started step-ca service.
 Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: badger 2021/07/28 19:05:35 INFO: All 0 tables opened in 0s
 Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: badger 2021/07/28 19:05:35 INFO: No head keys found
-Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: 2021/07/28 19:05:35 Using root fingerprint '${fingerprint}'
-Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: 2021/07/28 19:05:35 Serving HTTPS on ${address} ...`}
+Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: 2021/07/28 19:05:35 Using root fingerprint 'b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5'
+Jul 28 19:05:35 ip-172-31-28-100 step-ca[2013]: 2021/07/28 19:05:35 Serving HTTPS on :443 ...`}
 </CodeBlock>
-)}
-</FormValues>
 
 You have completed the basic setup of your RA.
 
@@ -142,13 +97,9 @@ You have completed the basic setup of your RA.
 
 To download your root certificate from anywhere on your network, run the following, substituting your RA's URL and the root CA fingerprint:
 
-<FormValues>
-{({caUrl="https://example.mycompany.ca.smallstep.com", fingerprint="b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5"}) => (
-<CodeBlock language="shell-session" copyText={`step ca root root_ca.crt --ca-url ${caUrl} --fingerprint ${fingerprint}`}>
-{`$ step ca root root_ca.crt --ca-url ${caUrl} --fingerprint ${fingerprint}`}
+<CodeBlock language="shell-session" copyText="step ca root root_ca.crt --ca-url https://example.mycompany.ca.smallstep.com --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5">
+{`$ step ca root root_ca.crt --ca-url https://example.mycompany.ca.smallstep.com --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5`}
 </CodeBlock>
-)}
-</FormValues>
 
 You can then get a certificate manually, using `step` with the RA's ACME provisioner:
 
@@ -169,13 +120,9 @@ Setting up an RA manually involves the following steps:
     First, create a hosted Authority in the Certificate Manager console if you haven't already, and configure your local `step` CLI to access this Authority, using `step ca bootstrap`.
 
     Now, as a Super Administrator, add a JWK provisioner to the Authority, and give it a name (eg. `acme-ra-jwk`):
-    <FormValues>
-    {({provisioner="acme-ra-jwk"}) => (
-    <CodeBlock language="shell-session" copyText={`step ca provisioner add ${provisioner} --type JWK --create`}>
-      {`$ step ca provisioner add ${provisioner} --type JWK --create`}
+    <CodeBlock language="shell-session" copyText="step ca provisioner add acme-ra-jwk --type JWK --create">
+      {`$ step ca provisioner add acme-ra-jwk --type JWK --create`}
     </CodeBlock>
-    )}
-    </FormValues>
 
     You'll be asked for a password for the JWK encryption key. Provide a strong password and store it somewhere safe. You'll need it later in this setup process.
 
@@ -185,12 +132,10 @@ Setting up an RA manually involves the following steps:
 
     Create a `/.step/config/ca.json` configuration file with the following contents:
 
-      <FormValues>
-       {({caUrl="https://example.mycompany.ca.smallstep.com", provisioner="acme-ra-jwk", dns="ra.example.com", address=":443", fingerprint="b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5"}) => (
-         <CodeBlock autoCopy language="json">
+      <CodeBlock autoCopy language="json">
         {`{
-      "address": "${address}",
-      "dnsNames": ["${dns.replace(',', '","')}"],
+      "address": ":443",
+      "dnsNames": ["ra.example.com"],
       "db": {
         "type": "badgerV2",
         "dataSource": "./.step/db"
@@ -198,11 +143,11 @@ Setting up an RA manually involves the following steps:
       "logger": {"format": "text"},
       "authority": {
         "type": "stepcas",
-        "certificateAuthority": "${caUrl}",
-        "certificateAuthorityFingerprint": "${fingerprint}",
+        "certificateAuthority": "https://example.mycompany.ca.smallstep.com",
+        "certificateAuthorityFingerprint": "b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5",
         "certificateIssuer": {
           "type" : "jwk",
-          "provisioner": "${provisioner}"
+          "provisioner": "acme-ra-jwk"
         },
         "provisioners": [{
           "type": "ACME",
@@ -219,9 +164,7 @@ Setting up an RA manually involves the following steps:
         "renegotiation": false
       }
     }`}
-         </CodeBlock>
-       )}
-      </FormValues>
+      </CodeBlock>
 
     Substitute your own values for the following:
 
@@ -240,13 +183,9 @@ Setting up an RA manually involves the following steps:
 4. Distribute your root CA certificate and start issuing certs. 🥳
 
     In another terminal run the following to download your root certificate from anywhere on your network, substituting your RA's URL and the root CA fingerprint:
-    <FormValues>
-    {({raUrl="https://ra.example.com", fingerprint="b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f"}) => (
-    <CodeBlock language="shell-session" copyText={`step ca root root_ca.crt --ca-url ${raUrl} --fingerprint ${fingerprint}`}>
-      {`$ step ca root root_ca.crt --ca-url ${raUrl} --fingerprint ${fingerprint}`}
+    <CodeBlock language="shell-session" copyText="step ca root root_ca.crt --ca-url https://ra.example.com --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5">
+      {`$ step ca root root_ca.crt --ca-url https://ra.example.com --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5`}
     </CodeBlock>
-    )}
-    </FormValues>
     
     You can then get a certificate manually, using `step` with the RA's ACME provisioner:
 
