@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: January 28, 2026
 title: Smallstep Certificate Manager How It Works
 html_title: Certificate Manager Architecture Guide
 description: Technical architecture of Certificate Manager. Understand components, workflows, and security model for enterprise PKI deployment planning.
@@ -20,7 +20,7 @@ flexible, extensible toolchain with all of the server and client-side components
 you'll need to solve this problem, carefully designed to be operationally
 simple, easy to use, and hard to misuse.
 
-Certificate Manager builds on two open source projects, maintained by smallstep:
+Certificate Manager builds on two open source projects, maintained by Smallstep:
 
 - `step-ca`: a private online certificate authority for secure automated
   certificate management.
@@ -34,7 +34,7 @@ Here's how the elements described in [Core Concepts]() work are used to enable t
 
 Before issuing a certificate, your software and systems must be configured to
 trust your authorities. More precisely, you need to configure everything to
-trust your _root certificate_ (i.e., the certificate that belongs to your root
+trust your _root certificate_ (that is, the certificate that belongs to your root
 CA). You can include your root certificate in base images, distribute it using
 configuration management, or use
 [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap)

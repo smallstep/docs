@@ -1,5 +1,5 @@
 ---
-updated_at: November 11, 2025
+updated_at: January 27, 2026
 title: Core Concepts
 html_title: Platform Core Security Concepts Explained
 description: Fundamental concepts of device identity platform. Understand trust models, attestation, and certificate lifecycle management.
@@ -37,7 +37,7 @@ And for that, we need a **secure element**. A secure element is a crypto process
 
 A high-assurance device identity requires:
 * Proof of the device's identity (using a platform certificate issued by the device's manufacturer, eg. Lenovo, Dell)
-* Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufactuerer, eg. Infineon, STMicro)
+* Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufacturer, eg. Infineon, STMicro)
 * Cryptographic binding between the trusted platform and the trusted secure element (provided by the platform)
 * Proof that a private key associated with the device is **hardware-bound** on its secure element. Hardware-bound keys can be used by the device, but there’s no way to extract them without an exploit or destructive disassembly in a semiconductor forensics lab.
 
@@ -111,7 +111,7 @@ With self-registration, an end user can use our agent to sign into Smallstep (op
 
 ### Bulk registration via API
 
-Admins can add devies that are not in MDM, including Linux endpoints, to your team's device inventory via the [Smallstep API](./smallstep-api.mdx).
+Admins can add devices that are not in MDM, including Linux endpoints, to your team's device inventory via the [Smallstep API](./smallstep-api.mdx).
 Devices added via API will be marked as approved for use with [the Smallstep agent](./smallstep-agent.mdx).
 
 ### Agentless MDM enrollment

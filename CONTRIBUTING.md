@@ -39,6 +39,50 @@ The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.
 
+## Prose linting with Vale
+
+We use [Vale](https://vale.sh/) to enforce consistent prose style.
+
+### Installation
+
+```bash
+# macOS
+brew install vale
+
+# Windows
+choco install vale
+
+# Linux
+snap install vale
+```
+
+### Setup
+
+After cloning the repository, sync Vale packages:
+
+```bash
+vale sync
+```
+
+Install the MDX parser for native MDX support:
+
+```bash
+pnpm add -g mdx2vast
+```
+
+### Usage
+
+```bash
+# Check all files
+vale .
+
+# Check specific folder
+vale step-ca/
+
+# Check changed files only
+git diff --name-only HEAD | grep '\.mdx$' | xargs vale
+```
+
 ## Checking links locally
 
 First:

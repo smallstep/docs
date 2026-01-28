@@ -1,0 +1,12 @@
+extends: substitution
+message: "Use '%s' instead of '%s' for consistent branding."
+level: error
+ignorecase: false
+swap:
+  smallstep: Smallstep
+  Small Step: Smallstep
+  stepca: step-ca
+  Step-CA: step-ca
+  StepCLI: Step CLI
+  Smallstep UI: Smallstep console
+  Smallstep dashboard: Smallstep console
