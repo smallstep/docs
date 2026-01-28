@@ -1,5 +1,5 @@
 ---
-updated_at: January 27, 2026
+updated_at: January 28, 2026
 title: Sync Entra ID Users to Smallstep
 html_title: Sync Microsoft Entra ID Users to Smallstep
 description: Integrate Smallstep with Microsoft Entra ID, syncing identity provider users for device identity.
@@ -41,26 +41,32 @@ The following provisioning features are supported:
 3. On the application overview, save the Application (client) ID and Directory (tenant) ID for later.
 4. In the App Registration, visit “Manage → Certificates & secrets”
 5. Create a new Client Secret
-6. Set the client secret description and expiry as desired
-7. Save the Client Secret Value for later
-8. Go to the API Permissions blade
-9. Choose Microsoft Graph
-10. Choose Delegated Permissions
-11. Under OpenID Permissions, select `email`, `openid`, and `profile`.
-12. Choose "Grant Admin Consent" for all permissions
-13. Go to the "Token configuration" blade
-14. Choose **Add Optional Claim**
-    * **ID** token type
-    * Select **email** and **preferred_username**
-    * Choose **Add**
-15. Go to Manage -> Authentication blade and choose + Add Redirect URI
-16. Choose type "Web" and enter the URL: `https://api.smallstep.com/auth/openid/callback`
-17. Choose "Configure"
+   - Set the client secret description and expiry as desired
+   - Save the Client Secret Value for later
+6. Go to the API Permissions blade
+7. Choose Microsoft Graph
+8. Choose Delegated Permissions
+    - Under OpenID Permissions, select `email`, `openid`, and `profile`.
+    - Choose "Grant Admin Consent" for all permissions
+9. Go to the "Token configuration" blade
+10. Choose **Add Optional Claim**
+    - **ID** token type
+    - Select **email** and **preferred_username**
+    - Choose **Add**
+11. Go to Manage -> Authentication blade and choose + Add Redirect URI
+    - Choose type "Web" and enter the URL: `https://api.smallstep.com/auth/openid/callback`
+    - Choose "Configure"
+12. Now choose the Settings tab in the Authentication blade.
+    - Under Supported Account Types, select multi-tenant.
+    - Only the users 
+    - Choose **Save**
+13. Finally, return to the Overview blade.
+14. Select **🌐Endpoints** and copy the **OpenID Connect metadata document** URL for later.
 
 ##### In Smallstep
 
 1. Go to [Connect an Entra ID IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/azuread/connect)
-2. Fill the Client ID, Client Secret, and Tenant ID you saved.
+2. Fill the Client ID, Client Secret, Tenant ID, and OIDC metadata URL you saved.
 
 
 ### Step 3. Enable User Provisioning
