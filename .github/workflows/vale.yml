@@ -29,5 +29,6 @@ jobs:
           files: .
           fail_on_error: true
           reporter: github-pr-review
+          vale_flags: "--glob='!step-cli/reference/**'"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
