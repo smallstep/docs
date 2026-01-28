@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: January 28, 2026
 title: Smallstep Certificate Manager Getting Started
 html_title: Get Started with Certificate Manager Guide
 description: Get started with Certificate Manager in minutes. Quick setup guide for enterprise certificate automation and PKI management with best practices.
@@ -7,7 +7,7 @@ description: Get started with Certificate Manager in minutes. Quick setup guide 
 
 Smallstep [Certificate Manager](https://smallstep.com/certificate-manager) is a commercial product that delivers a managed certificate authority (CA) capable of issuing private x.509 TLS certificates. 
 
-Certificate Manager builds on two open-source projects, maintained by smallstep:
+Certificate Manager builds on two open-source projects, maintained by Smallstep:
 * `step-ca`: a private online certificate authority for secure automated certificate management.
 * `step`: a general-purpose cryptography toolkit and the client-side counterpart to `step-ca`.
 With Certificate Manager, you can create your own private CA to manage certificates on internal services, websites, infrastructure, people, or devices. 
@@ -30,7 +30,7 @@ Creating a team gives you access to Smallstep's products.
 Click [here](https://smallstep.com/signup?product=cm) to create a team.
 You will be asked to provide:
 * `Team Name` - Usually, this is your company name. 
-* `Team URL` - This is where you will access the smallstep console and will also be the base domain for the CA URL for any Authorities you create. 
+* `Team URL` - This is where you will access the Smallstep console and will also be the base domain for the CA URL for any Authorities you create. 
 * `First & Last Name` - Smallstep Team administrator's name. 
 * `E-mail` - Smallstep Team administrator's e-mail address.
 * `password` - This password is used to login into the Smallstep console
@@ -41,7 +41,7 @@ Smallstep team admins can subscribe to and manage Smallstep products.
 A Certificate Manager Authority is an online CA that authenticates and authorizes certificate requests.
 It can issue, renew, and revoke your x.509 TLS certificates.
 To create an Authority:
-* Log into the smallstep console, select the Certificate Manager tab, and click the "Add Authority" button.
+* Log into the Smallstep console, select the Certificate Manager tab, and click the "Add Authority" button.
 * Choose "Create a new hosted Authority".
 * Give your Authority a name and subdomain value (the URL path you wish to use for your online CA).
 * Choose "Create"
@@ -61,7 +61,7 @@ storing the private keys into [Google's Cloud KMS](https://cloud.google.com/secu
 On the Authority detail page, you will see the CA URL and Fingerprint used to interact with your CA.
 
 Certificate Manager also creates a default provisioner called `authority-admin`,
-connected to your smallstep login.
+connected to your Smallstep login.
 You can use this provisioner to administer the Authority and to get certificates. 
 See [basic certificate operations](basic-ops.mdx) for examples. 
 

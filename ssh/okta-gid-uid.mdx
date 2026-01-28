@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: January 28, 2026
 title: Okta UID GID Sync Guide
 description: Synchronize Unix user and group IDs with Okta for SSH access. Maintain consistent identity across SSH infrastructure for unified management.
 html_title: Okta UID/GID Sync for SSH Access Control
@@ -37,7 +37,7 @@ Already have UID and GID fields for your users? Skip to Step 2.
 ### Step 2. Add UID and GID fields to your Smallstep SCIM profile
 
 * Go to **Directory → Profile Editor**
-* Search and select your **smallstep provisioning app** profile. 
+* Search and select your **Smallstep provisioning app** profile. 
 * Click the **+Add Attribute** button and add a uid attribute.
   
   Data type **number**
@@ -71,7 +71,7 @@ Already have UID and GID fields for your users? Skip to Step 2.
 ### Step 3. Add mappings from Okta to your Smallstep provisioning app
 
 * Go to **Applications → Applications**
-* Choose your **smallstep provisioning** application
+* Choose your **Smallstep provisioning** application
 * Go to the **Provisioning** tab
 * Under **Attribute Mappings**, you should see that uid and gid are not mapped.
 * Edit the mapping for `uid`:
@@ -91,13 +91,13 @@ Already have UID and GID fields for your users? Skip to Step 2.
 
   ![](/graphics/quickstart/okta-gid-finalmap.png)
 
-### Step 4. Verify syncing with smallstep before going into production
-* These changes should trigger a sync of the UID and GID values to the smallstep console. 
+### Step 4. Verify syncing with Smallstep before going into production
+* These changes should trigger a sync of the UID and GID values to the Smallstep console.
 * If the values do not show up, try removing and re-adding the group assignments:
-  * Open the **smallstep provisioning app integration** application within OKTA.
-  * Go to the **Assignments** tab, select **groups**, and **remove all the groups** (remember these group names). 
-  * Wait until the users are removed from the smallstep console (a few seconds).
-  * Then re-add the groups using the **assign** button. 
-  * This will trigger a push, and you will see the new uid and gid values in the smallstep console.
+  * Open the **Smallstep provisioning app integration** application within OKTA.
+  * Go to the **Assignments** tab, select **groups**, and **remove all the groups** (remember these group names).
+  * Wait until the users are removed from the Smallstep console (a few seconds).
+  * Then re-add the groups using the **assign** button.
+  * This will trigger a push, and you will see the new uid and gid values in the Smallstep console.
 
 Send an email to [support@smallstep.com.](mailto:support@smallstep.com)

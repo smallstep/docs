@@ -5,8 +5,8 @@ ignorecase: false
 swap:
   smallstep: Smallstep
   Small Step: Smallstep
-  StepCA: step-ca
-  step CA: step-ca
   stepca: step-ca
   Step-CA: step-ca
   StepCLI: Step CLI
+  Smallstep UI: Smallstep console
+  Smallstep dashboard: Smallstep console

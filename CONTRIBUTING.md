@@ -64,6 +64,12 @@ After cloning the repository, sync Vale packages:
 vale sync
 ```
 
+Install the MDX parser for native MDX support:
+
+```bash
+pnpm add -g mdx2vast
+```
+
 ### Usage
 
 ```bash
