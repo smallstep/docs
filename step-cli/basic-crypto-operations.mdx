@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: January 28, 2026
 title: Basic Crypto Operations Using `step`
 html_title: Basic Cryptographic Operations Complete Guide
 description: Perform essential cryptographic operations using step CLI. Generate keys, create certificates, and manage secure communications.
@@ -79,10 +79,10 @@ $ step certificate verify example.com.crt --roots root_ca.crt
 ```
 
 <Aside>
-To get TLS working from here, you'll need to do two things:
+<p>To get TLS working from here, you'll need to do two things:</p>
 <ul>
-<li>Install the leaf certificate bundle <Code>example.com-bundle.crt</Code> into your server configuration</li>
-<li>Get all of your clients to trust the <Code>root_ca.crt</Code> certificate. You can install the certificate into the system's default trust store by running <Code>step certificate install root_ca.crt</Code></li>
+<li>Install the leaf certificate bundle <code>example.com-bundle.crt</code> into your server configuration</li>
+<li>Get all of your clients to trust the <code>root_ca.crt</code> certificate. You can install the certificate into the system's default trust store by running <code>step certificate install root_ca.crt</code></li>
 </ul>
 </Aside>
 
