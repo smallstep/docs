@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: January 29, 2026
 title: Smallstep Certificate Manager How It Works
 html_title: Certificate Manager Architecture Guide
 description: Technical architecture of Certificate Manager. Understand components, workflows, and security model for enterprise PKI deployment planning.
@@ -348,7 +348,7 @@ sudo REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt \
 ACME works almost anywhere and is especially useful for issuing certificates to
 web servers for use with TLS. To issue certificates for internal names that
 aren't in public DNS the ACME server does need access to local DNS. It's common
-to use a linked CA or a network-local RA. Reference the
+to use a network-local RA (or a linked CA via [Step CA Pro](https://smallstep.com/product/step-ca-pro/)). Reference the
 [Certificate Manager docs](./acme/README.mdx) for more details.
 
 # Next steps

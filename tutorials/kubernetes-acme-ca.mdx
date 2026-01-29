@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: January 29, 2026
 title: Integrate Kubernetes cert-manager with an internal ACME CA
 html_title: Kubernetes ACME CA Integration Tutorial
 description: Deploy ACME-enabled CA in Kubernetes clusters. Automate certificate management with native Kubernetes integration and step-ca.
@@ -22,7 +22,7 @@ using cert-manager's [ACME issuer](https://cert-manager.io/docs/configuration/ac
 ## Requirements
 
 - **Open source -** You have initialized and started up a `step-ca` ACME instance using the steps in [our ACME server tutorial](../step-ca/acme-basics.mdx).
-- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** this tutorial assumes you have [created a hosted or linked authority](../certificate-manager/getting-started.mdx) and created an ACME provisioner with External Account Binding enabled.
+- **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** this tutorial assumes you have [created a hosted authority](../certificate-manager/getting-started.mdx) (or a linked authority via [Step CA Pro](https://smallstep.com/product/step-ca-pro/)) and created an ACME provisioner with External Account Binding enabled.
 - You'll need the root certificate PEM file for your CA.
 
 ### 0. Before you begin
