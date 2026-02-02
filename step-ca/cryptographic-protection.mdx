@@ -495,6 +495,7 @@ Great. Next, we'll repeat the process for the Intermediate CA:
 ```shell nocopy
 $ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7332;object=intermediate-ca"
 $ step certificate create --profile intermediate-ca \
+   --kms "$PKCS_URI" \
    --ca-kms "$PKCS_URI" \
    --ca root_ca.crt \
    --ca-key "pkcs11:id=7331;object=root-ca" \
