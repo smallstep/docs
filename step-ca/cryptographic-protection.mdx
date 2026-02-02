@@ -2,7 +2,7 @@
 title: Cryptographic Protection
 html_title: Secure Cryptographic Key Protection Methods
 description: Secure private keys in step-ca deployments. Hardware security modules, key management, and cryptographic best practices for enterprise PKI.
-updated_at: September 17, 2025
+updated_at: February 02, 2026
 ---
 
 By default, `step-ca` stores its signing keys encrypted on disk.
@@ -74,8 +74,7 @@ Now, let's sign a root CA certificate based on the the key you just created. Sub
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
-   --kms 'cloudkms:' \
-   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
+   --key 'cloudkms:projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
    "Smallstep Root CA" root_ca.crt
 ```
 
@@ -91,11 +90,10 @@ Great. Next, repeat the process for the Intermediate CA:
 $ step kms create --json --kms 'cloudkms:' \
     'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate'
 $ step certificate create --profile intermediate-ca \
-   --kms 'cloudkms:' \
    --ca-kms 'cloudkms:' \
    --ca root_ca.crt \
    --ca-key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/root/cryptoKeyVersions/1' \
-   --key 'projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1' \
+   --key 'cloudkms:projects/smallstep/locations/global/keyRings/step-ca/cryptoKeys/intermediate/cryptoKeyVersions/1' \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
@@ -230,8 +228,7 @@ Now, let's sign a root CA certificate based on the the key you just created. Sub
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
-   --kms 'awskms:region=us-east-2' \
-   --key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
+   --key 'awskms:region=us-east-2;key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
    "Smallstep Root CA" root_ca.crt
 ```
 
@@ -246,11 +243,10 @@ Great. Next, we'll repeat the process for the Intermediate CA:
 ```shell nocopy
 $ step kms create --json --kms 'awskms:region=us-east-2' intermediate-ca
 $ step certificate create --profile intermediate-ca \
-   --kms 'awskms:region=us-east-2' \
    --ca-kms 'awskms:region=us-east-2' \
    --ca root_ca.crt \
    --ca-key 'awskms:key-id=78980acd-a42d-4d84-97ba-1e50d3082214' \
-   --key 'awskms:key-id=9432458d-1e67-4a74-9a23-8f94708b45fe' \
+   --key 'awskms:region=us-east-2;key-id=9432458d-1e67-4a74-9a23-8f94708b45fe' \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
@@ -483,7 +479,7 @@ Now, let's sign a root CA certificate based on the the key you just created. Sub
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
-   --kms "$PKCS_URI"
+   --kms "$PKCS_URI" \
    --key "pkcs11:id=7331;object=root-ca" \
    "Smallstep Root CA" root_ca.crt
 ```
@@ -499,7 +495,6 @@ Great. Next, we'll repeat the process for the Intermediate CA:
 ```shell nocopy
 $ step kms create --json --kms "$PKCS_URI" "pkcs11:id=7332;object=intermediate-ca"
 $ step certificate create --profile intermediate-ca \
-   --kms "$PKCS_URI" \
    --ca-kms "$PKCS_URI" \
    --ca root_ca.crt \
    --ca-key "pkcs11:id=7331;object=root-ca" \
@@ -626,7 +621,6 @@ and sign an Intermediate CA certificate:
 ```shell nocopy
 $ step kms create --json 'tpmkms:name=my-intermediate-ca'
 $ step certificate create --profile intermediate-ca \
-   --kms 'tpmkms:' \
    --ca root_ca.crt \
    --ca-key root_ca.key \
    --key 'tpmkms:name=my-intermediate-ca' \
@@ -725,8 +719,7 @@ Now, let's sign a root CA certificate based on the the key you just created. Sub
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
-   --kms 'yubikey:pin-value=123456' \
-   --key 'yubikey:slot-id=82' \
+   --key 'yubikey:slot-id=82?pin-value=123456' \
    "Smallstep Root CA" root_ca.crt
 ```
 
@@ -743,11 +736,10 @@ Great. Next, we'll repeat the process for the Intermediate CA:
 ```shell nocopy
 $ step kms create --json 'yubikey:slot-id=83'
 $ step certificate create --profile intermediate-ca \
-   --kms 'yubikey:pin-value=123456' \
    --ca-kms 'yubikey:pin-value=123456' \
    --ca root_ca.crt \
    --ca-key 'yubikey:slot-id=82' \
-   --key 'yubikey:slot-id=83' \
+   --key 'yubikey:slot-id=83?pin-value=123456' \
    "Smallstep Intermediate CA" intermediate_ca.crt
 ```
 
