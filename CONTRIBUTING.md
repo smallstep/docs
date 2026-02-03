@@ -2,7 +2,7 @@
 
 This repository contains documentation for Smallstep projects and products. These docs are served at https://smallstep.com/docs.
 
-Issues and pull requests are welcome.
+Issues and pull requests are welcome!
 
 ## Docs Style & Syntax
 

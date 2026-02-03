@@ -179,11 +179,11 @@ and hit the `Launch` button.
       interfaces, external HTTP and HTTPS traffic is not enabled by default. 
       See the [next steps](#next-steps) section for more info.
 
-4. Deploy.
+4. Deploy!
 
   ![](/graphics/cas-deploy.png)
 
-#### 8. Test out your deployment
+#### 8. Let's test out our deployment!
 
 In this example we'll use [certbot](https://certbot.eff.org/) to test our 
 new ACME RA for CAS, but any popular ACME client should work.
@@ -229,7 +229,7 @@ new ACME RA for CAS, but any popular ACME client should work.
   $ sudo REQUESTS_CA_BUNDLE=/tmp/root_ca.crt certbot certonly -n --standalone -d $HOST --server https://acme-registration-authority-for-gcp-c-1-vm.c.$PROJECT_ID.internal/acme/acme/directory --agree-tos --email tester@smallstep.com
   ```
 
-  Your certificate was issued successfully.
+  Hooray!
 
 ## Next Steps
 
