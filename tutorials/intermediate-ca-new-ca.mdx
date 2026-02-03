@@ -2,7 +2,7 @@
 title: Use step-ca with your existing CA
 html_title: Deploy Intermediate CA with Existing Root
 description: Use step-ca as intermediate CA with existing infrastructure. Modernize PKI while preserving root certificate investments and trust chains.
-updated_at: October 02, 2025
+updated_at: February 03, 2026
 ---
 
 Need to extend or migrate from an existing CA to a Smallstep CA?
@@ -110,8 +110,8 @@ You may also wish to delete `$(step path)/config/defaults.json`,
 if it exists,
 and re-run `step ca bootstrap` with your new Root CA fingerprint.
 
-That's it! You should now be able to start `step-ca` and generate X.509 certificates
-that can be validated and authenticated by any software that trusts your root 
+That's it. You should now be able to start `step-ca` and generate X.509 certificates
+that can be validated and authenticated by any software that trusts your root
 certificate.
 
 ## The Secure Way
@@ -269,8 +269,8 @@ $ mv intermediate.crt $(step path)/certs/intermediate_ca.crt
 $ mv intermediate_ca_key $(step path)/secrets/intermediate_ca_key
 ```
 
-That's it! You should now be able to start `step-ca` and generate X.509 certificates
-that can be validated and authenticated by any software that trusts your root 
+That's it. You should now be able to start `step-ca` and generate X.509 certificates
+that can be validated and authenticated by any software that trusts your root
 certificate.
 
 ## FAQs

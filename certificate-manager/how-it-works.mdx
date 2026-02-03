@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Smallstep Certificate Manager How It Works
 html_title: Certificate Manager Architecture Guide
 description: Technical architecture of Certificate Manager. Understand components, workflows, and security model for enterprise PKI deployment planning.
@@ -284,7 +284,7 @@ prompted for the password to decrypt it. It generated a one-time token, then
 immediately used it to get a certificate.
 
 Instead of broadly distributing the `JWK` provisioner password, we can generate
-a token in one place (e.g., CI/CD, configuration management, or orchestration):
+a token in one place (for example, CI/CD, configuration management, or orchestration):
 
 ```shell-session nocopy
 $ step ca token alice@yourco.com
@@ -300,7 +300,7 @@ $ step ca certificate alice@yourco.com alice.crt alice.key --token $TOKEN
 ## Single Sign-On
 
 Certificates provide a secure, flexible, scalable mechanism for authenticating
-people, too (e.g., for SSH access, API access, or to connect to a BeyondCorp
+people, too (for example, for SSH access, API access, or to connect to a BeyondCorp
 identity-aware proxy). Most organizations already have an identity provider
 (IdP) for authenticating people. The `OIDC` provisioner lets you leverage
 authentication services from Google Workspace, Okta, Microsoft Entra ID, and any other IdP that

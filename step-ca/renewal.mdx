@@ -1,4 +1,5 @@
 ---
+updated_at: February 03, 2026
 title: Certificate Renewal
 html_title: Certificate renewal options
 description: Learn how to renew certificates and set up automated renewals
@@ -311,7 +312,7 @@ INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 When daemonized, [`step ca renew`](../step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
 So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
 
-There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
+Some random _jitter_ is built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
 (eg. by a multitude of virtual machines that were provisioned at the same time and have identical certificate expiration dates).
 
 If the CA is unreachable, renewals are retried every minute.
@@ -359,7 +360,7 @@ sudo systemctl enable --now step
 #### Notifying Certificate-Dependent Services
 
 Many services that depend on certificates will only read the certificate files on startup.
-So when you renew a certificate, a server process that depends on it may not detect that it has changed.
+When you renew a certificate, a server process that depends on it may not detect that it has changed.
 
 It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
 To address this, [`step ca renew`](../step-cli/reference/ca/renew) can send a `SIGHUP` to your service after each renewal.

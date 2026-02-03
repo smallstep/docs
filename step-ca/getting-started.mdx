@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: Getting Started
 html_title: Getting Started with step-ca Installation
 description: Get started with step-ca certificate authority. Complete guide to installing and running your first private PKI infrastructure from scratch.
@@ -69,7 +69,7 @@ all done!
 Your PKI is ready to go.
 ```
 
-**Make a note of the root fingerprint!** You'll need it in future steps to establish trust with your CA from other environments or hosts.
+**Make a note of the root fingerprint.** You'll need it in future steps to establish trust with your CA from other environments or hosts.
 
 ## Run your certificate authority
 
@@ -157,7 +157,7 @@ $ step ca certificate localhost srv.crt srv.key
 
 Now you've got your certificate. Next, you can create an example server that runs on localhost and uses TLS.
 
-This example server listens to port `9443` and serves _Hello, world!_ to any client that accepts the server certificate as trusted.
+This example server listens to port `9443` and serves _Hello, world_ to any client that accepts the server certificate as trusted.
 
 Here's the code for the go server:
 
@@ -216,7 +216,7 @@ $ step ca root root.crt
 The root certificate has been saved in root.crt.
 ```
 
-Now you can make a curl request using the root certificate you just downloaded. When you add `--cacert root.crt` to the curl command, it verifies that the server certificate was signed by the CA, and at that point you will see _Hello, world!_
+Now you can make a curl request using the root certificate you just downloaded. When you add `--cacert root.crt` to the curl command, it verifies that the server certificate was signed by the CA, and at that point you will see _Hello, world_.
 
 ```shell-session nocopy
 $ curl --cacert root.crt https://localhost:9443/hi
@@ -224,7 +224,7 @@ $ curl --cacert root.crt https://localhost:9443/hi
 Hello, world!
 ```
 
-Congratulations! You've just generated and integrated your first certificate using `step-ca`. 
+You've just generated and integrated your first certificate using `step-ca`. 
 
 ## Next Steps
 

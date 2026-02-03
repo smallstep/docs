@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Smallstep Certificate Manager Private ACME Server
 html_title: Smallstep Certificate Manager Private ACME Server
 description: Create your internal ACME server with Smallstep Certificate Manager. 
@@ -22,7 +22,7 @@ Automatically manage certificates on internal websites, servers, and the entire 
 ### About ACME
 At a high level, ACME is pretty simple. An ACME client creates an account with an ACME server and submits a certificate order. The server responds with a set of challenges for the client to complete to prove control over identifiers (domain names) in the certificate. Once the client successfully completes these challenges, it submits a certificate signing request (CSR) and the server issues a certificate.
 
-The most interesting part of all of this is the challenge – where the client proves control over an identifier. There is no single standard way to “prove control” over an “identifier”, so the core ACME specification makes this an extension point. Smallstep supports all the popular ACME challenges including DNS, HTTP, ALPN, IP, and EAB configurations. 
+The most interesting part of all of this is the challenge – where the client proves control over an identifier. No single standard way exists to "prove control" over an "identifier", so the core ACME specification makes this an extension point. Smallstep supports all the popular ACME challenges including DNS, HTTP, ALPN, IP, and EAB configurations. 
 
 ### ACME Challenge Verification
 When public ACME Certificate Authorities (CA) like Let's Encrypt issue certificates to clients in the Web PKI, the CA depends heavily on public DNS for client verification. To get a certificate, a client must prove to the CA that it either directly controls the public DNS records for a domain (for the DNS-01 challenge type) or controls the IP address pointed to by public DNS records (for the HTTP-01 and TLS-ALPN-01 challenge types).

@@ -1,5 +1,5 @@
 ---
-updated_at: January 21, 2026
+updated_at: February 03, 2026
 title: Deploy the Agent
 html_title: Deploy the Smallstep Agent
 description: Distribute and configure Smallstep Agent on Linux, macOS, and Windows. For organizations without MDM or using script-based deployment.
@@ -266,7 +266,7 @@ sudo systemctl status step-agent.service
 
 ### OpenSSL and PKCS#11 Support
 
-The Smallstep agent stores the certificate on the filesystem alongside a TPM TSS2-formatted file, which is a reference to a TPM-bound key. So, any software that integrates with OpenSSL's `tpm2-openssl` provider, or with the underlying `libtpm2-tss`, can use the TPM-bound key for TLS handshakes or other purposes.
+The Smallstep agent stores the certificate on the filesystem alongside a TPM TSS2-formatted file, which is a reference to a TPM-bound key. As a result, any software that integrates with OpenSSL's `tpm2-openssl` provider, or with the underlying `libtpm2-tss`, can use the TPM-bound key for TLS handshakes or other purposes.
 
 Because PKCS#11 is a common integration point, the Smallstep agent also provides a PKCS#11 server
 for use with software like NetworkManager, `wpa_supplicant`, or web browsers.

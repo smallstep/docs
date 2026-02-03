@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Basic Certificate Authority Operations
 html_title: Basic Certificate Authority Operations
 description: Learn basic certificate authority operations in Smallstep. Read docs today and simplify enterprise PKI management with automated workflows.
@@ -182,7 +182,7 @@ The 24 hour default validity window for certificates from `step-ca` is arbitrary
 - Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
 - Client certificates for humans typically are shorter lived and could expire after a few minutes or up to a month.
 
-A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
+A TLS certificate only needs to be valid at the moment the connection is established. Therefore, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
 
 You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate:
 
@@ -209,7 +209,7 @@ See [Basic Configuration Options](./configuration.mdx#basic-configuration-option
 
 ### Revoke a Certificate
 
-There is no way to "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
+You cannot "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
 
 However, you can ask the CA to block the renewal of a certificate. This is called _passive revocation_.
 
@@ -234,7 +234,7 @@ Instead, they follow an [SSH-specific certificate format](https://datatracker.ie
 
 Mercifully, they are a lot simpler than X.509:
 - SSH supports only User certificates and Host certificates.
-- There are no certificate chains in SSH.
+- No certificate chains exist in SSH.
 - Instead of a root CA certificate, an SSH CA is represented as a trusted public key.
 - An SSH CA is just like any other SSH public key, except it's prepended with a special `@cert-authority` annotation when used in a `known_hosts` file.
 

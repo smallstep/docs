@@ -2,7 +2,7 @@
 title: Configuring step-ca Templates
 html_title: Certificate Template Reference for step-ca
 description: Create and manage certificate templates in step-ca. Customize certificate attributes for specific use cases and compliance requirements.
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 ---
 
 People use private CAs for all sorts of things, in many different contexts:
@@ -48,9 +48,9 @@ A few custom [functions for ASN.1 encoding](#asn1-values) and [time formatting](
   </div>
 </Alert>
 
-There are [default X.509](https://github.com/smallstep/crypto/blob/master/x509util/templates.go)
+[Default X.509](https://github.com/smallstep/crypto/blob/master/x509util/templates.go)
 and [SSH](https://github.com/smallstep/crypto/blob/master/sshutil/templates.go)
-templates hardcoded into `step-ca`.
+templates are hardcoded into `step-ca`.
 
 ### Time formatting
 
@@ -115,16 +115,16 @@ The following snippet shows a provisioner with custom X.509 and SSH templates:
 }
 ```
 
-- **options**: object that allows configuration of provisioner options e.g. templates.
+- **options**: object that allows configuration of provisioner options, for example, templates.
 
   - **x509** or **ssh**: object for configuring X.509 or SSH certificate template options.
 
     - **templateFile**: path to a template stored on disk. You have a few options for how to define your path:
 
-        - **_absolute path_**:  e.g. `/home/mariano/path/to/file.ptl`
-        - **_relative to `$(step path)`_**: e.g. `templates/certs/x509/leaf.tpl` the actual
+        - **_absolute path_**: for example, `/home/mariano/path/to/file.ptl`
+        - **_relative to `$(step path)`_**: for example, `templates/certs/x509/leaf.tpl` the actual
           location of which would be `$(step path)/templates/certs/x509/leaf.tpl`.
-        - **_relative to the execution directory of `step-ca`_**: e.g. `./path/to/file.tpl` or `../path/to/file.tpl`
+        - **_relative to the execution directory of `step-ca`_**: for example, `./path/to/file.tpl` or `../path/to/file.tpl`
 
     - **templateData**: defines variables that can be used in the template.
       In the example above, you are able to use the defined organizational unit as the variable `{{ .OrganizationalUnit }}`,
@@ -481,7 +481,7 @@ Here are the most relevant parameters available in SSH certificate template:
 
 - **.Insecure.CR**<Reference id="star11" marker="*" />:
   SSH certificate requests to `step-ca` are not CSRs in the X.509 sense.
-  So, `step-ca` creates a virtual certificate request,
+  Instead, `step-ca` creates a virtual certificate request,
   and that's what this variable represents.
 
 - **.Insecure.CR.Principals**: If you trust a host to register its own custom SANs
@@ -629,7 +629,7 @@ intermediate certificate. To be precise, it can sign it, but the new
 intermediate won't be trusted by clients, so it won't be useful.
 
 Knowing this we can also guess that the intermediate certificate's issuer had at
-least a `maxPathLen` of `1`. So if you want to use an intermediate certificate
+least a `maxPathLen` of `1`. If you want to use an intermediate certificate
 that can sign other intermediates, make sure to set more permissive `maxPathLen`
 in the root and intermediate certificate used.
 
@@ -665,7 +665,7 @@ Here we are specifying that the **_issuer_** is equivalent to the **_subject_**,
 you want to allow intermediates to sign other intermediates, you need to set the
 `maxPathLen` to at least `2`. It's also possible to not limit the number of
 intermediates that can follow this certificate if we set `maxPathLen` to `-1`,
-and then create intermediates that set a specific limit, i.e. `0` for those that
+and then create intermediates that set a specific limit, that is, `0` for those that
 can sign only leaf certificates and `1` for those that can sign at most one downstream
 intermediate certificate.
 

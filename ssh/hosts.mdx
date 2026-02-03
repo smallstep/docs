@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Smallstep SSH Host Quickstart
 description: Configure SSH host certificates for server authentication. Eliminate TOFU (Trust On First Use) and secure SSH infrastructure.
 html_title: SSH Host Certificate Quick Setup Tutorial
@@ -162,7 +162,7 @@ Match User *,!ubuntu
 * Having trouble? You should be able to revert any changes by running `step-ssh deactivate`.
 * Suspect host or user certificates are not working? In other words, your ssh client fails to log in or shows "trust on first use" warning? Try this:
   * Be sure you can connect to our test server, with `ssh-test.app.smallstep.com`.
-  * On your client run `step ssh list` and find your user certificate marked `(ECDSA-CERT)`, e.g. `256 SHA256:Bb2TcimUYj8Nc5w4FhpZ/gmeNIIvLIzphTx35NzaRoA alice@smallstep.com (ECDSA-CERT)`, which you can inspect with `step ssh list --raw alice@smallstep.com | step ssh inspect`. Be sure the current time is neither before or after the period specified in `Valid:` .
+  * On your client run `step ssh list` and find your user certificate marked `(ECDSA-CERT)`, for example `256 SHA256:Bb2TcimUYj8Nc5w4FhpZ/gmeNIIvLIzphTx35NzaRoA alice@smallstep.com (ECDSA-CERT)`, which you can inspect with `step ssh list --raw alice@smallstep.com | step ssh inspect`. Be sure the current time is neither before or after the period specified in `Valid:` .
   * On the destination host run `step ssh inspect /etc/ssh/ssh_host_ecdsa_key-cert.pub`. Make sure the current time is within the period of `Valid:`.
   * The destination host's `sshd_config` should show included the following lines for `sshd` (make sure the service has reloaded its config) to leverage certificate-based authentication:
 

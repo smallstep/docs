@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: Registration Authority Mode
 html_title: Configure Registration Authority Mode in step-ca
 description: Configure step-ca as a Registration Authority. Separate certificate issuance from signing for enhanced security architecture.
@@ -316,7 +316,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
   2020/09/22 13:17:15 Serving HTTPS on :9000 ...
   ```
 
-  Save the fingerprint! You will need it to bootstrap new clients into your PKI:
+  Save the fingerprint. You will need it to bootstrap new clients into your PKI:
 
   ```shell-session
   $ step ca bootstrap --ca-url https://ra.example.com --fingerprint 3ef16343cf0952eedbe2b843066bb798fa7a7bceb16aa285e8b0399f661b28b7

@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Enroll a Smallstep SSH Host Manually
 description: Step-by-step SSH host configuration with certificates. Deploy secure SSH infrastructure with automated certificate management.
 html_title: SSH Host Certificate Setup Step-by-Step Guide
@@ -73,7 +73,7 @@ step ssh certificate $hostname /etc/ssh/ssh_host_ecdsa_key.pub \
 
 > **Note:** When a host has multiple hostnames, your users will only be able to `ssh` to the canonical `$hostname`, as shown by the `step ssh hosts` command.
 
-If you need multiple hostnames in your host certificate (e.g., public and private hostnames, or a hostname and an IP address), you can pass each of them to `step ssh certificate` via the `--principal` flag:
+If you need multiple hostnames in your host certificate (for example, public and private hostnames, or a hostname and an IP address), you can pass each of them to `step ssh certificate` via the `--principal` flag:
 
 ```shell
 step ssh certificate $hostname /etc/ssh/ssh_host_ecdsa_key.pub \

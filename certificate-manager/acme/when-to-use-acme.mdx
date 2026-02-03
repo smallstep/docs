@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: When to Use ACME in Internal Networks
 html_title: When to Use ACME for Certificate Management
 description: Learn when ACME protocol suits your certificate needs. Understand use cases and limitations of automated certificate management for informed PKI decisions.
@@ -46,7 +46,7 @@ The below listing is an overview of exemplary scenarios in which the ACME protoc
 
 ### When not to use ACME
 
-There are certain situations in which ACME is less suitable to use or can't be used at all to manage certificates.
+Certain situations make ACME less suitable or unusable for managing certificates.
 These are summarized below:
 
 - The ACME protocol cannot be used in case an ACME client cannot proof control over the identifiers it wants to request.
@@ -60,7 +60,7 @@ These are summarized below:
         This protocol extension, optionally combined with ACME External Account Binding, could obviate the need for a separate channel for solving challenges.
         At Smallstep we're closely monitoring progress of the RFC and may support this functionality in the future.
 - When a certificate requires email addresses to be signed, email signing certificates, for example. 
-    There is an informational extension to the ACME RFC that adds [support for S/MIME](https://datatracker.ietf.org/doc/rfc8823/) certificates.
+    An informational extension to the ACME RFC adds [support for S/MIME](https://datatracker.ietf.org/doc/rfc8823/) certificates.
     The Smallstep platform doesn't currently support the extension, but we might do so in the future.
     [Let us know](mailto:support@smallstep.com) if your use case involves certificates for humans to see if we can help, either by implementing support for the extension or using different means.
 - Use cases that involve URIs in certificates are not supported, because the ACME protocol currently doesn't support URI identifiers.

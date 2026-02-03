@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Certificate Issuance Policies
 html_title: Certificate Authority Policy Engine Reference
 description: Define certificate issuance policies in step-ca. Enforce security rules and compliance requirements for PKI operations at scale effectively.
@@ -111,8 +111,8 @@ dns     |*.example.com      |host.example.com, www.example.com      |example.com
 
 Rules for evaluating IP addresses are evaluated as follows:
 
-- A single IP rule (e.g. `192.168.0.30`, `::1`) will match exactly that IP address.
-- A CIDR rule (e.g. `192.168.0.0/24`, `2001:0db8:85a3::8a2e:0370:7334/120`) matches all IP addresses included in the range.
+- A single IP rule (for example, `192.168.0.30`, `::1`) will match exactly that IP address.
+- A CIDR rule (for example, `192.168.0.0/24`, `2001:0db8:85a3::8a2e:0370:7334/120`) matches all IP addresses included in the range.
 - So-called `IPv4-in-IPv6` addresses will be matched using rules for either IPv6 or IPv4. This is because Go doesn't distinguish these.
 
 #### Examples

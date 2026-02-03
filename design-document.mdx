@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: The Design & Architecture of Smallstep
 html_title: step-ca Architecture & Design Document
 pagetitle: Architectural Design Document | Smallstep Documentation
@@ -48,7 +48,7 @@ It's the open source core of everything Smallstep does, and everything you need 
 - Login to SSH using `step-ssh`
 
 [_Step certificates_](https://github.com/smallstep/certificates/ 'step certificates on Github') extends the [step command line tool](https://github.com/smallstep/cli/ 'step CLI on Github'), adding a certificate authority ( `step-ca` ) and subcommands to make secure automated certificate management easy. 
-The goal is to reduce the cost of building an internal PKI to cryptographically identify people, devices, and production workloads (e.g., microservices) and use TLS.
+The goal is to reduce the cost of building an internal PKI to cryptographically identify people, devices, and production workloads (for example, microservices) and use TLS.
 
 While end-to-end cryptography and mutual authentication between services is valuable, it's too hard with legacy tools. 
 This difficulty is not inherent -- PKI is not _necessarily_ hard. 
@@ -70,7 +70,7 @@ These tools make the arcane art of automated certificate management a simple, in
 - A variety of authentication mechanisms for provisioning certificates in different environments
 - A command line tool for generating keys, working with cryptographic artifacts, and interacting with the CA to automate certificate issuance, renewal, and revocation
 - Proven industry defaults for easy secure choices including root and intermediate private key hygiene
-- Automated certificate renewal to empower best practices of issuing short-lived (e.g.24-hour) certificates.
+- Automated certificate renewal to empower best practices of issuing short-lived (for example, 24-hour) certificates.
 - Passive revocation to avoid the challenges of implementing infrastructure support for active revocation.
 - Key pair generation to create a public key that can be distributed and shared with the world and a corresponding private key that should be kept confidential by the owner.
 - If you don't like our defaults and you want more control, fear not, everything is highly configurable. A design goal of `step certificates` is to make easy things easy and hard things possible.
@@ -272,7 +272,7 @@ foo$ step ca certificate foo.internal foo.crt foo.key --issuer "Google Cloud"
 
 #### OAuth/OIDC Single Sign-on Provisioner
 
-Occasionally it's useful to issue certificates to people (e.g., for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
+Occasionally it's useful to issue certificates to people (for example, for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
 
 ![SSO Provisioner Architecture](https://i.imgur.com/OIX5Wav.png 'SSO Provisioner Architecture')
 
@@ -338,7 +338,7 @@ $ step ca token foo.local --issuer admin --password-file password.txt
 eyJhbGciOiJFUzI1NiIsImtpZCI6IkVNdzJUSmFPS0NiTWUzQ1FLajJRRmF1WTkwNmZuZDNRajItTk8wVFdOS0UiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2xvY2FsaG9zdC8xLjAvc2lnbiIsImV4cCI6MTU2MTA1MzA4MSwiaWF0IjoxNTYxMDUyNzgxLCJpc3MiOiJhZG1pbiIsImp0aSI6IjNiZmFhMzczMmI1N2Y5YTJjOTU3ZDg0MzJkMzA3N2EyZmE4MjkyMzhmYzcyYmZkOTE4YTNiMTFhMzdhMzc1YjYiLCJuYmYiOjE1NjEwNTI3ODEsInNhbnMiOlsiZm9vLmxvY2FsIl0sInNoYSI6IjQ4MjdmZWI4YjNlYmNlYzhkYzc3NmQwNmQ5MmJkZDQ0YzY3ZWQ0MWI5MGQ2NTdjYjdiNTU5Y2QyMTUwNWQ3NjQiLCJzdWIiOiJmb28ubG9jYWwifQ.Kahp9zB8kFZh1GO5Zto1r35Qj5at-RBQhAQRAAPm-mmx1tRXfJtHgAWy0RoRvxqd6AtFrYPiTOfAQTg1nubowA
 ```
 
-This token can be securely transmitted to `foo.local` (e.g., using SSH) and used to obtain a certificate:
+This token can be securely transmitted to `foo.local` (for example, using SSH) and used to obtain a certificate:
 
 ```bash
 foo$ step ca certificate foo.local foo.crt foo.key --token eyJhbGciOiJFUzI1NiIsImtpZCI6IkVNdzJUSmFPS0NiTWUzQ1FLajJRRmF1WTkwNmZuZDNRajItTk8wVFdOS0UiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2xvY2FsaG9zdC8xLjAvc2lnbiIsImV4cCI6MTU2MTA1MzA4MSwiaWF0IjoxNTYxMDUyNzgxLCJpc3MiOiJhZG1pbiIsImp0aSI6IjNiZmFhMzczMmI1N2Y5YTJjOTU3ZDg0MzJkMzA3N2EyZmE4MjkyMzhmYzcyYmZkOTE4YTNiMTFhMzdhMzc1YjYiLCJuYmYiOjE1NjEwNTI3ODEsInNhbnMiOlsiZm9vLmxvY2FsIl0sInNoYSI6IjQ4MjdmZWI4YjNlYmNlYzhkYzc3NmQwNmQ5MmJkZDQ0YzY3ZWQ0MWI5MGQ2NTdjYjdiNTU5Y2QyMTUwNWQ3NjQiLCJzdWIiOiJmb28ubG9jYWwifQ.Kahp9zB8kFZh1GO5Zto1r35Qj5at-RBQhAQRAAPm-mmx1tRXfJtHgAWy0RoRvxqd6AtFrYPiTOfAQTg1nubowA
@@ -470,9 +470,9 @@ ERROR: 2019/06/22 11:04:39 error renewing certificate: client POST https://local
 INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 ```
 
-The default behavior in this mode is to wait until two-thirds of the certificate lifetime has passed (e.g., 16 hours for a 24 hours certificate) then attempt a renewal. Some jitter is added to this schedule to prevent a thundering herd of renewals sent to the CA by many VMs that were provisioned at the same time.
+The default behavior in this mode is to wait until two-thirds of the certificate lifetime has passed (for example, 16 hours for a 24 hours certificate) then attempt a renewal. Some jitter is added to this schedule to prevent a thundering herd of renewals sent to the CA by many VMs that were provisioned at the same time.
 
-If renewal fails (e.g., if the CA is down) `step` will retry periodically ahead of expiration. Thus, the default behavior of `step certificates` makes an outage of less than one-third of your certificate lifetime (8 hours for a 24 hour lifetime) non-critical. The system will recover on its own.
+If renewal fails (for example, if the CA is down) `step` will retry periodically ahead of expiration. Thus, the default behavior of `step certificates` makes an outage of less than one-third of your certificate lifetime (8 hours for a 24 hour lifetime) non-critical. The system will recover on its own.
 
 In many cases, workloads read certificates from disk at startup and will not notice that a renewal has occurred. To assist in these situations, the `--exec` flag tells `step ca renew` to execute a command after each renewal. This can be used to restart a process, or a send a signal to a process telling it to reload its certificate.
 
@@ -480,7 +480,7 @@ In many cases, workloads read certificates from disk at startup and will not not
 foo$ step ca renew --force --daemon --exec "kill -HUP $NGINX_PID" foo.crt foo.key
 ```
 
-Alternatively, your workloads can be written to watch for filesystem changes or simply read the certificate file from disk periodically (e.g., every minute).
+Alternatively, your workloads can be written to watch for filesystem changes or simply read the certificate file from disk periodically (for example, every minute).
 
 ### Revoking a certificate
 
@@ -498,7 +498,7 @@ error renewing certificate: Unauthorized
 
 ### Federation
 
-Suppose `foo.internal` is running in AWS and `bar.internal` is running in GCP. To communicate, traffic must transit the public internet. Traditionally this sort of cross-connectivity is secured using a network-level tunnel (e.g., an SSN tunnel or a VPN). These tunnels are often configured and managed ad-hoc. They're also hard to scale, hard to operate, and can introduce a single-point of failure into an otherwise resilient system.
+Suppose `foo.internal` is running in AWS and `bar.internal` is running in GCP. To communicate, traffic must transit the public internet. Traditionally this sort of cross-connectivity is secured using a network-level tunnel (for example, an SSN tunnel or a VPN). These tunnels are often configured and managed ad-hoc. They're also hard to scale, hard to operate, and can introduce a single-point of failure into an otherwise resilient system.
 
 With good automated certificate management you can leverage mTLS for secure cross-connectivity without a VPN.
 

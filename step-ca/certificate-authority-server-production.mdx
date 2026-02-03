@@ -2,7 +2,7 @@
 title: Production considerations when running a certificate authority server
 html_title: Certificate authority server production considerations
 description: Learn about the important production considerations and sane cryptographic defaults that operators should know about when running a certificate authority server
-updated_at: January 27, 2026
+updated_at: February 03, 2026
 ---
 
 
@@ -94,14 +94,14 @@ You'll use this new intermediate key password to start `step-ca`.
   </div>
 </Alert>
 
-Once you've changed the intermediate private key password, 
-you should never have to use the root private key password again. 
-So, then what should you do with it?
+Once you've changed the intermediate private key password,
+you should never have to use the root private key password again.
+What, then, should you do with it?
 
 Bury it in a cave high in the mountains.
 
 Or, store it in a [password manager](https://en.wikipedia.org/wiki/List_of_password_managers) or secrets manager. 
-There are many to choose from and the choice will depend on the risk & security profile of your organization.
+Many options exist, and the choice will depend on the risk and security profile of your organization.
 
 In addition to using a password manager to store all passwords 
 (private key, provisioner password, etc.) we recommend using a threshold cryptography algorithm like
@@ -203,8 +203,8 @@ any client that trusts your Root CA can use this bundle to verify a complete cha
 
 Now, what if one day your Intermediate CA key is compromised?
 You could issue a new Intermediate using your root CA key,
-but your old Intermediate had a 10 year validity period!
-So, you're stuck having to rotate your Root CA too,
+but your old Intermediate had a 10 year validity period.
+As a result, you're stuck having to rotate your Root CA too,
 and that may be a big project:
 you have to distribute the new CA certificate to clients,
 and ensure the old one is no longer trusted.
@@ -545,7 +545,7 @@ You can reverse proxy `step-ca` traffic, using either a layer 4 (network or "TLS
 There's a few things you should know before you deploy this setup:
 - `step` will expect to be able to perform a TLS handshake with the proxy,
   and use the CA's root certificate to complete the trust chain.
-  So, for inbound TLS connections,
+  For inbound TLS connections,
   the proxy should use a server certificate issued by `step-ca`.
   See below for an example.
 - Certificate renewal via `step ca renew` uses mutual TLS authentication by default.

@@ -1,5 +1,5 @@
 ---
-updated_at: November 18, 2025
+updated_at: February 03, 2026
 title: Connect Workspace One UEM to Smallstep
 html_title: Omnissa Workspace ONE Integration Guide
 description: Connect Workspace ONE UEM to Smallstep for unified device identity. Enterprise guide for cross-platform device security management.
@@ -151,7 +151,7 @@ For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s 
 
 1. In Workspace One UEM, visit **Resources → Certificate Authorities**
 2. Choose **+ Add**
-    1. Provide a name for the CA connection, e.g. Smallstep Agents CA
+    1. Provide a name for the CA connection, for example, Smallstep Agents CA
     2. For Authority Type, choose `Microsoft ADCS`
     3. For Protocol, choose `SCEP` 
     4. For Version, choose `NDES 2008/2012` ([NDES for SCEP](https://docs.omnissa.com/bundle/CertificateAuthorityIntegrationsV2410/page/NDESforSCEP.html))
@@ -169,7 +169,7 @@ For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s 
 
 A new modal screen will be presented with the empty Request Template configuration
 
-1. Provide a name for the Template, e.g. `Smallstep Agents`
+1. Provide a name for the Template, for example, `Smallstep Agents`
 2. For Certificate Authority, choose the Smallstep CA you just connected
 3. For the subject name, use a value of `CN={DeviceUuid}`
 4. For Private Key Length, use 2048
@@ -187,7 +187,7 @@ A new modal screen will be presented with the empty Request Template configurati
     2. Click Add, and pick Add Profile from the drop-down
     3. Click Windows, and then select Windows again
     4. Click Device Profile
-    5. Under General, Provide a name (e.g. “Smallstep Device Enrollment”)
+    5. Under General, Provide a name (for example, "Smallstep Device Enrollment")
         1. Select the All Devices group in the Smart Groups select list
         2. Other options can be left as-is
         3. Optionally, click the View Device Assignment button to see the devices to which the profile will be distributed
