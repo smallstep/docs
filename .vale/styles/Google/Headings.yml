@@ -8,36 +8,40 @@ indicators:
   - ":"
   - " - "
 exceptions:
-  # Proper nouns - company/product names that are ALWAYS capitalized
-  - Active
-  - Admission
+  # Load from shared exceptions file
+  # NOTE: Vale doesn't support external file includes for exceptions.
+  # Keep this list in sync with scripts/heading-exceptions.txt
+  #
+  # Proper nouns - company/product names (not generic words)
+  # Multi-word product names - include each capitalized word
+  - One
+  - Pro
   - Ansible
   - Apache
+  - Apple
   - Aruba
   - Asus
   - Authy
+  - Autocert
   - Azure
   - AWS
   - BoltDB
   - Caddy
   - CentOS
-  - Certificate
   - Certbot
   - CFSSL
   - Chrome
   - ChromeOS
   - CloudCAS
   - Cloudflare
-  - Controllers
   - DevOps
-  - Directory
   - Docker
-  - Edge
   - Edgebit
   - Entra
   - F5
   - Fedora
   - Firefox
+  - Fleet
   - FreeBSD
   - GCP
   - Gartner
@@ -63,7 +67,6 @@ exceptions:
   - Lenovo
   - Linux
   - macOS
-  - Manager
   - Meraki
   - Microsoft
   - MikroTik
@@ -84,14 +87,14 @@ exceptions:
   - Postgres
   - PostgreSQL
   - PowerShell
-  - Private
   - Reddit
   - RHEL
   - Rocky
   - Scoop
-  - Services
   - Smallstep
   - Sophos
+  - step
+  - step-ca
   - StepCAS
   - strongSwan
   - Terraform
@@ -106,6 +109,7 @@ exceptions:
   - Winget
   - Wireguard
   - Wolfi
+  - Workspace
   - X.509
   - Yubico
   - YubiKey
@@ -121,12 +125,16 @@ exceptions:
   - CAs
   - CAS
   - CLI
+  - DM
   - DNS
+  - EAP-TLS
+  - GID
   - GIDs
   - HSMs
   - HTTP
   - HTTPS
   - HUP
+  - ID
   - IPs
   - JWKs
   - JWTs
@@ -142,17 +150,25 @@ exceptions:
   - PKI
   - RA
   - REPL
+  - RSA
   - SCEP
   - SSH
   - SSHD
+  - SSL
   - SSO
   - TLS
   - TOTP
   - TPM
+  - UEM
+  - UID
   - UIDs
   - URIs
   - URL
   - URLs
+  - VM
   - VPN
+  - Wi-Fi
+  - WPA
+  - WPA-Enterprise
   - X5C
   - ZTNA
