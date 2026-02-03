@@ -37,7 +37,7 @@ Limitations:
 
 ## Step-by-step instructions
 
-## Create an API client in Jamf pro
+## Create an API client in Jamf Pro
 
 This API client will allow Smallstep to read your Jamf device inventory and manage the webhooks necessary for ongoing inventory syncing.
 
@@ -56,7 +56,7 @@ This API client will allow Smallstep to read your Jamf device inventory and mana
 6. Choose **Generate client secret**
 7. Temporarily save the **Client ID** and **Client Secret**. You’ll use them in the next step.
 
-## Connect Jamf pro to Smallstep
+## Connect Jamf Pro to Smallstep
 
 Let’s add the Jamf Pro API credentials you just created to Smallstep.
 
@@ -66,7 +66,7 @@ Let’s add the Jamf Pro API credentials you just created to Smallstep.
 4. Choose **Add Platform**. Your device inventory will start syncing from Jamf to Smallstep.
 5. Temporarily save the **Webhook URL**, **Username**, and **Password** presented.
 
-## Configure a SCEP enrollment webhook in Jamf pro
+## Configure a SCEP enrollment webhook in Jamf Pro
 
 For compatibility reasons, Smallstep may use ACME or SCEP for certificate enrollment. The SCEP Enrollment webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during the SCEP request. The challenge string is injected into the [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
 
@@ -270,7 +270,7 @@ There's two ways to confirm installation on an endpoint:
 - Alternatively, on the device itself, run `/Applications/SmallstepAgent/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
 
 
-## Uninstall Smallstep agent with Jamf pro
+## Uninstall Smallstep agent with Jamf Pro
 
 You can easily remove a Smallstep Agent that was installed on macOS endpoints via Jamf Pro.
 
