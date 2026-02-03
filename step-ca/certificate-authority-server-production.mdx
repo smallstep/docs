@@ -60,7 +60,7 @@ In this example, `step-ca` acts as a subordinate CA to an offline root CA.
 1. Generate a root CA (private key and certificate) on a [Hardware Security Module (HSM)](https://en.wikipedia.org/wiki/Hardware_security_module) or air-gapped device that is kept in "cold storage", off the internet.
 HSMs are ideal for storing private keys and performing signing operations securely.
 For durability, keep at least two copies of your root key, in separate locations.
-2. Generate intermediate key(s) on a separate, online cloud HSM or in a key management service (KMS) that will be used by the CA for signing operations in production
+2. Generate intermediate keys on a separate, online cloud HSM or in a key management service (KMS) that will be used by the CA for signing operations in production
 3. Generate Certificate Signing Requests (CSRs) for your intermediate CA(s)
 4. Sign the generated CSR using the root HSM
 5. Configure `step-ca` to use the signed root and intermediate certificates
@@ -197,7 +197,7 @@ The value of a two-tiered PKI is in the decoupling of Root and Intermediate CAs.
 You can add your Root CA certificate to the certificate trust store on all of your nodes,
 and store the private key completely offline.
 When `step-ca` issues a certificate to a client,
-it comes inside a PEM bundle that contains both the Intermediate CA certificate(s) and the end entity certificate.
+it comes inside a PEM bundle that contains the Intermediate CA certificates and the end entity certificate.
 When establishing a TLS connection,
 any client that trusts your Root CA can use this bundle to verify a complete chain of trust.
 
@@ -217,7 +217,7 @@ If a long-lived leaf certificate is compromised,
 it can be rendered unusable by an attacker through revocation.
 
 But there are downsides:
-Hosting a Certificate Revocation List (CRL) adds a service dependency to your PKI.
+hosting a Certificate Revocation List (CRL) adds a service dependency to your PKI.
 Clients check the CRL endpoint on every new connection,
 adding significant latency to the TLS handshake,
 and load on your CRL endpoint.
@@ -359,7 +359,7 @@ to be able to bind to that port. See [Running `step-ca` as a Daemon](#running-st
 
 ## Running `step-ca` as a daemon
 
-Note: _This section requires a Linux OS running `systemd` version 245 or greater._
+Note: _this section requires a Linux OS running `systemd` version 245 or greater._
 
 1. Add a service user for the CA.
 
@@ -825,9 +825,9 @@ If you're using `step-ca` JWTs in your code, be sure to [verify and validate](ht
 
 ### Key types and ciphers
 
-**Supported Key Types**: ECDSA, EdDSA, and RSA  
-**Default Key Type**: ECDSA  
-**Default Curve Bits**: P-256
+**Supported key types**: ECDSA, EdDSA, and RSA  
+**Default key type**: ECDSA  
+**Default curve bits**: P-256
 
 We chose ECDSA keys because they offer better security and performance than RSA keys. At 256 bits, ECDSA keys provide 128 bits of security, and they are supported by most modern clients. 
 
@@ -837,8 +837,8 @@ More notes on the choice of key type:
 * The NIST standard curves for ECDSA are hard to implement correctly, so there's concern that the implementations of them may have problems.
 * If the NSA is in your threat model, you may not want to use ECDSA keys. The NSA has never published how they chose the magic numbers that drive ECDSA implementations.
 
-**Default PEM Cipher**: AES128  
-**Supported PEM Key Sizes**: 128, 192, and 256 bits
+**Default PEM cipher**: AES128    
+**Supported PEM key sizes**: 128, 192, and 256 bits
 
 We've chosen the AES encryption algorithm for writing private keys to disk because it was the official choice of the Advanced Encryption Standard contest.
 
@@ -914,12 +914,12 @@ Key Usage describes how the certificate can be used.
 
 These are the defaults used for communication between `step` and `step-ca`.
 
-**Min TLS Version**: TLS 1.2  
-**Max TLS Version**: TLS 1.3
+**Min TLS version**: TLS 1.2  
+**Max TLS version**: TLS 1.3
 
 The PCI Security Standards Council required all payment processors and merchants to move to TLS 1.2 and above by June 30, 2018. By setting TLS 1.2 as the default for all TLS protocol negotiation, we encourage our users to adopt the same security conventions.
 
-**Renegotiation**: Never
+**Renegotiation**: never
 
 TLS renegotiation significantly complicates the state machine and has been the source of numerous, subtle security issues. Therefore, by default we disable it.
 

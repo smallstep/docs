@@ -384,7 +384,7 @@ PdmtteDb+JKPPbOt+FKiB5kZKRe4+kM/vA==
 -----END EC PRIVATE KEY-----
 ```
 
-JWTs are also easy to [generate programmatically](https://jwt.io/#libraries-io 'generate JWT'), without using `step` . The JWT audience ( `aud` ) should be the `/1.0/sign` endpoint for your CA. The JWT subject ( `sub` ) specifies the subject common name for the issued certificate. The `sha` and `sans` claims are non-standard: they specify the root certificate fingerprint and any subject alternative name(s) that are authorized for inclusion in the issued certificate.
+JWTs are also easy to [generate programmatically](https://jwt.io/#libraries-io 'generate JWT'), without using `step` . The JWT audience ( `aud` ) should be the `/1.0/sign` endpoint for your CA. The JWT subject ( `sub` ) specifies the subject common name for the issued certificate. The `sha` and `sans` claims are non-standard: they specify the root certificate fingerprint and any subject alternative names that are authorized for inclusion in the issued certificate.
 
 ```bash
 foo$ step ca token foo.internal | step crypto jwt inspect --insecure

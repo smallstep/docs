@@ -8,7 +8,7 @@ description: Deploy ACME Registration Authority with Certificate Manager. Enable
 
 When public ACME Certificate Authorities (CA) like Let's Encrypt issue certificates to clients in the Web PKI, the CA depends heavily on DNS for client verification. To get a certificate, a client must prove to the CA that it either directly controls the public DNS records for a domain (for the DNS-01 challenge type)—or that it controls the IP address pointed to by public DNS records (for the HTTP-01 and TLS-ALPN-01 challenge types).
 
-When deploying ACME internally, the same constraints are true: A server that authorizes certificate requests must be able to query internal DNS servers or reach internal hosts. This is why we created a Registration Authority (RA) for Certificate Manager. An RA is a service you run on your own network that authenticates ACME challenges (or other certificate requests). It does not issue certificates or hold CA keys. Instead, it relays authenticated certificate requests to Certificate Manager, which then issues certificates.
+When deploying ACME internally, the same constraints are true: a server that authorizes certificate requests must be able to query internal DNS servers or reach internal hosts. This is why we created a Registration Authority (RA) for Certificate Manager. An RA is a service you run on your own network that authenticates ACME challenges (or other certificate requests). It does not issue certificates or hold CA keys. Instead, it relays authenticated certificate requests to Certificate Manager, which then issues certificates.
 
 In this tutorial, you'll configure a Remote RA that you can run to authenticate requests for Certificate Manager certificates.
 
@@ -201,7 +201,7 @@ Setting up an RA manually involves the following steps:
 
 If you're running Kubernetes, you can run an ACME Registration Authority in your cluster. We have a Helm Chart for deploying an RA to Kubernetes. 
 
-**TL;DR:** There's a setup script showing all of the steps together [in this README](https://github.com/smallstep/helm-charts/tree/master/step-certificates/examples).
+**TL;DR:** there's a setup script showing all of the steps together [in this README](https://github.com/smallstep/helm-charts/tree/master/step-certificates/examples).
 
 1. Create an Authority in Certificate Manager with a JWK provisioner
 

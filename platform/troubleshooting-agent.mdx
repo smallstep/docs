@@ -63,7 +63,7 @@ Smallstep performs a partial device sync with connected MDMs at least every hour
 - "I can see my own device on Smallstep.com, but I can't view or manage other devices"
 - "I can't approve devices"
 
-**Solution:** Your Smallstep user doesn't have the correct permissions. Contact your account owner to request the appropriate role.
+**Solution:** your Smallstep user doesn't have the correct permissions. Contact your account owner to request the appropriate role.
 
 ### SCEP certificate failures
 
@@ -176,7 +176,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Check runtime requirements
 
-**What it checks:** Verifies that your system has the necessary components for the agent to function:
+**What it checks:** verifies that your system has the necessary components for the agent to function:
 - **TPM 2.0 availability** - Ensures the Trusted Platform Module is accessible and can create/delete keys
 - **systemd** (Linux only) - Confirms systemd is running for managing network connections
 
@@ -195,7 +195,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Ping the agent
 
-**What it checks:** Verifies the agent background service is running and responding to IPC requests.
+**What it checks:** verifies the agent background service is running and responding to IPC requests.
 
 **Common failure reasons:**
 - Agent service is not running
@@ -215,7 +215,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Check attestation CA connectivity
 
-**What it checks:** Tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
+**What it checks:** tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
 
 **Common failure reasons:**
 - Firewall blocking outbound HTTPS connections
@@ -231,7 +231,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Check API gateway connectivity
 
-**What it checks:** Tests network connectivity to `gateway.smallstep.com` (Smallstep API).
+**What it checks:** tests network connectivity to `gateway.smallstep.com` (Smallstep API).
 
 **Common failure reasons:**
 - Same as attestation CA connectivity issues
@@ -243,7 +243,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Check Mission Control connectivity
 
-**What it checks:** Tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
+**What it checks:** tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
 
 **Common failure reasons:**
 - Firewall blocking port 443 for gRPC traffic
@@ -257,7 +257,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Bootstrap certificate authorities
 
-**What it checks:** Verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
+**What it checks:** verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
 
 **Common failure reasons:**
 - Connectivity issues to `<your-team>.ca.smallstep.com`
@@ -273,7 +273,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Verify issued certificates
 
-**What it checks:** Validates that all endpoint certificates are currently valid (not expired or not yet valid).
+**What it checks:** validates that all endpoint certificates are currently valid (not expired or not yet valid).
 
 **Common failure reasons:**
 - Certificates expired due to agent being offline
@@ -288,7 +288,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Sign with endpoint keys
 
-**What it checks:** Tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
+**What it checks:** tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
 
 **Common failure reasons:**
 - TPM/Secure Enclave access issues
@@ -302,7 +302,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 
 ##### Enumerate PKCS#11 objects
 
-**What it checks:** (Linux/macOS only) Verifies that certificates and keys are accessible via the PKCS#11 interface.
+**What it checks:** (Linux/macOS only) verifies that certificates and keys are accessible via the PKCS#11 interface.
 
 **Common failure reasons:**
 - PKCS#11 server not running

@@ -9,7 +9,7 @@ By default, `step-ca` issues short-lived certificates that expire after 24
 hours. Short-lived certificates are excellent security hygiene because they
 offer regular key rotation and [passive revocation](./revocation.mdx)
 
-Short-lived certificates create a problem though: For any long-lived workloads,
+Short-lived certificates create a problem though: for any long-lived workloads,
 you will need to renew your certificates each day before they expire. This
 section will show three approaches to renew certs with `step`.
 
@@ -235,7 +235,7 @@ When the certificate is successfully renewed:
 #### Enabling `systemd` renewal timers
 
 The final piece of the puzzle is the renewal timer. Timers and services go hand in hand in systemd:
-A `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
+a `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
 
 Therefore, instead of enabling the `cert-renewer@*.service` service units directly, we'll enable timer units that will periodically trigger each service unit.
 

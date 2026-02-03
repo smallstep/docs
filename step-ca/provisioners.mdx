@@ -259,12 +259,12 @@ An administrator is just a subject name and a provisioner name.
 You can authenticate as an administrator via the authentication scheme of the provisioner.
 For example, for the default JWK provisioner, running administrative commands in `step` will prompt for the provisioner password.
 
-**Tip: Single Sign-On can be used for Admin users.** 
+**Tip: single sign-on can be used for Admin users.** 
 To enable SSO CA administration, first add an [OIDC provisioner](#oauthoidc-single-sign-on) linked to your identity provider.
 Then, add an Admin user associated with that provisioner, using your email address as the Admin's subject name.
 
 The Admin and Super Admin privileges **are not scoped to a provisioner**:
-Admins can modify any provisioner configurations.
+admins can modify any provisioner configurations.
 Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
 ### Use remote provisioner management
@@ -358,7 +358,7 @@ $ step ca token foo.internal | step crypto jwt inspect --insecure
 The JWT subject (`sub`) specifies a subject Common Name for the issued certificate.
 The `sha` and `sans` claims are non-standard:
 they specify the root CA certificate fingerprint in SHA256
-and any subject alternative name(s)
+and any subject alternative names
 that are authorized for inclusion in the issued certificate.
 
 The JWT is designed to be generated in one context, then passed into the context where it will be used (eg. a container or pod).
@@ -582,7 +582,7 @@ The value of the token's _email_ claim is also included as an email _SAN_ in the
 
 ![example of provisioner working with step ca](/graphics/oauth-provisioner.png)
 
-_Fig. 3: Diagram of how step works with individuals using a single sign-on provisioner_
+_Fig. 3: diagram of how step works with individuals using a single sign-on provisioner_
 
 From the user's perspective, when requesting a certificate, `step` detects the OIDC provisioner and initiates the OAuth login flow automatically:
 
@@ -845,7 +845,7 @@ Clients can then use their Nebula client certificate and private key to request 
 The Nebula certificate they use for authentication must be issued by the Nebula root CA configured in the provisioner.
 
 The Nebula client certificate is used for authorization, too:
-The client is allowed to request an X.509 or SSH host certificate with the `name` or any of the `ips` appearing on the Nebula client certificate.
+the client is allowed to request an X.509 or SSH host certificate with the `name` or any of the `ips` appearing on the Nebula client certificate.
 
 To be clear, Nebula certificates can contain a single `name` and a list of `ips`.
 The `name` field is often a DNS hostname, but it could be an email, IP, or URI.
@@ -1419,7 +1419,7 @@ Here's the contents of an example IID from AWS:
 
 ![example of provisioner working with step ca](/graphics/iid-provisioner.png)
 
-_Fig. 2: Diagram of how step works with a cloud service as the provisioner_
+_Fig. 2: diagram of how step works with a cloud service as the provisioner_
 
 Once you’ve configured `step-ca` to accept IIDs for authentication,
 `step` will detect the provisioner type,
@@ -1443,7 +1443,7 @@ Because of this, `step-ca`'s cloud provisioners use the _Trust on First Use (TOF
 allowing any instance to get a certificate with any names (SANs) on it.
 
 This allows for a "cryptographic perimeter":
-If a host presents a certificate that was signed by your CA using a cloud provisioner,
+if a host presents a certificate that was signed by your CA using a cloud provisioner,
 and the CA is configured to verify the instance's account, project, or tenant ID in the IID,
 you can have some confidence that the request came from your infrastructure (not someone else's),
 but _you cannot assume that the names on the certificate are authentic_.
@@ -1460,7 +1460,7 @@ Here are some things you can do to mitigate risk when using IIDs:
 - **Restrict provisioning by your cloud provider account or project IDs.** 
   Configure the provisioner's `accounts` (AWS) or `projectIDs` (GCP) setting.
 - **Disable Custom SANs, if possible.**
-  When using the `disableCustomSANs` setting, the CA will only issue certificates with authentic name(s) extracted from the signed instance identity document.
+  When using the `disableCustomSANs` setting, the CA will only issue certificates with authentic names extracted from the signed instance identity document.
   Unfortunately, the names on the IID may not be the names that you use to refer to your servers and services.
 - **Instances that don't obtain a certificate are a risk.**
   Anyone with access to the instance will be able to obtain a certificate binding any names,

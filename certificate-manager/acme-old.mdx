@@ -11,7 +11,7 @@ Automatically manage certificates on internal websites, servers, and the entire 
 ### Create your own private ACME server in three simple steps
 1. Create a Smallstep Team and Certificate Manager Authority. [Get Started >](https://smallstep.com/signup?product=cm)
 2. Install and configure a local ACME Registration Authority. [Learn How >](https://smallstep.com/docs/registration-authorities/acme-for-certificate-manager)
-3. Configure your ACME client(s) and issue certificates. [Find Yours >](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients) 
+3. Configure your ACME clients and issue certificates. [Find Yours >](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients) 
 
 <Alert severity="info">
   <div>
@@ -29,7 +29,7 @@ When public ACME Certificate Authorities (CA) like Let's Encrypt issue certifica
 
 ![ACME Registration Authority](/graphics/ia-cloud-ra-challenge-client.svg "In this example, the Smallstep ACME RA runs within the local network or VPC and responds to ACME requests from internal infrastructure and workloads. The RA accepts ACME orders and authenticates requests by verifying an ACME challenge. Upon verification, a CSR is securely passed to the Issuing Authority to sign and catalog.")
 
-When deploying ACME internally, the same constraints are true: The ACME server that authorizes certificate requests must be able to query internal DNS servers or reach internal hosts. This is why we created a Registration Authority (RA) for Certificate Manager. An RA is a service you run on your own network that authenticates ACME challenges (or other certificate requests). It does not issue certificates or hold CA keys. Instead, it relays authenticated certificate requests to Certificate Manager, which then issues certificates. 
+When deploying ACME internally, the same constraints are true: the ACME server that authorizes certificate requests must be able to query internal DNS servers or reach internal hosts. This is why we created a Registration Authority (RA) for Certificate Manager. An RA is a service you run on your own network that authenticates ACME challenges (or other certificate requests). It does not issue certificates or hold CA keys. Instead, it relays authenticated certificate requests to Certificate Manager, which then issues certificates. 
 
 ### Try it today
 

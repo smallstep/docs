@@ -172,7 +172,7 @@ $ step ca renew foo.crt foo.key
 Your certificate has been saved in foo.crt.
 ```
 
-When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](./renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
+When it comes time to renew your certificate, do not dawdle: once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](./renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
 Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 

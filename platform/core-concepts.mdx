@@ -43,7 +43,7 @@ A high-assurance device identity requires:
 
 Once this identity is established and a device certificate is issued, a third party (aka “relying party”) can trust not only the identity of the device, but also verify the residency of keys generated in its secure element. 
 
-Now we have a great foundation for device identity. And, we've unlocked another gift: **Zero-touch provisioning**. It's possible for new devices to automatically enroll themselves on their first boot, with no credentials required.
+Now we have a great foundation for device identity. And, we've unlocked another gift: **zero-touch provisioning**. It's possible for new devices to automatically enroll themselves on their first boot, with no credentials required.
 
 ### Building an inventory
 
@@ -155,7 +155,7 @@ sequenceDiagram
 	CA->>D: Hardware-protected SCEP Certificate (Device Identity)
 ```
 
-After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, Network Relays, VPNs, S/MIME, or client certificates for Safari.
+After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, network relays, VPNs, S/MIME, or client certificates for Safari.
 
 # Key protection
 
@@ -244,8 +244,8 @@ For example, Apple platforms support device attested keys for Enterprise Wi-Fi c
 
 ## Resource protection patterns
 
-Now let’s look at the other end of the handshake:
-What happens at the enforcement point?
+Now let's look at the other end of the handshake:
+what happens at the enforcement point?
 
 When an access request is made to a protected resource, *something* needs to check whether the device making the request has a valid certificate.
 
