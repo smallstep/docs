@@ -1,5 +1,5 @@
 ---
-updated_at: January 21, 2026
+updated_at: February 03, 2026
 title: Connect Mosyle to Smallstep
 html_title: Integrate Mosyle with Smallstep Tutorial
 description: Integrate Mosyle with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -109,6 +109,10 @@ Keep this page open or save these values temporarily—you'll need them for the 
     - Profile Name: `Smallstep`
     - URL: (paste the SCEP provisioner URL you saved earlier)
     - Subject: `CN=%DeviceName%` (or customize as needed using Mosyle variables)
+    - Check ☑️ **Enable Variables for this profile**
+    - Add new Subject Alternative Name:
+      - Type: Uniform Resource Identifier
+      - Alternative Name Value: `deviceid:%UUID%`
     - Challenge: (paste the static challenge you saved earlier)
     - Key Size (in bits): `2048`
     - Check ☑️ **Allow all apps to access the certificate in the keychain**
