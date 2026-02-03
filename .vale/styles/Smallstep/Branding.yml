@@ -10,3 +10,9 @@ swap:
   StepCLI: Step CLI
   Smallstep UI: Smallstep console
   Smallstep dashboard: Smallstep console
+  Yubikey: YubiKey
+  yubikey: YubiKey
+  YUBIKEY: YubiKey
+  Yubikeys: YubiKeys
+  yubikeys: YubiKeys
+  YUBIKEYS: YubiKeys

@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: "Mutual TLS advanced example: Use AWS to deploy a private certificate authority and secure microservices"
 html_title: Deploy mTLS on AWS for Microservices Tutorial
 description: Deploy private CA on AWS for microservice security. Implement mutual TLS between services in cloud environments for Zero Trust architectures.
@@ -83,7 +83,7 @@ This example will use automation to provision an instance of Emojivoto.
 - `step-sds` will fetch a certificate and the trust bundle (root certificate) from the internal certificate authority on behalf of each service/sidecar pair.
 - `step-sds` will handle renewals for X.509 certificates that are nearing the end of their lifetimes.
 
-## Step-by-Step Instructions
+## Step-by-step instructions
 
 This AWS example integration will use full automation to provision infrastructure, machines, and services from scratch. While there are many tools available, in this exercise, we chose to use Terraform and Puppet for provisioning.
 
@@ -114,13 +114,13 @@ Default region name []: us-west-1
 Default output format []: json
 
 $ aws s3 ls
-# should list S3 buckets if the account has any
+# Should list S3 buckets if the account has any
 2017-10-26 13:50:39 smallstep-not-a-real-bucket
 2017-10-26 15:43:20 smallstep-fake-bucket
 2018-04-09 17:25:18 smallstep-nobody-home
 ```
 
-### 3. Generate a SSH Key Pair
+### 3. Generate a SSH key pair
 
 Terraform requires a key pair to be used for provisioning EC2 machine instances. Any key pair available in the respective region will work as long as the local Terraform/Puppet process has access to the key pair's private key. Please see the [AWS EC2 Key Pairs documentation](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html) for details on how to manage key pairs in AWS.
 
@@ -128,11 +128,11 @@ The EC2 key pair will likely be available as a single file in _PEM_ format. Use 
 
 ```shell-session nocopy
 $ chmod 400 aws-e2e-howto.pem
-# we will need the public key in terraform config
+# We will need the public key in terraform config
 $ ssh-keygen -f aws-e2e-howto.pem -y > ~/.ssh/terraform.pub
-# the private key is already in the correct format
+# The private key is already in the correct format
 $ cp aws-e2e-howto.pem ~/.ssh/terraform
-# new files only readable by owner (not encrypted on disk!)
+# New files only readable by owner (not encrypted on disk!)
 $ chmod 400 ~/.ssh/terraform*
 ```
 
@@ -282,7 +282,7 @@ voting_ip = 3.101.28.150
 web_ip = 54.176.66.184
 ```
 
-## Explore Emojivoto on AWS
+## Explore emojivoto on AWS
 
 AWS Emojivoto uses internal DNS records to resolve hosts for inter-service communication. All TLS certificates are issued for the respective DNS name, like _web.emojivoto.local_ or _voting.emojivoto.local_ (see [dns.tf](https://github.com/smallstep/step-aws-emojivoto/blob/master/dns.tf) for details).
 
@@ -321,7 +321,7 @@ content-length: 560
 x-envoy-upstream-service-time: 0
 server: envoy
 
-# without --cacert specifying the root cert it will fail (expected)
+# Without --cacert specifying the root cert it will fail (expected)
 $ curl -I https://web.emojivoto.local
 curl: (60) SSL certificate problem: unable to get local issuer certificate
 More details here: https://curl.haxx.se/docs/sslcerts.html
@@ -356,5 +356,5 @@ X.509v3 Root CA Certificate (ECDSA P-256) [Serial: 1038...4951]
   Issuer:      Smallstep Test Root CA
   Valid from:  2019-07-12T22:14:14Z
           to:  2029-07-09T22:14:14Z
-# Remove root cert from local trust store. Warning will reappear.
+# Remove root cert from local trust store. warning will reappear.
 ```

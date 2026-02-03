@@ -29,7 +29,7 @@ html_title: SSH Host Certificate Quick Setup Tutorial
     * `/etc/nsswitch.conf`
   * We suggest backing these up before you begin setup on a particular base machine type, so that you can quickly revert changes if needed.
 
-## Understanding Host Tags
+## Understanding host tags
 
 **This section only applies to multi-user environments.**
 
@@ -52,7 +52,7 @@ Take a minute to think about how you'd like to use Host Tags in your environment
 
 For a deeper dive, see our [Access Control Guide](./acls.mdx).
 
-## Quick Installation Instructions
+## Quick installation instructions
 
 Our installation script will guide you through host setup. It will:
 * Install the `step` CLI and `step-ssh` utilities
@@ -126,7 +126,7 @@ Now sign in at `https://smallstep.com/app/[Team ID]`
 
 You should see your host listed under the "**Hosts**" tab.
 
-## Manual Instructions
+## Manual instructions
 
 If you wish to enroll your host without using our script,
 you can follow our [step-by-step installation instructions](./hosts-step-by-step.mdx) instead.
@@ -146,7 +146,7 @@ This script will:
 * Remove your `$HOME/.step` configuration directory
 * Remove the `step-ssh` package
 
-## Optional Hardening
+## Optional hardening
 
 Now that you're using certificates, you may wish to explicitly disallow the use of `authorized_keys` files on the host.
 
@@ -157,7 +157,7 @@ Match User *,!ubuntu
     AuthorizedKeysFile none
 ```
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
 * Having trouble? You should be able to revert any changes by running `step-ssh deactivate`.
 * Suspect host or user certificates are not working? In other words, your ssh client fails to log in or shows "trust on first use" warning? Try this:

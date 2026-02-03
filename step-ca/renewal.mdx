@@ -357,7 +357,7 @@ Enable and start the service:
 sudo systemctl enable --now step
 ```
 
-#### Notifying Certificate-Dependent Services
+#### Notifying certificate-dependent services
 
 Many services that depend on certificates will only read the certificate files on startup.
 When you renew a certificate, a server process that depends on it may not detect that it has changed.
@@ -400,9 +400,9 @@ EOF
 ```
 Be sure the user (in this example, `step`) has write access to the certificate and key you're renewing.
 
-### Caveats of Automated Renewal
+### Caveats of automated renewal
 
-#### Revoking a Certificate
+#### Revoking a certificate
 
 [`step ca renew`](../step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.

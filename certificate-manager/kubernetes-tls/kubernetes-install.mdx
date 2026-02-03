@@ -14,13 +14,13 @@ Beyond certificates for the components, you will need to secure the API server a
 The API Server is the API you connect to in order to push pods and whatnot. 
 This API uses TLS and needs a certificate. 
 
-### Our Recommendation
+### Our recommendation
 
 We think issuing a one-year certificate and moving on is setting you up for pain 365 days later.
 In fact, we [blogged about a better way](https://smallstep.com/blog/kubernetes-the-secure-way) and created a pull request to Hightower's repo. 
 You should certainly check it out if you are building a Kubernetes cluster from scratch.
 
-### Extra Credit: Admission Controllers
+### Extra credit: Ad__phrase_12__lers
 
 An *[Admission Controller](https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/)* is a plugin that can intercept calls to the Kubernetes API server and modify the request or reject it altogether. 
 For example, the `autocert` project also uses a *mutating* Admission Controller to inject a secret into the Pod-spec during Pod creation. 

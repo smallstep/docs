@@ -38,13 +38,13 @@ safely and securely in a production environment.
   - [X.509 Certificates](#x509-certificates)
   - [TLS Defaults](#tls-defaults)
 
-## Good Security Practices
+## Good security practices
 
 In this section we recommend a few best practices when it comes to running, deploying, and managing your own online certificate authority server and PKI.
 Security is a moving target.
 We expect our recommendations to change and evolve as well.
 
-### Safeguard Your Root And Intermediate Keys
+### Safeguard your root and intermediate keys
 
 When you initialize a two-tier CA, two private keys are generated:
 one intermediate private key, and one root private key.
@@ -68,7 +68,7 @@ For durability, keep at least two copies of your root key, in separate locations
 
 See [Cryptographic Protection](./cryptographic-protection.mdx) to learn more about your options for using HSMs or cloud KMS with `step-ca`.
 
-### Use Strong Passwords and Store Them Well
+### Use strong passwords and store them well
 
 When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority-ca),
 the root and intermediate private keys will be encrypted with the same password.
@@ -108,7 +108,7 @@ In addition to using a password manager to store all passwords
 [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir's_Secret_Sharing)
 to divide the root private key password across a handful of trusted parties.
 
-### Avoid Storing Passwords in Environment Variables
+### Avoid storing passwords in environment variables
 
 `systemd` discourages using the environment for secrets 
 because it doesn't consider it secure and exposes a unit's environment over dbus. From 
@@ -136,7 +136,7 @@ However, **this approach is not recommended** simply because it's so difficult t
 
 See our blog [How to Handle Secrets on the Command Line](https://smallstep.com/blog/command-line-secrets/) for an in-depth exploration of this topic.
 
-### Replace Your Default Provisioner
+### Replace your default provisioner
 
 When you [initialize your PKI](./getting-started.mdx#initialize-your-certificate-authority-ca),
 a default `JWK` provisioner will be created.
@@ -149,7 +149,7 @@ You can do this by passing separate `--password-file` and `--provisioner-passwor
 
 See the section on [managing provisioners](./provisioners.mdx#provisioner-management).
 
-### Use Short-Lived Certificates
+### Use short-lived certificates
 
 We recommend the following:
 - User certificates should have the lifespan of a mayfly: about a day or less[^1].
@@ -174,7 +174,7 @@ So do some certificates.
 But it can be difficult to operationalize such short-lived certificates.
 </Footnote>
 
-### Consider Active Revocation
+### Consider active revocation
 
 You may require Active Revocation if you need immediate certificate revocation,
 or if you are issuing long-lived certificates.
@@ -191,7 +191,7 @@ This section describes how to enable CRL for your intermediate CA and leaf certi
   </div>
 </Alert>
 
-#### When To Use Active Revocation?
+#### When to use active revocation?
 
 The value of a two-tiered PKI is in the decoupling of Root and Intermediate CAs.
 You can add your Root CA certificate to the certificate trust store on all of your nodes,
@@ -227,7 +227,7 @@ to your leaf certificates,
 or both,
 using the instructions below.
 
-#### Enable CRL for an Intermediate CA
+#### Enable CRL for an intermediate CA
 
 To use active revocation on an Intermediate CA certificate,
 you'll need a new Intermediate CA that contains your CRL server URL.
@@ -282,7 +282,7 @@ the CRL will be hosted at `/1.0/crl`.
 2. Restart `step-ca`.
    Clients will be able to renew certificates that were issued by your previous Intermediate CA.
 
-#### Enable CRL for Leaf Certificates
+#### Enable CRL for leaf certificates
 
 Let's add the CRL server URL to every leaf certificate issued by `step-ca`.
 
@@ -340,7 +340,7 @@ the CRL will be hosted at `/1.0/crl`.
 
    Your certificate's serial number should be listed in the CRL.
 
-### Use Templates With Care
+### Use templates with care
 
 [Certificate templates](./templates.mdx) add a lot of flexibility to `step-ca`,
 and they can be a source of subtle vulnerabilities. Here are some tips for limiting your risk:
@@ -349,15 +349,15 @@ and they can be a source of subtle vulnerabilities. Here are some tips for limit
 - When enriching a certificate via [webhooks](./webhooks.mdx), OIDC tokens, or other external sources, consider potential attack vectors and limit your CA's exposure as much as possible.
 - Finally, avoid JSON injection attacks by applying `toJson` to all template data evaluations.
 
-### Create a Service User to Run `step-ca`
+### Create a service user to run `step-ca`
 
 Make sure that the configuration folders, private keys, and password file used by the CA are _only_
 accessible by this user. If you're running `step-ca` on port 443, you'll need the `step-ca` binary
 to be able to bind to that port. See [Running `step-ca` as a Daemon](#running-step-ca-as-a-daemon) for details.
 
-## Operational Concerns
+## Operational concerns
 
-## Running `step-ca` as a Daemon
+## Running `step-ca` as a daemon
 
 Note: _This section requires a Linux OS running `systemd` version 245 or greater._
 
@@ -511,7 +511,7 @@ Note: _This section requires a Linux OS running `systemd` version 245 or greater
   $ sudo journalctl --follow --unit=step-ca
   ```
 
-## High Availability
+## High availability
 
 Whether your goal is load balancing or high availability, `step-ca` is built to scale horizontally.
 Our [Helm chart](https://github.com/smallstep/helm-charts/tree/master/step-certificates) is a popular approach for HA deployments in Kubernetes.
@@ -594,7 +594,7 @@ https://ca.example.com {
 }
 ```
 
-### Further Reading
+### Further reading
 
 - Nginx has a [stream module](https://nginx.org/en/docs/stream/ngx_stream_core_module.html) that allows it to pass TLS traffic directly to `step-ca`.
   But it comes with a price: Unlike typical reverse proxy configurations, source IPs are not visible to `step-ca` (there is no `X-Forwarded-For` header), and traffic is also not logged to the nginx access log.
@@ -614,7 +614,7 @@ If you choose to expose a CA to the internet, consider these potential risks:
 - **Enumeration of CA provisioners**  
   The `/provisioners` exposes provisioner configuration and is included for client convenience. It includes JWK encrypted private keys, OIDC client credentials and endpoint URLs, and more. Without it, clients will need to pass more configuration flags into `step ca certificate`.
 
-### Run A Reverse Proxy
+### Run a reverse proxy
 
 Rather than expose your entire CA to the internet,
 use a reverse proxy to expose only the necessary CA endpoints:
@@ -625,7 +625,7 @@ use a reverse proxy to expose only the necessary CA endpoints:
 
 Expose the minimum endpoints required by your clients for enrollment.
 
-#### Proxying an ACME Provisioner
+#### Proxying an ACME provisioner
 
 <Alert severity="warning">
   <AlertTitle>Restrict your ACME provisioners</AlertTitle>
@@ -651,7 +651,7 @@ When connecting an ACME provisioner to the internet, you will need to take preca
       ```
   
 
-### Alternative: Use Federation
+### Alternative: Use federation
 
 If your clients are spread across different private networks—
 eg. in multi-cloud environments—
@@ -659,21 +659,21 @@ there's no need to expose your CA to the internet.
 
 Use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx) instead.
 
-## Certificate Lifecycle Management
+## Certificate lifecycle management
 
-### Automate X.509 Certificate Lifecycle Management
+### Automate X.509 certificate lifecycle management
 
 We recommend automating certificate renewal when possible.
 Renewal can be easily automated in many environments.
 See our [Renewal](./renewal.mdx) documentation for details.
 
-### Certificate Revocation
+### Certificate revocation
 
 By default, `step-ca` uses passive revocation.
 Certificates can be revoked using the `step ca revoke` subcommand.
 See our [Revocation](./revocation.mdx) documentation for details.
 
-### Root Distribution
+### Root distribution
 
 To bootstrap trust, you will need to deploy your root CA certificate to clients.
 The [`step ca bootstrap`](../step-cli/reference/ca/bootstrap) command can be used on any CLI-based clients.
@@ -712,7 +712,7 @@ Your CA certificate may need to be installed and trusted into the target operati
 The command for doing this various by operating system, distribution, and the target application.
 Confusingly, there may be several trust store libraries and locations on a given system.
 
-#### Example: Linux Trust Anchors
+#### Example: Linux trust anchors
 
 While many popular Linux distributions have standardized around the [`ca-certificates`](https://src.fedoraproject.org/rpms/ca-certificates) package to manage their internal trust store,
 they don't all use the same paths for the trust store itself.
@@ -748,14 +748,14 @@ Mount your PEM file into `/etc/ca-certificates/trust-source/anchors/`, then run 
 
 Put CA certificates into `/etc/pki/ca-trust/source/anchors/` or `/usr/share/pki/ca-trust-source/anchors/`, and run `update-ca-trust`.
 
-#### Further Reading
+#### Further reading
 
 - [Our blog post on certificate automation for containers](https://smallstep.com/blog/automate-docker-ssl-tls-certificates/) contains detailed Root Distribution examples that could also provide inspiration for other contexts.
 - [Storing Trust Policy](https://p11-glue.github.io/p11-glue/doc/storing-trust-policy/) by Stef Walter, Red Hat
 - [Gist: Trusted TLS Certificate Stores on Linux OS and Applications](https://gist.github.com/CMCDragonkai/f5f76b8eb13e7579aba3)
 
 
-## Rotating CA Certificates
+## Rotating CA certificates
 
 It's possible to rotate both root and intermediate X.509 CA certificates.
 
@@ -768,7 +768,7 @@ It requires a migration period where the new root is introduced while the old ro
 The old root has to be carefully decommissioned.
 Root rotation is out of scope for this document.
 
-### Rotating an Intermediate CA
+### Rotating an intermediate CA
 
 Creating a new Intermediate CA will not affect previously-issued leaf certificates.
 When they were issued, these certificates were bundled with the old intermediate CA.
@@ -794,7 +794,7 @@ you will need your root CA certificate and private key.
 
 New leaf certificates will now include and be signed by your new intermediate CA.
 
-#### Caveat: Root + Intermediate Bundles
+#### Caveat: Root + intermediate bundles
 
 Typically, endpoints are configured to trust your root CA certificate only. But in some rare applications, intermediates and roots must be bundled together. This is not common.
 
@@ -805,7 +805,7 @@ If you have PEM bundles containing both your root and intermediate CAs, you will
 3. **Wait** for all certificates issued by the old intermediate to expire.
 3. It is now safe to **remove the old intermediate from the bundles**.
 
-## Sane Cryptographic Defaults
+## Sane cryptographic defaults
 
 We've done our best to provide sane defaults in `step-ca`,
 so that it's easy to use and hard to misuse.
@@ -823,7 +823,7 @@ We use JWTs ([JSON Web Tokens](https://jwt.io/)) to prove authenticity and ident
 
 If you're using `step-ca` JWTs in your code, be sure to [verify and validate](https://tools.ietf.org/html/rfc7519#section-7) every standard attribute of the JWT. [`step crypto jwt verify`](https://smallstep.com/docs/cli/crypto/jwt/verify/) can validate any JWT for you, and it follows the spec to the letter.
 
-### Key Types and Ciphers
+### Key types and ciphers
 
 **Supported Key Types**: ECDSA, EdDSA, and RSA  
 **Default Key Type**: ECDSA  
@@ -844,9 +844,9 @@ We've chosen the AES encryption algorithm for writing private keys to disk becau
 
 All supported key sizes are considered to be unbreakable for the foreseeable future. We chose 128 bits as our default because the performance is better as compared to the greater key sizes, and because 128 bits are sufficient for most security needs.
 
-### X.509 Certificates
+### X.509 certificates
 
-#### Root CA Certificate
+#### Root CA certificate
 
 The Root CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init).
 
@@ -876,7 +876,7 @@ Key Usage describes how the certificate can be used.
 - Certificate Sign: indicates that our root public key will be used to verify a signature on certificates.
 - CRL Sign: indicates that our root public key will be used to verify a signature on revocation information, such as CRL.
 
-#### Intermediate CA Certificate
+#### Intermediate CA certificate
 
 The Intermediate CA certificate is generated once, when you run [`step ca init`](../step-cli/reference/ca/init). It is signed by the Root CA certificate.
 
@@ -884,7 +884,7 @@ The Path Length of the intermediate certificate is `0`. Otherwise it uses the sa
 
 A Path Length of zero indicates that there can be no additional intermediary certificates in the path between the intermediate CA certificate and end-entity certificates.
 
-#### Leaf (End Entity) Certificate
+#### Leaf (end entity) certificate
 
 These are the certificates issued by the `step-ca` server.
 
@@ -910,7 +910,7 @@ Key Usage describes how the certificate can be used.
 
 - TLS Web Client Authentication: certificate can be used as the client side certificate in the TLS protocol.
 
-### TLS Defaults
+### TLS defaults
 
 These are the defaults used for communication between `step` and `step-ca`.
 
@@ -923,7 +923,7 @@ The PCI Security Standards Council required all payment processors and merchants
 
 TLS renegotiation significantly complicates the state machine and has been the source of numerous, subtle security issues. Therefore, by default we disable it.
 
-#### Default TLS Cipher Suites
+#### Default TLS cipher suites
 
 
 ```go nocopy
@@ -944,7 +944,7 @@ Reasons for selecting `TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305`:
 
 The http2 spec requires the `TLS_ECDHE_(RSA|ECDSA)_WITH_AES_128_GCM_SHA256` ciphersuite be accepted by the server, therefore it makes our list of default ciphersuites.
 
-#### Approved TLS Cipher Suites
+#### Approved TLS cipher suites
 
 ```go nocopy
 [

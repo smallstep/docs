@@ -4,7 +4,7 @@ This repository contains documentation for Smallstep projects and products. Thes
 
 Issues and pull requests are welcome!
 
-## Docs Style & Syntax
+## Docs style & syntax
 
 - The docs repo uses [MDX syntax](https://mdxjs.com/docs/what-is-mdx/#mdx-syntax).
   MDX follows the [CommonMark spec](https://spec.commonmark.org/) for Markdown.
@@ -33,13 +33,13 @@ Issues and pull requests are welcome!
 
 Everything under `src/pages/docs/step-cli/reference` is auto-generated whenever we release a new version of `step`. To make a change to the CLI reference, you'll have to make the edit in [smallstep/cli](https://github.com/smallstep/cli) and make a PR over there. The reference docs are embedded in the source files under the `command` folder in that repo.
 
-## Practical Zero Trust
+## Practical zero trust
 
 The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.
 
-## Prose linting with Vale
+## Prose linting with vale
 
 We use [Vale](https://vale.sh/) to enforce consistent prose style.
 

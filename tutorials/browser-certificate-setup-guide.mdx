@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: January 27, 2026
+updated_at: February 03, 2026
 html_title: Browser mTLS Certificate Setup Tutorial
 description: Configure browser certificates for mutual TLS authentication. Enable secure web access with client certificates across all browsers.
 ---
@@ -149,7 +149,7 @@ To test the certificate, restart the browser and visit one your target URLs.
 
 ## Windows
 
-### Microsoft Edge and Google Chrome
+### Microsoft edge and Google Chrome
 
 #### Client certificate auto-selection
 
@@ -165,7 +165,7 @@ To test the certificate, restart the browser and visit one your target URLs.
 For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy to prevent the certificate selection dialog from appearing.
 
 1. Open the Registry Editor (`regedit`)
-2. Navigate to to the key for your browser.
+2. Navigate to the key for your browser.
 
    - For Chrome, visit `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome`
    - For Edge, visit `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge`

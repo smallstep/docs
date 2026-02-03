@@ -6,16 +6,16 @@ description: Learn basic certificate authority operations in Smallstep. Read doc
 ---
 
 
-## Before You Begin
+## Before you begin
 
 This document assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](./getting-started.mdx).
 
-## Table of Contents
+## Table of contents
 
 - [Working With X.509 Certificates](#working-with-x509-certificates)
 - [Working With SSH Certificates](#working-with-ssh-certificates)
 
-## Working With X.509 Certificates
+## Working with X.509 certificates
 
 Let's perform some basic operations on X.509 certificates:
 - [Get a Certificate](#get-a-certificate)
@@ -25,7 +25,7 @@ Let's perform some basic operations on X.509 certificates:
 - [Adjust Certificate Lifetimes](#adjust-certificate-lifetimes)
 - [Revoke a Certificate](#revoke-a-certificate)
 
-### Get a Certificate
+### Get a certificate
 
 Once you have a certificate authority up and running, the [`step ca certificate`](../step-cli/reference/ca/certificate) command is a one-step option for generating a private key and obtaining a signed certificate:
 
@@ -61,7 +61,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 7720...1576]
     </div>
 </Alert>
 
-### Sign a Certificate Signing Request (CSR)
+### Sign a certificate signing request (CSR)
 
 ([What's a Certificate SIgning Request?](https://smallstep.com/blog/everything-pki/#certificate-signing-requests))
 
@@ -162,7 +162,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1459...0708]
           to:  2021-10-20T18:15:55Z
 ```
 
-### Renew a Certificate
+### Renew a certificate
 
 Certificate renewal is easy, and is authenticated using the existing private key:
 
@@ -176,7 +176,7 @@ When it comes time to renew your certificate, do not dawdle: Once a certificate 
 
 Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
-### Adjust Certificate Lifetimes
+### Adjust certificate lifetimes
 
 The 24 hour default validity window for certificates from `step-ca` is arbitrary. Depending on your threat model and use context, you may want much shorter or much longer certificate lifetimes:
 - Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
@@ -207,7 +207,7 @@ Note that default maximum certificate duration is 24 hours. To adjust the global
 You can also set default, minimum, and maximum certificate durations on each provisioner.
 See [Basic Configuration Options](./configuration.mdx#basic-configuration-options) for more details.
 
-### Revoke a Certificate
+### Revoke a certificate
 
 You cannot "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
 
@@ -223,7 +223,7 @@ Certificate with Serial Number 30671613121311574910895916201205874495 has been r
 
 For more on this topic, read [All About Certificate Revocation](./revocation.mdx).
 
-## Working With SSH Certificates
+## Working with SSH certificates
 
 In this section we'll go over the basics of issuing and renewing SSH certificates for users and hosts.
 
@@ -265,7 +265,7 @@ Add this to key your SSHD configuration. On your host, run:
 
 ```shell-session
 $ cat <<EOF >> /etc/ssh/sshd_config
-# This is the CA's public key for authenticating user certificates:
+# This is the ca's public key for authenticating user certificates:
 TrustedUserCAKeys /path/to/ssh_user_key.pub
 EOF
 ```
@@ -409,7 +409,7 @@ Your SSH client will now trust any host with a valid certificate signed by the C
 
 You're all done. Now test your SSH connection.
 
-## Next Steps
+## Next steps
 
 * Learn to automate certificate management in your PKI. [ACME Basics](./acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
 * See [Provisioners](./provisioners.mdx), [Production Considerations](./certificate-authority-server-production.mdx), and our [Configuration Guide](./configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.

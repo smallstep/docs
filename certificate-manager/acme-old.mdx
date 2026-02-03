@@ -24,7 +24,7 @@ At a high level, ACME is pretty simple. An ACME client creates an account with a
 
 The most interesting part of all of this is the challenge – where the client proves control over an identifier. No single standard way exists to "prove control" over an "identifier", so the core ACME specification makes this an extension point. Smallstep supports all the popular ACME challenges including DNS, HTTP, ALPN, IP, and EAB configurations. 
 
-### ACME Challenge Verification
+### ACME challenge verification
 When public ACME Certificate Authorities (CA) like Let's Encrypt issue certificates to clients in the Web PKI, the CA depends heavily on public DNS for client verification. To get a certificate, a client must prove to the CA that it either directly controls the public DNS records for a domain (for the DNS-01 challenge type) or controls the IP address pointed to by public DNS records (for the HTTP-01 and TLS-ALPN-01 challenge types).
 
 ![ACME Registration Authority](/graphics/ia-cloud-ra-challenge-client.svg "In this example, the Smallstep ACME RA runs within the local network or VPC and responds to ACME requests from internal infrastructure and workloads. The RA accepts ACME orders and authenticates requests by verifying an ACME challenge. Upon verification, a CSR is securely passed to the Issuing Authority to sign and catalog.")

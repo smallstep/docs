@@ -18,7 +18,7 @@ With certificate templates, you can do things like:
 - Use SSH certificate extensions like `force-command` or `source-address`
 - Add conditionals around a certificate's parameters, and fail if they are not met
 
-## On This Page
+## On this page
 
 - [Template Syntax Overview](#template-syntax-overview)
 - [Time formatting](#time-formatting)
@@ -31,7 +31,7 @@ With certificate templates, you can do things like:
 - [SSH Template Examples](#ssh-template-examples)
 - [Even More Templates](#even-more-templates)
 
-## Template Syntax Overview
+## Template syntax overview
 
 Certificate templates are JSON documents
 that describe the most important properties in the final certificate or certificate request.
@@ -70,7 +70,7 @@ In addition to the time formatting functions offered by [Sprig](http://mastermin
 | `toTimeLayout "time.UnixDate"` | Example output: `Mon Jan _2 15:04:05 MST 2006` |
 
 
-## Configuring `step-ca` to Use Templates
+## Configuring `step-ca` to use templates
 
 How you add templates to `step-ca` depends on
 whether you have enabled [remote provisioner management](./provisioners.mdx#remote-provisioner-management).
@@ -178,7 +178,7 @@ step ca provisioner update google --ssh-template ./templates/google.tpl
 
 See [`step ca provisioner update`](https://smallstep.com/docs/step-cli/reference/ca/provisioner/update/) for more options.
 
-## X.509 Templates
+## X.509 templates
 
 X.509 templates can be used in two places:
 1. In a CLI CA, via [`step certificate create`](../step-cli/reference/certificate/create/) or [`step certificate sign`](../step-cli/reference/certificate/sign/).
@@ -199,13 +199,13 @@ Here's what the default X.509 [leaf certificate template](https://github.com/sma
 }
 ```
 
-### X.509 Template Fields
+### X.509 template fields
 
 The fields available in an X.509 template
 map to [X.509 v3 certificate fields](https://datatracker.ietf.org/doc/html/rfc5280).
 See [the complete list of fields supported in `step-ca` templates](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L16).
 
-### X.509 Template Variables
+### X.509 template variables
 
 <Alert severity="info" id="star11">
   <div>
@@ -302,7 +302,7 @@ You can also import values
 from the `"templateData"` object
 in your provisioner's [configuration block](#configuring-step-ca-to-use-templates).
 
-### ASN.1 Values
+### ASN.1 values
 
 _This is section is for advanced use cases that require
 custom extensions or special encodings of data inside certificates.
@@ -419,7 +419,7 @@ Creates an ASN.1 `SET` of values.
 asn1Set (asn1Enc "foo") (asn1Enc "int:123") ...
 ```
 
-## SSH Templates
+## SSH templates
 
 `step-ca` also supports SSH certificate templates.
 Here is `step-ca`'s default [SSH certificate template](https://github.com/smallstep/crypto/blob/162770cad29063385cb768b0191814e4c6a94e45/sshutil/templates.go#L144):
@@ -434,13 +434,13 @@ Here is `step-ca`'s default [SSH certificate template](https://github.com/smalls
 }
 ```
 
-### SSH Template Fields
+### SSH template fields
 
 The [OpenSSH certificate protocol spec](https://datatracker.ietf.org/doc/draft-miller-ssh-cert/) defines SSH certificate fields and the available Critical Options and Extensions.
 Third parties can also add custom extensions.
 See [the complete list of fields supported by `step-ca` SSH template](https://github.com/smallstep/crypto/blob/master/sshutil/certificate.go#L16).
 
-### SSH Template Variables
+### SSH template variables
 
 Here are the most relevant parameters available in SSH certificate template:
 - **.Token**:
@@ -512,7 +512,7 @@ from your provisioner's [configuration block](#configuring-step-ca-to-use-templa
   </div>
 </Alert>
 
-### Basic X.509 Template Examples
+### Basic X.509 template examples
 
 <Alert severity="info">
   <div>
@@ -522,7 +522,7 @@ from your provisioner's [configuration block](#configuring-step-ca-to-use-templa
   </div>
 </Alert>
 
-#### Leaf Certificates
+#### Leaf certificates
 
 The most common type of certificate you'll want to create is a leaf (or end-entity)
 certificate; this is the type of certificate that your servers or clients will
@@ -597,7 +597,7 @@ SANs, the subject, extensions, etc.
 Finally we also set the extended key usage `serverAuth` and `clientAuth` so the
 certificate can be used in a server application or in a client for mTLS.
 
-#### Intermediate Certificates
+#### Intermediate certificates
 
 An intermediate certificate is a certificate that can be used to sign another
 certificate, and it has itself been signed by another intermediate certificate or by
@@ -643,7 +643,7 @@ step certificate create --template intermediate.tpl \
 "ACME Intermediate CA" intermediate_ca.crt intermediate_ca_key
 ```
 
-#### Root Certificates
+#### Root certificates
 
 A root certificate is a self-signed certificate used to sign other certificates.
 The default root certificate template is:
@@ -684,7 +684,7 @@ step certificate create --template root.tpl "ACME Root CA" root_ca.crt root_ca_k
 </Alert>
 
 
-### Advanced X.509 Template Examples
+### Advanced X.509 template examples
 
 In the previous section,
 we learned how to create and use the basic templates,
@@ -694,7 +694,7 @@ or SSH certificate.
 
 Below, we'll walk through a few advanced templating examples.
 
-#### Certificate Request
+#### Certificate request
 
 Let's start with one of the shortest templates:
 
@@ -711,7 +711,7 @@ certificate subject on `step-ca` if a template is provided in the `ca.json`, and
 it will set the Subject Alternative Name extension to critical if the subject is
 empty.
 
-#### User-Provided Values in Signing Requests
+#### User-provided values in signing requests
 
 In `step-ca`, X.509 templates can also be parameterized with values
 provided by `step` at certificate creation time. A common use case for
@@ -771,7 +771,7 @@ containing the values of the trusted names.
 Besides `"dnsNames"`, you can also use `"emailAddresses"`, `"ipAddresses"`, and
 `"uris"`.
 
-#### Adding Name Constraints
+#### Adding name constraints
 
 Name constraints are useful in intermediate certificates when you want to limit
 the validity of certificates that an intermediate can sign. If we want to only
@@ -835,7 +835,7 @@ write it as a string:
 }
 ```
 
-#### Arbitrary X.509 Extensions
+#### Arbitrary X.509 extensions
 
 SANs, key usages, extended key usages, basic constraints, and name constraints,
 are all extensions in an X.509 certificate. Templates provide an
@@ -880,7 +880,7 @@ For a more human-readable template,
 you can also use [ASN.1 functions](#asn1-values) in the extension `value` field.
 We'll do that in the next example.
 
-#### Deep dive: Certificate Policies
+#### Deep dive: Certificate policies
 
 X.509 Certificate Policies define policy constraints of a certificate.
 They help relying parties determine the trustworthiness of a certificate,
@@ -956,9 +956,9 @@ A full configuration of `step-ca` and OpenVPN is available in our blog post
 ["Announcing X.509 Certificate
 Flexibility"](https://smallstep.com/blog/x509-certificate-flexibility/)
 
-### SSH Template Examples
+### SSH template examples
 
-#### GitHub SSH Certificates
+#### GitHub SSH certificates
 
 With GitHub Enterprise Cloud or GitHub Enterprise Server, you can configure GitHub to use SSH certificates.
 Specifically, GitHub will [trust an SSH Certificate Authority for your team](https://docs.github.com/en/free-pro-team@latest/github/setting-up-and-managing-organizations-and-teams/about-ssh-certificate-authorities).
@@ -1080,7 +1080,7 @@ github-cert.pub:
 In production, you would not want to hand out your JWK provisioner password.
 But you could create a token server that interoperates with `step-ca` and injects secure values into the token. 
 
-#### SSH Group Accounts
+#### SSH group accounts
 
 Let's say your organization has shared group accounts on your hosts (eg. "dba" or "devops").
 You'd want to be able to issue people in those groups a certificate that contains their user principals ("carl", "carl@smallstep.com"),
@@ -1106,7 +1106,7 @@ This is a good example of the use of [Sprig functions](https://masterminds.githu
 
 Finally, test out your flow with [`step ssh login`](../step-cli/reference/ssh/login), and use [`step ssh inspect`](../step-cli/reference/ssh/inspect) to check the principals of the certificate you're issued by the CA.
 
-### Even More Templates
+### Even more templates
 
 To delve deeper into certificate templates and all the options, the best source
 of information is the code docs for the [go.step.sm/crypto/x509util

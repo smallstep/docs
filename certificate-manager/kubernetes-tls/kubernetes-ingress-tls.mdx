@@ -25,11 +25,11 @@ An **Admission Controller** intercepts requests to the Kubernetes API server and
 
 An **Ingress Controller** is a type of Admission Controller that gets called when an `Ingress` resource is created, updated, or deleted, and manages the proxy.
 
-### Our Recommendation
+### Our recommendation
 
 When connecting anything outside Kubernetes to services inside Kubernetes, we recommend securing your Ingress resources by using Smallstep Certificate Manager in combination with [`step-issuer`](https://github.com/smallstep/step-issuer) and [Kubernetes’ cert-manager](https://cert-manager.io/docs/) utility. [You can find the detailed instructions here.](./kubernetes-step-issuer.mdx)
 
-### Extra Credit: I want Mutual TLS
+### Extra credit: I want mutual TLS
 
 We often talk with users who want to enable mutual TLS authentication (mTLS) for these connections. To add mutual TLS, in addition to issuing server certificates for your Ingress Controllers, you need to issue certificates to the clients connecting into your Kubernetes cluster. These clients could be humans, applications using an API, external services, or any other workload that needs to interact with the cluster.
 

@@ -60,7 +60,7 @@ adds an authorization layer,
 using pre-registered client credentials.
 This feature is available in Smallstep's commercial CA software.
 
-## A Typical ACME Flow
+## A typical ACME flow
 
 Here's how an ACME client might request an X.509 certificate from a CA.
 
@@ -73,7 +73,7 @@ Here's how an ACME client might request an X.509 certificate from a CA.
 
 The ACME API for certificate requests requires an HTTPS connection between the client and CA.
 
-## ACME Challenge Types
+## ACME challenge types
 
 No single standard way exists to prove control over an identifier, so the
 core ACME specification makes this an extension point.
@@ -87,7 +87,7 @@ Device ID            |  𝗫  |  𝗫  |  𝗫  |  ✔️
 
 A Device ID may be a device's serial number, or another identifier assigned at manufacture.
 
-### The HTTP Challenge (http-01)
+### The HTTP challenge (http-01)
 
 The ACME CA challenges the client to host a random number at a random URL under `/.well-known/acme-challenge` on port 80. The CA verifies client control by issuing an HTTP GET request to that URL.
 
@@ -97,7 +97,7 @@ This is a good general-purpose challenge type.
 By hosting the challenge response via HTTP on port 80, the client proves its control over a protected port on the domain being requested.
 The `http-01` challenge type is the easiest to set up, because any web server will let you host the challenge response as a static file.
 
-### The DNS Challenge (dns-01)
+### The DNS challenge (dns-01)
 
 The ACME CA challenges the client to provision a random DNS `TXT` record for the domain in question. It verifies the challenge by querying DNS for that `TXT` record.
 
@@ -117,11 +117,11 @@ The client presents a self-signed TLS certificate containing the challenge respo
 This challenge type is useful when a security policy requires the CA to reach the client via a TLS connection.
 This is a popular challenge type in cases where an ingress controller fronts clients attempting to receive a certificate.
 
-### The Device Attestation Challenge (device-attest-01)
+### The device attestation challenge (device-attest-01)
 
 The device attestation challenge (`device-attest-01`) is designed to issue client certificates bound to a device identifier.
 
-It allows clients with an attached security module (TPM, Secure Enclave, Yubikey, etc) to request a certificate bound to the security module's permanent hardware identifier. It can also be used to attest the hardware protection of a private key in the security module.
+It allows clients with an attached security module (TPM, Secure Enclave, YubiKey, etc) to request a certificate bound to the security module's permanent hardware identifier. It can also be used to attest the hardware protection of a private key in the security module.
 
 Further reading:
 * [Managed Device Attestation: ACME as the Bottom Turtle in Mobile Device Management](https://smallstep.com/blog/managed-device-attestation/)
@@ -158,7 +158,7 @@ Finalizing Order .. done!
 ```
 
 
-## Next Steps
+## Next steps
 
 - Start tailoring `step-ca` to your infrastructure. See [Provisioners](./provisioners.mdx), [Production Considerations](./certificate-authority-server-production.mdx), and our [Configuration Guide](./configuration.mdx).
 - Tutorial: Learn [how to configure the most popular ACME clients](../tutorials/acme-protocol-acme-clients.mdx) to connect to a `step-ca` server.

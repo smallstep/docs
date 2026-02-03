@@ -31,7 +31,7 @@ This document lists, briefly describes, and links to documentation for all
 [oidc]: https://openid.net/connect/
 [autocert]: https://github.com/smallstep/autocert
 
-## Protocols and Platforms
+## Protocols and platforms
 
 ### ACME
 
@@ -61,7 +61,7 @@ Learn more about how to [configure an OIDC provisioner][configure-oidc].
 
 [configure-oidc]: ./provisioners.mdx#oauthoidc-single-sign-on
 
-### Cloud Instance Identity
+### Cloud instance identity
 
 Cloud Instance Identity Documents (IIDs) are cryptographically signed blobs of
 information about a host that are often used by workloads to authenticate one another
@@ -90,7 +90,7 @@ The [Nebula](https://github.com/slackhq/nebula) networking service supports encr
 
 `step-ca` has a [Nebula provisioner](./provisioners.mdx) that can exchange Nebula host certificates issued by your Nebula CA for TLS or SSH certificates that have the same SANs or principals. Use this provisioner to simplify host enrollment on a Nebula network.
 
-### Envoy Secret Discovery Service (SDS)
+### Envoy secret discovery service (SDS)
 
 `step-sds` implements the server-side API of [Envoy SDS][envoy-sds], which
 pushes certificates to the client. Both mTLS and Unix Domain Socket
@@ -101,9 +101,9 @@ Learn more about how to [install and configure `step-sds`][step-sds].
 [step-sds]: https://github.com/smallstep/step-sds
 [envoy-sds]: https://www.envoyproxy.io/docs/envoy/latest/configuration/security/secret
 
-## Cryptographic Protection
+## Cryptographic protection
 
-### Cloud Key Management Services
+### Cloud key management services
 
 Cloud Key Management Services allow users to store cryptographic keys and sign certificates
 using cloud storage and APIs.

@@ -1,6 +1,6 @@
 ---
 title: Configure Your VPN Client For Certificate-Based VPN With Smallstep
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 html_title: How to configure common VPN servers to use Smallstep for client and server certificate authentication.
 description: This tutorial describes how to configure VPN servers for a high-security, certificate-based VPN with Smallstep.
 ---
@@ -30,7 +30,7 @@ For Apple devices using MDM, see [VPN settings overview for Apple devices](https
 For Windows, see [Connect to a VPN in Windows](https://support.microsoft.com/en-us/windows/connect-to-a-vpn-in-windows-3d29aeb1-f497-f6b7-7633-115722c1009c)
 
 
-## F5 Edge and F5 Access Clients
+## F5 edge and F5 access clients
 
 Intended audience: Enterprise IT administrators
 Estimated time commitment: 1 hour
@@ -55,7 +55,7 @@ For a complete setup, you will add the following to your F5 BIG-IP® configurati
     
 - A Virtual Server which will serve your VPN traffic. This is where you’ll configure the mutual TLS handshake for your VPN server. The Virtual Server will accept client certificates from Smallstep, and use a server certificate from Smallstep.
 
-### Access Profile
+### Access profile
 
 The Access Profile defines the certificate authentication flow and VPN settings for F5 BIG-IP®.
 
@@ -89,7 +89,7 @@ Next, you’ll configure the TLS handshake for your VPN. You’ll add the follow
 - Virtual Server Configurations for ports 80 and 443
     - F5 Menu: Local Traffic → Virtual Servers
 
-### Certificates and Certificate Authorities
+### Certificates and certificate authorities
 
 Now let’s configure CAs and Certificates on the BIG IP.
 
@@ -136,7 +136,7 @@ These instructions will help you create and import a certificate and key manuall
 
 You should now see the EC Certificate & Key you uploaded, in the SSL Certificate List.
 
-### Virtual Servers
+### Virtual servers
 
 Now you’ll associate your Access Policy to a Virtual Server
 
@@ -199,11 +199,11 @@ Further reading:
 
 ---
 
-### Creating an Access Profile manually
+### Creating an access profile manually
 
 If you want to create an Access Profile manually instead of importing one, do the following:
 
-### Add a Network Access List
+### Add a network access list
 
 1. Go to Access → Connectivity / VPN → Network Access (VPN) → Network Access Lists
 2. Choose “Create…”
@@ -212,7 +212,7 @@ If you want to create an Access Profile manually instead of importing one, do th
     - Customize the Customization Settings as desired
 3. Choose “Finished”
 
-### Add an IPv4/IPv6 Lease Pool
+### Add an IPv4/IPv6 lease pool
 
 Add at least one lease IPv4 or IPv6 lease pool:
 
@@ -222,7 +222,7 @@ Add at least one lease IPv4 or IPv6 lease pool:
     - Start IP: `192.168.133.2`, for example
     - End IP: `192.168.133.254`, for example
 
-### Add an Access Profile
+### Add an access profile
 
 1. Go to Access → Profiles / Policies and create an Access Profile
     - Name: `smallstep-vpn`

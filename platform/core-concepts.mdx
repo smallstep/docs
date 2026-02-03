@@ -9,7 +9,7 @@ Device Identity ensures that only company-owned devices can access your enterpri
 
 This document describes the core concepts integral to the Smallstep platform.
 
-## Device Inventory
+## Device inventory
 
 The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers. It forms the basis of your device-based authentication policies. 
 
@@ -62,11 +62,11 @@ See our [Enrollment Guide](https://smallstep.com/docs/platform/enrollment-guide/
     BYO devices pose a privacy challenge: Unique hardware identifiers cannot not be exposed to the organization when a device is used for both personal and organizational work. But, as long as we have a continuity of device identity across interactions with BYO devices, we don’t need to use permanent hardware identifiers. Instead, cryptographically secure software identifiers—scoped to the organization—can form a foundation for policy and authentication. BYO device identifiers aren’t usable for trust bootstrapping, though. The device’s owner will need to prove possession of the device before its identity can be trusted. 
 </Alert>
 
-## Smallstep Agent
+## Smallstep agent
 
 Once you have a high-assurance device inventory, you still need enrollment, renewal, and revocation of certificates for those devices. That’s where the **Smallstep Agent** comes in. The Smallstep Agent is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources.
 
-## Device Bootstrapping and Enrollment
+## Device bootstrapping and enrollment
 
 The Smallstep Agent uses a **provisional identity** (eg. an SCEP certificate issued via MDM) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
 
@@ -120,7 +120,7 @@ On Apple platforms, Smallstep can be used without our agent software, with some 
 
 Here’s an ACME Device Attestation enrollment workflow on an Apple device:
 
-### ACME-based MDM Enrollment (agentless)
+### ACME-based MDM enrollment (agentless)
 
 ```mermaid
 sequenceDiagram
@@ -140,7 +140,7 @@ sequenceDiagram
 
 Here’s a Windows device doing a SCEP-based enrollment with Intune:
 
-### SCEP-Based MDM Enrollment (agentless)
+### SCEP-based MDM enrollment (agentless)
 
 ```mermaid
 sequenceDiagram
@@ -157,7 +157,7 @@ sequenceDiagram
 
 After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, Network Relays, VPNs, S/MIME, or client certificates for Safari.
 
-# Key Protection
+# Key protection
 
 Now let’s turn our attention toward the client credentials issued by Smallstep.
 
@@ -242,7 +242,7 @@ Due to uneven support for hardware protection and attestation across operating s
 
 For example, Apple platforms support device attested keys for Enterprise Wi-Fi certificates. But Windows has no native ACME Device Attestation support, so we can only offer Smallstep attested keys for Enterprise Wi-Fi on Windows.
 
-## Resource Protection Patterns
+## Resource protection patterns
 
 Now let’s look at the other end of the handshake:
 What happens at the enforcement point?

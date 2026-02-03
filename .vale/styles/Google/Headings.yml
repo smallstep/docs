@@ -6,24 +6,96 @@ scope: heading
 match: $sentence
 indicators:
   - ":"
+  - " - "
 exceptions:
+  # Proper nouns - company/product names that are ALWAYS capitalized
+  - Apache
   - Azure
-  - CLI
-  - Cosmos
+  - AWS
+  - BoltDB
+  - CentOS
+  - CFSSL
+  - Chrome
+  - ChromeOS
+  - CloudCAS
+  - DevOps
   - Docker
-  - Emmet
+  - Entra
+  - Fedora
+  - Firefox
+  - Golang
+  - Google
   - gRPC
+  - HashiCorp
   - I
+  - Intune
+  - JSON
   - Kubernetes
+  - LEGO
   - Linux
   - macOS
-  - Marketplace
   - MongoDB
-  - REPL
-  - Studio
+  - MySQL
+  - NGINX
+  - Okta
+  - OpenID
+  - OpenVPN
+  - PostgreSQL
+  - RHEL
+  - Rocky
+  - Scoop
+  - Smallstep
+  - StepCAS
   - TypeScript
-  - URLs
-  - Visual
+  - Ubuntu
+  - Vault
   - VS
   - Windows
-  - JSON
+  - X.509
+  - YubiKey
+  - YubiKeys
+  # Acronyms that are ALWAYS uppercase
+  - ACME
+  - ACLs
+  - ALPN
+  - API
+  - ASN
+  - CA
+  - CAs
+  - CAS
+  - CLI
+  - DNS
+  - GIDs
+  - HSMs
+  - HTTP
+  - HTTPS
+  - HUP
+  - IPs
+  - JWKs
+  - JWTs
+  - K8sSA
+  - KMS
+  - MDM
+  - MFA
+  - mTLS
+  - NSS
+  - OAuth
+  - OIDC
+  - PAM
+  - PKI
+  - RA
+  - REPL
+  - SCEP
+  - SSH
+  - SSHD
+  - SSO
+  - TLS
+  - TOTP
+  - TPM
+  - UIDs
+  - URIs
+  - URL
+  - URLs
+  - VPN
+  - X5C
+  - ZTNA

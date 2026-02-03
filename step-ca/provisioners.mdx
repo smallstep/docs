@@ -27,7 +27,7 @@ In this section we'll discuss the different provisioners, their target use cases
   - [K8sSA - Kubernetes Service Account](#k8ssa---kubernetes-service-account)
   - [Cloud Provisioners](#cloud-provisioners)
 
-## Choosing a Provisioner
+## Choosing a provisioner
 
 When choosing a provisioner for your use case,
 you can narrow your options by starting from
@@ -59,7 +59,7 @@ ACME `device-attest-01` | Security hardware manufacturer (Apple, Infineon, Yubic
 Cloud Provisioners      | Your cloud provider (AWS, GCP, Azure)
 SCEP                    | Shared secret bearers
 
-## Authorization Scope by Provisioner
+## Authorization scope by provisioner
 
 Every provisioner has a slightly different scope of authorization. Below is a
 table detailing the authorization capabilities of each provisioner.
@@ -95,7 +95,7 @@ user certificates.
 It's important to understand the capabilities and limitations when selecting a 
 provisioner for a given workload.
 
-## Provisioner Management
+## Provisioner management
 
 Use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) command group to add, remove, or modify provisioner configurations. Run these commands directly on your CA machine. They need to modify the `$(step path)/config/ca.json` configuration file.
 
@@ -120,7 +120,7 @@ or if you want to manage your provisioners remotely (eg. with Infrastructure as 
 
 See [Remote Provisioner Management](#remote-provisioner-management) for more.
 
-### Common Provisioner Operations
+### Common provisioner operations
 
 Common provisioner operations include:
 
@@ -173,7 +173,7 @@ Provisioner configuration can be used to affect X.509 and SSH certificate lifeti
 Some provisioner-specific options exist,
 which are covered by the documentation for each provisioner type, below.
 
-## Remote Provisioner Management
+## Remote provisioner management
 
 **This feature is disabled by default.**
 
@@ -182,16 +182,16 @@ stored in the database, rather than in `ca.json`.
 Provisioner configuration is managed by running [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands locally or remotely.
 These commands require you to sign in as an Admin user.
 
-### Enable Remote Provisioner Management
+### Enable remote provisioner management
 
-#### On a New CA
+#### On a new CA
 
 To enable remote provisioner management on a new CA, pass `--remote-management` to `step ca init`. This will:
 
 * Add an initial [JWK](#jwk) provisioner called Admin JWK to the database.
 * Create an initial Super Admin user, with default username `step`, and link it to the Admin JWK provisioner.
 
-#### On an Existing CA
+#### On an existing CA
 
 To migrate your `ca.json` provisioners to the database, and to enable remote provisioner management on an existing CA:
 
@@ -225,13 +225,13 @@ To migrate your `ca.json` provisioners to the database, and to enable remote pro
    },
    ```
   
-### Managing Admin Users
+### Managing admin users
 
 With remote provisioner management,  
 "Admins" can remotely manage provisioners.  
 "Super Admins" are Admins that can also manage the list of Admins for the CA using [`step ca admin`](../step-cli/reference/ca/admin).
 
-#### Create An Admin User
+#### Create an admin user
 
 To perform CA administrative operations, you sign into that provisioner as an Admin.
 
@@ -267,13 +267,13 @@ The Admin and Super Admin privileges **are not scoped to a provisioner**:
 Admins can modify any provisioner configurations.
 Super Admins are Admins that can also modify Admins, regardless of provisioner.
 
-### Use Remote Provisioner Management
+### Use remote provisioner management
 
 You're all set. 🎉
 
 You can use the [`step ca provisioner`](../step-cli/reference/ca/provisioner) commands, from any client, to modify your CA's provisioner configuration.
 
-#### Unattended Remote Provisioner Management
+#### Unattended remote provisioner management
 
 If you want to manage provisioners remotely using a script or an Infrastructure as Code (IaC) tool,
 you will need an _administrative certificate_ and key.
@@ -313,7 +313,7 @@ step ca admin add ... --admin-cert=admin.crt --admin-key=admin_key
 ```
 
 
-## Provisioner Types
+## Provisioner types
 
 ### JWK
 
@@ -543,7 +543,7 @@ To remove this key:
    killall -i -s SIGHUP step-ca
    ```
 
-### OAuth/OIDC Single Sign-on
+### OAuth/OIDC single sign-on
 
 Sometimes it's useful to issue certificates to people.
 So `step-ca` supports single sign-on with identity providers (IdPs) like Google, Okta, Microsoft Entra ID, Keycloak, 
@@ -613,13 +613,13 @@ Valid from:  2019-06-20T18:21:52Z
         to:  2019-06-21T18:21:52Z`}
 </CodeBlock>
 
-#### Configuring your identity provider (IdP)
+#### Configuring your identity provider (idp)
 
 When creating an OAuth app, there isn't much to configure on the IdP.
 Most providers will ask you to specify a Redirect URI, where the ID token will be delivered at the end of the OAuth flow.
 Since `step` starts its own local web server to receive the token, use `http://127.0.0.1` as the Redirect URI.
 
-#### Example: Google Identity
+#### Example: Google identity
 
 One of the most common providers, and the one used in the following example, is [Google Identity](https://developers.google.com/identity/protocols/oauth2/openid-connect).
 
@@ -687,7 +687,7 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 <Footnote id="star3" marker="*">Optional</Footnote>
 
-#### Browserless Console Mode
+#### Browserless console mode
 
 For OpenID Connect, by default, `step` opens a web browser to run the Authorization Code flow with PKCE.
 
@@ -737,7 +737,7 @@ $ STEP_CONSOLE=true step ssh certificate carl carl.crt
 * Tutorial: [Use Keycloak to issue user certificates with step-ca](../tutorials/keycloak-oidc-provisioner.mdx)
 * Tutorial: [Connect your identity provider and issue X.509 certificates for user authentication to services](../tutorials/user-authentication.mdx)
 
-### X5C - X.509 Certificate
+### X5C - X.509 certificate
 
 With the X5C provisioner, a client can authenticate a certificate request
 using an existing X.509 certificate from a different CA.
@@ -868,7 +868,7 @@ step ca certificate host3.example.com host3.crt host3.key \
 	--san 192.168.100.3
 ```
 
-### SSHPOP - SSH Certificate
+### SSHPOP - SSH certificate
 
 An SSHPOP provisioner allows a client to renew, revoke, or rekey an SSH
 certificate using that certificate for authentication with the CA.
@@ -1011,9 +1011,9 @@ see the [claims](configuration.mdx#claims) section for all the options.
 See [ACME Basics](./acme-basics.mdx)
 for more guidance on configuring and using the ACME protocol with `step-ca`.
 
-#### ACME for Device Attestation
+#### ACME for device attestation
 
-##### 🚧 Read before digging
+##### 🚧 read before digging
 
 `step-ca` is focused on being a great CA for protecting cloud resources and DevOps workloads.
 It is not a complete solution for device identity.
@@ -1063,7 +1063,7 @@ in `tpm`, `apple`, and `step` formats.
   </div>
 </Alert>
 
-##### Device Attestation for Apple Devices
+##### Device attestation for Apple devices
 
 To add a `device-attest-01` provisioner
 for use with [Managed Device Attestation](https://support.apple.com/guide/deployment/managed-device-attestation-dep28afbde6a/web) on Apple devices,
@@ -1088,7 +1088,7 @@ In your Apple MDM profile, you will need:
 * An [`ACMECertificate`](https://developer.apple.com/documentation/devicemanagement/acmecertificate) payload. For this one, set the `ClientIdentifier` to the UDID or serial number of the device. 
 * Set `HardwareBound` to `true`
 
-##### Device Attestation for YubiKeys
+##### Device attestation for YubiKeys
 
 To add a `device-attest-01` provisioner for YubiKey devices, run:
 
@@ -1132,7 +1132,7 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
    }
    ```
 
-##### Device Attestation for TPM 2.0
+##### Device attestation for TPM 2.0
 
 While `step-ca` supports the `tpm` attestation format of ACME `device-attest-01`,
 an end-to-end TPM-bound client certificate flow is not available at this time.
@@ -1152,7 +1152,7 @@ TPMs also have privacy constraints and a wide range of use case-specific validat
   </div>
 </Alert>
 
-#### ACME for Wire messenger clients
+#### ACME for wire messenger clients
 
 <Alert severity="warning">
   <div> 
@@ -1268,7 +1268,7 @@ Because [`step ca init`](../step-cli/reference/ca/init) creates an ECDSA chain b
   Consult the documentation of your SCEP client for specific configuration required or ask us on <a href="https://u.step.sm/discord">Discord</a> or in <a href="https://github.com/smallstep/certificates/discussions">GitHub Discussions</a> if you hit a blocker.
 </Alert>
 
-#### Configure the Provisioner
+#### Configure the provisioner
 
 In this example, we will add a SCEP provisioner using challenge secret `secret1234` and `AES-256-CBC` as the [encryption algorithm](https://github.com/smallstep/pkcs7/blob/33d05740a3526e382af6395d3513e73d4e66d1cb/encrypt.go#L63):
 
@@ -1310,7 +1310,7 @@ If you don't want to rely on a single, static secret, you can [configure a `SCEP
 When a SCEP client requests a certificate, the webhook server will receive a request with the `scepChallenge` and `scepTransactionID` properties from the SCEP request.
 The webhook server can then decide if the request is allowed or not.
 
-#### Enable the HTTP Server
+#### Enable the HTTP server
 
 By default SCEP will only be served via HTTPS.
 Most SCEP clients use HTTP, so you will most likely need your CA to listen using HTTP too, which it does not do by default. 
@@ -1329,7 +1329,7 @@ Your SCEP provisioner is now available at the endpoint `http://ca.example.com:80
 	**Note:** Some SCEP clients expect a specific path segment at the end of the SCEP URL (Cisco Catalyst switches, for example). For compatibility with these clients, the SCEP provisioner is also made available at any path segment beneath the configured provisioner endpoint.
 </Alert>
 
-### K8sSA - Kubernetes Service Account
+### K8sSA - Kubernetes service account
 
 A K8sSA provisioner allows a client to request a certificate from the server
 using a Kubernetes Service Account Token.
@@ -1390,7 +1390,7 @@ see the [claims](configuration.mdx#claims) section for all the options.
 
 <Footnote id="star7" marker="*">Optional</Footnote>
 
-## Cloud Provisioners
+## Cloud provisioners
 
 `step-ca` can be configured to use instance identity documents (IIDs) to authorize certificate signing requests from cloud VMs running on AWS, GCP, or Azure.
 IIDs are signed JSON tokens, created when the instance is launched, and made available via the instance metadata API.
@@ -1431,7 +1431,7 @@ A host can only get one certificate, ever, per IID.
 A host can then renew its certificate using [`step ca renew`](../step-cli/reference/ca/renew).
 If the certificate ever expires, the host will need to use a different provisioner to issue a new one.
 
-### Security Risks and Limitations
+### Security risks and limitations
 
 While IIDs simplify the integration of `step-ca`, the approach comes with risks.
 
@@ -1450,7 +1450,7 @@ but _you cannot assume that the names on the certificate are authentic_.
 
 Because of this, every host in your infrastructure must be trusted.
 
-#### Mitigating the risk of IIDs
+#### Mitigating the risk of iids
 
 Here are some things you can do to mitigate risk when using IIDs:
 - **Configure the provisioner with `instanceAge`.**

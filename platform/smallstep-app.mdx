@@ -1,5 +1,5 @@
 ---
-updated_at: January 27, 2026
+updated_at: February 03, 2026
 title: The Smallstep Agent
 html_title: Smallstep Agent User Documentation Guide
 description: Complete guide to the Smallstep Agent for enterprise security workflows. Manage certificates, devices, and identity from a unified interface.
@@ -29,7 +29,7 @@ Installers for macOS, Windows and Linux can be also be downloaded from [GitHub r
 | Linux (.rpm) | <a href='https://packages.smallstep.com/stable/rpm/smallstep-desktop.rpm'>Latest Version</a>  |
 | Windows  | <a href='https://packages.smallstep.com/stable/windows/Smallstep.exe'>Latest Version</a>  |
 
-## System Requirements
+## System requirements
 
 ### Windows
 
@@ -49,7 +49,7 @@ Installers for macOS, Windows and Linux can be also be downloaded from [GitHub r
 - macOS 13 (Ventura) or later
 - Secure Enclave
 
-## Runtime Requirements
+## Runtime requirements
 
 All platforms require an internet connection for normal operation.
 
@@ -67,7 +67,7 @@ All platforms require an internet connection for normal operation.
 
 - *TPM read/write permission* - the Smallstep Agent communicates to the TPM from user-space using `tpm-tss2`, and the running user must have read/write permissions to the TPM resource manager (typically `/dev/tpmrm0`)
 
-## Connectivity Requirements
+## Connectivity requirements
 
 The Smallstep Agent connects to the following Smallstep hosts:
 - Your CA: `<your-team>.ca.smallstep.com` and subdomains
@@ -75,7 +75,7 @@ The Smallstep Agent connects to the following Smallstep hosts:
 - Smallstep API: `gateway.smallstep.com`
 - TPM Attestation CA: `att.smallstep.com`
 
-## File Access
+## File access
 
 On all platforms, the Smallstep Agent creates and manages a directory on the filesystem in a well-known location for management of keys and certificates. However, it does not access any other file on a device except the one it creates.
 

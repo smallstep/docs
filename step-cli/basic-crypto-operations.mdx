@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Basic Crypto Operations Using `step`
 html_title: Basic Cryptographic Operations Complete Guide
 description: Perform essential cryptographic operations using step CLI. Generate keys, create certificates, and manage secure communications.
@@ -57,7 +57,7 @@ step certificate create "Example Intermediate CA 1" \
 
 Now you can store your `root_ca.key` in a safe place offline, because you'll only need the intermediate CA key to issue TLS leaf certificates.
 
-### Issue a Leaf Certificate Bundle
+### Issue a leaf certificate bundle
 
 Use your intermediate CA to sign leaf (end entity) certificates for your servers.
 
@@ -86,7 +86,7 @@ $ step certificate verify example.com.crt --roots root_ca.crt
 </ul>
 </Aside>
 
-### Inspect an X.509 Certificate
+### Inspect an X.509 certificate
 
 To inspect the certificate you just made, run:
 
@@ -112,7 +112,7 @@ $ step certificate inspect https://smallstep.com --format json | jq -r .validity
 2020-11-13T07:09:47Z
 ```
 
-## Get a TLS Certificate From Let's Encrypt
+## Get a TLS certificate from Let's Encrypt
 
 `step` is a full-fledged ACME client (the protocol used by [Let's Encrypt](https://letsencrypt.org/). Unlike other ACME clients, `step` connects to a configured `step-ca` daemon by default. To use it with Let's Encrypt or another ACME server instead, you can pass an `--acme` endpoint:
 
@@ -131,7 +131,7 @@ If you don't want `step` to run a standalone server to respond to the ACME chall
 
 For a dry run, you can use Let's Encrypt's staging server URL: `https://acme-staging-v02.api.letsencrypt.org/directory`
 
-## Generate JSON Web Tokens (JWTs) and JSON Web Keys (JWKs)
+## Generate JSON web tokens (JWTs) and JSON Web Keys (JWKs)
 
 The following command groups work with JOSE objects like JWTs and JWEs:
 * [`step crypto jwt`](./reference/crypto/jwt)
@@ -176,13 +176,13 @@ We can then verify the JWT and return the payload:
 }`}
 </CodeBlock>
 
-## Obtain and Work With OAuth Tokens
+## Obtain and work with OAuth tokens
 
 The [`step oauth`](./reference/oauth/) command group supports API authorization and single sign on with OAuth and OIDC.
 
 This command group requires that you supply your own OAuth provider URL, client ID, and client secret.
 
-### Obtain OAuth OIDC Identity Tokens
+### Obtain OAuth OIDC identity tokens
 
 In this example, we'll sign into Google and get an OIDC identity token. Replace the `--client-id` and `--client-secret` with your own values obtained from Google Cloud Console's [APIs & Services](https://console.cloud.google.com/apis/credentials) menu.
 
@@ -205,9 +205,9 @@ $ echo $TOKEN | step crypto jwt verify \
   --aud 1087160488420-8qt7bavg3qesdhs6it824mhnfgcfe8il.apps.googleusercontent.com
 ```
 
-## Miscellaneous Tools (TOTP Tokens, NaCl, SSH Certificates)
+## Miscellaneous tools (TOTP tokens, nacl, SSH certificates)
 
-### Generate TOTP Tokens for Multi-Factor Authentication (MFA)
+### Generate TOTP tokens for multi-factor authentication (MFA)
 
 With [`step crypto otp`](./reference/crypto/otp), you can generate a [TOTP](https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm) token and a QR code:
 
@@ -223,11 +223,11 @@ Scan the QR Code using Google Authenticator, Authy, or similar software and use 
 step crypto otp verify --secret smallstep.totp
 ```
 
-### Sign and Encrypt Arbitrary Data
+### Sign and encrypt arbitrary data
 
 You can use the [`step crypto nacl`](./reference/crypto/nacl) command group to sign or encrypt arbitrary data for internal use. This command group uses the [NaCl library](https://nacl.cr.yp.to/)'s high-speed crypto primitives.
 
-### Work with SSH Certificates
+### Work with SSH certificates
 
 The [`step ssh`](./reference/ssh/) command group is usually used in conjunction with `step-ca`'s SSH CA functionality. But not all the subcommands require an SSH CA. You can inspect an SSH certificate:
 

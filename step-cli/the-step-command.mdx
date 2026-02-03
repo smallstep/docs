@@ -6,7 +6,7 @@ description: Master the step command for certificate operations. Core concepts a
 ---
 
 
-## Getting Help
+## Getting help
 
 `step` ships with extensive built-in help. To list available options and command groups, run `step` by itself. For help, use `step help <command>` or `step help <command> <subcommand>`.
 
@@ -82,7 +82,7 @@ Here's how contexts are managed under the hood:
 - Client configurations are stored in a `profiles` directory, and CA server configurations and data are stored in an `authorities` directory.
 - Two [`defaults.json`](#configuration-file) files are created: One in the `profiles` tree, and one in the `authorities` tree. They are merged at runtime, and the defaults in `profiles` take precedence.
 
-### Migrating to Contexts
+### Migrating to contexts
 
 No support exists for automatically migrating a single-profile `$STEPPATH` configuration into its own context.
 Enabling contexts will preserve any previously existing configuration or state data in `$STEPPATH`,
@@ -95,6 +95,6 @@ A plugin is an executable file called `step-COMMANDNAME-plugin` located in `$PAT
 For example, a plugin named `$STEPPATH/plugins/step-dns-plugin` will execute when `step dns` is run.
 If you're writing a plugin, please follow our convention for CLI help by implementing eg. `step dns help`.
 
-## Next Steps
+## Next steps
 
 * [Basic Crypto Operations](./basic-crypto-operations.mdx)

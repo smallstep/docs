@@ -92,7 +92,7 @@ Visit the [`step-ca` templates](./templates.mdx) page to learn how to use templa
 Aside from being an online Certificate Authority, `step-ca` has a couple of non-standard modes of operation:
 Registration Authority (RA) mode, and offline mode.
 
-### Registration Authority (RA) mode
+### Registration authority (RA) mode
 
 `step-ca` can operate in Registration Authority (RA) mode.
 An RA is a server that acts as an authentication layer for an upstream signing CA.
@@ -111,7 +111,7 @@ When in RA mode, `step-ca` can peer with three kinds of upstream CA:
 
 To create an RA-based PKI topology, see our [Registration Authority (RA) Mode](./registration-authority-ra-mode.mdx) documentation.
 
-### Offline Mode
+### Offline mode
 
 Sometimes it's useful to access a local CA offline, without running the `step-ca` server.
 For this purpose, the `step` CLI can be used in _offline mode_ (with the `--offline` flag).
@@ -121,7 +121,7 @@ This table shows some of the feature differences between an online `step-ca` ser
 
 ![](/graphics/cas-three-ways.png)
 
-### Example: Offline Mode
+### Example: Offline mode
 
 Let's create a certificate without `step-ca`:
 
@@ -130,6 +130,6 @@ $ step ca init --name "Local CA" --provisioner admin --dns localhost --address "
 $ step ca certificate --offline foo.smallstep.com foo.crt foo.key
 ```
 
-## Next Steps
+## Next steps
 
 - Read the [Getting Started guide](./getting-started.mdx) to set up a CA and get your first certificate.

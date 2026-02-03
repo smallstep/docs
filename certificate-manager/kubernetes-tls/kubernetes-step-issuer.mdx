@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Integrate Certificate Manager, step-issuer, and cert-manager for Kubernetes TLS
 html_title: Deploy Kubernetes Step Issuer for TLS Guide
 description: Install step-issuer in Kubernetes for native certificate management. Integrate with cert-manager for automated TLS provisioning.
@@ -25,7 +25,7 @@ You will need:
 - [`kubectl`](https://kubernetes.io/docs/tasks/tools/#kubectl)
 - [`helm`](https://helm.sh/docs/intro/install/)
 
-## Add a Certificate Manager Provisioner
+## Add a Certificate Manager provisioner
 
 First, we'll add a Certificate Manager provisioner for `step-issuer` to use.
 In this case, we will create a JWK provisioner. 
@@ -64,7 +64,7 @@ Run the [following command](https://smallstep.com/docs/step-cli/reference/ca/pro
 `}
 </CodeBlock>
 
-## Install and Configure `cert-manager`
+## Install and configure `cert-manager`
 
 [`cert-manager`](https://github.com/cert-manager/cert-manager) is a Kubernetes certificate management controller. 
 This important add-on helps issue and renew certificates. 
@@ -147,7 +147,7 @@ cert-manager-webhook-577f77586f-n5q9h      1/1     Running   0          3m17s
 `}
 </CodeBlock>
 
-## Install & Connect `step-issuer`
+## Install & connect `step-issuer`
 
 `step-issuer` is a `cert-manager` `CertificateRequest` controller that signs the certificate requests from the cluster. We’ll need to connect it to your Certificate Manager authority before it can start signing certificates.
 
@@ -390,7 +390,7 @@ conditions:
 
 Now, you are ready to use the TLS certificate in your app.
 
-## Using the Certificate Resource
+## Using the certificate resource
 
 Before supporting CertificateRequest, `cert-manager` supported the resource Certificate; this allows you to create TLS certificates providing only X.509 properties like the common name, DNS, or IP address SANs. `cert-manager` now provides a method to support Certificate resources using CertificateRequest controllers like `step-issuer`.
 

@@ -1,5 +1,5 @@
 ---
-updated_at: January 27, 2026
+updated_at: February 03, 2026
 title: ACME Registration Authority for Smallstep Certificate Manager
 html_title: Deploy ACME RA with Certificate Manager
 description: Deploy ACME Registration Authority with Certificate Manager. Enable distributed ACME certificate issuance at enterprise scale.
@@ -22,14 +22,14 @@ You will need:
 - An Authority in Certificate Manager that will act as your upstream CA
 - A host or Kubernetes cluster where you can run the Registration Authority
 
-## Table of Contents
+## Table of contents
 
 - [Run an RA on Linux](#run-a-registration-authority-on-linux)
   - [Option 1: Use our Linux install script](#option-1-use-our-linux-ra-install-script)
   - [Option 2: Manual RA Setup](#option-2-manual-ra-setup)
 - [Run an RA on Kuberenets](#run-a-registration-authority-on-kubernetes)
 
-## Run a Registration Authority on Linux
+## Run a registration authority on Linux
 
 ### Option 1: Use our Linux RA install script
 
@@ -67,7 +67,7 @@ bash install-step-ra.sh \\
     --dns-names ra.example.com \\
     --listen-address :443`}>
 {`# curl -sSLO https://files.smallstep.com/install-step-ra.sh
-# bash install-step-ra.sh \\
+# Bash install-step-ra.sh \\
     --ca-url https://example.mycompany.ca.smallstep.com \\
     --fingerprint b4fc6b547ca4610b69cfcc53c6933e7a37170476dfe13EXAMPLE92c403f5 \\
     --provisioner-name "acme-ra-jwk" \\
@@ -111,7 +111,7 @@ $ step ca certificate my-hostname.example.com server.crt server.key
 
 We've written a [tutorial for configuring popular ACME clients to use internal ACME](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients).
 
-### Option 2: Manual RA Setup
+### Option 2: Manual RA setup
 
 Setting up an RA manually involves the following steps:
 
@@ -197,7 +197,7 @@ Setting up an RA manually involves the following steps:
 
     We've written a [tutorial for configuring popular ACME clients to use internal ACME](https://smallstep.com/docs/tutorials/acme-protocol-acme-clients).
 
-## Run a Registration Authority on Kubernetes
+## Run a registration authority on Kubernetes
 
 If you're running Kubernetes, you can run an ACME Registration Authority in your cluster. We have a Helm Chart for deploying an RA to Kubernetes. 
 

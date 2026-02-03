@@ -1,4 +1,5 @@
 ---
+updated_at: February 03, 2026
 title: What is Smallstep?
 html_title: What is Smallstep? 
 description: Smallstep is a centralised comprehensive internal PKI toolchain, providing IT/Security/DevOps engineers with everything they need to automate the deployment, and management (renewal, revocation and monitoring) of certificates for a broad range of contexts, use cases and environments.
@@ -25,7 +26,7 @@ With Smallstep, IT/Security/Network Engineers can assign certificates to devices
   </div>
 </Alert>
 
-# Why Cryptographic Attested Device Identity?
+# Why cryptographic attested device identity?
 Many existing solutions provide some flavor of 'device identity' where the device self-reports a unique ID for itself, or the identity is tied to a credential. 
 
 But can such device identity be trusted if an independent infallible entity does not attest to it? Does a credential still significantly identify a device if it can be moved between devices? In such scenarios, we make critical assumptions that our devices and services report information is trustworthy.
@@ -63,7 +64,7 @@ It is a lightweight program that runs in the background on devices and manages e
 
 To get started, [sign up now](https://smallstep.com/signup/).
 
-## For Organisations who do not want to use the Agent
+## For organisations who do not want to use the agent
 
 If for any reason, you cannot have the Smallstep Agent on your devices, Smallstep can still help you get certificates to devices via your MDM using SCEP. This method is less secure than the cryptographic device attestation offered by the ACME device-attest-01 challenge, which is supported by the Smallstep Agent. Regrettably, major MDM providers have yet to adopt ACME device attestation.
 
@@ -93,7 +94,7 @@ Smallstep can also be used as a drop-in replacement for Active Directory Certifi
 - [Why Your Organisation Should Be Migrating From Microsoft AD CS](https://smallstep.com/blog/migrate-from-microsoft-adcs/)
 </aside>
 
-# The Smallstep Ecosystem
+# The Smallstep ecosystem
 
 Depending on what’s best for your infrastructure and current reality, Smallstep offers different deployment options to meets your needs: 
 
@@ -101,7 +102,7 @@ Depending on what’s best for your infrastructure and current reality, Smallste
 
 The Smallstep Saas cloud offering is our default recommended offering, unless you have security requirements that prohibit you from using a cloud CA. We also provide an ***API, Terraform Provider, and Ansible Collection*** for automation and IaC integration.
 
-## Smallstep Run Anywhere
+## Smallstep run anywhere
 
 The Smallstep Run Anywhere is a copy of our hosted SaaS software that can be deployed in any customer-managed data center or cloud hosting provider. This solution allows customers to manage their own infrastructure and meet compliance while still being able to use Smallstep’s tech stack to issue and manage certificates.
 
@@ -109,7 +110,7 @@ At its core, `run anywhere` requires a Kubernetes cluster for compute resources.
 
 Talk to Smallstep’s Customer Engineering Team at [support.smallstep.com](http://support.smallstep.com) to design a deployment custom-tailored to all of your security needs.
 
-## Smallstep Open-Source Toolchain
+## Smallstep open-source toolchain
 
 Our open source toolchain is the most popular open-source certificate management toolchain, and was designed for DevOps and homelab or POC use cases. However, it’s not a device identity platform, and doesn’t solve the problems listed above out-of-the-box.
 
@@ -125,7 +126,7 @@ Our open-source toolchain for certificate and PKI management features 3 componen
 
 [Join our open-source Discord community.](https://u.step.sm/discord)
 
-## Step CA Pro
+## Step CA pro
 
 Step CA Pro is Smallstep's drop-in upgrade for our open-source Certificate Authority server, offering advanced features, support, and compliance options. It extends our open source with high availability, active revocation, FIPS compliance, simpler integrations and APIs, and device identity features. 
 

@@ -32,7 +32,7 @@ Smallstep makes running your own private CA and managing certificates for intern
 - **Open Source -** This tutorial assumes you have initialized and started up a `step-ca`instance using the steps in [Getting Started](../step-ca/getting-started.mdx).
 - **[Smallstep Certificate Manager](https://smallstep.com/certificate-manager) -** Please visit the [Certs for Humans documentation](../certificate-manager/oidc.mdx) instead of using this tutorial to connect your identity provider to Certificate Manager.
 
-## Personal certificates via OAuth OpenID Connect
+## Personal certificates via OAuth OpenID connect
 
 User identities are usually already managed by your existing G-Suite, Okta, Salesforce, or Microsoft Entra ID _identity provider_.
 _IDPs_ leverage a single database of user accounts to provide single sign on login to a wide array of applications and services.
@@ -41,7 +41,7 @@ You can leverage OpenID Connect to authenticate with `step-ca` to make issuance 
 
 Here's how to obtain a user certificate using an OAuth token from G-Suite.
 
-### 1. Add an OpenID Connect provisioner for your G-Suite
+### 1. Add an OpenID connect provisioner for your G-Suite
 
 Add a [G-suite provisioner](../step-ca/provisioners.mdx#gcp):
 
@@ -89,7 +89,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1445...0545]
           to:  2019-03-21T18:17:55Z
 ```
 
-### 4. Test out your new personal X.509 Certificate
+### 4. Test out your new personal X.509 certificate
 
 Let's bring up an example server configured to accept connections over mTLS.
 
@@ -120,7 +120,7 @@ Now let's run our Python example server:
 python server.py
 ```
 
-Finally we're ready to to test our personal certificate using `curl`.
+Finally we're ready to test our personal certificate using `curl`.
 All we need to do is provide a root certificate for client-side server
 authentication and our personal certificate and private key to pass the
 server-side client authentication.

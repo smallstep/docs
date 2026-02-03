@@ -27,7 +27,7 @@ Using an MDM? See:
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
 </Alert>
 
-# Network Access
+# Network access
 
 The agent will connect to the following Smallstep hosts:
 - Your CA: `<your-team>.ca.smallstep.com` and subdomains
@@ -35,9 +35,9 @@ The agent will connect to the following Smallstep hosts:
 - Smallstep API: `gateway.smallstep.com`
 - TPM Attestation CA: `att.smallstep.com`
 
-# Linux Installation
+# Linux installation
 
-## System Requirements
+## System requirements
 
 - Supported operating systems:
     - Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
@@ -51,7 +51,7 @@ The agent will connect to the following Smallstep hosts:
     - configuration in `/etc/step-agent`
     - certificates in `/var/lib/step-agent` and in your configured locations
 
-## Quick Install
+## Quick install
 
 On a Linux system with `bash` and `curl`, run the following:
 
@@ -59,7 +59,7 @@ On a Linux system with `bash` and `curl`, run the following:
 curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | sudo env STEP_AGENT_TEAM=[your-team] bash
 ```
 
-## Manual Install
+## Manual install
 
 ### Fedora
 
@@ -97,7 +97,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
     ```
     
 
-### Enterprise Linux (RHEL, CentOS Stream, Rocky Linux, Alma Linux, etc)
+### Enterprise Linux (RHEL, CentOS stream, Rocky Linux, Alma Linux, etc)
 
 1. In the Terminal, add our package repository to your system:
     
@@ -264,7 +264,7 @@ If you get any errors, check the agent’s status:
 sudo systemctl status step-agent.service
 ```
 
-### OpenSSL and PKCS#11 Support
+### OpenSSL and PKCS#11 support
 
 The Smallstep agent stores the certificate on the filesystem alongside a TPM TSS2-formatted file, which is a reference to a TPM-bound key. As a result, any software that integrates with OpenSSL's `tpm2-openssl` provider, or with the underlying `libtpm2-tss`, can use the TPM-bound key for TLS handshakes or other purposes.
 
@@ -327,21 +327,21 @@ To uninstall the Smallstep Agent from a Linux system:
    sudo rm -rf /etc/step-agent /var/lib/step-agent /run/step-agent
    ```
 
-# macOS Installation
+# macOS installation
 
-## System Requirements
+## System requirements
 
 - macOS 10.15 (Catalina) or later
 - The agent must be installed for a single user (multi-user deployments are not yet supported)
 - Installation location: `/Applications/SmallstepAgent.app`
 
-## Manual Install
+## Manual install
 
 1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
 
 2. Install the package on your endpoint (double-click the `.pkg` file, or use the built-in `installer` command)
 
-## Registering the Agent
+## Registering the agent
 
 Your agent needs to enroll with your team.
 To self-enroll a device, run:
@@ -385,16 +385,16 @@ To uninstall the Smallstep Agent from a macOS system:
    fi
    ```
 
-# Windows Installation
+# Windows installation
 
-## System Requirements
+## System requirements
 
 - Windows 10 (Anniversary Edition) or later
 - Windows Home is not supported
 - A TPM 2.0 module is required
 - We support `amd64` and `arm64` architectures
 
-## Manual Install
+## Manual install
 
 1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
    - For most systems: `step-agent-plugin_amd64_<version>.msi`
@@ -406,7 +406,7 @@ To uninstall the Smallstep Agent from a macOS system:
    msiexec.exe /i "path\to\step-agent-plugin_amd64.msi" /quiet
    ```
 
-## Registering the Agent
+## Registering the agent
 
 ### Using the Smallstep API
 

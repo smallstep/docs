@@ -24,7 +24,7 @@ For readers who are less familiar check out...
 
 It's the open source core of everything Smallstep does, and everything you need to work with certificates, tokens, JOSE structures (JWT, JWK, JWE, JWS), and many other common cryptography primitives.
 
-#### `step` Characteristics
+#### `step` characteristics
 
 - **Easy to use, hard to misuse:** Safe defaults everywhere encourage best practices by always making the right thing easy. Insecure or subtle operations are gated with flags to prevent accidental misuse.
 
@@ -63,7 +63,7 @@ Both of these programs are written in golang and use the excellent [crypto](http
 
 These tools make the arcane art of automated certificate management a simple, intuitive process. With _step certificates_ you should be able to **setup your own internal CA and automate the delivery of certificates to your production workloads in an afternoon**.
 
-#### Key Features
+#### Key features
 
 - An internal certificate authority (CA) that can issue certificates to workloads, devices, and people
 - Streamlined generation of artifacts required for an internal CA - Automatically builds root & intermediate certificates and private keys
@@ -89,7 +89,7 @@ If you're using Docker or Kubernetes we also have [pre-built containers](https:/
 
 We're not currently testing `step` and `step-ca` on Microsoft operating systems, but they should mostly work (though you will need to build the binaries yourself). We are interested in issues if you encounter any.
 
-## Overview & Design
+## Overview & design
 
 Let's consider a simple concrete example: using _step certificates_ to issue certificates to two microservices so they can communicate securely using HTTPS.
 
@@ -209,7 +209,7 @@ The `step` command line utility integrates with the `step-ca` HTTPS APIs to help
 - Generate key pairs, and
 - Obtain certificates for workloads
 
-#### Distributing your Root Certificate
+#### Distributing your root certificate
 
 Like any other TLS/HTTPS client, `step` needs your CA's root certificate to verify issued certificates and establish secure connections. This presents a challenge: we'd like to use HTTPS to connect to the CA and obtain our root certificate, but we need the root certificate to establish this secure connection.
 
@@ -244,7 +244,7 @@ In general, once a _provisioner_ authenticates a workload's identity it issues t
 
 The details of how a provisioner interacts with a workload (or device or person) and the CA vary by provisioner type. Smallstep supports a number of provisioner types including, AWS Instance Identity Documents, Google Cloud Instance Identity Tokens, the Azure Instance Metadata Service, OAuth/OIDC Single Sign-on, and JWT for building custom integrations.
 
-#### IID Provisioner
+#### IID provisioner
 
 For cloud VMs running on AWS, GCP, or Azure `step-ca` can be configured to use _instance identity documents_ (IIDs) to authorize certificate signing requests. IIDs make integrating `step certificates` even easier: instead of building and integrating a JWK provisioner that issues tokens to workloads, `step` can request tokens directly from your cloud provider's _metadata API_ with no additional infrastructure requirements:
 
@@ -270,7 +270,7 @@ foo$ step ca certificate foo.internal foo.crt foo.key --issuer "Google Cloud"
 ✔ Private Key: foo.key
 ```
 
-#### OAuth/OIDC Single Sign-on Provisioner
+#### OAuth/OIDC single sign-on provisioner
 
 Occasionally it's useful to issue certificates to people (for example, for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
 
@@ -303,7 +303,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2581...6739]
 
 When you configure an OIDC provisioner at the CA you can also specify a list of `admins` . These users will be allowed to request certificates with any name (non-admins can only get certificates binding their own ID and email address).
 
-#### JWK Provisioner
+#### JWK provisioner
 
 The JWK provisioner is the most generic provisioner type. It's useful for building custom integrations with infrastructure like Puppet, Chef, Ansible, and Kubernetes. JWK provisioners issue workloads single-use short-lived JSON Web Tokens (JWTs) to authorize certificate signing requests.
 
@@ -506,6 +506,6 @@ In this scenario, you may want to run two CAs: one in AWS and one in GCP. That w
 
 The `step ca federate` subcommand can be used to setup this federation, and `step ca` works to distribute the bundle of federated roots to workloads in both clouds. Learn more about federation and step support in our Step v0.8.3 brings Federation & Root Rotation [blog post](https://smallstep.com/blog/step-v0.8.3-federation-root-rotation.html 'smallstep federation').
 
-## Get Started Today
+## Get started today
 
 We encourage you to visit Smallstep on [Github](https://github.com/smallstep/ 'Smallstep on github') to build your own internal PKI and empower mTLS between your distributed services. We would love to hear about your experience and [welcome feedback](https://smallstep.com/feedback/ 'feedback') and/or questions on our [community gitter](https://gitter.im/smallstep/community 'smallstep gitter'). Or give us your opinions by taking [the PKI Survey](https://www.surveymonkey.com/r/DC6NTKN). The team continues to innovate on our offerings and new features are coming every couple of weeks so please check back often to follow our progress. Alternatively you can subscribe to our updates by entering your email below.
