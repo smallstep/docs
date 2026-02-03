@@ -71,6 +71,7 @@ exceptions:
   - Mosyle
   - Munki
   - MySQL
+  - NaCl
   - Nginx
   - NGINX
   - Nitrokey
