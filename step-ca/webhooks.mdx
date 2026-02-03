@@ -1,5 +1,5 @@
 ---
-updated_at: October 22, 2025
+updated_at: February 03, 2026
 title: Webhooks
 html_title: Configure Certificate Webhooks in step-ca
 description: Implement webhooks in step-ca for richer certificates. Integrate external data sources and automate certificate workflows with custom logic.
@@ -109,7 +109,7 @@ or as the basis of your own custom webhook integration.
     step certificate inspect my.crt --format json | jq .subject
     ```
 
-# Implementation Details
+# Implementation details
 
 ## Authentication
 
@@ -126,7 +126,7 @@ In addition to the signature header, you can optionally enable two other request
 - **Mutual TLS**  
   The webhook server can require and verify the connection using mutual TLS. The CA will provide a client certificate when requested.
 
-### Verifying Signature and ID Headers (required)
+### Verifying signature and ID headers (required)
 
 Every webhook has a signing secret that will be displayed when the webhook is created
 via `step ca provisioner webhook add`.
@@ -143,7 +143,7 @@ the webhook ID is included in the `X-Smallstep-Webhook-ID` header.
 
 See the [webhook server example repository](https://github.com/smallstep/webhooks) for a Go example of signature verification.
 
-### Authorization Header (optional)
+### Authorization header (optional)
 
 For an additional layer of security, `step-ca` may be configured to send
 either a bearer token
@@ -161,7 +161,7 @@ Or, to use basic authentication, run:
 step ca provisioner webhook update my_provisioner my_webhook --basic-auth-username user --basic-auth-password-file pass.txt
 ```
 
-### Mutual TLS Authentication (optional)
+### Mutual TLS authentication (optional)
 
 You can also use mutual TLS to authenticate `step-ca` as a client of your webhook server.
 
@@ -171,7 +171,7 @@ To enable mutual TLS,
 configure your webhook server to request and verify a client certificate
 that chains up to your root CA certificate.
 
-## Webhook Requests
+## Webhook requests
 
 All requests from `step-ca` to the webhook server
 will use the `POST` method to send a JSON body
@@ -182,7 +182,7 @@ based on the type of the certificate being signed.
 See the [webhooks server example repository](https://github.com/smallstep/webhooks)
 for a Go example of parsing webhook request bodies for both X.509 and SSH certificate requests.
 
-### X.509 Request Body
+### X.509 request body
 
 For X.509 certificates, `step-ca` will include an `x509CertificateRequest` field
 that will hold a [JSON representation of the request](https://pkg.go.dev/go.step.sm/crypto@v0.23.1/x509util#CertificateRequest)
@@ -210,12 +210,12 @@ The request will contain the `scepChallenge` provided by the client and the `sce
 Unlike webhooks configured on other provisioners, when a single SCEP provisioner is configured with multiple `SCEPCHALLENGE` webhooks, 
 only a single one of the `SCEPCHALLENGE` webhooks needs to indicate the request is allowed for the certificate to be issued.
 
-### SSH Request Body
+### SSH request body
 
 For SSH certificates `step-ca` will include an `sshCertificateRequest` field with [data from the request](https://github.com/smallstep/certificates/blob/c169defc73db6ba4b83e1acd5bd31feafb4df050/webhook/types.go#L37).
 
 
-## Webhook Server Response
+## Webhook server response
 
 The webhook server must include `"allow": true` in the response body,
 or `step-ca` will refuse to sign the certificate request.

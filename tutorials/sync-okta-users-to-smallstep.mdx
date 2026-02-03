@@ -1,5 +1,5 @@
 ---
-updated_at: February 02, 2026
+updated_at: February 03, 2026
 title: Sync Okta Users to Smallstep
 description: Smallstep Okta User SCIM synchronization
 ---
@@ -36,7 +36,7 @@ In this quickstart, we will:
 3. Add and configure the Smallstep application from the Okta Application Directory, for user sync via SCIM
 4. Confirm users and groups are syncing to Smallstep
 
-## Step By Step Instructions
+## Step by step instructions
 
 ### **Step 1. Create Okta OIDC Application**
 
@@ -57,7 +57,7 @@ In this quickstart, we will:
 8. Go back to **General** tab and **Save**
 9. Copy the Client ID and Secret from that page
 
-### Step 2. Enter your OIDC Details into the Smallstep console
+### Step 2. Enter your OIDC details into the Smallstep console
 
 1. Start at [Connect an Okta IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/okta/connect)
 2. Copy and paste your **Client ID** and **Client Secret** from Okta.
@@ -71,7 +71,7 @@ In this quickstart, we will:
 5. **Save**
 6. If you chose to sync users, you will see a **Base URL** for SCIM sync, and an **API token** (SCIM token). Copy these values for the next step.
 
-### Step 3. Add the Smallstep App Integration and Configure User Sync in Okta
+### Step 3. Add the Smallstep app integration and configure user sync in Okta
 
 1. In the Okta admin console, add the Smallstep application
   * Applications → Browse App Catalog
@@ -92,7 +92,7 @@ In this quickstart, we will:
 9. Update application username on "Create and update"
 10. Done. We'll assign users for syncing in the next section.
 
-### Configure Provisioning
+### Configure provisioning
 
 Next, we'll turn on SCIM provisioning of users from Okta.
 

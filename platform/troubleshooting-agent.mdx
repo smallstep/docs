@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Troubleshooting Guide
 html_title: Smallstep Troubleshooting Guide
 description: Troubleshoot Smallstep Device Identity issues. Diagnose platform, MDM, and endpoint problems with step-by-step guidance.
@@ -20,15 +20,15 @@ If you're not sure, start with the [Platform & MDM Troubleshooting](#platform--m
 
 ---
 
-## Platform & MDM Troubleshooting
+## Platform & MDM troubleshooting
 
 This section covers issues with the Smallstep console, MDM integrations, and configuration that affect multiple devices.
 
-### Check for Alerts
+### Check for alerts
 
 First, check your Smallstep dashboard for any alerts. If you've exceeded device quotas or have configuration issues, you'll see a banner on the [Devices](https://smallstep.com/app/?next=/devices) page.
 
-### MDM Sync Issues
+### MDM sync issues
 
 **Symptoms:**
 - "I'm not seeing any devices sync from the MDM"
@@ -47,7 +47,7 @@ Smallstep performs a partial device sync with connected MDMs at least every hour
      - For Entra ID: Ensure there's only one Client Secret associated with the Smallstep Entra ID Application.
    - **Other errors**: Contact Smallstep support with the error details via an escalation channel.
 
-### Incomplete Device Data
+### Incomplete device data
 
 **Symptoms:**
 - "My devices are syncing, but I'm not seeing all the data associated with devices"
@@ -57,15 +57,15 @@ Smallstep performs a partial device sync with connected MDMs at least every hour
 1. Wait for the next partial sync.
 2. If data is still missing, contact Smallstep support via an escalation channel.
 
-### Permission Issues
+### Permission issues
 
 **Symptoms:**
 - "I can see my own device on Smallstep.com, but I can't view or manage other devices"
 - "I can't approve devices"
 
-**Solution:** Your Smallstep user doesn't have the correct permissions. Contact your account owner to request the appropriate role.
+**Solution:** your Smallstep user doesn't have the correct permissions. Contact your account owner to request the appropriate role.
 
-### SCEP Certificate Failures
+### SCEP certificate failures
 
 **Symptoms:**
 - "The SCEP Certificate payload is failing for every device"
@@ -78,7 +78,7 @@ Smallstep performs a partial device sync with connected MDMs at least every hour
 4. Retry the SCEP payload.
 5. If the issue persists, contact Smallstep support via an escalation channel.
 
-### Device Approval and Attestation
+### Device approval and attestation
 
 **Symptom:** "The device is approved in Smallstep, but it's Pending Attestation"
 
@@ -105,9 +105,9 @@ The agent may not be installed or may not be running on the device.
 3. Check the device's Logs tab in the console for errors.
 4. If the status remains not-green, proceed to [Agent & Endpoint Troubleshooting](#agent--endpoint-troubleshooting).
 
-### Resource and Certificate Issues
+### Resource and certificate issues
 
-**Symptom:** "The device doesn't have the resources it should have" (e.g., missing SSH certificate configuration)
+**Symptom:** "The device doesn't have the resources it should have" (for example, missing SSH certificate configuration)
 
 **Troubleshooting steps:**
 1. Verify the device is in a collection that has the expected resources assigned.
@@ -120,7 +120,7 @@ The agent may be checking in but not obtaining credentials properly. Proceed to 
 
 ---
 
-## Agent & Endpoint Troubleshooting
+## Agent & endpoint troubleshooting
 
 This section covers issues with individual devices, the Smallstep Agent, and endpoint-specific problems.
 
@@ -131,11 +131,11 @@ Before troubleshooting endpoint issues, verify the device meets requirements:
 - Check [Runtime Requirements](./smallstep-app.mdx#runtime-requirements)
 - Verify [Connectivity Requirements](./smallstep-app.mdx#connectivity-requirements)
 
-### Using the Doctor Command
+### Using the doctor command
 
 The Smallstep Agent includes a `doctor` command that performs automated health checks and provides diagnostic information. This is the recommended first step when troubleshooting endpoint issues.
 
-#### Running the Doctor Command
+#### Running the doctor command
 
 **On macOS:**
 ```bash
@@ -170,13 +170,13 @@ The doctor command runs a series of checks and displays results in a table forma
 +------------------------------------------+--------+-------------+
 ```
 
-#### Understanding Doctor Output
+#### Understanding doctor output
 
 Each check validates a specific aspect of the agent's functionality. A **PASS** status means the check succeeded, while **FAIL** indicates a problem that needs attention.
 
-##### Check Runtime Requirements
+##### Check runtime requirements
 
-**What it checks:** Verifies that your system has the necessary components for the agent to function:
+**What it checks:** verifies that your system has the necessary components for the agent to function:
 - **TPM 2.0 availability** - Ensures the Trusted Platform Module is accessible and can create/delete keys
 - **systemd** (Linux only) - Confirms systemd is running for managing network connections
 
@@ -193,9 +193,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 4. On Windows, verify TPM is enabled: Run `tpm.msc` or check Device Manager
 5. On Linux, confirm systemd is running: `ps -p 1 -o comm=`
 
-##### Ping the Agent
+##### Ping the agent
 
-**What it checks:** Verifies the agent background service is running and responding to IPC requests.
+**What it checks:** verifies the agent background service is running and responding to IPC requests.
 
 **Common failure reasons:**
 - Agent service is not running
@@ -213,9 +213,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. Check agent logs for error messages:
    - **Linux:** Run `sudo journalctl -u step-agent -n 50`
 
-##### Check Attestation CA Connectivity
+##### Check attestation CA connectivity
 
-**What it checks:** Tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
+**What it checks:** tests network connectivity to `att.smallstep.com` (TPM Attestation CA).
 
 **Common failure reasons:**
 - Firewall blocking outbound HTTPS connections
@@ -229,9 +229,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. If behind a proxy, ensure proxy settings are configured
 4. Verify DNS resolution: `nslookup att.smallstep.com`
 
-##### Check API Gateway Connectivity
+##### Check API gateway connectivity
 
-**What it checks:** Tests network connectivity to `gateway.smallstep.com` (Smallstep API).
+**What it checks:** tests network connectivity to `gateway.smallstep.com` (Smallstep API).
 
 **Common failure reasons:**
 - Same as attestation CA connectivity issues
@@ -241,9 +241,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check firewall rules allow HTTPS to `gateway.smallstep.com`
 3. Review network and proxy configuration
 
-##### Check Mission Control Connectivity
+##### Check Mission Control connectivity
 
-**What it checks:** Tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
+**What it checks:** tests gRPC connectivity to `control.infra.smallstep.com:443` (Agent API).
 
 **Common failure reasons:**
 - Firewall blocking port 443 for gRPC traffic
@@ -255,9 +255,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check firewall rules allow HTTPS/gRPC to `control.infra.smallstep.com`
 3. Some corporate firewalls may block gRPC - work with your network team
 
-##### Bootstrap Certificate Authorities
+##### Bootstrap certificate authorities
 
-**What it checks:** Verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
+**What it checks:** verifies the agent can retrieve and validate CA root certificates from your Smallstep team's CA.
 
 **Common failure reasons:**
 - Connectivity issues to `<your-team>.ca.smallstep.com`
@@ -271,9 +271,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
    - **Linux:** Check `/etc/step-agent/agent.yaml`
 3. Ensure the device is approved in your Smallstep console
 
-##### Verify Issued Certificates
+##### Verify issued certificates
 
-**What it checks:** Validates that all endpoint certificates are currently valid (not expired or not yet valid).
+**What it checks:** validates that all endpoint certificates are currently valid (not expired or not yet valid).
 
 **Common failure reasons:**
 - Certificates expired due to agent being offline
@@ -286,9 +286,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 3. Check when certificates will expire (look in agent logs or desktop app)
 4. Run doctor with `--renew` flag to force certificate renewal (see below)
 
-##### Sign with Endpoint Keys
+##### Sign with endpoint keys
 
-**What it checks:** Tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
+**What it checks:** tests that the agent can perform cryptographic signing operations with endpoint keys stored in the TPM/Secure Enclave.
 
 **Common failure reasons:**
 - TPM/Secure Enclave access issues
@@ -300,9 +300,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 2. Check agent logs for key access errors
 3. If keys are corrupted, the agent may need to re-register
 
-##### Enumerate PKCS#11 Objects
+##### Enumerate PKCS#11 objects
 
-**What it checks:** (Linux/macOS only) Verifies that certificates and keys are accessible via the PKCS#11 interface.
+**What it checks:** (Linux/macOS only) verifies that certificates and keys are accessible via the PKCS#11 interface.
 
 **Common failure reasons:**
 - PKCS#11 server not running
@@ -324,9 +324,9 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
    ```
 4. See [PKCS#11 Support](./smallstep-agent.mdx#openssl-and-pkcs11-support) for configuration details
 
-#### Advanced Doctor Options
+#### Advanced doctor options
 
-##### Force Certificate Renewal
+##### Force certificate renewal
 
 To test certificate renewal as part of the doctor checks, use the `--renew` flag:
 
@@ -343,7 +343,7 @@ This will attempt to renew all endpoint certificates and report any failures. Th
 The `--renew` flag will trigger certificate renewal for all endpoints, which may briefly interrupt services using those certificates.
 </Alert>
 
-##### JSON Output
+##### JSON output
 
 For scripting or integration with monitoring tools, use the `--json` flag:
 
@@ -390,9 +390,9 @@ This outputs check results in JSON format:
 }
 ```
 
-### Common Issues and Solutions
+### Common issues and solutions
 
-#### Agent Won't Start
+#### Agent won't start
 
 **Symptoms:**
 - Agent service fails to start
@@ -406,7 +406,7 @@ This outputs check results in JSON format:
 4. Restart the system if the TPM is in an inconsistent state
 5. On Linux, check for conflicting services using the same ports
 
-#### Network Connectivity Issues
+#### Network connectivity issues
 
 **Symptoms:**
 - All network checks fail in doctor output
@@ -420,7 +420,7 @@ This outputs check results in JSON format:
 4. Check corporate firewall and proxy settings
 5. Ensure all required Smallstep hosts are allowlisted
 
-#### Certificate Expired or Invalid
+#### Certificate expired or invalid
 
 **Symptoms:**
 - "Verify issued certificates" check fails
@@ -434,7 +434,7 @@ This outputs check results in JSON format:
 4. Check agent logs for renewal errors
 5. Verify connectivity to your team's CA
 
-#### TPM/Secure Enclave Access Issues
+#### TPM/Secure Enclave access issues
 
 **Symptoms:**
 - Runtime requirements check fails
@@ -454,7 +454,7 @@ This outputs check results in JSON format:
    - Add user to tss group: `sudo usermod -a -G tss $USER`
    - Verify tpm2-tss is installed
 
-#### PKCS#11 Not Working (Linux/macOS)
+#### PKCS#11 not working (linux/macos)
 
 **Symptoms:**
 - Applications can't access certificates via PKCS#11
@@ -471,7 +471,7 @@ This outputs check results in JSON format:
 4. Test with `pkcs11-tool --list-slots`
 5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#openssl-and-pkcs11-support)
 
-#### Cannot Access a Resource (Wi-Fi, VPN, Web App)
+#### Cannot access a resource (wi-fi, VPN, web app)
 
 **Symptoms:**
 - "I can't connect to Wi-Fi / VPN / web application"
@@ -488,7 +488,7 @@ This outputs check results in JSON format:
 
 ---
 
-## Getting Help
+## Getting help
 
 If you've tried the troubleshooting steps above and still have issues:
 
@@ -506,7 +506,7 @@ For security issues or private questions, email support@smallstep.com.
 
 ---
 
-## Platform-Specific Reference
+## Platform-specific reference
 
 Quick reference for platform-specific commands and file locations.
 

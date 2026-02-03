@@ -2,7 +2,7 @@
 title: Use step-ca with your existing CA
 html_title: Deploy Intermediate CA with Existing Root
 description: Use step-ca as intermediate CA with existing infrastructure. Modernize PKI while preserving root certificate investments and trust chains.
-updated_at: October 02, 2025
+updated_at: February 03, 2026
 ---
 
 Need to extend or migrate from an existing CA to a Smallstep CA?
@@ -54,7 +54,7 @@ to sign the new intermediate CA.
 - [The medium way](#the-medium-way)
 - [The secure way](#the-secure-way)
 
-## The Easy Way
+## The easy way
 
 Let's configure `step ca` to
 sign a new intermediate for itself
@@ -68,7 +68,7 @@ $ step ca init --root=[ROOT_CERT_FILE] --key=[ROOT_PRIVATE_KEY_FILE]
 **Note:** The root certificate can be in PEM or DER format, and the signing
 key can be a PEM file containing a PKCS#1, PKCS#8, or RFC5915 (for EC) key.
 
-## The Medium Way
+## The medium way
 
 If you have your own root certificate and intermediate certificate and key pair
 then all you'll need to do is move them to the right locations and update your
@@ -111,10 +111,10 @@ if it exists,
 and re-run `step ca bootstrap` with your new Root CA fingerprint.
 
 That's it! You should now be able to start `step-ca` and generate X.509 certificates
-that can be validated and authenticated by any software that trusts your root 
+that can be validated and authenticated by any software that trusts your root
 certificate.
 
-## The Secure Way
+## The secure way
 
 Let's face it; you probably wouldn't be reading this if you were looking for
 the easy way. It's bad practice to move private keys around. Below you will
@@ -144,13 +144,13 @@ When you run [`step ca init`](../step-cli/reference/ca/init), it creates artifac
 $ shred -u $(step path)/secrets/root_ca_key
 ```
 
-### 2. Replace `step-ca`'s root CA cert with your existing root certificate and generate a new signing key and intermediate certificate.
+### 2. Replace `step-ca`'s root CA cert with your existing root certificate and generate a new signing key and intermediate certificate
 
 ```shell-session nocopy
 $ mv /path/to/existing/root.crt $(step path)/certs/root_ca.crt
 ```
 
-Now you need to generate a new signing key and intermediate certificate signed by your existing root CA. To do that, we can use the [`step certificate create`](../step-cli/reference/certificate/create) subcommand to generate a certificate signing request (CSR) that we'll have your existing root CA sign, producing an intermediate certificate.
+Now you need to generate a new signing key and intermediate certificate signed by your existing root CA. To do that, we can use the [`step certificate create`](../step-cli/reference/certificate/create) subcommand to generate a certificate signing request (CSR) that we'll have your existing root CA sign, producing an intermediate certificate
 
 To generate those artifacts run:
 
@@ -160,9 +160,9 @@ step certificate create "Intermediate CA Name" intermediate.csr intermediate_ca_
 
 In this example, we're generating the Intermediate CA key on the filesystem. For stronger key protection, use our [cryptographic protection](../step-ca/cryptographic-protection.mdx) features to generate the signing key inside a Key Management System (KMS) instead.
 
-### 3. Transfer the CSR file and get it signed.
+### 3. Transfer the CSR file and get it signed
 
-Now, you will need to transfer the CSR (intermediate.csr) file to your existing root CA and get it signed. Below we have examples of
+Now, you will need to transfer the CSR (intermediate.csr) file to your existing root CA and get it signed Below we have examples of
 how to do this using `step`, Active Directory Certificate Services, AWS Certificate Manager Private CA, OpenSSL, and CFSSL.
 
 #### Use `step` to sign your intermediate CSR
@@ -171,7 +171,7 @@ how to do this using `step`, Active Directory Certificate Services, AWS Certific
 step certificate sign --profile intermediate-ca intermediate.csr root.crt root.key
 ```
 
-#### Active Directory Certificate Services
+#### Active Directory certificate services
 
 ```shell
 certreq -submit -attrib "CertificateTemplate:SubCA" intermediate.csr intermediate.crt
@@ -270,12 +270,12 @@ $ mv intermediate_ca_key $(step path)/secrets/intermediate_ca_key
 ```
 
 That's it! You should now be able to start `step-ca` and generate X.509 certificates
-that can be validated and authenticated by any software that trusts your root 
+that can be validated and authenticated by any software that trusts your root
 certificate.
 
-## FAQs
+## Faqs
 
-### Can I have multiple intermediate CAs?
+### Can I have multiple intermediate CAs??
 
 Sure. Let's say you have a longer path of intermediate CAs:
 
@@ -293,19 +293,19 @@ It is critical that the `step-ca` intermediate come first in this file.
 
 Finally, `$(step path)/secrets/intermediate_ca_key` will be the signing key for `step-ca` Intermediate.
 
-### Can I configure `step-ca` to sign X.509 leaf certificates from a root CA?
+### Can i configure `step-ca` to sign X.509 leaf certificates from a root CA?
 
 No. Intermediate CAs add a valuable layer of security and indirection to any PKI.
 Smallstep CA software requires the use of one or more intermediate CAs.
 
-### Can I have multiple signing CAs?
+### Can I have multiple signing CAs??
 
 Sure. Each `step-ca` instance
 will only sign using one intermediate CA, however.
 If you want multiple signing CAs,
 you'll need to run multiple `step-ca`s.
 
-### Instead of signing a new intermediate, can I have my existing online CA perform signing operations on behalf of `step-ca` clients?
+### Instead of signing a new intermediate, can i have my existing online CA perform signing operations on behalf of `step-ca` clients?
 
 Maybe. It depends on which CA software you're using.
 You can configure `step-ca`

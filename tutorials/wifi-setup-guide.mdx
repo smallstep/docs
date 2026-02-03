@@ -1,6 +1,6 @@
 ---
 title: Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on your Access Point
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 html_title: Configure your Wi-Fi Access Point to use Enterprise EAP-TLS certificate-based authentication with Smallstep
 description: This tutorial describes how to set up Smallstep's certificate-based Wi-Fi on several popular Access Point models
 ---
@@ -30,21 +30,21 @@ For MDM enrollment, we have integrations and tutorials for [Jamf](https://smalls
 
 ## On this page, you'll find: 
 
-- [Protect a Wi-Fi Resource in Smallstep](#protect-a-wi-fi-resource-in-smallstep)
+- [Protect a Wi-Fi Resource in Smallstep](#protect-a-Wi-Fi-resource-in-smallstep)
 - [Configure 802.1x EAP-TLS on any Access Point](#general-instructions-for-configuring-8021x-eap-tls-on-any-access-point)
 - Instructions for specific Access Points:
-  - [Ubiquiti Unifi](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-ubiquiti-unifi)
-  - [Aerohive](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-aerohive)
-  - [Aruba](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-aruba)
-  - [Asus](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-asus)
-  - [Cisco Wireless LAN Controller](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-cisco-wireless-lan-controller)
-  - [Extreme Networks](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-extreme)
-  - [Juniper Mist](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-juniper-mist)
-  - [Meraki](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-meraki)
-  - [MikroTik](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-mikrotik)
-  - [Sophos UTM](#configure-8021x-eap-tls-wpa-enterprise-wi-fi-on-sophos-utm)
+  - [Ubiquiti Unifi](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-ubiquiti-unifi)
+  - [Aerohive](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-aerohive)
+  - [Aruba](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-aruba)
+  - [Asus](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-asus)
+  - [Cisco Wireless LAN Controller](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-cisco-wireless-lan-controller)
+  - [Extreme Networks](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-extreme)
+  - [Juniper Mist](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-juniper-mist)
+  - [Meraki](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-meraki)
+  - [MikroTik](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-mikrotik)
+  - [Sophos UTM](#configure-8021x-eap-tls-wpa-enterprise-Wi-Fi-on-sophos-utm)
 
-## Protect a Wi-Fi Resource in Smallstep
+## Protect a Wi-Fi resource in Smallstep
 
 Before you configure an Access Point for EAP-TLS, you need create a Smallstep Wi-Fi Resource.
 
@@ -58,7 +58,7 @@ If you haven’t already, [sign up for a Smallstep account](https://smallstep.co
 
 2. When you’re finished, if you're using a Smallstep-managed RADIUS server, you’ll see your RADIUS server details. Use these details when you configure your Access Point.
 
-## General Instructions for Configuring 802.1x EAP-TLS on any Access Point
+## General instructions for configuring 802.1x EAP-TLS on any access point
 
 In case your Access Point isn’t specifically listed here, here are some general instructions. Each Access Point will have a slightly different configuration UI, but these network settings are constant no matter what AP you’re using:
 
@@ -69,7 +69,7 @@ In case your Access Point isn’t specifically listed here, here are some genera
     - RADIUS server shared secret
     - RADIUS accounting port
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Ubiquiti Unifi
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on ubiquiti unifi
 
 First, create a RADIUS Profile in the Unifi Network app, :
 
@@ -90,7 +90,7 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on MikroTik
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on mikrotik
 
 This section is suitable for a MikroTik AP that uses RouterOS.
 You can use the WebFig UI or the MikroTik Terminal to configure your AP.
@@ -142,7 +142,7 @@ You can use the WebFig UI or the MikroTik Terminal to configure your AP.
 
 For more information, see [MicroTik Documentation](https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5). 
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aerohive
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on aerohive
 
 First, create a new RADIUS profile:
 
@@ -169,9 +169,9 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Aruba
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on aruba
 
-*Note: These instructions follow setup for Aruba mobility controllers wireless AP portals. See [Aruba reference WLAN configuration documentation](https://arubanetworking.hpe.com/techdocs/VSG/docs/020-campus-deploy/esp-campus-deploy-110-configuring-wireless-access/)*
+*Note: these instructions follow setup for Aruba mobility controllers wireless AP portals. See [Aruba reference WLAN configuration documentation](https://arubanetworking.hpe.com/techdocs/VSG/docs/020-campus-deploy/esp-campus-deploy-110-configuring-wireless-access/)*
 
 First, create a new RADIUS profile:
 
@@ -208,7 +208,7 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 1. On your Meraki console, navigate to **Wireless** >  **Configure** >  **SSIDs**
 2. Enable an **Unconfigured SSID**
 3. Under the newly **Unconfigured SSID**, click on **rename**, name the SSID accordingly,  then click **Save Changes**
-4. Click on **edit settings**. This will will take you to the Access control tab for the SSID
+4. Click on **edit settings**. This will take you to the Access control tab for the SSID
 
 ![Meraki EAP-TLS Wi-Fi setup](/graphics/meraki.png)
 
@@ -218,7 +218,7 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Cisco Wireless LAN Controller
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Cisco wireless LAN controller
 
 First, create a new RADIUS profile:
 
@@ -235,7 +235,7 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Extreme
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on extreme
 
 First, create a new RADIUS profile: 
 
@@ -262,7 +262,7 @@ Next, create a new 802.1x EAP-TLS WPA-Enterprise authenticated Wi-Fi network and
 
 Your new 802.1x EAP-TLS Enterprise Wi-Fi network is ready for use. 
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Juniper Mist
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on juniper mist
 
 1. Navigate to **Organization** > **WLAN Templates**
 2. Click a WLAN template (or create a template)
@@ -275,7 +275,7 @@ Your new 802.1x EAP-TLS Enterprise Wi-Fi network is ready for use.
 
 Your 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use. For more, see [Juniper Mist reference documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wireless/topics/topic-map/radius-configuration.html).
 
-## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on Sophos UTM
+## Configure 802.1x EAP-TLS WPA-Enterprise Wi-Fi on sophos UTM
 
 First, create a new RADIUS profile: 
 
@@ -311,7 +311,7 @@ Go ahead to associate the new SSID network with your access point, and your new 
 
 These instructions follow setup for RT-AX1800S. However you should find most current ASUS routers have a similar interface.
 
-*Tip: To set up an 802.1x EAP-TLS Enterprise Wi-Fi WLAN on your Asus router, start with a separate dual band setup so that you have a break-glass connection to a WPA2 Password connection in the event that your settings are not allowing access to the configured band.*
+*Tip: to set up an 802.1x EAP-TLS Enterprise Wi-Fi WLAN on your Asus router, start with a separate dual band setup so that you have a break-glass connection to a WPA2 Password connection in the event that your settings are not allowing access to the configured band.*
 
 1. On the Asus Router console, navigate to **Advanced Settings > Wireless**
     

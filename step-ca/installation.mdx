@@ -1,12 +1,12 @@
 ---
-updated_at: December 05, 2025
+updated_at: February 03, 2026
 title: Install step-ca
 html_title: Install step-ca Certificate Authority Guide
 description: Install step-ca certificate authority on any platform. Quick deployment guide for private PKI infrastructure with comprehensive setup instructions.
 ---
 
 
-Learn how to to install the `step-ca` binary on your local machine.
+Learn how to install the `step-ca` binary on your local machine.
 
 <Alert severity="info">
   <AlertTitle>Building from source?</AlertTitle>
@@ -72,7 +72,7 @@ scoop install smallstep/step-ca
 
 To uninstall, run `scoop uninstall`, then remove the configuration directory `$HOME/.step`.
 
-### Linux Packages (amd64)
+### Linux packages (amd64)
 
 <Alert severity="info">
   <AlertTitle>Install both <Code>step-ca</Code> and the <Code>step</Code> CLI tool.</AlertTitle>
@@ -150,7 +150,7 @@ Big shout out to the maintainers of these packages! We appreciate you.
 
 #### Alpine Linux
 
-There are community-maintained Alpine Linux Packages for `step` and `step-ca`.
+Community-maintained Alpine Linux Packages for `step` and `step-ca` are available.
 
 To install `step` with [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management), run:
 
@@ -168,13 +168,13 @@ Big shout out to the maintainers of these packages! We appreciate you.
 
 #### NixOS
 
-There are community-maintained packages for NixOS:
+Community-maintained packages for NixOS are available:
 - [`step-ca`](https://search.nixos.org/packages?show=step-ca&from=0&size=50&sort=relevance&query=step-ca)
 - [`step-cli`](https://search.nixos.org/packages?show=step-cli&from=0&size=50&sort=relevance&query=step-cli)
 
 #### FreeBSD
 
-There are community-maintained packages for FreeBSD:
+Community-maintained packages for FreeBSD are available:
 - [`step-certificates`](https://www.freshports.org/security/step-certificates/)
 - [`step-cli`](https://www.freshports.org/security/step-cli/)
 
@@ -194,7 +194,7 @@ apk add step-ca
 
 To uninstall, run `apk del step-ca` and remove the `$HOME/.step` configuration directory.
 
-### Linux Binaries
+### Linux binaries
 
 We distribute pre-compiled binaries for amd64, arm64, armv6, armv7, mips, mips64, ppc64le, and 386. 
 
@@ -228,7 +228,7 @@ To configure `step-ca` as a daemon, see our [systemd configuration guide][system
 
 [systemd-setup]: https://smallstep.com/docs/step-ca/certificate-authority-server-production#running-step-ca-as-a-daemon
 
-#### Binary Signature Verification
+#### Binary signature verification
 
 We use [cosign](https://github.com/sigstore/cosign) to sign and verify release artifacts.
 
@@ -286,7 +286,7 @@ Smallstep CA/0.10.0 (darwin/amd64)
 Release Date: 2019-04-30 19:02 UTC
 ```
 
-### Next Steps
+### Next steps
 
 - Learn about the [core concepts and design principles](./certificate-authority-core-concepts.mdx) behind `step-ca`.
 - Read the [Getting Started guide](./getting-started.mdx) to set up a CA and get your first certificate.

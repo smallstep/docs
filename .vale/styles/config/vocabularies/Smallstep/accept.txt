@@ -47,6 +47,7 @@ DTLS
 DevOps
 Diffie-Hellman
 Dockerfile
+Docker Compose
 EAB
 EAP
 ECDH
@@ -60,7 +61,10 @@ Encrypt
 Enrollment
 Entra ID
 FIPS
+F5 Access
+F5 Edge
 FQDN
+FreeBSD
 GCP
 Gartner
 GitHub
@@ -92,7 +96,9 @@ JWSs
 JWT
 JWTs
 Jamf
+Jamf Pro
 JavaScript
+Juniper Mist
 Kubernetes
 LDAP
 LTV
@@ -104,12 +110,14 @@ Merkle
 MicroTik
 Micromdm
 MikroTik
+Microsoft Edge
 Modbus
 Modelling
 NDES
 NDR
 NGINX
 NIST
+NixOS
 NSS
 NTP
 NTPS
@@ -313,6 +321,7 @@ Webhook
 Webhooks
 Wi
 Winget
+Wire
 Wireguard
 WjX
 Wolfi
@@ -676,6 +685,7 @@ ie
 ACLs
 Admin
 APIs
+Aruba
 apk
 Asus
 boolean
@@ -712,6 +722,7 @@ plist
 RAs
 rollout
 Sophos
+Sophos UTM
 SSIDs
 STMicro
 tss
@@ -870,6 +881,7 @@ reasonCode
 redirect_uri
 reverse_proxy
 root_ca_key
+root_ca
 sed
 select_account
 serverAuth
