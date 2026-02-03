@@ -9,51 +9,108 @@ indicators:
   - " - "
 exceptions:
   # Proper nouns - company/product names that are ALWAYS capitalized
+  - Active
+  - Admission
+  - Ansible
   - Apache
+  - Aruba
+  - Asus
+  - Authy
   - Azure
   - AWS
   - BoltDB
+  - Caddy
   - CentOS
+  - Certificate
+  - Certbot
   - CFSSL
   - Chrome
   - ChromeOS
   - CloudCAS
+  - Cloudflare
+  - Controllers
   - DevOps
+  - Directory
   - Docker
+  - Edge
+  - Edgebit
   - Entra
+  - F5
   - Fedora
   - Firefox
+  - FreeBSD
+  - GCP
+  - Gartner
+  - GitHub
   - Golang
   - Google
+  - Grafana
   - gRPC
   - HashiCorp
+  - Homebrew
   - I
+  - Infineon
   - Intune
+  - Istio
+  - Ivanti
+  - Jamf
+  - JavaScript
   - JSON
+  - Juniper
+  - Keycloak
   - Kubernetes
   - LEGO
+  - Lenovo
   - Linux
   - macOS
+  - Manager
+  - Meraki
+  - Microsoft
+  - MikroTik
+  - Mist
   - MongoDB
+  - Mosyle
+  - Munki
   - MySQL
+  - Nginx
   - NGINX
+  - Nitrokey
+  - NixOS
   - Okta
+  - Omnissa
   - OpenID
+  - OpenSSL
   - OpenVPN
+  - Postgres
   - PostgreSQL
+  - PowerShell
+  - Private
+  - Reddit
   - RHEL
   - Rocky
   - Scoop
+  - Services
   - Smallstep
+  - Sophos
   - StepCAS
+  - strongSwan
+  - Terraform
+  - Traefik
   - TypeScript
+  - Ubiquiti
   - Ubuntu
+  - Unifi
   - Vault
   - VS
   - Windows
+  - Winget
+  - Wireguard
+  - Wolfi
   - X.509
+  - Yubico
   - YubiKey
   - YubiKeys
+  - Zymbit
   # Acronyms that are ALWAYS uppercase
   - ACME
   - ACLs
