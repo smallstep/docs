@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: February 03, 2026
 title: Access Control Guide
 description: Implement fine-grained SSH access controls with certificates. Define who can access which servers using certificate-based policies.
 html_title: SSH Access Control Lists Configuration
@@ -19,9 +19,9 @@ The following features are supported:
 
 * Access control by Host Tags configuration using Groups synchronized from your IDP
 
-## Step By Step Instructions
+## Step by step instructions
 
-### Step 0: Understanding Host Tags
+### Step 0: Understanding host tags
 
 **Host Tags** (key-value pairs) are the pillars of our access control model. Rather than mapping people or groups directly to hosts, you'll map _tag combinations_ to your hosts and to your user groups. First you'll put your hosts into logical groups using tags, eg. `role`:`web` or `env`:`staging`. Then, you'll grant user groups access to all hosts with a specific tag combination. Finally, you'll choose which user group tag combinations will allow `sudo` privileges on any matching hosts.
 
@@ -35,7 +35,7 @@ Let's look at an example:
 
 Of course, hosts and groups can have as many tag combinations as you like.  Take a minute to think about how you'd like to use Host Tags in your environment.
 
-### Step 1: Determine Host Tag Combination
+### Step 1: Determine host tag combination
 
 Sign in at `https://smallstep.com/app/[Team ID]`
 * Choose "SSH Professional" from the top navigation bar
@@ -46,7 +46,7 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 
 ![](/graphics/quickstart/acl-host-detail.png)
 
-### Step 2: Grant User Group Access to Host(s)
+### Step 2: Grant user group access to hosts
 
 On your Smallstep console.
 * Select the "Users" tab on the right hand navigation bar.

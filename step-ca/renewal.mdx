@@ -1,4 +1,5 @@
 ---
+updated_at: February 03, 2026
 title: Certificate Renewal
 html_title: Certificate renewal options
 description: Learn how to renew certificates and set up automated renewals
@@ -8,7 +9,7 @@ By default, `step-ca` issues short-lived certificates that expire after 24
 hours. Short-lived certificates are excellent security hygiene because they
 offer regular key rotation and [passive revocation](./revocation.mdx)
 
-Short-lived certificates create a problem though: For any long-lived workloads,
+Short-lived certificates create a problem though: for any long-lived workloads,
 you will need to renew your certificates each day before they expire. This
 section will show three approaches to renew certs with `step`.
 
@@ -16,7 +17,7 @@ section will show three approaches to renew certs with `step`.
   <div>
     This section assumes you have initialized and started up a
     <Code>step-ca</Code> instance using the steps in <a href="https://smallstep.com/docs/step-ca/getting-started">Getting Started</a>.  As an
-    alternative, you can use our hosted CA, <a href="../certificate-manager">Smallstep Certificate Manager</a>.
+    alternative, you can use our hosted CA, <a href="https://u.step.sm/cm">Smallstep Certificate Manager</a>.
   </div>
 </Alert>
 
@@ -234,7 +235,7 @@ When the certificate is successfully renewed:
 #### Enabling `systemd` renewal timers
 
 The final piece of the puzzle is the renewal timer. Timers and services go hand in hand in systemd:
-A `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
+a `cert-renewer@postgresql.timer` will always trigger a corresponding `cert-renewer@postgresql.service`.
 
 Therefore, instead of enabling the `cert-renewer@*.service` service units directly, we'll enable timer units that will periodically trigger each service unit.
 
@@ -311,7 +312,7 @@ INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 When daemonized, [`step ca renew`](../step-cli/reference/ca/renew) will attempt a renewal when the certificate's lifetime is approximately two-thirds elapsed.
 So, for a certificate with a 24 hour lifetime, it will attempt a renewal after about 16 hours.
 
-There is some random _jitter_ built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
+Some random _jitter_ is built into the daemon's schedule to prevent a large number of renewals from being sent to the CA simultaneously
 (eg. by a multitude of virtual machines that were provisioned at the same time and have identical certificate expiration dates).
 
 If the CA is unreachable, renewals are retried every minute.
@@ -356,10 +357,10 @@ Enable and start the service:
 sudo systemctl enable --now step
 ```
 
-#### Notifying Certificate-Dependent Services
+#### Notifying certificate-dependent services
 
 Many services that depend on certificates will only read the certificate files on startup.
-So when you renew a certificate, a server process that depends on it may not detect that it has changed.
+When you renew a certificate, a server process that depends on it may not detect that it has changed.
 
 It's common for services (eg. `nginx`) to respond to a `SIGHUP` signal by reloading configuration files and certificates.
 To address this, [`step ca renew`](../step-cli/reference/ca/renew) can send a `SIGHUP` to your service after each renewal.
@@ -399,9 +400,9 @@ EOF
 ```
 Be sure the user (in this example, `step`) has write access to the certificate and key you're renewing.
 
-### Caveats of Automated Renewal
+### Caveats of automated renewal
 
-#### Revoking a Certificate
+#### Revoking a certificate
 
 [`step ca renew`](../step-cli/reference/ca/renew) allows a certificate owner to extend the lifetime of a certificate before it expires.
 Unfortunately, it also lets an attacker with the private key do the same thing.

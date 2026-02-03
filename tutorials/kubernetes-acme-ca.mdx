@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Integrate Kubernetes cert-manager with an internal ACME CA
 html_title: Kubernetes ACME CA Integration Tutorial
 description: Deploy ACME-enabled CA in Kubernetes clusters. Automate certificate management with native Kubernetes integration and step-ca.
@@ -78,7 +78,7 @@ $ kubectl create secret generic clouddns-dns01-solver-svc-acct \
    --from-file=key.json
 ```
 
-### 4. Create the cert-manager Issuer
+### 4. Create the cert-manager issuer
 
 Finally, let's create an cert-manager Issuer to perform `dns-01` ACME challenges.
 For this, we'll need a base64-encoded PEM file containing ACME server's CA certificate:
@@ -115,7 +115,7 @@ spec:
 
 Replace the values for `email`, `server` URL, `caBundle`, `project` and `hostedZoneName` with your own. Your Smallstep ACME endpoint typically takes the form of `https://[your CA hostname]/acme/acme/directory`.
 
-#### Optional: Enabling ACME External Account Binding (EAB) 
+#### Optional: Enabling ACME external account binding (EAB) 
 
 Smallstep Certificate Manager uses ACME External Account Binding (EAB). When you get an EAB key from Smallstep, you'll need to convert it to `base64URL` before creating a Kubernetes secret for it:
 
@@ -138,7 +138,7 @@ kubectl create secret generic eab-secret --from-literal \
 
 Next, see [cert-manager's documentation](https://cert-manager.io/docs/configuration/acme/#external-account-bindings) for details on configure your EAB key and secret in your `Issuer`. 
 
-### 5. Apply your Issuer
+### 5. Apply your issuer
 
 Finally, apply your `Issuer` configuration:
 

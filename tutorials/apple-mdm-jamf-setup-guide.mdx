@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: February 03, 2026
 title: Deploy EAP-TLS Wi-Fi certificates to Apple devices with Smallstep and Jamf Pro
 html_title: Deploy EAP-TLS to Apple Devices via Jamf
 description: Configure EAP-TLS Wi-Fi certificates for Apple devices using Jamf MDM. Complete guide for iOS and macOS wireless security deployment at scale.
@@ -66,7 +66,7 @@ These include a webhook URL, username and password to be used when configuring a
 
 ### Configure Jamf to use Smallstep
 
-#### Configure a SCEP Challenge webhook
+#### Configure a SCEP challenge webhook
 
 First, you'll need to add a SCEP Challenge webhook to your Jamf tenant configuration.
 You'll only need to do this once.
@@ -86,7 +86,7 @@ You'll only need to do this once.
 
 4. Choose **Save** in the bottom right
 
-#### Upload and Test the Configuration Profile
+#### Upload and test the configuration profile
 
 Next, upload the Configuration Profile you downloaded from Smallstep, and map it to a test device.
 
@@ -98,7 +98,7 @@ Next, upload the Configuration Profile you downloaded from Smallstep, and map it
 Enrolled devices will immediately receive the configuration profile updates from Jamf and will be ready to join the network.
 If you need to make changes, you can change the settings in Smallstep and download a new Configuration Profile template.
 
-### Deploying Production Profiles
+### Deploying production profiles
 
 As you plan to deploy your configuration profile, it is recommended to stage your changes.
 Here's one approach:

@@ -1,5 +1,5 @@
-DO NOT modify auto-generated files inside step-cli/reference
-Use vale for docs linting
+Use vale for docs linting, ignoring auto-generated files in step-cli/reference
+DO NOT modify any auto-generated files inside step-cli/reference
 Use markdown-link-check to check links
 To preview the docs in a web browser, run `pnpm dev` inside the `smallstep.com` repo, which you may find in the parent directory. A server will open on https://localhost:5050
 Use pnpm

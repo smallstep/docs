@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: How to Use ACME in Internal Networks
 html_title: How to Use ACME in Certificate Manager
 description: Deploy ACME in Certificate Manager for automated workflows. Complete guide to using ACME protocol for internal certificates at enterprise scale.
@@ -9,7 +9,7 @@ With Smallstep Certificate Manager
 you can deploy ACME on your internal network with ease.
 Before deploying,
 it's important to consider what deployment options works best for your organization,
-which include our hosted as well as our on-premise solutions.
+which include our hosted as well as our on-premises solutions.
 For each of those,
 it may be necessary to also deploy a Registration Authority (RA),
 which ensures ACME clients can be challenged on the internal network
@@ -25,13 +25,13 @@ These two functionalities provide more control
 over which ACME clients can request a certificate.
 They are described in [Additional Control](#additional-control).
 
-### Deployment Options
+### Deployment options
 
 With Smallstep Certificate Manager,
 you can deploy ACME on your internal network with ease.
 It is possible to use our hosted solution,
 or you can deploy the Smallstep platform to your own infrastructure
-using our on-premise solution.
+using our on-premises solution.
 These options are described below.
 
 #### Hosted
@@ -69,7 +69,7 @@ providing control over what domains are allowed to request a certificate,
 or by requiring External Account Binding (EAB) to be used,
 so that only known ACME clients can request a certificate.
 
-#### On-Premise
+#### On-premises
 
 It is also possible to deploy the Smallstep platform to your own infrastructure.
 If your infrastructure
@@ -81,13 +81,13 @@ to be challenged successfully by the CA,
 adding an RA to the deployment is an option.
 
 
-### Additional Control
+### Additional control
 
 When deploying ACME, it's possible to configure your CA with some additional controls for certificate issuance.
 These are [Certificate Issuance Policies](#certificate-issuance-policies) and [External Account Binding](#external-account-binding).
 They're explained in the following subsections.
 
-#### Certificate Issuance Policies
+#### Certificate issuance policies
 
 Certificate issuance policies can be used to configure which certificate names the CA is allowed to sign.
 A policy consists of one or more rules that are evaluated when a new certificate is going to be signed.
@@ -98,7 +98,7 @@ Certificate issuance policies can be applied to authorities as well as all provi
 Combining ACME and an authority or provisioner policy can result in a simpler deployment, however, if the policy only allows hostnames for specific, internal (sub)domains to be signed.
 Unknown third party ACME clients can still try to request a certificate, but if they're requesting certificates that are not part of the policy, they won't be authorized by the RA or CA.
 
-#### External Account Binding
+#### External account binding
 
 ACME EAB can be used to bind an ACME account to an existing entity in another (external) system, such as an inventory of machines.
 Only ACME clients that were provided with a client-specific, shared secret will be able to register an account with the CA.
@@ -109,14 +109,14 @@ The Smallstep platform also supports configuring a certificate issuance policy p
 By configuring a policy for an ACME account, issuance of specific hostnames or IP addresses can be limited to specific ACME clients.
 
 
-### Get Started 
+### Get started 
 
 Want to get started using ACME with Smallstep Certificate Manager? 
 Follow these three simple steps and start issuing certificates:
 
 1. Create a Smallstep Team and Certificate Manager Authority. [Get Started >](https://smallstep.com/signup?product=cm)
 2. Install and configure a local ACME Registration Authority. [Learn How >](../../registration-authorities/acme-for-certificate-manager.mdx)
-3. Configure your ACME client(s) and issue certificates. [Find Yours >](../../tutorials/acme-protocol-acme-clients.mdx) 
+3. Configure your ACME clients and issue certificates. [Find Yours >](../../tutorials/acme-protocol-acme-clients.mdx) 
 
 <Alert severity="info">
   <div>
