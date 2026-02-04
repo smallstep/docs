@@ -331,7 +331,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 ## Hashicorp Vault RA mode
 
 The RA mode in `step-ca` can peer with Vault's PKI secrets engine, using it as an upstream CA.
-From the [Vault Documentation](https://www.vaultproject.io/docs/secrets/pki):
+From the [Vault Documentation](https://developer.hashicorp.com/vault/docs/secrets/pki):
 
 > "The PKI secrets engine generates dynamic X.509 certificates. With this secrets engine, services can get certificates without going through the usual manual process of generating a private key and CSR, submitting to a CA, and waiting for a verification and signing process to complete."
 
@@ -343,7 +343,7 @@ Then we'll configure `step-ca`'s RA mode to use Vault to sign certificates.
 ### Requirements
 
 * [`step-ca`](https://smallstep.com/docs/step-ca/installation)
-* A [Hashicorp Vault](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy) server
+* A [Hashicorp Vault](https://developer.hashicorp.com/vault/install) server
 * The [`jq`](https://jqlang.github.io/jq/) tool to parse JSON output
 
 ### Creating a Vault PKI
@@ -354,7 +354,7 @@ For a proof of concept, you can run `vault server -dev` in a terminal window to 
 
 In production, you'll need to run Vault as a daemon and use HTTPS.
 Vault supports both server TLS verification, and mutual TLS authentication.
-See Vault's [Environment Variables](https://www.vaultproject.io/docs/commands#environment-variables) documentation for more.
+See Vault's [Environment Variables](https://developer.hashicorp.com/vault/docs/commands#configure-environment-variables) documentation for more.
 
 If you're running Vault in dev mode, set `VAULT_ADDR`:
 
@@ -479,7 +479,7 @@ vault policy write smallstep policy.hcl
 In this example, Vault will sign certificates of all three key types for the RA server: EC, RSA, and Ed25519.
 EC must always be enabled, because it's required for `step-ca`'s internal TLS certificate.
 However, if your PKI will not use RSA or Ed25519, please restrict your Vault policy to the key types you will use.
-Vault's [Policy documentation](https://www.vaultproject.io/docs/concepts/policies) describes the policy langauge used by Vault.
+Vault's [Policy documentation](https://developer.hashicorp.com/vault/docs/concepts/policies) describes the policy langauge used by Vault.
 
 #### 4. Enable Vault authentication for your RA.
 
