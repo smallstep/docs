@@ -772,7 +772,6 @@ attestationRoots
 clientId
 complexify
 customappsso
-Emojivoto
 encryptedKey
 excludeIntermediate
 failover
