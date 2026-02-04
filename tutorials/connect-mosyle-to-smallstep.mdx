@@ -108,7 +108,7 @@ Keep this page open or save these values temporarily—you'll need them for the 
 5. Configure the SCEP profile:
     - Profile Name: `Smallstep`
     - URL: (paste the SCEP provisioner URL you saved earlier)
-    - Subject: `CN=%DeviceName%` (or customize as needed using Mosyle variables)
+    - Subject: `CN=step-agent-bootstrap`
     - Check ☑️ **Enable Variables for this profile**
     - Add new Subject Alternative Name:
       - Type: Uniform Resource Identifier
@@ -175,7 +175,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
                 <key>TeamSlug</key>
                 <string>YOUR-TEAM-SLUG</string>
                 <key>Certificate</key>
-                <string>mackms:label=$PROFILE_IDENTIFIER;se=false;tag=</string>
+                <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
             </dict>
         </array>
         <key>PayloadDisplayName</key>
