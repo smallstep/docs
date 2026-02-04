@@ -772,7 +772,6 @@ attestationRoots
 clientId
 complexify
 customappsso
-Emojivoto
 encryptedKey
 excludeIntermediate
 failover
@@ -948,3 +947,4 @@ organizationalUnit
 publicKey
 serialNumber
 testuser
+disallow

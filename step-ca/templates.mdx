@@ -219,37 +219,35 @@ See [the complete list of fields supported in `step-ca` templates](https://githu
 
 Here are some variables available in X.509 certificate templates:
 
-- **.Subject**:
+- `.Subject`:
   The subject that was passed in to `step certificate` or `step ca certificate`. Specifically,
   `.Subject.CommonName` contains the Common Name for the certificate. By default, a passed-in subject
   value must match a value from a trusted source in order to be added to the certificate.
 
-- **.SANs**:
+- `.SANs`:
   Subject Alternative Names.
   This is a list of maps containing SANs for the certificate.
   Unless SANs are specified (using the `--san` flag, for example),
   the `.Subject.CommonName` is the default SAN. By default, a passed-in subject
   value must match a value from a trusted source in order to be added to the certificate.
 
-- **.Token**:
-  If a signed token was used to obtain the certificate 
-  —for example, with the JWK provisioner—
-  this property contains the payload of that token.
+- `.Token`:
+  If a signed token was used to obtain the certificate—for example, with the JWK provisioner—this property contains the payload of that token.
 
-- **.AuthorizationCrt**:
+- `.AuthorizationCrt`:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
   this is the certificate used to authorize the current certificate request with the CA.
   The client has proven posession of this certificate's private key.
   For an X.509 authorization certificate, the `.AuthorizationCrt` is a [`crypto/x509` Certificate](https://pkg.go.dev/crypto/x509#Certificate).
 
-- **.AuthorizationChain**:
+- `.AuthorizationChain`:
   For provisioners that use certificates to authorize requests (eg. the X5C provisioner),
   this is an array of the certificate chain from the request.
   This chain connects the authorization certificate to the root CA configured in the provisioner.
 
-- **.Insecure** These variables are marked insecure because they contain client-supplied data that is not signed by a trusted party.
+- `.Insecure`: These variables are marked insecure because they contain client-supplied data that is not signed by a trusted party.
 
-- **.Insecure.CR**<Reference id="star11" marker="*" />: ☠️
+- `.Insecure.CR`<Reference id="star11" marker="*" />: ☠️
   This holds the Certificate Request (CSR) received from the client.
   `.Insecure.CR` is a [`crypto/x509` CertificateRequest](https://pkg.go.dev/crypto/x509#CertificateRequest).
   How `step-ca` handles a Certificate Request depends on the provisioner.
@@ -260,41 +258,41 @@ Here are some variables available in X.509 certificate templates:
   and the validated SANs from ACME orders.
   For ACME, step-ca validates that the CSR's subject and SANs only contain values that are in the validated ACME order.
 
-- **.Insecure.CR.DNSNames**:
+- `.Insecure.CR.DNSNames`:
   The DNS Name Subject Alternative Names (SANs) provided in the CSR
 
-- **.Insecure.CR.IPAddresses**:
+- `.Insecure.CR.IPAddresses`:
   The IP Address SANs provided in the CSR
 
-- **.Insecure.CR.URIs**:
+- `.Insecure.CR.URIs`:
   The URI SANs provided in the CSR
 
-- **.Insecure.CR.EmailAddresses**:
+- `.Insecure.CR.EmailAddresses`:
   The Email Address SANs provided in the CSR
 
-- **.Insecure.CR.Subject**:
+- `.Insecure.CR.Subject`:
   The CSR subject field.
 
-- **.Insecure.CR.Subject.CommonName**:
+- `.Insecure.CR.Subject.CommonName`:
   The Common Name (CN) from the CSR subject
 
-- **.Insecure.CR.Subject.ExtraNames**:
+- `.Insecure.CR.Subject.ExtraNames`:
   The Extra Names from the CSR subject.
   This is an array of all subject distinguished names (DNs) in the CSR.
   Each contains an OID (`type`) and a value (`value`).
 
-- **.Insecure.CR.RawSubject**:
+- `.Insecure.CR.RawSubject`:
   The original subject asn.1 value from the CSR.
   Use this if your application requires that the certificate subject and CSR subject match exactly.
   (Because `step-ca` may re-encode the CSR subject when creating the certificate subject,
   these values may not match byte-for-byte)
 
-- **.Insecure.CR.PublicKey**:
+- `.Insecure.CR.PublicKey`:
   The public key provided in the certificate request.
   You can check the request's key type with a conditional, like `{{- if typeIs "*rsa.PublicKey" .Insecure.CR.PublicKey }}`.
   You can check the request's key size with a conditional, like `{{- if lt .Insecure.CR.PublicKey.Size 384 }}`.
 
-- **.Insecure.User**:
+- `.Insecure.User`:
   This property holds user-supplied data from the certificate request.
   Users can supply arbitrary values using `--set` or `--set-file` flags in `step ca certificate`.
 
@@ -443,15 +441,15 @@ See [the complete list of fields supported by `step-ca` SSH template](https://gi
 ### SSH template variables
 
 Here are the most relevant parameters available in SSH certificate template:
-- **.Token**:
+- `.Token`:
   This property offers the best opportunity for injecting signed, secure data into the certificate.
-  If a token was used to obtain the certificate,  
+  If a token was used to obtain the certificate,
   this property contains token payload used in the certificate request.
   For example, when using an OAuth ID token,
   `.Token.email` will contain the user's email address.
   To add custom data to `.Token`, you could use custom OAuth claims, or sign your own JWTs.
-  
-- **.Extensions**: is a map containing extensions.
+
+- `.Extensions`: is a map containing extensions.
   The default value for `Extensions` is:
 
   ```go
@@ -464,39 +462,39 @@ Here are the most relevant parameters available in SSH certificate template:
   }
   ```
 
-- **.CriticalOptions**: is a map containing critical options.
+- `.CriticalOptions`: is a map containing critical options.
   It is empty by default.
 
-- **.Principals**: For users, this value is derived from the OIDC token
+- `.Principals`: For users, this value is derived from the OIDC token
   (when using the [OIDC provisioner](provisioners.mdx#oauthoidc-single-sign-on)).
   For hosts, it is derived from the Instance Identity Document
   (when using the [Cloud provisioners](provisioners.mdx#cloud-provisioners)).
 
-- **.KeyID**:
+- `.KeyID`:
   The key ID being requested.
 
-- **.Type**:
+- `.Type`:
   The type of SSH certificate being requested.
   This will be `user` or `host`.
 
-- **.Insecure.CR**<Reference id="star11" marker="*" />:
+- `.Insecure.CR`<Reference id="star11" marker="*" />:
   SSH certificate requests to `step-ca` are not CSRs in the X.509 sense.
   Instead, `step-ca` creates a virtual certificate request,
   and that's what this variable represents.
 
-- **.Insecure.CR.Principals**: If you trust a host to register its own custom SANs
+- `.Insecure.CR.Principals`: If you trust a host to register its own custom SANs
   (for example, when using the IID provisioner),
   then the host can pass several `--principal` values to [`step ssh certificate`](../step-cli/reference/ssh/certificate) when registering the host,
   and use `.Insecure.CR.Principals` to access those from a template.
 
-- **.Insecure.CR.Type**:
+- `.Insecure.CR.Type`:
   The type of SSH certificate being requested.
   This will be `user` or `host`.
 
-- **.Insecure.CR.KeyID**:
+- `.Insecure.CR.KeyID`:
   The key ID being requested.
 
-- **.Insecure.User**: This property holds user-supplied data from the certificate request.
+- `.Insecure.User`: This property holds user-supplied data from the certificate request.
   Users can supply arbitrary values using `--set` or `--set-file` flags in [`step ssh certificate`](../step-cli/reference/ssh/certificate).
 
 You can also import parameter values

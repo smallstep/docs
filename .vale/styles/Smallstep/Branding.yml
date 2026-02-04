@@ -3,7 +3,6 @@ message: "Use '%s' instead of '%s' for consistent branding."
 level: error
 ignorecase: false
 swap:
-  smallstep: Smallstep
   Small Step: Smallstep
   stepca: step-ca
   Step-CA: step-ca

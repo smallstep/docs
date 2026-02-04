@@ -148,7 +148,9 @@ This script will:
 
 ## Optional hardening
 
-Now that you're using certificates, you may wish to explicitly disallow the use of `authorized_keys` files on the host.
+Now that you're using certificates,
+you may wish to explicitly block the
+use of `authorized_keys` files on the host.
 
 You can do this by setting `AuthorizedKeysFile none` in `sshd_config`. You may want to allow `authorized_keys` for an emergency access account, however. A configuration for this might look like:
 

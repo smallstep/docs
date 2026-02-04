@@ -89,7 +89,7 @@ When you run [`step ca init`](../step-cli/reference/ca/init), it creates artifac
  - `$STEPPATH/certs/intermediate_ca.crt` the intermediate CA cert
  - `$STEPPATH/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
 
-`step-ca` does not actually need the root CA signing key. So you can remove that file:
+`step-ca` does not actually need the root CA signing key, so you can remove that file:
 
 ```shell
 $ shred -u $(step path)/secrets/root_ca_key
@@ -138,7 +138,7 @@ When you run [`step ca init`](../step-cli/reference/ca/init), it creates artifac
  - `$STEPPATH/secrets/intermediate_ca_key` the intermediate signing key used by step-ca
 
 
-`step-ca` does not actually need the root CA signing key. So you can remove that file:
+`step-ca` does not actually need the root CA signing key, so you can remove that file:
 
 ```shell
 $ shred -u $(step path)/secrets/root_ca_key
@@ -273,9 +273,9 @@ That's it! You should now be able to start `step-ca` and generate X.509 certific
 that can be validated and authenticated by any software that trusts your root
 certificate.
 
-## Faqs
+## FAQs
 
-### Can I have multiple intermediate CAs??
+### Can I have multiple intermediate CAs?
 
 Sure. Let's say you have a longer path of intermediate CAs:
 
