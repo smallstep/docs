@@ -140,7 +140,19 @@ $ chmod 400 ~/.ssh/terraform*
 
 ### 4. Run Terraform
 
-Terraform uses a backend hosted by [HashiCorp](https://app.terraform.io/session) to store state information about managed infrastructure as well as manage concurrency locks to allow only one team member to perform changes at a time. The CLI needs a user configuration as outlined below. Create a user account and organization at [app.terraform.io](https://app.terraform.io/session) and get a user token. For more details, see [HashiCorp's Terraform CLI docs](https://www.terraform.io/docs/commands/cli-config.html).
+Terraform uses a backend
+hosted by [HashiCorp](https://app.terraform.io/session)
+to store managed infrastructure state
+and manage concurrency locks
+that allow only one team member
+to perform changes at a time.
+The CLI needs a user configuration
+as outlined below.
+Create a user account and organization
+at [app.terraform.io](https://app.terraform.io/session)
+and get a user token.
+For more details,
+see [HashiCorp's Terraform CLI docs](https://www.terraform.io/docs/commands/cli-config.html).
 
 **Note**: terraform won't strictly require a backend when being used by a single developer/operator
 

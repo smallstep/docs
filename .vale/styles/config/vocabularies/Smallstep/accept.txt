@@ -948,3 +948,4 @@ organizationalUnit
 publicKey
 serialNumber
 testuser
+disallow

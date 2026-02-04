@@ -23,7 +23,7 @@ This tutorial covers:
 ### Before you begin
 This tutorial assumes you have created a Smallstep Team and a Certificate Manager Authority using the steps in [Getting Started](./getting-started.mdx).
 
-### Step 1 - Create a test certificate
+### 1.Create a test certificate
 
 With an Authority created and your local client configured,
 you can create a test certificate by running the `step ca certificate` command.
@@ -43,7 +43,7 @@ In this command, we are asking the CA to create a certificate with the following
 When you run this command, it will envoke the `authority-admin` provisioner and start a single sign-on flow via the Smallstep console.
 After a successful sign-in, the authority will issue the certificate. 
 
-### Step 2 - Inspect a test certificate
+### 2. Inspect a test certificate
 You can inspect your certificate by running:
 
 <CodeBlock language="shell-session" copyText="step certificate inspect --short myservice.crt">
@@ -63,7 +63,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
           to:  2021-10-05T21:31:12Z
 ```
 
-### Step 3 - Renew a certificate
+### 3. Renew a certificate
 Certificates expire. 
 Certificate Manager makes renewing a certificate ahead of expiration easy. 
 Renewals are authenticated using your existing certificate and produce an identical certificate with a new serial number and extended lifetime.
@@ -92,7 +92,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2441...2018]
 </CodeBlock>
 
 
-### Step 4 - Revoke a certificate
+### 4. Revoke a certificate
 
 Certificate Manager DevOps Authorities use passive revocation and short-lived certificates by default. 
 To passively revoke a certificate means to block its renewal at the CA. 
