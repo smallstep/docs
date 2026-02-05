@@ -35,15 +35,21 @@ Supported platforms:
 - macOS, iOS, iPadOS (via `.mobileconfig` profiles)
 - Windows (via `.xml` SyncML profiles)
 
-## Device sync
+## Step 1. Get a Fleet API token
 
-To sync your device inventory from Fleet to Smallstep, you'll create an API user in Fleet and configure the connection in Smallstep.
+Smallstep needs a Fleet API token to sync your device inventory. You can use a personal API token for testing, or create a dedicated API-only user for production use.
 
-### 1. Create an API-only user in Fleet
+### Option A: Use a personal API token
 
-An API-only user is a Fleet user that cannot log into the Fleet UI and is intended for automated integrations. The default **Observer** role provides read-only access to host information, which is all Smallstep needs for device sync.
+1. In Fleet, click your profile icon in the top right and select **My account**
+2. Click **Get API token**
+3. Copy the token — you'll need it for the next step
 
-You'll need the [fleetctl CLI](https://fleetdm.com/guides/fleetctl#installing-fleetctl) tool installed and authenticated with admin privileges to create an API-only user.
+### Option B: Create an API-only user (recommended for production)
+
+For production use, we recommend creating a dedicated API-only user for the Smallstep integration rather than using a personal account token. An API-only user cannot log into the Fleet UI and is intended for automated integrations.
+
+You'll need the [fleetctl CLI](https://fleetdm.com/guides/fleetctl#installing-fleetctl) tool installed and authenticated with admin privileges.
 
 1. Configure fleetctl with your Fleet server address:
 
@@ -72,7 +78,7 @@ You'll need the [fleetctl CLI](https://fleetdm.com/guides/fleetctl#installing-fl
    Success! The API token for your new user is: <TOKEN>
    ```
 
-   Copy this token—you'll need it for the next step.
+   Copy this token — you'll need it for the next step.
 
 <Alert severity="info">
 <div>
@@ -80,21 +86,7 @@ The default role for API-only users is **Observer**, which grants read-only acce
 </div>
 </Alert>
 
-### Alternative: Get an API token from the Fleet UI
-
-If you prefer not to create a dedicated API-only user, you can generate an API token for an existing user:
-
-1. In Fleet, click your profile icon in the top right and select **My account**
-2. Click **Get API token**
-3. Copy the token and use it in Smallstep's Fleet connection settings
-
-<Alert severity="warning">
-<div>
-For production use, we recommend creating a dedicated API-only user rather than using a personal account token. This provides better security isolation and ensures the integration continues to work if individual users leave the organization.
-</div>
-</Alert>
-
-### 2. Connect Fleet to Smallstep
+## Step 2. Connect Fleet to Smallstep
 
 Now you'll add your Fleet API credentials to Smallstep.
 
@@ -114,7 +106,7 @@ Now you'll add your Fleet API credentials to Smallstep.
 
 Within a few minutes, you will see your Fleet devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory syncs from Fleet approximately every four hours.
 
-### 3. Add the Smallstep Certificate Authority in Fleet
+## Step 3. Add the Smallstep Certificate Authority in Fleet
 
 Now we'll add the Smallstep SCEP credentials to Fleet.
 
@@ -132,9 +124,15 @@ Now we'll add the Smallstep SCEP credentials to Fleet.
 
 Fleet will test the CA connection after you create it.
 
-### 4. Create a SCEP configuration profile
+<Alert severity="info">
+<div>
+If you plan to use GitOps instead of the Fleet UI, skip this step and see the [GitOps section below](#gitops-configure-fleet-with-fleetctl) for the YAML-based alternative.
+</div>
+</Alert>
 
-Fleet deploys certificates to devices using configuration profiles. You'll need to create a profile that includes the SCEP payload with Fleet's dynamic variables.
+## Step 4. Create SCEP configuration profiles
+
+Fleet deploys certificates to devices using configuration profiles. You'll need to create profiles that include the SCEP payload with Fleet's dynamic variables.
 
 Fleet provides these variables for Smallstep certificate enrollment:
 
@@ -147,9 +145,9 @@ Fleet provides these variables for Smallstep certificate enrollment:
 
 If you used a different name when adding the CA in Fleet, replace `SMALLSTEP_AGENT` accordingly.
 
-#### Example macOS/iOS SCEP profile
+### macOS/iOS SCEP profile (`smallstep-agent.mobileconfig`)
 
-Create a `.mobileconfig` file with the following structure.
+Create a file called `smallstep-agent.mobileconfig` with the following structure.
 
 This profile contains three payloads:
 
@@ -275,9 +273,9 @@ This profile contains three payloads:
 - Replace the `PayloadUUID` values with unique identifiers. You can generate them with `uuidgen`.
 - Replace the `<team-slug>` value with your Smallstep team slug
 
-#### Example Windows SCEP profile
+### Windows SCEP profile (`smallstep-scep.xml`)
 
-For Windows devices, create an XML profile using the SyncML format.
+For Windows devices, create a file called `smallstep-scep.xml` using the SyncML format.
 This profile mirrors the macOS profile above, enrolling a SCEP certificate
 and trusting the Smallstep Agent Root CA.
 
@@ -394,7 +392,9 @@ To get the **CA Thumbprint**, go to [**Certificate Manager → Authorities**](ht
 - Replace `YOUR_ROOT_CA_SHA256_FINGERPRINT` with the Root Fingerprint from the Smallstep Agents authority.
 - If you used a different CA name in Fleet, replace `SMALLSTEP_AGENT` in the variable names accordingly.
 
-To also install the Smallstep Agent Root CA on Windows, create a second profile using the `RootCATrustedCertificates` CSP:
+### Windows Root CA profile (`smallstep-root-ca.xml`)
+
+To install the Smallstep Agent Root CA on Windows, create a second file called `smallstep-root-ca.xml` using the `RootCATrustedCertificates` CSP:
 
 ```xml
 <Replace>
@@ -412,20 +412,22 @@ To also install the Smallstep Agent Root CA on Windows, create a second profile 
 </Replace>
 ```
 
-### 5. Deploy the configuration profiles
+## Step 5. Deploy the configuration profiles and Smallstep agent
+
+### Upload profiles
 
 1. In Fleet, go to **Controls → OS settings → Custom settings**
 2. Click **Add profile**
-3. Upload your `.mobileconfig` file (for macOS/iOS) or `.xml` file (for Windows)
+3. Upload your `smallstep-agent.mobileconfig` file (for macOS/iOS) or your `.xml` files (for Windows)
 4. Assign the profile to your desired scope (teams or all devices)
 
 The profiles will be deployed to devices at their next check-in. Fleet will automatically substitute the variables with the appropriate values for each device.
 
-## 6. Deploy the Smallstep agent
+### Deploy the agent
 
-The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent makes it easier to configure endpoints and manage certificates.
+The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent manages certificates and makes it easy to configure endpoints.
 
-You can deploy the agent using Fleet's [software deployment](hrtps://fleetdm.com/guides/deploy-software-packages) feature:
+You can deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
 1. Download the agent package:
    - macOS: [step-agent-plugin_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
    - Windows (x64): [step-agent-plugin_latest_amd64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
@@ -433,6 +435,97 @@ You can deploy the agent using Fleet's [software deployment](hrtps://fleetdm.com
 2. In Fleet, go to **Software**, choose **Custom Package**, and add the package for distribution
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
+
+## GitOps: Configure Fleet with `fleetctl`
+
+As an alternative to Steps 3 through 5, you can manage your entire Fleet configuration with YAML files and the `fleetctl gitops` command. This approach is ideal for version-controlled, repeatable deployments.
+
+### Directory layout
+
+A typical GitOps repository for Fleet looks like this:
+
+```
+fleet-gitops/
+├── default.yml
+├── teams/
+│   └── team.yml
+└── lib/
+    ├── smallstep-agent.mobileconfig
+    ├── smallstep-scep.xml
+    └── smallstep-root-ca.xml
+```
+
+- `default.yml` — Organization-wide settings, including certificate authorities
+- `teams/team.yml` — Per-team configuration for profiles and software
+- `lib/` — Configuration profile files created in [Step 4](#step-4-create-scep-configuration-profiles)
+
+### Add the Smallstep CA
+
+In `default.yml`, add the Smallstep certificate authority under `org_settings`:
+
+```yaml
+org_settings:
+  certificate_authorities:
+    smallstep:
+      - name: SMALLSTEP_AGENT
+        url: <SCEP URL from Smallstep>
+        challenge_url: <SCEP Challenge URL from Smallstep>
+        username: $SMALLSTEP_CHALLENGE_USERNAME
+        password: $SMALLSTEP_CHALLENGE_PASSWORD
+```
+
+The `$SMALLSTEP_CHALLENGE_USERNAME` and `$SMALLSTEP_CHALLENGE_PASSWORD` values are environment variables. Set them before running `fleetctl gitops`:
+
+```bash
+export SMALLSTEP_CHALLENGE_USERNAME='your-challenge-username'
+export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
+```
+
+### Add configuration profiles
+
+In your team YAML file, reference the profile files from [Step 4](#step-4-create-scep-configuration-profiles):
+
+```yaml
+controls:
+  macos_settings:
+    custom_settings:
+      - path: ../lib/smallstep-agent.mobileconfig
+  windows_settings:
+    custom_settings:
+      - path: ../lib/smallstep-scep.xml
+      - path: ../lib/smallstep-root-ca.xml
+```
+
+### Add the Smallstep agent software
+
+In the same team YAML file, add the Smallstep agent packages:
+
+```yaml
+software:
+  packages:
+    - url: https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg
+    - url: https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi
+```
+
+### Apply the configuration
+
+Run `fleetctl gitops` to apply the configuration:
+
+```bash
+fleetctl gitops -f default.yml -f teams/team.yml
+```
+
+Use `--dry-run` to validate your configuration before applying:
+
+```bash
+fleetctl gitops -f default.yml -f teams/team.yml --dry-run
+```
+
+<Alert severity="info">
+<div>
+The `--dry-run` flag is useful for CI pipelines. You can run it on pull requests to validate configuration changes before merging.
+</div>
+</Alert>
 
 ## Confirmation
 
@@ -447,5 +540,3 @@ On the device itself:
 - **macOS**: Open **Keychain Access** and look for a certificate issued by your Smallstep authority
 - **iOS/iPadOS**: Go to **Settings → General → VPN & Device Management** to view installed profiles
 - **Windows**: Open **certmgr.msc** and check the Personal certificates store
-
-
