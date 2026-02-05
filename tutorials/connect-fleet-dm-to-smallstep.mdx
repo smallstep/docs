@@ -125,7 +125,7 @@ Now we'll add the Smallstep SCEP credentials to Fleet.
 5. Fill in the fields:
    - **Name**: A unique identifier using letters, numbers, and underscores only (for example, `SMALLSTEP_AGENT`). Fleet will create configuration profile variables with this name as a suffix.
    - **SCEP URL**: Paste the SCEP URL from Smallstep
-   - **Challenge URL**: Paste the SCEP Challenge URL from Smallstep (Fleet calls this "Challenge URL")
+   - **Challenge URL**: Paste the SCEP Challenge URL from Smallstep
    - **Username**: Paste the Challenge Username from Smallstep
    - **Password**: Paste the Challenge Password from Smallstep
 6. Click **Add CA**
@@ -147,17 +147,17 @@ Fleet provides these variables for Smallstep certificate enrollment:
 
 If you used a different name when adding the CA in Fleet, replace `SMALLSTEP_AGENT` accordingly.
 
-
 #### Example macOS/iOS SCEP profile
 
 Create a `.mobileconfig` file with the following structure.
 
-This profile contains two payloads:
+This profile contains three payloads:
 
 1. **SCEP payload**: Issues a provisional SCEP certificate that the Smallstep agent uses for bootstrapping into a Device Attested environment
 2. **Root CA trust payload**: Installs the Smallstep Agent Root CA so the agent can validate its certificate chain.
    To create this payload, open the downloaded `.pem` file in a text editor and copy the Base64-encoded certificate contents (everything between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`, not including those lines)
-   You will paste this value into the `<data>` field of the Root CA trust payload below.
+   You will paste this value inside the `<data>` field of the Root CA trust payload below.
+3. **Agent Configuration**: A configuration payload for the Smallstep Agent that includes your Smallstep team slug.
 
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -423,18 +423,14 @@ The profiles will be deployed to devices at their next check-in. Fleet will auto
 
 ## 6. Deploy the Smallstep agent
 
-We recommend deploying the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent makes it easier to configure endpoints and manage certificates for additional use cases like VPN authentication.
+The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent makes it easier to configure endpoints and manage certificates.
 
-You can deploy the agent using Fleet's software management features:
-
+You can deploy the agent using Fleet's [software deployment](hrtps://fleetdm.com/guides/deploy-software-packages) feature:
 1. Download the agent package:
    - macOS: [step-agent-plugin_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
    - Windows (x64): [step-agent-plugin_latest_amd64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
    - Windows (ARM64): [step-agent-plugin_latest_arm64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_arm64.msi)
-
-2. In Fleet, go to **Software** and add the package for distribution
-3. Use Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) to install the agent on your devices
-4. Configure the agent using Fleet's [scripting features](https://fleetdm.com/guides/scripts) or a separate configuration profile
+2. In Fleet, go to **Software**, choose **Custom Package**, and add the package for distribution
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
 
