@@ -1,21 +1,21 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Basic Certificate Authority Operations
 html_title: Basic Certificate Authority Operations
 description: Learn basic certificate authority operations in Smallstep. Read docs today and simplify enterprise PKI management with automated workflows.
 ---
 
 
-## Before You Begin
+## Before you begin
 
 This document assumes you have initialized and started up a `step-ca` instance using the steps in [Getting Started](./getting-started.mdx).
 
-## Table of Contents
+## Table of contents
 
 - [Working With X.509 Certificates](#working-with-x509-certificates)
 - [Working With SSH Certificates](#working-with-ssh-certificates)
 
-## Working With X.509 Certificates
+## Working with X.509 certificates
 
 Let's perform some basic operations on X.509 certificates:
 - [Get a Certificate](#get-a-certificate)
@@ -25,7 +25,7 @@ Let's perform some basic operations on X.509 certificates:
 - [Adjust Certificate Lifetimes](#adjust-certificate-lifetimes)
 - [Revoke a Certificate](#revoke-a-certificate)
 
-### Get a Certificate
+### Get a certificate
 
 Once you have a certificate authority up and running, the [`step ca certificate`](../step-cli/reference/ca/certificate) command is a one-step option for generating a private key and obtaining a signed certificate:
 
@@ -61,7 +61,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 7720...1576]
     </div>
 </Alert>
 
-### Sign a Certificate Signing Request (CSR)
+### Sign a certificate signing request (CSR)
 
 ([What's a Certificate SIgning Request?](https://smallstep.com/blog/everything-pki/#certificate-signing-requests))
 
@@ -162,7 +162,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 1459...0708]
           to:  2021-10-20T18:15:55Z
 ```
 
-### Renew a Certificate
+### Renew a certificate
 
 Certificate renewal is easy, and is authenticated using the existing private key:
 
@@ -172,17 +172,17 @@ $ step ca renew foo.crt foo.key
 Your certificate has been saved in foo.crt.
 ```
 
-When it comes time to renew your certificate, do not dawdle: Once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](./renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
+When it comes time to renew your certificate, do not dawdle: once a certificate expires, the CA will not renew it. To avoid catastrophe, you should [set up automated renewals](./renewal.mdx) for any certificate that always needs to be valid. Our automation methods will attempt renewal at around two-thirds of a certificate's lifetime.
 
 Note that because [`step ca renew`](../step-cli/reference/ca/renew) uses mutual TLS authentication, it can only renew client certificates (certificates that are marked with "Client Authentication" key usage). Any other certificate must be replaced before expiry instead.
 
-### Adjust Certificate Lifetimes
+### Adjust certificate lifetimes
 
 The 24 hour default validity window for certificates from `step-ca` is arbitrary. Depending on your threat model and use context, you may want much shorter or much longer certificate lifetimes:
 - Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
 - Client certificates for humans typically are shorter lived and could expire after a few minutes or up to a month.
 
-A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
+A TLS certificate only needs to be valid at the moment the connection is established. Therefore, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
 
 You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate:
 
@@ -207,9 +207,9 @@ Note that default maximum certificate duration is 24 hours. To adjust the global
 You can also set default, minimum, and maximum certificate durations on each provisioner.
 See [Basic Configuration Options](./configuration.mdx#basic-configuration-options) for more details.
 
-### Revoke a Certificate
+### Revoke a certificate
 
-There is no way to "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
+You cannot "un-issue" a certificate. Once a certificate has been signed and distributed by the CA, it's valid until it expires.
 
 However, you can ask the CA to block the renewal of a certificate. This is called _passive revocation_.
 
@@ -223,7 +223,7 @@ Certificate with Serial Number 30671613121311574910895916201205874495 has been r
 
 For more on this topic, read [All About Certificate Revocation](./revocation.mdx).
 
-## Working With SSH Certificates
+## Working with SSH certificates
 
 In this section we'll go over the basics of issuing and renewing SSH certificates for users and hosts.
 
@@ -234,7 +234,7 @@ Instead, they follow an [SSH-specific certificate format](https://datatracker.ie
 
 Mercifully, they are a lot simpler than X.509:
 - SSH supports only User certificates and Host certificates.
-- There are no certificate chains in SSH.
+- No certificate chains exist in SSH.
 - Instead of a root CA certificate, an SSH CA is represented as a trusted public key.
 - An SSH CA is just like any other SSH public key, except it's prepended with a special `@cert-authority` annotation when used in a `known_hosts` file.
 
@@ -265,7 +265,7 @@ Add this to key your SSHD configuration. On your host, run:
 
 ```shell-session
 $ cat <<EOF >> /etc/ssh/sshd_config
-# This is the CA's public key for authenticating user certificates:
+# This is the ca's public key for authenticating user certificates:
 TrustedUserCAKeys /path/to/ssh_user_key.pub
 EOF
 ```
@@ -409,7 +409,7 @@ Your SSH client will now trust any host with a valid certificate signed by the C
 
 You're all done. Now test your SSH connection.
 
-## Next Steps
+## Next steps
 
 * Learn to automate certificate management in your PKI. [ACME Basics](./acme-basics.mdx) introduces the ACME protocol for certificate automation, and includes a tutorial for setting it up with `step-ca`.
 * See [Provisioners](./provisioners.mdx), [Production Considerations](./certificate-authority-server-production.mdx), and our [Configuration Guide](./configuration.mdx) to learn more about tailoring `step-ca` to your infrastructure.

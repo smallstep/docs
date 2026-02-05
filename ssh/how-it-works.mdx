@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: Smallstep SSH How It Works
 html_title: How SSH Certificates Work - Technical Guide
 description: Technical overview of SSH certificate authentication. Learn how certificates replace keys for better security and management in modern SSH.
@@ -31,25 +31,25 @@ From here, the ssh handshake continues seamlessly. <br />
 
 <br />
 
-If Alice wants to connect from a different device, it's easier for her to run `step ssh login` (or let `step ssh proxycommand` run it for her transparently) than it is to extract her certificate from `ssh-agent` and copy it over. Bastion hosts are supported, too! You can ssh to the server using its internal DNS name, and the connection will flow through your bastion. All connection requests to the host are logged and reported in the smallstep console.
+If Alice wants to connect from a different device, it's easier for her to run `step ssh login` (or let `step ssh proxycommand` run it for her transparently) than it is to extract her certificate from `ssh-agent` and copy it over. Bastion hosts are supported, too! You can ssh to the server using its internal DNS name, and the connection will flow through your bastion. All connection requests to the host are logged and reported in the Smallstep console.
 
-### Manage SSH Access From Your Identity Provider
+### Manage SSH access from your identity provider
 
-All user and group information is maintained in your existing identity provider. We pull basic information from your IdP using the SCIM protocol or native APIs. In the smallstep console, you'll tag groups that need SSH access. When you add or remove users in one of these groups in your IdP, it will automatically flow to your entire managed fleet of hosts. No need to kick off automation flows to push key changes. Access is instantly added, changed, or revoked.
+All user and group information is maintained in your existing identity provider. We pull basic information from your IdP using the SCIM protocol or native APIs. In the Smallstep console, you'll tag groups that need SSH access. When you add or remove users in one of these groups in your IdP, it will automatically flow to your entire managed fleet of hosts. No need to kick off automation flows to push key changes. Access is instantly added, changed, or revoked.
 
-### Standard, Secure Connections
+### Standard, secure connections
 
-Smallstep integrates with your identity provider using SCIM for user provisioning and OIDC for authentication. Users and hosts are issued both SSH and X.509 certificates (for securing interaction with smallstep's APIs using mTLS). The client API is used to determine if a host is managed, to discover bastions, and for other service-related requests.
+Smallstep integrates with your identity provider using SCIM for user provisioning and OIDC for authentication. Users and hosts are issued both SSH and X.509 certificates (for securing interaction with Smallstep's APIs using mTLS). The client API is used to determine if a host is managed, to discover bastions, and for other service-related requests.
 
-### First-time Host configuration
+### First-time host configuration
 
-Operators run `step ca bootstrap` and `step ssh config --host` to set up mTLS and to configure sshd to use certificates. Similar to User settings, we add our information to the end of the existing sshd configuration, ensuring continued operations with existing key-based solutions. This operation also instantiates the step-ssh agent, which is configured automatically to run via systemd. At setup, native Linux NSS and PAM modules are configured by the step-ssh agent. At runtime, the agent connects to the smallstep API using mTLS and is responsible for synchronizing User and group ACLs to the Host.
+Operators run `step ca bootstrap` and `step ssh config --host` to set up mTLS and to configure sshd to use certificates. Similar to User settings, we add our information to the end of the existing sshd configuration, ensuring continued operations with existing key-based solutions. This operation also instantiates the step-ssh agent, which is configured automatically to run via systemd. At setup, native Linux NSS and PAM modules are configured by the step-ssh agent. At runtime, the agent connects to the Smallstep API using mTLS and is responsible for synchronizing User and group ACLs to the Host.
 
-With an SSH certificate in place, smallstep interacts with SSHD, PAM, and NSS UNIX services to enable access control, user lifecycle management, and detailed event logging. Smallstep provides the ability to automatically sync GID and UID values from your identity provider for each User. If not available, the application will automatically assign values.
+With an SSH certificate in place, Smallstep interacts with SSHD, PAM, and NSS UNIX services to enable access control, user lifecycle management, and detailed event logging. Smallstep provides the ability to automatically sync GID and UID values from your identity provider for each User. If not available, the application will automatically assign values.
 
-### Host Tags and ACLs
+### Host tags and ACLs
 
-Host tags are similar to EC2 Instance Tags. They’re used to define collections of hosts for [access control](./acls.mdx). You might assign tags identifying a host’s role (e.g., bastion, web, database), region (e.g., us-east), environment (e.g., staging, production), or any other relevant attribute. Let's look at an example:
+Host tags are similar to EC2 Instance Tags. They’re used to define collections of hosts for [access control](./acls.mdx). You might assign tags identifying a host's role (for example, bastion, web, database), region (for example, us-east), environment (for example, staging, production), or any other relevant attribute. Let's look at an example:
 
 ![image](/graphics/quickstart/host-tags-example.png 'Host tags example')
 
@@ -58,13 +58,13 @@ Host tags are similar to EC2 Instance Tags. They’re used to define collections
 
 Host tags are used along with IdP user groups in grants. Grants give users in a particular identity provider group, access to hosts with a specific tag combination.
 
-### Access Control
+### Access control
 
-With User information synced from the identity provider and the Hosts registered, the smallstep administrator can configure access control. IdP User groups are mapped to Host Tags and given standard SSH access or root access via sudo. Access grants synchronize automatically to all Managed Hosts, and the corresponding NSS and PAM modules are updated.
+With User information synced from the identity provider and the Hosts registered, the Smallstep administrator can configure access control. IdP User groups are mapped to Host Tags and given standard SSH access or root access via sudo. Access grants synchronize automatically to all Managed Hosts, and the corresponding NSS and PAM modules are updated.
 
 Read more: [Access Control Guide](./acls.mdx)
 
-### SSH Handshake and Host ACL Enforcement
+### SSH handshake and host ACL enforcement
 
 Upon connection, `ssh` and `sshd` validate the authenticity of certificates using a standard exchange process:
 
@@ -81,31 +81,31 @@ Upon verification of the User's certificate, the system will determine access us
 Once user access privileges are determined, the system will:
 
 1. **Create a home directory if none exists.**
-2. **Audit Logging:** SSH events trigger a PAM module to log session start, sudo actions, and session end activities. This event information is displayed in the smallstep UI.
+2. **Audit Logging:** SSH events trigger a PAM module to log session start, sudo actions, and session end activities. This event information is displayed in the Smallstep UI.
 
 With access verified and the proper services in place, SSH access is granted, and the User can perform any needed activities on the Host.
 
-## Ongoing Operations
+## Ongoing operations
 
-Smallstep SSH is designed for environments that are continually changing. We automatically synchronize Users and Groups with your company directory. As an administrator, when you add or remove users in your company directory, SSH access is instantly granted or revoked on all your hosts. Changes to Hosts are simple commands that can be integrated into existing run books or automation systems. Smallstep administrators can also view session logging, Host lists and tags, User and user group lists, and configure billing information.
+Smallstep SSH is designed for environments that are continually changing. We automatically synchronize Users and Groups with your company directory. As an administrator, when you add or remove users in your company directory, SSH access is instantly granted or revoked on all your hosts. Changes to Hosts are simple commands that can be integrated into existing run books or automation systems. Smallstep administrators can also view session logging, host lists and tags, user and user group lists, and configure billing information.
 
-### API for Automation
+### API for automation
 
 The Smallstep API can be used to read and manage your host access control settings programmatically.
 The API is currently an alpha release with limited availability.
 Request access to this API for your account by [creating a support ticket](https://support.smallstep.com/en/contact-us) for our Customer Engineering team. Be sure to include your team name in your request.
 
-## Secure and Highly Available
+## Secure and highly available
 
-### Smallstep SSH Professional
+### Smallstep SSH Pro
 
-The Smallstep SSH SaaS offering includes a hosted certificate authority and a set of related services to enable single sign-on SSH. The smallstep application is engineered for high availability and delivered as a managed offering running on Google Cloud. We also follow industry best practices around redundancy and backups to ensure continued operations. Certificate-based authentication relies on a trusted certificate authority. CAs use a private key to sign certificates. If a CA private key falls into the wrong hands, it can be used maliciously to impersonate people, services, or machines. Smallstep uses the Google Cloud KMS service. Designed to manage private keys, KMS prevents your private key from being transferred, so it cannot be exfiltrated and used maliciously. Instead, the KMS offers a limited API that you can use for signing. Requests to this API are logged. So you always know that your private keys are secure in the KMS. Learn more about our [security measures](https://smallstep.com/security).
+The Smallstep SSH SaaS offering includes a hosted certificate authority and a set of related services to enable single sign-on SSH. The Smallstep application is engineered for high availability and delivered as a managed offering running on Google Cloud. We also follow industry best practices around redundancy and backups to ensure continued operations. Certificate-based authentication relies on a trusted certificate authority. CAs use a private key to sign certificates. If a CA private key falls into the wrong hands, it can be used maliciously to impersonate people, services, or machines. Smallstep uses the Google Cloud KMS service. Designed to manage private keys, KMS prevents your private key from being transferred, so it cannot be exfiltrated and used maliciously. Instead, the KMS offers a limited API that you can use for signing. Requests to this API are logged, ensuring that your private keys are always secure in the KMS. Learn more about our [security measures](https://smallstep.com/security).
 
 ### Smallstep SSH Run Anywhere
 
-The same offering is available in an on-premise configuration that brings the simplicity of a SaaS offering with a private deployment's control and security. Smallstep SSH Run Anywhere installs in Kubernetes and integrates with your existing HSM for storage of private keys. [Contact Us](https://smallstep.com/pricing-question) for more information.
+The same offering is available in an on-premises configuration that brings the simplicity of a SaaS offering with a private deployment's control and security. Smallstep SSH Run Anywhere installs in Kubernetes and integrates with your existing HSM for storage of private keys. [Contact Us](https://smallstep.com/pricing-question) for more information.
 
-## Setup and Configuration
+## Setup and configuration
 
 ### User
 
@@ -113,17 +113,17 @@ The same offering is available in an on-premise configuration that brings the si
 2. Run `step ssh config --team [team-name]`
 3. Go through an in-browser single sign-on OAuth OIDC flow to authenticate SSH as normal. When your certificate expires, you’ll authenticate through the browser again.
 
-### Identity Provider
+### Identity provider
 
-1. Configure the smallstep application in your Okta, Microsoft Entra ID, or Google Workspace identity provider interface.
+1. Configure the Smallstep application in your Okta, Microsoft Entra ID, or Google Workspace identity provider interface.
    1. Activate OIDC flow for single sign-on workflows
    2. Activate SCIM to synchronize user groups
 2. Assign users to SSH groups (or repurpose existing groups)
-3. Users and groups from your identity provider will display in the smallstep UI for access control assignments.
+3. Users and groups from your identity provider will display in the Smallstep UI for access control assignments.
 
 ### Hosts
 
 1. Download and install package that includes `step` and the step-ssh agent.
 2. Run `step ca bootstrap` and `step ssh config --host` to set up mTLS and to configure SSH to use certificates.
-3. Run `step-ssh activate` to start up the smallstep agent and enable the PAM and NSS modules
+3. Run `step-ssh activate` to start up the Smallstep agent and enable the PAM and NSS modules
 4. Use `step-ssh-ctl` to register the Host, define the host tags, and set the bastion flag. Host setup can be automated using Ansible, Chef, Puppet, Terraform, or any scripting language.

@@ -2,7 +2,7 @@
 title: Cryptographic Protection
 html_title: Secure Cryptographic Key Protection Methods
 description: Secure private keys in step-ca deployments. Hardware security modules, key management, and cryptographic best practices for enterprise PKI.
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 ---
 
 By default, `step-ca` stores its signing keys encrypted on disk.
@@ -25,7 +25,7 @@ For these scenarios, `step-ca` integrates with the following key management syst
 For a complete, end-to-end example using a YubiKey,
 see our blog post [Build a Tiny Certificate Authority For Your Homelab](https://smallstep.com/blog/build-a-tiny-ca-with-raspberry-pi-yubikey/).
 
-## Before You Begin
+## Before you begin
 
 The `step ca init` command has very limited support for keys not stored on disk. We've created the [`step kms` plugin](https://github.com/smallstep/step-kms-plugin) for managing the keys and certificates on cloud KMSs and on hardware devices. Please install this plugin before continuing with any of the examples below.
 
@@ -70,7 +70,7 @@ You'll need this key name for the next step.
   </div>
 </Alert>
 
-Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+Now, let's sign a root CA certificate based on the key you just created. Substitute the key name output from `step kms create` here:
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
@@ -163,7 +163,7 @@ When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH use
 2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
-### Notes on Google Cloud KMS Permissions
+### Notes on Google Cloud KMS permissions
 
 Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
 See [Google Cloud KMS: Access Control with IAM](https://cloud.google.com/kms/docs/iam) for an overview.
@@ -226,7 +226,7 @@ You'll need this key name for the next step.
   </div>
 </Alert>
 
-Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+Now, let's sign a root CA certificate based on the key you just created. Substitute the key name output from `step kms create` here:
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
@@ -324,7 +324,7 @@ When you start `step-ca`, it prints your X.509 root fingerprint, and the SSH use
 2022/09/20 16:28:45 Serving HTTPS on :443 ...
 ```
 
-### Notes on AWS KMS Permissions
+### Notes on AWS KMS permissions
 
 Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
 See [Using IAM Policies With AWS KMS](https://docs.aws.amazon.com/kms/latest/developerguide/iam-policies.html) for an overview.
@@ -365,7 +365,7 @@ $ step ca init --kms azurekms
 This walks you through the process of creating root and intermediate CA signing keys in Key Vault, and configuring the CA to use them.
 If you're creating an SSH CA, SSH host and user CA keys are created in Key Vault as well.
 
-### Manual Configuration
+### Manual configuration
 
 To configure an existing CA for Azure Key Vault, or to import an existing Azure Key Vault signing key, add the `kms` object to your `ca.json`, and replace the `key` properties with the key name, vault name, and version of your intermediate (signing) key in Azure Key Vault:
 
@@ -385,7 +385,7 @@ To configure an existing CA for Azure Key Vault, or to import an existing Azure 
 * In the `key` URI, the optional `hsm` property can be set to `true` if HSM protection is desired. This is only used when the key is being created by `step-ca`. The default is to use software-protected (non-HSM-backed) keys. See Key Vault's [About Keys](https://docs.microsoft.com/en-us/azure/key-vault/keys/about-keys) page for more details.
 * In `kms`, an optional `uri` property can be added to provide client credentials (eg. `azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE`) instead of using the environment variables described above.
 
-### Notes on Azure Key Vault IAM Permissions
+### Notes on Azure Key Vault IAM permissions
 
 Following the principle of least privilege, you'll want to define an IAM operational role for step-ca that limits its access.
 See [Provide access to Key Vault keys, certificates, and secrets with an Azure role-based access control](https://learn.microsoft.com/en-us/azure/key-vault/general/rbac-guide?tabs=azure-cli) for an overview.
@@ -479,7 +479,7 @@ You'll need this key name for the next step.
   </div>
 </Alert>
 
-Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+Now, let's sign a root CA certificate based on the key you just created. Substitute the key name output from `step kms create` here:
 
 ```shell nocopy
 $ step certificate create --profile root-ca \
@@ -590,7 +590,7 @@ When you start `step-ca`, you will see your X.509 root fingerprint, and the SSH 
 
 You can leverage a TPM 2.0 chip to store your CA key and sign TLS certificates.
 
-### Prerequisites and Caveats
+### Prerequisites and caveats
 
 * To enable TPM 2.0 support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo)
 * You will need a TPM 2.0 chip and (on Linux) the [`tpm2-tss` package](https://github.com/tpm2-software/tpm2-tss)
@@ -688,7 +688,7 @@ Your X.509 CA is ready. When you start `step-ca`, it prints your X.509 root fing
 
 You can leverage a hardware [YubiKey](https://www.yubico.com/)—and the [YubiKey PIV application](https://www.yubico.com/authentication-standards/smart-card/)—to store your CA keys and sign TLS and SSH certificates.
 
-### Prerequisites and Caveats
+### Prerequisites and caveats
 
 * To enable YubiKey support in `step-ca`, you must follow our [Instructions for building from source using CGO](https://github.com/smallstep/certificates/blob/master/CONTRIBUTING.md#build-step-ca-using-cgo)
 * You will need a YubiKey 5 series device that [supports the PIV application](https://www.yubico.com/store/compare/)
@@ -721,7 +721,7 @@ Once the key is generated, `step` outputs the key name and public key PEM:
   </div>
 </Alert>
 
-Now, let's sign a root CA certificate based on the the key you just created. Substitute the key name output from `step kms create` here:
+Now, let's sign a root CA certificate based on the key you just created. Substitute the key name output from `step kms create` here:
 
 ```shell nocopy
 $ step certificate create --profile root-ca \

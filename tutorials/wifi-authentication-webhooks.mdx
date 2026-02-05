@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: "Wi-Fi Authentication Webhooks"
 html_title: "Wi-Fi Authentication Webhooks"
 description: Smallstep's RADIUS server can call external webhooks for EAP-TLS authorization decisions.
@@ -13,11 +13,11 @@ With Wi-Fi authentication webhooks, you can integrate Smallstep’s RADIUS authe
 
 Smallstep can authenticate to your webhook server using a bearer token or HTTP basic authentication.
 
-## Configuring a RADIUS Webhook in Smallstep
+## Configuring a RADIUS webhook in Smallstep
 
 Our [customer support team](https://support.smallstep.com/en/contact-us) can configure a new RADIUS webhook for you.
 
-## RADIUS Webhook specification
+## RADIUS webhook specification
 
 Your webhook server should use a TLS server certificate issued by a public Web PKI CA.
 
@@ -150,7 +150,7 @@ Your server should respond with the following:
         ```
         
 
-## Example Code
+## Example code
 
 As a starting point for your implementation, Smallstep offers an [example RADIUS webhook server](https://github.com/smallstep/radius-webhooks/), written in Go.
 

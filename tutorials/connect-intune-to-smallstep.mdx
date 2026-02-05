@@ -1,5 +1,5 @@
 ---
-updated_at: January 15, 2026
+updated_at: February 03, 2026
 title: Connect Intune to Smallstep
 html_title: Connect Microsoft Intune to Smallstep Tutorial
 description: Connect Microsoft Intune to Smallstep for Windows device identity. Step-by-step guide for enterprise device trust with MDM integration.
@@ -36,7 +36,7 @@ Client requirements:
 
 # Step-by-step instructions
 
-### 1. Register an Entra ID Application
+### 1. Register an Entra ID application
 
 You’ll need to register an Application in Entra ID that connects Smallstep to Intune. 
 
@@ -58,7 +58,7 @@ Select **＋ New client secret**, and use the following properties:
 
 Copy the **Client Secret Value**, which you will register with Smallstep later.
 
-### 2. Grant API Permissions
+### 2. Grant API permissions
 
 Now we’ll connect the App Registration to Intune by adding application permissions.
 
@@ -91,9 +91,9 @@ Configure the Integration with the values you gathered above:
 
 Within a few minutes, you will see all of your Intune devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory is synced approximately every four hours.
 
-### 4. Add the Smallstep Agent for app distribution
+### 4. Add the Smallstep agent for app distribution
 
-**Note:** If you do not want to install the agent via Intune, see our [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
+**Note:** if you do not want to install the agent via Intune, see our [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
 
 In this step, we’ll add the Smallstep Agent to Intune for distribution to devices.
 
@@ -124,7 +124,7 @@ In this step, we’ll add the Smallstep Agent to Intune for distribution to devi
         - Assign the app to devices as desired.
     - On “Review and Create” click **Create**
 
-### 5. Configure Agent Enrollment Policy Set
+### 5. Configure agent enrollment policy set
 
 In this step, we’ll tie everything together by creating Windows policy to enroll devices using the Smallstep Agent.
 
@@ -136,7 +136,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
 2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
     1. Copy and temporarily save the **Team Name** and **Team ID** values
 
-### 6. Create a Policy in Intune
+### 6. Create a policy in Intune
 
 1. In Intune, choose 🖥️ **Devices**
 2. Under the **Manage Devices** tab, Choose **Configuration**
@@ -203,7 +203,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
         - Name: **Smallstep Agents Authority Intermediate**
         - In Configuration Settings
             - Certificate file: (upload the Intermediate certificate you downloaded earlier)
-            - Destination store: Computer Certificate Store — Root
+            - Destination store: Computer Certificate Store—Root
                 
                 For legacy reasons, even though we are uploading an Intermediate CA here, we want to store it in the Root store, *not* the Intermediate store.
                 
@@ -252,4 +252,4 @@ In Intune, go to Apps and choose the Smallstep agent app.
 
 Under the Assignments tab, remove all devices from Required and Available sections, and add all devices to the Uninstall section.
 
-[OMA-URI Settings for Intune Wifi and Smallstep Agent](https://www.notion.so/OMA-URI-Settings-for-Intune-Wifi-and-Smallstep-Agent-1d6d17a91249808a8f29ee3a88f3394c?pvs=21)
+[OMA-URI Settings for Intune Wi-Fi and Smallstep Agent](https://www.notion.so/OMA-URI-Settings-for-Intune-Wifi-and-Smallstep-Agent-1d6d17a91249808a8f29ee3a88f3394c?pvs=21)

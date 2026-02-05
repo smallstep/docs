@@ -1,5 +1,5 @@
 ---
-updated_at: November 18, 2025
+updated_at: February 03, 2026
 title: Connect Workspace One UEM to Smallstep
 html_title: Omnissa Workspace ONE Integration Guide
 description: Connect Workspace ONE UEM to Smallstep for unified device identity. Enterprise guide for cross-platform device security management.
@@ -63,9 +63,9 @@ After saving the Workspace ONE connection, you will see settings for your integr
 
 Within a few minutes after adding the connection, you should see all of your Workspace ONE devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Device inventory is synced approximately every four hours.
 
-### 3. Create a script for Smallstep Agent configuration
+### 3. Create a script for Smallstep agent configuration
 
-**Note:** If don't want to use Workspace ONE UEM to install the agent, see the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
+**Note:** if you don't want to use Workspace ONE UEM to install the agent, see the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide.
 
 1. In Workspace One UEM, visit **Resources → Scripts**
 2. Choose **Add** and then **Windows**
@@ -94,7 +94,7 @@ Within a few minutes after adding the connection, you should see all of your Wor
     8. For **Deployment**, select "Run Once Immediately" for the **Triggers**. Click **Add**.
     9. Click **Save and Publish**. Click **Publish** on the additional prompt if one is shown.
 
-### 4. Deploy and configure the Smallstep Agent
+### 4. Deploy and configure the Smallstep agent
 
 In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
 
@@ -111,7 +111,7 @@ In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribut
     - For Minimum OS, select Windows 10 (10.0.15063)
 3. In the Add Application panel’s **Deployment Options** tab,
     - Set Install Context to **Device**
-4. FInally, choose **Save & Assign**
+4. Finally, choose **Save & Assign**
 
 <Alert severity="info">
 <div>
@@ -131,7 +131,7 @@ After saving the Native App, you'll see the Application Assignment panel.
 5. Choose **Save**
 6. Choose **Publish** to begin distributing the app.
 
-### 5. Configure Agent Enrollment Profiles
+### 5. Configure agent enrollment profiles
 
 In this step, we’ll tie everything together by creating Windows policy to enroll devices using the Smallstep Agent.
 
@@ -151,7 +151,7 @@ For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s 
 
 1. In Workspace One UEM, visit **Resources → Certificate Authorities**
 2. Choose **+ Add**
-    1. Provide a name for the CA connection, e.g. Smallstep Agents CA
+    1. Provide a name for the CA connection, for example, Smallstep Agents CA
     2. For Authority Type, choose `Microsoft ADCS`
     3. For Protocol, choose `SCEP` 
     4. For Version, choose `NDES 2008/2012` ([NDES for SCEP](https://docs.omnissa.com/bundle/CertificateAuthorityIntegrationsV2410/page/NDESforSCEP.html))
@@ -169,7 +169,7 @@ For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s 
 
 A new modal screen will be presented with the empty Request Template configuration
 
-1. Provide a name for the Template, e.g. `Smallstep Agents`
+1. Provide a name for the Template, for example, `Smallstep Agents`
 2. For Certificate Authority, choose the Smallstep CA you just connected
 3. For the subject name, use a value of `CN={DeviceUuid}`
 4. For Private Key Length, use 2048
@@ -180,14 +180,14 @@ A new modal screen will be presented with the empty Request Template configurati
 8. Ensure Publish Private Key is Disabled
 9. Choose **Save**
 
-#### Create a Windows Profile
+#### Create a Windows profile
 
 1. In Workspace One UEM,
     1. Go to Resources → Profiles.
     2. Click Add, and pick Add Profile from the drop-down
     3. Click Windows, and then select Windows again
     4. Click Device Profile
-    5. Under General, Provide a name (e.g. “Smallstep Device Enrollment”)
+    5. Under General, Provide a name (for example, "Smallstep Device Enrollment")
         1. Select the All Devices group in the Smart Groups select list
         2. Other options can be left as-is
         3. Optionally, click the View Device Assignment button to see the devices to which the profile will be distributed

@@ -40,7 +40,7 @@
       "pattern": "^https://www.gnu.org"
     },
     {
-      "pattern": "^https://freedesktop.org"
+      "pattern": "^https://.*freedesktop.org"
     },
     {
       "pattern": "^https://www.hashicorp.com"

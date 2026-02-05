@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: Smallstep Certificate Manager How It Works
 html_title: Certificate Manager Architecture Guide
 description: Technical architecture of Certificate Manager. Understand components, workflows, and security model for enterprise PKI deployment planning.
@@ -20,21 +20,21 @@ flexible, extensible toolchain with all of the server and client-side components
 you'll need to solve this problem, carefully designed to be operationally
 simple, easy to use, and hard to misuse.
 
-Certificate Manager builds on two open source projects, maintained by smallstep:
+Certificate Manager builds on two open source projects, maintained by Smallstep:
 
 - `step-ca`: a private online certificate authority for secure automated
   certificate management.
 - `step`: a general-purpose cryptography toolkit and the client-side counterpart
   to `step-ca`.
 
-# Certificate Lifecycle Management
+# Certificate lifecycle management
 Here's how the elements described in [Core Concepts]() work are used to enable the different stages of a certificate lifecycle management workflow: 
 
-## Bootstrapping Trust
+## Bootstrapping trust
 
 Before issuing a certificate, your software and systems must be configured to
 trust your authorities. More precisely, you need to configure everything to
-trust your _root certificate_ (i.e., the certificate that belongs to your root
+trust your _root certificate_ (that is, the certificate that belongs to your root
 CA). You can include your root certificate in base images, distribute it using
 configuration management, or use
 [`step ca bootstrap`](https://smallstep.com/docs/step-cli/reference/ca/bootstrap)
@@ -85,7 +85,7 @@ server {
 }
 ```
 
-## Issuing Certificates
+## Issuing certificates
 
 **Issuing** a certificate using `step` is simple. In it's most basic form, the
 [`step ca certificate`](https://smallstep.com/docs/step-cli/reference/ca/certificate)
@@ -143,7 +143,7 @@ is what we recommend for production deploys. For more details see our
 It's also common to trigger renewal from configuration management or from a
 container sidecar. Regardless, `step` makes renewal simple and secure.
 
-### Disabling Renewal
+### Disabling renewal
 
 Finally, sometimes you _don't_ want certificates to be renewed. For example, if
 you're issuing certificates using single sign-on (the `OIDC` provisioner), you
@@ -152,12 +152,12 @@ periodically to get a new certificate instead of renewing. Renewal can be
 enabled and disabled per-provisioner to accommodate this (it's disabled by
 default for the `OIDC` provisioner).
 
-### Renewal After Expiry
+### Renewal after expiry
 
 * This is an Advanced Authority feature
 
 Some use cases demand an option to renew expired certificates.
-For example, intermittently-connected devices may not be able to reach the CA in time for a renewal.
+For example, intermittently connected devices may not be able to reach the CA in time for a renewal.
 The ability to renew expired certificates can be enabled on a per-provisioner basis.
 Enable it in the Smallstep console when you create a new provisioner,
 or on the command line for an existing provisioner.
@@ -171,7 +171,7 @@ Smallstep Certificate Manager supports both _passive_ and _active_ revocation.
   * **Passive revocation** disables renewal for a particular certificate. The certificate will be trusted until it expires.
   * **Active revocation** explicitly invalidates a certificate ahead of expiry. CRL and OCSP are used to distribute revocation status to relying parties. Active revocation is often necessary for incident response. However, caching, availability, and configuration challenges can make active revocation unreliable. For systems that support it, we've found that revoking authorization can be easier to implement and more reliable than active certificate revocation. We've covered this topic in more detail [on our blog](https://smallstep.com/blog/passive-revocation/).
 
-### Using Passive Revocation
+### Using passive revocation
 
 Passive revocation is on by default and works well in conjunction with short-lived certificates.
 To revoke a certificate, run `step ca revoke` and pass the certificate's serial number.
@@ -182,7 +182,7 @@ $ step ca revoke 31952909121245729293840904958100006722
 
 Once revoked, the certificate is no longer renewable.
 
-### Using Active Revocation
+### Using active revocation
 
 Active revocation (CRL and OCSP) is available if you're using an Advanced Authority.
 It can be enabled when you create the authority.
@@ -203,7 +203,7 @@ $ TOKEN=$(step ca token --provisioner jwk-provisioner --revoke $SERIAL)
 $ step ca revoke --token $TOKEN $SERIAL
 ```
 
-## Observability & Alerting
+## Observability & alerting
 
 Certificate Manager is designed to support large, rapidly evolving
 infrastructures. In these environments, it's easy for a small, unnoticed failure
@@ -222,7 +222,7 @@ The Smallstep API can be used to manage your authorities programmatically.
 The API is currently an alpha release with limited availability.
 Request access to this API for your account by [creating a support ticket](https://support.smallstep.com/en/contact-us) for our Customer Engineering team. Be sure to include your team name in your request.
 
-# Certificate Manager in Action
+# Certificate Manager in action
 
 Let's look at how these features come together in a few common workflows.
 
@@ -234,7 +234,7 @@ step ca bootstrap \
   --fingerprint 6d04ff00618125114b97870f835c4a28fce2fec91e4b86946147f5c6a5555ff8
 ```
 
-## Simple Password-based Issuance
+## Simple password-based issuance
 
 To get a certificate, run `step ca certificate`. You'll be prompted to select a
 provisioner. In this example, we'll use the `JWK` provisioner in a
@@ -274,7 +274,7 @@ Your certificate has been saved in any.crt.
 If you inspect the newly issued certificate, you'll find it has an extended
 lifetime.
 
-## One-time Tokens
+## One-time tokens
 
 The `JWK` provisioner is very flexible. Under the hood, it's based on
 short-lived one-time tokens that are signed by a private key. The issuing
@@ -284,7 +284,7 @@ prompted for the password to decrypt it. It generated a one-time token, then
 immediately used it to get a certificate.
 
 Instead of broadly distributing the `JWK` provisioner password, we can generate
-a token in one place (e.g., CI/CD, configuration management, or orchestration):
+a token in one place (for example, CI/CD, configuration management, or orchestration):
 
 ```shell-session nocopy
 $ step ca token alice@yourco.com
@@ -297,10 +297,10 @@ certificate:
 $ step ca certificate alice@yourco.com alice.crt alice.key --token $TOKEN
 ```
 
-## Single Sign-On
+## Single sign-on
 
 Certificates provide a secure, flexible, scalable mechanism for authenticating
-people, too (e.g., for SSH access, API access, or to connect to a BeyondCorp
+people, too (for example, for SSH access, API access, or to connect to a BeyondCorp
 identity-aware proxy). Most organizations already have an identity provider
 (IdP) for authenticating people. The `OIDC` provisioner lets you leverage
 authentication services from Google Workspace, Okta, Microsoft Entra ID, and any other IdP that
@@ -330,7 +330,7 @@ client ecosystem makes it especially easy to integrate.
 
 ACME is a simple challenge-response protocol. A client _orders_ a certificate
 and the authority responds with a set of _challenges_ for the client to complete
-to prove control over the _identifier(s)_ in the order. For example, if a client
+to prove control over the _identifiers_ in the order. For example, if a client
 orders a certificate for a DNS identifier, the authority may challenge the
 client to serve a random number over HTTP from a random path to prove control
 over the domain name.
