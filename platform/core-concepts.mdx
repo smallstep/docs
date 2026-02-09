@@ -1,5 +1,5 @@
 ---
-updated_at: November 11, 2025
+updated_at: February 03, 2026
 title: Core Concepts
 html_title: Platform Core Security Concepts Explained
 description: Fundamental concepts of device identity platform. Understand trust models, attestation, and certificate lifecycle management.
@@ -9,7 +9,7 @@ Device Identity ensures that only company-owned devices can access your enterpri
 
 This document describes the core concepts integral to the Smallstep platform.
 
-## Device Inventory
+## Device inventory
 
 The Smallstep **device inventory** is a canonical list of your approved devices and their hardware identifiers. It forms the basis of your device-based authentication policies. 
 
@@ -21,9 +21,9 @@ And trust is a gradient.
 
 For decades, devices were identified by a nominal identifier such as a MAC address or IP address. Because they are self-reported and mutable, MAC and IP addresses are **device identifiers with no assurance**. These identifiers don’t offer a stable foundation for a device security policy.
 
-So, then, how can we identify devices without the ground shifting beneath our feet?
+How, then, can we identify devices without the ground shifting beneath our feet?
 
-We can improve our assurance of a device’s identity by having a user self-identify the device. They might literally DM the IT security team and say, “My device’s serial number is XA47ADKM5.” Let’s call this a **low-assurance device identifier**. The team has to trust the user to confirm the serial number. But, at least they have an identifier that is permanent, immutable, and unique.
+We can improve our assurance of a device's identity by having a user self-identify the device. They might literally DM the IT security team and say, "My device's serial number is XA47ADKM5." Let's call this a **low-assurance device identifier**. The team has to trust the user to confirm the serial number. But, at least they have an identifier that is permanent, immutable, and unique.
 
 When the company purchases a device, an IT administrator can directly inspect it and retrieve some device identifiers. That gives us better assurance of the identifiers, and we can start building an inventory from this.
 
@@ -37,13 +37,13 @@ And for that, we need a **secure element**. A secure element is a crypto process
 
 A high-assurance device identity requires:
 * Proof of the device's identity (using a platform certificate issued by the device's manufacturer, eg. Lenovo, Dell)
-* Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufactuerer, eg. Infineon, STMicro)
+* Proof of the secure element's identity (using an Endorsement Key certificate issued by the TPM manufacturer, eg. Infineon, STMicro)
 * Cryptographic binding between the trusted platform and the trusted secure element (provided by the platform)
 * Proof that a private key associated with the device is **hardware-bound** on its secure element. Hardware-bound keys can be used by the device, but there’s no way to extract them without an exploit or destructive disassembly in a semiconductor forensics lab.
 
 Once this identity is established and a device certificate is issued, a third party (aka “relying party”) can trust not only the identity of the device, but also verify the residency of keys generated in its secure element. 
 
-Now we have a great foundation for device identity. And, we've unlocked another gift: **Zero-touch provisioning**. It's possible for new devices to automatically enroll themselves on their first boot, with no credentials required.
+Now we have a great foundation for device identity. And, we've unlocked another gift: **zero-touch provisioning**. It's possible for new devices to automatically enroll themselves on their first boot, with no credentials required.
 
 ### Building an inventory
 
@@ -62,11 +62,11 @@ See our [Enrollment Guide](https://smallstep.com/docs/platform/enrollment-guide/
     BYO devices pose a privacy challenge: Unique hardware identifiers cannot not be exposed to the organization when a device is used for both personal and organizational work. But, as long as we have a continuity of device identity across interactions with BYO devices, we don’t need to use permanent hardware identifiers. Instead, cryptographically secure software identifiers—scoped to the organization—can form a foundation for policy and authentication. BYO device identifiers aren’t usable for trust bootstrapping, though. The device’s owner will need to prove possession of the device before its identity can be trusted. 
 </Alert>
 
-## Smallstep Agent
+## Smallstep agent
 
 Once you have a high-assurance device inventory, you still need enrollment, renewal, and revocation of certificates for those devices. That’s where the **Smallstep Agent** comes in. The Smallstep Agent is a lightweight program that runs in the background on devices and manages end-to-end certificate lifecycle for various resources.
 
-## Device Bootstrapping and Enrollment
+## Device bootstrapping and enrollment
 
 The Smallstep Agent uses a **provisional identity** (eg. an SCEP certificate issued via MDM) to bootstrap with the Smallstep platform. On Linux, or in other cases where there is no MDM, a short-lived bootstrapping token can be used as a provisional identity.
 
@@ -111,7 +111,7 @@ With self-registration, an end user can use our agent to sign into Smallstep (op
 
 ### Bulk registration via API
 
-Admins can add devies that are not in MDM, including Linux endpoints, to your team's device inventory via the [Smallstep API](./smallstep-api.mdx).
+Admins can add devices that are not in MDM, including Linux endpoints, to your team's device inventory via the [Smallstep API](./smallstep-api.mdx).
 Devices added via API will be marked as approved for use with [the Smallstep agent](./smallstep-agent.mdx).
 
 ### Agentless MDM enrollment
@@ -120,7 +120,7 @@ On Apple platforms, Smallstep can be used without our agent software, with some 
 
 Here’s an ACME Device Attestation enrollment workflow on an Apple device:
 
-### ACME-based MDM Enrollment (agentless)
+### ACME-based MDM enrollment (agentless)
 
 ```mermaid
 sequenceDiagram
@@ -140,7 +140,7 @@ sequenceDiagram
 
 Here’s a Windows device doing a SCEP-based enrollment with Intune:
 
-### SCEP-Based MDM Enrollment (agentless)
+### SCEP-based MDM enrollment (agentless)
 
 ```mermaid
 sequenceDiagram
@@ -155,9 +155,9 @@ sequenceDiagram
 	CA->>D: Hardware-protected SCEP Certificate (Device Identity)
 ```
 
-After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, Network Relays, VPNs, S/MIME, or client certificates for Safari.
+After enrollment, the resulting device identity certificate can be used for any first-party Apple services: Wi-Fi networks, network relays, VPNs, S/MIME, or client certificates for Safari.
 
-# Key Protection
+# Key protection
 
 Now let’s turn our attention toward the client credentials issued by Smallstep.
 
@@ -181,7 +181,7 @@ Let’s clarify what’s available and explore how Smallstep helps smooth out so
 
 From the perspective of the local system, hardware protected keys are much stronger than keys stored in memory or on disk. They provides assurance *to the application and its users* that keys cannot be exfiltrated.
 
-But, without cryptographic proof of the key’s provenance, a relying party can’t differentiate hardware keys from software keys. There is no *proof* (”attestation”) that a given key was generated in a secure element.
+But, without cryptographic proof of the key's provenance, a relying party can't differentiate hardware keys from software keys. No *proof* ("attestation") exists that a given key was generated in a secure element.
 
 **Smallstep Attested keys**
 
@@ -199,7 +199,7 @@ Locally, with a CLI tool, it’s possible to confirm that the key the CA has iss
 
 This is the lowest level of key protection that Smallstep offers, and it’s only used for applications and use cases that do not support anything stronger. It increases attack cost to a level that is sufficient for some use cases. But in practice, its easier to bypass than hardware attestations. 
 
-This protection level depends on trusted compute primitives available on some platforms (e.g., system integrity protection, binary authorization).
+This protection level depends on trusted compute primitives available on some platforms (for example, system integrity protection, binary authorization).
 
 - Trust profile: To keep these keys safe, you’re trusting system integrity protection, a specific application, and the secure element.
 
@@ -242,10 +242,10 @@ Due to uneven support for hardware protection and attestation across operating s
 
 For example, Apple platforms support device attested keys for Enterprise Wi-Fi certificates. But Windows has no native ACME Device Attestation support, so we can only offer Smallstep attested keys for Enterprise Wi-Fi on Windows.
 
-## Resource Protection Patterns
+## Resource protection patterns
 
-Now let’s look at the other end of the handshake:
-What happens at the enforcement point?
+Now let's look at the other end of the handshake:
+what happens at the enforcement point?
 
 When an access request is made to a protected resource, *something* needs to check whether the device making the request has a valid certificate.
 
@@ -281,7 +281,7 @@ Examples
 
 **Variants**
 
-There are other variants of this pattern, in which the resource is configured to enforce device identity using some mechanism other than mutual TLS.
+Other variants of this pattern exist, in which the resource is configured to enforce device identity using some mechanism other than mutual TLS.
 
 Examples
 

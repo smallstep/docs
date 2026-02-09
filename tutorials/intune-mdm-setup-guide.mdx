@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: February 03, 2026
 title: Deploy EAP-TLS Wi-Fi certificates to Windows devices with Smallstep and Intune
 html_title: Deploy EAP-TLS Wi-Fi to Windows via Intune
 description: Configure EAP-TLS Wi-Fi certificates for Windows devices using Intune MDM. Enterprise guide for secure wireless network access.
@@ -36,7 +36,7 @@ You will need:
 
 In your [Entra ID Tenant Overview](https://entra.microsoft.com/#view/Microsoft_AAD_IAM/TenantOverview.ReactView),  copy your tenant’s Primary Domain, eg. `contoso.onmicrosoft.com`. You will register this with Smallstep later.
 
-## 1. Register an Entra ID Application
+## 1. Register an Entra ID application
 
 You’ll need to register an Application in Entra ID that connects Smallstep to Intune, for the purpose of exchanging SCEP tokens. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep.
 
@@ -58,7 +58,7 @@ Select **＋ New client secret**, and use the following properties:
 Copy the **Client Secret Value**, which you will register with Smallstep later.
 
 
-## 2. Grant API Permissions
+## 2. Grant API permissions
 
 Now we’ll connect the App Registration to Intune by adding application permissions.
 
@@ -116,7 +116,7 @@ In Intune, we’re going to create three Configuration Profiles to deploy to you
 - **Trusted certificate** profile for your Intermediate CA
 - **SCEP Certificate** profile, for issuing device certificates from Smallstep
 
-### Create a Trusted certificate profile for your Root CA
+### Create a trusted certificate profile for your root CA
 
 Create a [new Trusted certificate profile](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/CreatePolicyFullScreenBlade/policyId/00000000-0000-0000-0000-000000000000/policyType/Windows10TrustedCertificate/policyJourneyState~/0) with the following properties:
 
@@ -126,7 +126,7 @@ Create a [new Trusted certificate profile](https://intune.microsoft.com/#view/Mi
 - Included groups: Include the users or groups you are using for your staged enrollment. As you roll out into production, you will expand this list.
 - Create the profile
 
-### Create a **Trusted certificate** profile for your Intermediate CA
+### Create a **Trusted certificate** profile for your intermediate CA
 
 Create a [new Trusted certificate profile](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/CreatePolicyFullScreenBlade/policyId/00000000-0000-0000-0000-000000000000/policyType/Windows10TrustedCertificate/policyJourneyState~/0) with the following properties:
 
@@ -177,13 +177,13 @@ These instructions may vary depending on your enrollment method.
 We assume you’ve enabled Automatic Enrollment in Intune’s [Windows enrollment blade](https://intune.microsoft.com/#view/Microsoft_Intune_DeviceSettings/DevicesEnrollmentMenu/~/windowsEnrollment).
 
 - For a new device: Go to **Windows Settings → Accounts → Access work or school**. Then , under **Add a work or school account**, choose **Connect** to sign in to your tenant.
-- For a previously-enrolled device: Go to **Windows Settings → Accounts → Access work or school**. Expand the box for the signed-in account and select **Info**. Select **Sync**.
+- For a previously enrolled device: Go to **Windows Settings → Accounts → Access work or school**. Expand the box for the signed-in account and select **Info**. Select **Sync**.
 
 After the sync completes, it may take a minute for the certificate to appear in your Windows trust store.
 
 Check the reports in Intune to ensure your devices have enrolled without errors.
 
-# Adding Wi-Fi Support
+# Adding wi-fi support
 
 Now that we have a basic working profile with CA trust and a client certificate, we’ll configure an EAP-TLS certificate Wi-Fi connection.
 

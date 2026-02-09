@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: February 03, 2026
 title: Okta Quickstart
 description: SSH Okta Quickstart | Smallstep Documentation
 ---
@@ -8,7 +8,7 @@ description: SSH Okta Quickstart | Smallstep Documentation
 
 You will need:
 
-* An account on the smallstep platform  
+* An account on the Smallstep platform
   Need one? [Register here](https://smallstep.com/signup?product=ssh)
 * Okta Super Administrator privileges
 * Okta Lifecycle Management Subscription
@@ -17,7 +17,7 @@ You will need:
   * A group whose members should be allowed to `sudo` (we'll refer to this as the `sudo` group, but you can call it whatever you want)
   * You can use existing groups or create new ones (Directory → Groups → Add Group)
   * Make sure you add users that should be allowed to ssh/sudo to the respective groups (Directory → Groups → select group → Manage People)
-  * For more granular access, you can create multiple groups and grant access to a subset of smallstep managed hosts.
+  * For more granular access, you can create multiple groups and grant access to a subset of Smallstep managed hosts.
 
 ### Features
 
@@ -42,7 +42,7 @@ In this quickstart, we will:
 3. Add and configure the Smallstep application from the Okta Application Directory, for user sync via SCIM
 4. Check logs to confirm users and groups are syncing to Smallstep SSH
 
-## Step By Step Instructions
+## Step by step instructions
 
 ### **Step 1. Create Okta OIDC Application**
 
@@ -74,7 +74,7 @@ In this quickstart, we will:
      * Repeat this process for any other groups you created for controlling SSH/sudo access
 7. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
 
-### Step 2. Enter your OIDC Details into the Smallstep console
+### Step 2. Enter your OIDC details into the Smallstep console
 
 1. Open a new browser tab and log in to Smallstep: `https://smallstep.com/app/[TEAM-NAME]`
 2. Navigate the Onboarding Dialog. If the dialog is not open, you can relaunch it by visiting the **Users** tab.
@@ -99,7 +99,7 @@ In this quickstart, we will:
 5. Click **"SAVE"**
 6. You've completed this portion of the setup.
 
-### Step 3. Add the Smallstep App Integration and Configure User Sync in Okta
+### Step 3. Add the Smallstep app integration and configure user sync in Okta
 
 * In the OKTA admin console, add the Smallstep application
   * Applications → Browse App Catalog
@@ -154,7 +154,7 @@ In this quickstart, we will:
   * Save.
   * Repeat for each desired group.
 
-### Step 4. Sign in to the smallstep UI
+### Step 4. Sign in to the Smallstep UI
 
 Sign in at `https://smallstep.com/app/[Team ID]`
 
@@ -165,11 +165,11 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 * Select the **Users** tab. If the onboarding dialog is open, press `Esc` to close.
 * You should see your Users and Groups synced over from Okta.
 
-### OKTA Configuration Complete
+### Okta configuration complete
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
-* Initial activation of Okta OIDC provisioning in Smallstep SSH requires entering your **Client ID, Client Secret**, and **base domain of your Okta instance.** Contact smallstep support with any questions | [support@smallstep.com](mailto:support@smallstep.com)
+* Initial activation of Okta OIDC provisioning in Smallstep SSH requires entering your **Client ID, Client Secret**, and **base domain of your Okta instance.** Contact Smallstep support with any questions | [support@smallstep.com](mailto:support@smallstep.com)
 * UIDs and GIDs. By default, Smallstep will auto-assign POSIX UIDs and GIDs for your users. Alternatively, you can sync POSIX UIDs and GIDs values from your Okta directory to Smallstep.
   * See our guide [How to sync UIDs and GIDs from Okta](./okta-gid-uid.mdx).
 * If you are having trouble synchronizing users or groups, it's always recommended to resynchronize the information manually:
@@ -177,4 +177,4 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 
 ![](/graphics/quickstart/okta-push-groups.png)
 
-* When users are deactivated in Okta, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on smallstep managed hosts. To permanently delete user data on smallstep managed hosts, contact Smallstep Support | [support@smallstep.com](mailto:support@smallstep.com)
+* When users are deactivated in Okta, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on Smallstep managed hosts. To permanently delete user data on Smallstep managed hosts, contact Smallstep support | [support@smallstep.com](mailto:support@smallstep.com)

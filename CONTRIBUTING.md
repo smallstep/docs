@@ -4,7 +4,7 @@ This repository contains documentation for Smallstep projects and products. Thes
 
 Issues and pull requests are welcome!
 
-## Docs Style & Syntax
+## Docs style & syntax
 
 - The docs repo uses [MDX syntax](https://mdxjs.com/docs/what-is-mdx/#mdx-syntax).
   MDX follows the [CommonMark spec](https://spec.commonmark.org/) for Markdown.
@@ -33,11 +33,55 @@ Issues and pull requests are welcome!
 
 Everything under `src/pages/docs/step-cli/reference` is auto-generated whenever we release a new version of `step`. To make a change to the CLI reference, you'll have to make the edit in [smallstep/cli](https://github.com/smallstep/cli) and make a PR over there. The reference docs are embedded in the source files under the `command` folder in that repo.
 
-## Practical Zero Trust
+## Practical zero trust
 
 The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.
+
+## Prose linting with vale
+
+We use [Vale](https://vale.sh/) to enforce consistent prose style.
+
+### Installation
+
+```bash
+# macOS
+brew install vale
+
+# Windows
+choco install vale
+
+# Linux
+snap install vale
+```
+
+### Setup
+
+After cloning the repository, sync Vale packages:
+
+```bash
+vale sync
+```
+
+Install the MDX parser for native MDX support:
+
+```bash
+pnpm add -g mdx2vast
+```
+
+### Usage
+
+```bash
+# Check all files
+vale .
+
+# Check specific folder
+vale step-ca/
+
+# Check changed files only
+git diff --name-only HEAD | grep '\.mdx$' | xargs vale
+```
 
 ## Checking links locally
 

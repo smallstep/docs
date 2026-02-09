@@ -1,5 +1,5 @@
 ---
-updated_at: January 20, 2026
+updated_at: February 03, 2026
 title: Registration Authority Mode
 html_title: Configure Registration Authority Mode in step-ca
 description: Configure step-ca as a Registration Authority. Separate certificate issuance from signing for enhanced security architecture.
@@ -34,7 +34,7 @@ When in RA mode, `step-ca` can peer with one of three types of upstream CA:
 - A [Google CloudCAS](https://cloud.google.com/certificate-authority-service/) CA
 - A [Hashicorp Vault](https://www.hashicorp.com/en/products/vault) CA
 
-## Configuring RA Modes
+## Configuring RA modes
 
 - [StepCAS RA Mode](#stepcas-ra-mode)
 - [Google Cloud CAS RA Mode](#google-cloud-cas-ra-mode)
@@ -49,7 +49,7 @@ The JWK provisioner balances security and simplicity, and it covers the most com
 The X5C provisioner allows for more complex trust relationships and expiring certificates,
 but it requires setting up ongoing certificate lifecycle management on the RAs.
 
-### Example: A Simple RA ↔ CA Configuration
+### Example: A simple RA ↔ CA configuration
 
 Let's set up a simple RA ↔ CA pair, with one RA and one upstream CA.
 
@@ -173,7 +173,7 @@ These files will are read by `step-ca` upon every certificate request made to th
 
 Finally, use `--issuer-password-file` to provide a private key password file when starting up the RA.
 
-### StepCAS Limitations
+### StepCAS limitations
 
 An RA can use any `step-ca` provisioners to authenticate requests, but there are some caveats:
 
@@ -322,7 +322,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
   $ step ca bootstrap --ca-url https://ra.example.com --fingerprint 3ef16343cf0952eedbe2b843066bb798fa7a7bceb16aa285e8b0399f661b28b7
   ```
 
-  Finally, we can sign sign a certificate as always:
+  Finally, we can sign a certificate as always:
 
   ```shell-session
   $ step ca certificate test.example.com test.crt test.key
@@ -331,7 +331,7 @@ you'll need to set up your Google Cloud project using the `gcloud` CLI:
 ## Hashicorp Vault RA mode
 
 The RA mode in `step-ca` can peer with Vault's PKI secrets engine, using it as an upstream CA.
-From the [Vault Documentation](https://www.vaultproject.io/docs/secrets/pki):
+From the [Vault Documentation](https://developer.hashicorp.com/vault/docs/secrets/pki):
 
 > "The PKI secrets engine generates dynamic X.509 certificates. With this secrets engine, services can get certificates without going through the usual manual process of generating a private key and CSR, submitting to a CA, and waiting for a verification and signing process to complete."
 
@@ -343,7 +343,7 @@ Then we'll configure `step-ca`'s RA mode to use Vault to sign certificates.
 ### Requirements
 
 * [`step-ca`](https://smallstep.com/docs/step-ca/installation)
-* A [Hashicorp Vault](https://learn.hashicorp.com/tutorials/vault/getting-started-deploy) server
+* A [Hashicorp Vault](https://developer.hashicorp.com/vault/install) server
 * The [`jq`](https://jqlang.github.io/jq/) tool to parse JSON output
 
 ### Creating a Vault PKI
@@ -354,7 +354,7 @@ For a proof of concept, you can run `vault server -dev` in a terminal window to 
 
 In production, you'll need to run Vault as a daemon and use HTTPS.
 Vault supports both server TLS verification, and mutual TLS authentication.
-See Vault's [Environment Variables](https://www.vaultproject.io/docs/commands#environment-variables) documentation for more.
+See Vault's [Environment Variables](https://developer.hashicorp.com/vault/docs/commands#configure-environment-variables) documentation for more.
 
 If you're running Vault in dev mode, set `VAULT_ADDR`:
 
@@ -386,7 +386,7 @@ identity_policies    []
 policies             ["root"]
 ```
 
-#### 2. Create your Root CA:
+#### 2. Create your root CA:
 
 Let's create our PKI inside of Vault.
 In this example, we're creating a 10 year root certificate.
@@ -410,7 +410,7 @@ vault write pki/config/urls \
 Your root CA is created,
 and your root CA certificate PEM is saved in `root_ca.crt`.
 
-#### 3. Create your Intermediate CA:
+#### 3. Create your intermediate CA:
 
 Now let's create and sign the intermediate CA using the root CA.
 We'll call the intermediate PKI `int1`.
@@ -479,7 +479,7 @@ vault policy write smallstep policy.hcl
 In this example, Vault will sign certificates of all three key types for the RA server: EC, RSA, and Ed25519.
 EC must always be enabled, because it's required for `step-ca`'s internal TLS certificate.
 However, if your PKI will not use RSA or Ed25519, please restrict your Vault policy to the key types you will use.
-Vault's [Policy documentation](https://www.vaultproject.io/docs/concepts/policies) describes the policy langauge used by Vault.
+Vault's [Policy documentation](https://developer.hashicorp.com/vault/docs/concepts/policies) describes the policy langauge used by Vault.
 
 #### 4. Enable Vault authentication for your RA.
 
@@ -509,7 +509,7 @@ We'll need the `VAULT_ROLE_ID` and `VAULT_SECRET_ID` to configure our RA in the 
 
 ### Configuring `step-ca` RA mode
 
-#### 5. Configure the RA server.
+#### 5. Configure the RA server
 
 In this section, we'll initialize a basic CA,
 and then convert it into an RA.

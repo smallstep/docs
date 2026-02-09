@@ -1,5 +1,5 @@
 ---
-updated_at: November 06, 2025
+updated_at: February 03, 2026
 title: Smallstep SSH Host Quickstart
 description: Configure SSH host certificates for server authentication. Eliminate TOFU (Trust On First Use) and secure SSH infrastructure.
 html_title: SSH Host Certificate Quick Setup Tutorial
@@ -8,7 +8,7 @@ html_title: SSH Host Certificate Quick Setup Tutorial
 
 ### Before you begin
 
-* You'll need a account on the smallstep platform. Need one? [**Register here**](https://smallstep.com/signup?product=ssh)
+* You'll need a account on the Smallstep platform. Need one? [**Register here**](https://smallstep.com/signup?product=ssh)
 * You'll need the **enrollment token** you received upon signup.
 * We support `amd64` and `arm64` architectures
 * We support the following host platforms:
@@ -29,7 +29,7 @@ html_title: SSH Host Certificate Quick Setup Tutorial
     * `/etc/nsswitch.conf`
   * We suggest backing these up before you begin setup on a particular base machine type, so that you can quickly revert changes if needed.
 
-## Understanding Host Tags
+## Understanding host tags
 
 **This section only applies to multi-user environments.**
 
@@ -52,7 +52,7 @@ Take a minute to think about how you'd like to use Host Tags in your environment
 
 For a deeper dive, see our [Access Control Guide](./acls.mdx).
 
-## Quick Installation Instructions
+## Quick installation instructions
 
 Our installation script will guide you through host setup. It will:
 * Install the `step` CLI and `step-ssh` utilities
@@ -126,7 +126,7 @@ Now sign in at `https://smallstep.com/app/[Team ID]`
 
 You should see your host listed under the "**Hosts**" tab.
 
-## Manual Instructions
+## Manual instructions
 
 If you wish to enroll your host without using our script,
 you can follow our [step-by-step installation instructions](./hosts-step-by-step.mdx) instead.
@@ -146,9 +146,11 @@ This script will:
 * Remove your `$HOME/.step` configuration directory
 * Remove the `step-ssh` package
 
-## Optional Hardening
+## Optional hardening
 
-Now that you're using certificates, you may wish to explicitly disallow the use of `authorized_keys` files on the host.
+Now that you're using certificates,
+you may wish to explicitly block the
+use of `authorized_keys` files on the host.
 
 You can do this by setting `AuthorizedKeysFile none` in `sshd_config`. You may want to allow `authorized_keys` for an emergency access account, however. A configuration for this might look like:
 
@@ -157,12 +159,12 @@ Match User *,!ubuntu
     AuthorizedKeysFile none
 ```
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
 * Having trouble? You should be able to revert any changes by running `step-ssh deactivate`.
 * Suspect host or user certificates are not working? In other words, your ssh client fails to log in or shows "trust on first use" warning? Try this:
   * Be sure you can connect to our test server, with `ssh-test.app.smallstep.com`.
-  * On your client run `step ssh list` and find your user certificate marked `(ECDSA-CERT)`, e.g. `256 SHA256:Bb2TcimUYj8Nc5w4FhpZ/gmeNIIvLIzphTx35NzaRoA alice@smallstep.com (ECDSA-CERT)`, which you can inspect with `step ssh list --raw alice@smallstep.com | step ssh inspect`. Be sure the current time is neither before or after the period specified in `Valid:` .
+  * On your client run `step ssh list` and find your user certificate marked `(ECDSA-CERT)`, for example `256 SHA256:Bb2TcimUYj8Nc5w4FhpZ/gmeNIIvLIzphTx35NzaRoA alice@smallstep.com (ECDSA-CERT)`, which you can inspect with `step ssh list --raw alice@smallstep.com | step ssh inspect`. Be sure the current time is neither before or after the period specified in `Valid:` .
   * On the destination host run `step ssh inspect /etc/ssh/ssh_host_ecdsa_key-cert.pub`. Make sure the current time is within the period of `Valid:`.
   * The destination host's `sshd_config` should show included the following lines for `sshd` (make sure the service has reloaded its config) to leverage certificate-based authentication:
 

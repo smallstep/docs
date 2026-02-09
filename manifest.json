@@ -1648,10 +1648,6 @@
               "path": "/tutorials/ssh-certificate-login.mdx"
             },
             {
-              "title": "Use AWS to deploy a certificate authority and secure microservices",
-              "path": "/tutorials/mutual-tls-aws.mdx"
-            },
-            {
               "title": "Run `step-ca` in a Docker container",
               "path": "/tutorials/docker-tls-certificate-authority.mdx"
             },

@@ -34,22 +34,28 @@
       "pattern": "^https://admin.google.com"
     },
     {
+      "pattern": "^https://trustedcomputinggroup.org"
+    },
+    {
       "pattern": "^https://azure.microsoft.com"
     },
     {
       "pattern": "^https://www.gnu.org"
     },
     {
-      "pattern": "^https://freedesktop.org"
+      "pattern": "^https://.*freedesktop.org"
     },
     {
-      "pattern": "^https://www.hashicorp.com"
+      "pattern": "^https://.*.hashicorp.com"
     },
     {
       "pattern": "^https://github.com/Neilpang/acme.sh/issues/2422"
     },
     {
       "pattern": "^https://arubanetworking.hpe.com"
+    },
+    {
+      "pattern": "^mailto:.*"
     },
     {
       "pattern": "^https://www.w3.org"

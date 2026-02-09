@@ -1,5 +1,5 @@
 ---
-updated_at: December 05, 2025
+updated_at: February 03, 2026
 title: Install step
 html_title: Install Step CLI on Any Platform Guide
 description: Install step CLI on any platform. Quick setup instructions for the command-line tool for certificates and cryptography with easy installation.
@@ -21,7 +21,7 @@ It's trivial to install the `step` binary on your local machine.
 #### Select your operating system or infrastructure:
 
 - [macOS](#macos)
-- [Linux Packages](#linux-packages-amd64)
+- [Linux Packages](#linux-packages)
   - [Debian/Ubuntu](#debianubuntu)
   - [RHEL/Fedora](#rhelfedora)
   - [Arch Linux](#arch-linux)
@@ -43,7 +43,7 @@ brew install step
 
 To uninstall, run `brew uninstall step` and remove the `$HOME/.step` configuration directory.
 
-### Linux Packages (amd64)
+### Linux packages
 
 #### Debian/Ubuntu
 
@@ -89,7 +89,7 @@ To uninstall, run `sudo dnf remove step-cli` and remove the `$HOME/.step` config
 
 #### Arch Linux
 
-There is a community-maintained [`step-cli` package](https://archlinux.org/packages/extra/x86_64/step-cli/).
+A community-maintained [`step-cli` package](https://archlinux.org/packages/extra/x86_64/step-cli/) is available.
 
 Use [pacman](https://www.archlinux.org/pacman/) to install `step`:
 
@@ -110,7 +110,7 @@ Big shout out to the maintainers of these packages! We appreciate you.
 
 #### Alpine Linux
 
-There is a community-maintained [`step-cli` package](https://pkgs.alpinelinux.org/packages?name=step-cli&branch=edge&repo=&arch=&maintainer=) for Alpine Linux.
+A community-maintained [`step-cli` package](https://pkgs.alpinelinux.org/packages?name=step-cli&branch=edge&repo=&arch=&maintainer=) for Alpine Linux is available.
 
 Use [apk](https://wiki.alpinelinux.org/wiki/Alpine_Linux_package_management) to install `step`:
 
@@ -142,14 +142,14 @@ apk add step
 
 To uninstall, run `apk del step` and remove the `$HOME/.step` configuration directory.
 
-### Linux Binaries
+### Linux binaries
 
 We have 386, amd64, arm64, armv7, mips, and mips64 releases available to download from our [latest
 release](https://github.com/smallstep/cli/releases/latest).
 
 Place the binary in `/usr/bin` for compatibility with the rest of our documentation.
 
-#### Binary Signature Verification
+#### Binary signature verification
 
 We use [cosign](https://github.com/sigstore/cosign) for signing and verifying release artifacts.
 To verify the signature of the `step-ca` binary:

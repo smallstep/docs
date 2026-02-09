@@ -1,5 +1,5 @@
 ---
-updated_at: November 19, 2025
+updated_at: February 03, 2026
 title: Sync Okta Users to Smallstep
 description: Smallstep Okta User SCIM synchronization
 ---
@@ -36,7 +36,7 @@ In this quickstart, we will:
 3. Add and configure the Smallstep application from the Okta Application Directory, for user sync via SCIM
 4. Confirm users and groups are syncing to Smallstep
 
-## Step By Step Instructions
+## Step by step instructions
 
 ### **Step 1. Create Okta OIDC Application**
 
@@ -44,19 +44,20 @@ In this quickstart, we will:
 2. Go to Applications → Create App Integration
 3. In the pop up select "OIDC - OpenID Connect" as the sign-in method and specify "Native Application" for the Application type.
 4. New Native App Integration Page
-   * App integration name: `smallstep-oidc`
-   * Sign-in redirect URIs: `https://api.smallstep.com/auth/openid/callback`
+   * App integration name: `Smallstep OIDC`
+   * Sign-in redirect URIs: Replace the default value with `https://api.smallstep.com/auth/openid/callback`
    * Select "Skip group assignment for now"
    * All other value leave as default
    * **Save**
-5. Go to the **General** tab → Scroll down to "Client Credentials" and choose "Edit"
-   * Select "Use Client Authentication" radio button
+5. Go to the **General** tab, in "Client Credentials", choose "Edit"
+   * In "Client authentication", select "Client secret" radio button
    * **Save**
 6. Go to the **Assignments** tab.
-7. Assign any groups that will need access to Smallstep to the `smallstep-oidc` app
-8. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
+7. Assign any groups or people that will need access to Smallstep to the `Smallstep OIDC` app
+8. Go back to **General** tab and **Save**
+9. Copy the Client ID and Secret from that page
 
-### Step 2. Enter your OIDC Details into the Smallstep console
+### Step 2. Enter your OIDC details into the Smallstep console
 
 1. Start at [Connect an Okta IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/okta/connect)
 2. Copy and paste your **Client ID** and **Client Secret** from Okta.
@@ -66,22 +67,21 @@ In this quickstart, we will:
 
      This is your **Configuration Endpoint**. For example, if you normally sign into Okta at `https://example.okta.com/`, then your configuration endpoint is `https://example.okta.com/.well-known/openid-configuration`
 
-4. Select how you'd like to sync users from Okta.
+4. Select whether you'd like to sync users from Okta, invite them manually by email. (You'll configure user sync in the next section.)
 5. **Save**
-6. After saving, you will see a Base URL for SCIM sync, and a SCIM token. Copy these values for the next step.
+6. If you chose to sync users, you will see a **Base URL** for SCIM sync, and an **API token** (SCIM token). Copy these values for the next step.
 
-### Step 3. Add the Smallstep App Integration and Configure User Sync in Okta
+### Step 3. Add the Smallstep app integration and configure user sync in Okta
 
 1. In the Okta admin console, add the Smallstep application
   * Applications → Browse App Catalog
     * Search for `Smallstep`
     * Select the Smallstep app.
-2. Click "Add"
+2. Click "Add Integration"
 
       ![](/graphics/quickstart/okta-app-add.png)
 
 3. Select "Do not display application icon to users"
-4. Select "Do not display application icon in the Okta Mobile App"
 5. De-select "Automatically log in when user lands on login page"
 6. Choose Next
 
@@ -90,9 +90,9 @@ In this quickstart, we will:
 7. Select "Administrator sets username, user sets password"
 8. Application username format: "Okta username prefix"
 9. Update application username on "Create and update"
-10. Done
+10. Done. We'll assign users for syncing in the next section.
 
-### Configure Provisioning
+### Configure provisioning
 
 Next, we'll turn on SCIM provisioning of users from Okta.
 
@@ -101,22 +101,20 @@ Next, we'll turn on SCIM provisioning of users from Okta.
 
     ![](/graphics/quickstart/okta-enable-api.png "Enable API")
 
-3. Paste your **Base URL** for SCIM sync and **API Token** (SCIM Token) into Okta Provisioning form.
+3. Paste your **Base URL** for SCIM sync and **API Token** from the Smallstep console into Okta's Provisioning form.
 4. In Okta, choose **Test API Credentials**. After successful verification, choose **Save**.
 
    ![](/graphics/quickstart/okta-api-auth.png "API Auth")
 
-5. Reload the provision tab
-6. Under Provisioning → Settings → To App, choose **Edit** and enable the following:
+5. Under Provisioning → Settings → To App, choose **Edit** and enable the following:
    * Create Users
    * Update User Attributes
    * Deactivate Users
-7. Save.
-8. Configure Assignments:
+6. Save.
+7. Configure Assignments:
    * Select the **Assignments** tab → Click **Assign**  → **Assign to Groups**
-   * Search by group → Assign any groups that will use Smallstep
-   * Group names that contain a `/` are not supported
-9. Configure Push Groups:
+   * Search by group → Assign any groups that will use Smallstep. Group names that contain a `/` are not supported
+8. Configure Push Groups:
    * Select the **Push Groups** tab → **Push Groups** → **Find Groups By Name**
    * Search for the same groups that will use Smallstep
    * Save.

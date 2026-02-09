@@ -1,5 +1,5 @@
 ---
-updated_at: November 17, 2025
+updated_at: February 03, 2026
 title: Connect Jamf Pro to Smallstep
 html_title: Integrate Jamf Pro with Smallstep Tutorial
 description: Integrate Jamf Pro with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS and iOS environments.
@@ -9,7 +9,7 @@ Smallstep can integrate with Jamf Pro to synchronize your device inventory, and 
 
 This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-jamf-pro).
 
-## Requirements & Limitations
+## Requirements & limitations
 
 You will need:
 
@@ -37,7 +37,7 @@ Limitations:
 
 ## Step-by-step instructions
 
-## Create an API Client in Jamf Pro
+## Create an API client in Jamf Pro
 
 This API client will allow Smallstep to read your Jamf device inventory and manage the webhooks necessary for ongoing inventory syncing.
 
@@ -66,7 +66,7 @@ Let’s add the Jamf Pro API credentials you just created to Smallstep.
 4. Choose **Add Platform**. Your device inventory will start syncing from Jamf to Smallstep.
 5. Temporarily save the **Webhook URL**, **Username**, and **Password** presented.
 
-## Configure a SCEP Enrollment webhook in Jamf Pro
+## Configure a SCEP enrollment webhook in Jamf Pro
 
 For compatibility reasons, Smallstep may use ACME or SCEP for certificate enrollment. The SCEP Enrollment webhook allows Jamf to request a dynamic, short-lived challenge string from Smallstep during the SCEP request. The challenge string is injected into the [SCEP payload](https://developer.apple.com/documentation/devicemanagement/scep) for your clients to authenticate to Smallstep.
 
@@ -94,7 +94,7 @@ There's two ways to install the agent:
 
 ### Install the agent via Jamf
 
-#### Create an Agent Package for Distribution
+#### Create an agent package for distribution
 
 In this step, you’ll upload the Smallstep agent package to Jamf Pro’s software distribution network.
 
@@ -106,7 +106,7 @@ In this step, you’ll upload the Smallstep agent package to Jamf Pro’s softwa
     - Filename: (upload from step #1)
 5. Choose **Save**
 
-#### Create an Agent Installation Policy
+#### Create an agent installation policy
 
 Next, we’ll configure the Script we just created to run on your client devices.
 
@@ -118,7 +118,7 @@ Next, we’ll configure the Script we just created to run on your client devices
         - Trigger: Login
         - Execution Frequency: Once every week
 
-        *Note: Adjust this policy as needed for your organization.
+        *Note: adjust this policy as needed for your organization.
         In this example, the package will be installed once a week, at the next login on the device.*
 
     2. Under Options → Packages → Configure
@@ -128,7 +128,7 @@ Next, we’ll configure the Script we just created to run on your client devices
     3. Under Scope, select your desired policy scope. The agent will be installed on all devices in this scope.
 4. Choose **Save**
 
-#### Configure an Agent Enrollment Profile
+#### Configure an agent enrollment profile
 
 In this step, we’ll tie everything together by creating a managed policy to enroll devices using the Smallstep Agent.
 
@@ -239,7 +239,7 @@ By default, Jamf will attempt to re-deploy the configured package profile to eve
         - Select "SmallstepAgent Version" from the available criteria
             - If "SmallstepAgent Version" is not visible in the initially displayed list, select "Show Advanced Criteria" to display a more complete list
         - Operator: Is
-        - Value: Current version of the SmallstepAgent pkg that was configured earlier in the Package Distribution step, e.g., '0.60.1'
+        - Value: Current version of the SmallstepAgent pkg that was configured earlier in the Package Distribution step, for example, '0.60.1'
         - Save
 3. Restrict Smallstep Agent installation policy to the newly created Smart Computer Group
     1. In Jamf Pro, go to Computers → Profiles → Smallstep Agent
@@ -249,7 +249,7 @@ By default, Jamf will attempt to re-deploy the configured package profile to eve
     5. Remove all other scopes
     6. Save
 
-#### Upgrading / Downgrading the Smallstep Agent package
+#### Upgrading / downgrading the Smallstep agent package
 
 1. Update the package
     1. Download the new Smallstep Agent version
@@ -270,11 +270,11 @@ There's two ways to confirm installation on an endpoint:
 - Alternatively, on the device itself, run `/Applications/SmallstepAgent/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
 
 
-## Uninstall Smallstep Agent with Jamf Pro
+## Uninstall Smallstep agent with Jamf Pro
 
 You can easily remove a Smallstep Agent that was installed on macOS endpoints via Jamf Pro.
 
-### Remove the Agent Install Policy and Script
+### Remove the agent install policy and script
 
 If you still have the Policy and Script that install the Smallstep Agent, remove those first.
 
@@ -285,7 +285,7 @@ If you still have the Policy and Script that install the Smallstep Agent, remove
 5. Under the **Computer Management** tab, choose **Policies**
 6. Delete the **Smallstep Agent** policy
 
-### Create an Agent Uninstall Script
+### Create an agent uninstall script
 
 This step will install a script on your client devices that uninstalls the Smallstep Agent.
 
@@ -310,7 +310,7 @@ This step will install a script on your client devices that uninstalls the Small
 
 4. Choose **Save**
 
-### Create a New Policy for Uninstallation
+### Create a new policy for uninstallation
 
 Next, we’ll configure the Script we just created to run on your client devices.
 
@@ -322,14 +322,14 @@ Next, we’ll configure the Script we just created to run on your client devices
         - Trigger: Recurring Check-in
         - Execution Frequency: Ongoing
 
-        *Note: With this policy, the package will be removed at the device’s next check-in, typically within 15 minutes.*
+        *Note: with this policy, the package will be removed at the device’s next check-in, typically within 15 minutes.*
 
     2. Under Options → Scripts → Configure
         - Add the **Smallstep Agent Uninstall** script you created earlier
     3. Under Scope, select your desired policy scope. The agent will be uninstalled from all devices in this scope.
 4. Choose **Save**
 
-### Confirm Uninstallation
+### Confirm uninstallation
 
 Use **Logs** in Jamf Pro to confirm the uninstallation process completed successfully.
 

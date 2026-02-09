@@ -1,5 +1,5 @@
 ---
-updated_at: October 30, 2025
+updated_at: February 03, 2026
 title: Sync Entra ID Users to Smallstep
 html_title: Sync Microsoft Entra ID Users to Smallstep
 description: Integrate Smallstep with Microsoft Entra ID, syncing identity provider users for device identity.
@@ -22,12 +22,13 @@ The following provisioning features are supported:
 * Push User Deactivation
 * Reactivate Users
 
-## Step By Step Instructions
+## Step by step instructions
 
-### Step 1. Create an Entra ID Enterprise Application
+### Step 1. Create an Entra ID enterprise application
 
 1. In Entra ID, visit [Browse Entra Gallery](https://portal.azure.com/#view/Microsoft_AAD_IAM/AppGalleryBladeV2) and choose “+ Create your own application”.
 2. Name the application and use the default “Non-gallery” option.
+   * If the "Smallstep SSH" Marketplace app is shown, do not choose it.
 3. In your new Enterprise Application, visit Manage → Users and groups.
 4. Assign the groups or users you’d like to sync to Smallstep. You may want to create new groups for Smallstep users.
 
@@ -36,52 +37,68 @@ The following provisioning features are supported:
 #### In Entra ID
 
 1. Your Enterprise Application comes with an App Registration.
-2. Go to [App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) and find your Smallstep application in the list.
-3. In the App Registration, visit “Manage → Certificates & secrets”
-4. Create a new Client Secret
-5. Set the client secret description and expiry as desired
-6. Save the Client ID and Client Secret Value for later
-7. Look up your directory's Tenant ID, and save it for later
+2. Go to [App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) and find your Smallstep application in the list. It may be under the "All Applications" tab.
+3. On the application overview, save the Application (client) ID and Directory (tenant) ID for later.
+4. In the App Registration, visit “Manage → Certificates & secrets”
+5. Create a new Client Secret
+   - Set the client secret description and expiry as desired
+   - Save the Client Secret Value for later
+6. Go to the API Permissions blade
+7. Choose Microsoft Graph
+8. Choose Delegated Permissions
+    - Under OpenID Permissions, select `email`, `openid`, and `profile`.
+    - Choose "Grant Admin Consent" for all permissions
+9. Go to the "Token configuration" blade
+10. Choose **Add Optional Claim**
+    - **ID** token type
+    - Select **email** and **preferred_username**
+    - Choose **Add**
+11. Go to Manage -> Authentication blade and choose + Add Redirect URI
+    - Choose type "Web" and enter the URL: `https://api.smallstep.com/auth/openid/callback`
+    - Choose "Configure"
+12. Now choose the Settings tab in the Authentication blade.
+    - Under Supported Account Types, select multi-tenant.
+    - Only the users 
+    - Choose **Save**
+13. Finally, return to the Overview blade.
+14. Select **🌐Endpoints** and copy the **OpenID Connect metadata document** URL for later.
 
 ##### In Smallstep
 
 1. Go to [Connect an Entra ID IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/azuread/connect)
-2. Fill the Client ID, Client Secret, and Tenant ID you saved.
+2. Fill the Client ID, Client Secret, Tenant ID, and OIDC metadata URL you saved.
 
 
-### Step 3. Enable User Provisioning
+### Step 3. Enable user provisioning
 
 1. Smallstep will send you a SCIM URL and Secret Token.
 2. In Entra ID, return to your Smallstep Enterprise Application.
 3. Go to Manage → Provisioning
-4. Set the provisioning mode to **Automatic**.
-5. Expand **Admin Credentials:**
+4. Create a new provisioning configuration.
+6. For **Admin Credentials:**
+    - Use **Bearer Authentication**
     - Supply the SCIM **Tenant URL** and **Secret Token** you received from Smallstep.
     - Choose **Test Connection** and make sure that it works.
     - Save.
 
-### Step 4. Turn on Provisioning
+### Step 4. Turn on provisioning
 
 1. Return to the **Provisioning** panel.
 2. Choose **Start Provisioning**.
 
-> 🤦‍♂️ There’s a quirk in Microsoft’s UI here, and you may see an error when saving after turning provisioning on. If so, wait 60 seconds and try Save again.
-> 
-
 ### Step 5. Adjust user attribute mappings
 
 1. In your Smallstep Enterprise Application, the Manage → Attribute Mappings blade should now be accessible. Choose it.
-2. Choose “Syncronize Entra ID Active Directory Users to customappsso”
+2. Choose “Provision Microsoft Entra ID Users"
 3. The mappings you’ll want for Smallstep are:
     
     ![Entra ID mappings](/graphics/entra-id-mappings.png)
     
     Most of these are part of the default mappings.
     
-    The only two you will need to customize are:
+    The only one you will need to customize is:
     
-    - If you're using Smallstep SSH, the `userName` attribute determines the name of a user’s POSIX account. Update  `userName` to map to `ToLower(Replace([userPrincipalName], , "(?<Suffix>@(.)*)", "Suffix", "", , ), )`.
-    - Add `externalId`, with a mapping to `objectId`. This should be a unique ID representing the user that is not reusable.
+    - `externalId` should map to `objectId`. This is a unique ID representing the user that is not reusable.
 
 4. Remove any other default attributes that are not in the list above. The only attributes you need to send to Smallstep are:
     - `userName`
@@ -91,6 +108,9 @@ The following provisioning features are supported:
     - `name.familyName`
     - `externalId`
 5. Save your user attribute mappings.
+6. Change "Provisioning Status" to "On", and save the settings.
+
+It may take up to 40 minutes to enable provisioning.
 
 ### Step 6. Confirm the directory connection
 

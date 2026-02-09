@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: February 03, 2026
 title: The Design & Architecture of Smallstep
 html_title: step-ca Architecture & Design Document
 pagetitle: Architectural Design Document | Smallstep Documentation
@@ -15,16 +15,16 @@ For readers who are less familiar check out...
 
 ## About the `step` toolchain
 
-`step` is the command-line interface for all things smallstep, and a swiss-army knife for day-to-day Production Identity operations.
+`step` is the command-line interface for all things Smallstep, and a swiss-army knife for day-to-day Production Identity operations.
 
 `step` is a command-line tool for developers, operators, and security professionals to:
 
-- configure, operate, and automate all of smallstep's tools, and
+- configure, operate, and automate all of Smallstep's tools, and
 - work with open standard Production Identity technologies
 
-It's the open source core of everything smallstep does, and everything you need to work with certificates, tokens, JOSE structures (JWT, JWK, JWE, JWS), and many other common cryptography primitives.
+It's the open source core of everything Smallstep does, and everything you need to work with certificates, tokens, JOSE structures (JWT, JWK, JWE, JWS), and many other common cryptography primitives.
 
-#### `step` Characteristics
+#### `step` characteristics
 
 - **Easy to use, hard to misuse:** Safe defaults everywhere encourage best practices by always making the right thing easy. Insecure or subtle operations are gated with flags to prevent accidental misuse.
 
@@ -42,13 +42,13 @@ It's the open source core of everything smallstep does, and everything you need 
 - Verify and inspect JWTs
 - Get an OAuth access token or OpenID Connect identity token to access APIs
 - Get TLS certificates from `step-ca`
-- Install root certificates and issue locally-trusted development certificates
+- Install root certificates and issue locally trusted development certificates
 - Inspect and lint X.509 certificates
 - Encrypt data using JWE or NaCl
 - Login to SSH using `step-ssh`
 
 [_Step certificates_](https://github.com/smallstep/certificates/ 'step certificates on Github') extends the [step command line tool](https://github.com/smallstep/cli/ 'step CLI on Github'), adding a certificate authority ( `step-ca` ) and subcommands to make secure automated certificate management easy. 
-The goal is to reduce the cost of building an internal PKI to cryptographically identify people, devices, and production workloads (e.g., microservices) and use TLS.
+The goal is to reduce the cost of building an internal PKI to cryptographically identify people, devices, and production workloads (for example, microservices) and use TLS.
 
 While end-to-end cryptography and mutual authentication between services is valuable, it's too hard with legacy tools. 
 This difficulty is not inherent -- PKI is not _necessarily_ hard. 
@@ -63,14 +63,14 @@ Both of these programs are written in golang and use the excellent [crypto](http
 
 These tools make the arcane art of automated certificate management a simple, intuitive process. With _step certificates_ you should be able to **setup your own internal CA and automate the delivery of certificates to your production workloads in an afternoon**.
 
-#### Key Features
+#### Key features
 
 - An internal certificate authority (CA) that can issue certificates to workloads, devices, and people
 - Streamlined generation of artifacts required for an internal CA - Automatically builds root & intermediate certificates and private keys
 - A variety of authentication mechanisms for provisioning certificates in different environments
 - A command line tool for generating keys, working with cryptographic artifacts, and interacting with the CA to automate certificate issuance, renewal, and revocation
 - Proven industry defaults for easy secure choices including root and intermediate private key hygiene
-- Automated certificate renewal to empower best practices of issuing short-lived (e.g.24-hour) certificates.
+- Automated certificate renewal to empower best practices of issuing short-lived (for example, 24-hour) certificates.
 - Passive revocation to avoid the challenges of implementing infrastructure support for active revocation.
 - Key pair generation to create a public key that can be distributed and shared with the world and a corresponding private key that should be kept confidential by the owner.
 - If you don't like our defaults and you want more control, fear not, everything is highly configurable. A design goal of `step certificates` is to make easy things easy and hard things possible.
@@ -89,7 +89,7 @@ If you're using Docker or Kubernetes we also have [pre-built containers](https:/
 
 We're not currently testing `step` and `step-ca` on Microsoft operating systems, but they should mostly work (though you will need to build the binaries yourself). We are interested in issues if you encounter any.
 
-## Overview & Design
+## Overview & design
 
 Let's consider a simple concrete example: using _step certificates_ to issue certificates to two microservices so they can communicate securely using HTTPS.
 
@@ -209,7 +209,7 @@ The `step` command line utility integrates with the `step-ca` HTTPS APIs to help
 - Generate key pairs, and
 - Obtain certificates for workloads
 
-#### Distributing your Root Certificate
+#### Distributing your root certificate
 
 Like any other TLS/HTTPS client, `step` needs your CA's root certificate to verify issued certificates and establish secure connections. This presents a challenge: we'd like to use HTTPS to connect to the CA and obtain our root certificate, but we need the root certificate to establish this secure connection.
 
@@ -244,7 +244,7 @@ In general, once a _provisioner_ authenticates a workload's identity it issues t
 
 The details of how a provisioner interacts with a workload (or device or person) and the CA vary by provisioner type. Smallstep supports a number of provisioner types including, AWS Instance Identity Documents, Google Cloud Instance Identity Tokens, the Azure Instance Metadata Service, OAuth/OIDC Single Sign-on, and JWT for building custom integrations.
 
-#### IID Provisioner
+#### IID provisioner
 
 For cloud VMs running on AWS, GCP, or Azure `step-ca` can be configured to use _instance identity documents_ (IIDs) to authorize certificate signing requests. IIDs make integrating `step certificates` even easier: instead of building and integrating a JWK provisioner that issues tokens to workloads, `step` can request tokens directly from your cloud provider's _metadata API_ with no additional infrastructure requirements:
 
@@ -270,9 +270,9 @@ foo$ step ca certificate foo.internal foo.crt foo.key --issuer "Google Cloud"
 ✔ Private Key: foo.key
 ```
 
-#### OAuth/OIDC Single Sign-on Provisioner
+#### OAuth/OIDC single sign-on provisioner
 
-Occasionally it's useful to issue certificates to people (e.g., for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
+Occasionally it's useful to issue certificates to people (for example, for testing and debugging). To facilitate this, `step-ca` can be [configured to use OAuth/OpenID Connect (OIDC)](step-ca/provisioners.mdx#oauthoidc-single-sign-on 'OIDC') _identity tokens_ for authentication. In other words, you can use single sign-on with GSuite, Okta, Active Directory, or any other OAuth OIDC provider to get a certificate:
 
 ![SSO Provisioner Architecture](https://i.imgur.com/OIX5Wav.png 'SSO Provisioner Architecture')
 
@@ -303,7 +303,7 @@ X.509v3 TLS Certificate (ECDSA P-256) [Serial: 2581...6739]
 
 When you configure an OIDC provisioner at the CA you can also specify a list of `admins` . These users will be allowed to request certificates with any name (non-admins can only get certificates binding their own ID and email address).
 
-#### JWK Provisioner
+#### JWK provisioner
 
 The JWK provisioner is the most generic provisioner type. It's useful for building custom integrations with infrastructure like Puppet, Chef, Ansible, and Kubernetes. JWK provisioners issue workloads single-use short-lived JSON Web Tokens (JWTs) to authorize certificate signing requests.
 
@@ -338,7 +338,7 @@ $ step ca token foo.local --issuer admin --password-file password.txt
 eyJhbGciOiJFUzI1NiIsImtpZCI6IkVNdzJUSmFPS0NiTWUzQ1FLajJRRmF1WTkwNmZuZDNRajItTk8wVFdOS0UiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2xvY2FsaG9zdC8xLjAvc2lnbiIsImV4cCI6MTU2MTA1MzA4MSwiaWF0IjoxNTYxMDUyNzgxLCJpc3MiOiJhZG1pbiIsImp0aSI6IjNiZmFhMzczMmI1N2Y5YTJjOTU3ZDg0MzJkMzA3N2EyZmE4MjkyMzhmYzcyYmZkOTE4YTNiMTFhMzdhMzc1YjYiLCJuYmYiOjE1NjEwNTI3ODEsInNhbnMiOlsiZm9vLmxvY2FsIl0sInNoYSI6IjQ4MjdmZWI4YjNlYmNlYzhkYzc3NmQwNmQ5MmJkZDQ0YzY3ZWQ0MWI5MGQ2NTdjYjdiNTU5Y2QyMTUwNWQ3NjQiLCJzdWIiOiJmb28ubG9jYWwifQ.Kahp9zB8kFZh1GO5Zto1r35Qj5at-RBQhAQRAAPm-mmx1tRXfJtHgAWy0RoRvxqd6AtFrYPiTOfAQTg1nubowA
 ```
 
-This token can be securely transmitted to `foo.local` (e.g., using SSH) and used to obtain a certificate:
+This token can be securely transmitted to `foo.local` (for example, using SSH) and used to obtain a certificate:
 
 ```bash
 foo$ step ca certificate foo.local foo.crt foo.key --token eyJhbGciOiJFUzI1NiIsImtpZCI6IkVNdzJUSmFPS0NiTWUzQ1FLajJRRmF1WTkwNmZuZDNRajItTk8wVFdOS0UiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJodHRwczovL2xvY2FsaG9zdC8xLjAvc2lnbiIsImV4cCI6MTU2MTA1MzA4MSwiaWF0IjoxNTYxMDUyNzgxLCJpc3MiOiJhZG1pbiIsImp0aSI6IjNiZmFhMzczMmI1N2Y5YTJjOTU3ZDg0MzJkMzA3N2EyZmE4MjkyMzhmYzcyYmZkOTE4YTNiMTFhMzdhMzc1YjYiLCJuYmYiOjE1NjEwNTI3ODEsInNhbnMiOlsiZm9vLmxvY2FsIl0sInNoYSI6IjQ4MjdmZWI4YjNlYmNlYzhkYzc3NmQwNmQ5MmJkZDQ0YzY3ZWQ0MWI5MGQ2NTdjYjdiNTU5Y2QyMTUwNWQ3NjQiLCJzdWIiOiJmb28ubG9jYWwifQ.Kahp9zB8kFZh1GO5Zto1r35Qj5at-RBQhAQRAAPm-mmx1tRXfJtHgAWy0RoRvxqd6AtFrYPiTOfAQTg1nubowA
@@ -384,7 +384,7 @@ PdmtteDb+JKPPbOt+FKiB5kZKRe4+kM/vA==
 -----END EC PRIVATE KEY-----
 ```
 
-JWTs are also easy to [generate programmatically](https://jwt.io/#libraries-io 'generate JWT'), without using `step` . The JWT audience ( `aud` ) should be the `/1.0/sign` endpoint for your CA. The JWT subject ( `sub` ) specifies the subject common name for the issued certificate. The `sha` and `sans` claims are non-standard: they specify the root certificate fingerprint and any subject alternative name(s) that are authorized for inclusion in the issued certificate.
+JWTs are also easy to [generate programmatically](https://jwt.io/#libraries-io 'generate JWT'), without using `step` . The JWT audience ( `aud` ) should be the `/1.0/sign` endpoint for your CA. The JWT subject ( `sub` ) specifies the subject common name for the issued certificate. The `sha` and `sans` claims are non-standard: they specify the root certificate fingerprint and any subject alternative names that are authorized for inclusion in the issued certificate.
 
 ```bash
 foo$ step ca token foo.internal | step crypto jwt inspect --insecure
@@ -470,9 +470,9 @@ ERROR: 2019/06/22 11:04:39 error renewing certificate: client POST https://local
 INFO: 2019/06/22 11:05:00 certificate renewed, next in 14h33m17s
 ```
 
-The default behavior in this mode is to wait until two-thirds of the certificate lifetime has passed (e.g., 16 hours for a 24 hours certificate) then attempt a renewal. Some jitter is added to this schedule to prevent a thundering herd of renewals sent to the CA by many VMs that were provisioned at the same time.
+The default behavior in this mode is to wait until two-thirds of the certificate lifetime has passed (for example, 16 hours for a 24 hours certificate) then attempt a renewal. Some jitter is added to this schedule to prevent a thundering herd of renewals sent to the CA by many VMs that were provisioned at the same time.
 
-If renewal fails (e.g., if the CA is down) `step` will retry periodically ahead of expiration. Thus, the default behavior of `step certificates` makes an outage of less than one-third of your certificate lifetime (8 hours for a 24 hour lifetime) non-critical. The system will recover on its own.
+If renewal fails (for example, if the CA is down) `step` will retry periodically ahead of expiration. Thus, the default behavior of `step certificates` makes an outage of less than one-third of your certificate lifetime (8 hours for a 24 hour lifetime) non-critical. The system will recover on its own.
 
 In many cases, workloads read certificates from disk at startup and will not notice that a renewal has occurred. To assist in these situations, the `--exec` flag tells `step ca renew` to execute a command after each renewal. This can be used to restart a process, or a send a signal to a process telling it to reload its certificate.
 
@@ -480,7 +480,7 @@ In many cases, workloads read certificates from disk at startup and will not not
 foo$ step ca renew --force --daemon --exec "kill -HUP $NGINX_PID" foo.crt foo.key
 ```
 
-Alternatively, your workloads can be written to watch for filesystem changes or simply read the certificate file from disk periodically (e.g., every minute).
+Alternatively, your workloads can be written to watch for filesystem changes or simply read the certificate file from disk periodically (for example, every minute).
 
 ### Revoking a certificate
 
@@ -498,7 +498,7 @@ error renewing certificate: Unauthorized
 
 ### Federation
 
-Suppose `foo.internal` is running in AWS and `bar.internal` is running in GCP. To communicate, traffic must transit the public internet. Traditionally this sort of cross-connectivity is secured using a network-level tunnel (e.g., an SSN tunnel or a VPN). These tunnels are often configured and managed ad-hoc. They're also hard to scale, hard to operate, and can introduce a single-point of failure into an otherwise resilient system.
+Suppose `foo.internal` is running in AWS and `bar.internal` is running in GCP. To communicate, traffic must transit the public internet. Traditionally this sort of cross-connectivity is secured using a network-level tunnel (for example, an SSN tunnel or a VPN). These tunnels are often configured and managed ad-hoc. They're also hard to scale, hard to operate, and can introduce a single-point of failure into an otherwise resilient system.
 
 With good automated certificate management you can leverage mTLS for secure cross-connectivity without a VPN.
 
@@ -506,6 +506,6 @@ In this scenario, you may want to run two CAs: one in AWS and one in GCP. That w
 
 The `step ca federate` subcommand can be used to setup this federation, and `step ca` works to distribute the bundle of federated roots to workloads in both clouds. Learn more about federation and step support in our Step v0.8.3 brings Federation & Root Rotation [blog post](https://smallstep.com/blog/step-v0.8.3-federation-root-rotation.html 'smallstep federation').
 
-## Get Started Today
+## Get started today
 
-We encourage you to visit smallstep on [Github](https://github.com/smallstep/ 'smallstep on github') to build your own internal PKI and empower mTLS between your distributed services. We would love to hear about your experience and [welcome feedback](https://smallstep.com/feedback/ 'feedback') and/or questions on our [community gitter](https://gitter.im/smallstep/community 'smallstep gitter'). Or give us your opinions by taking [the PKI Survey](https://www.surveymonkey.com/r/DC6NTKN). The team continues to innovate on our offerings and new features are coming every couple of weeks so please check back often to follow our progress. Alternatively you can subscribe to our updates by entering your email below.
+We encourage you to visit Smallstep on [Github](https://github.com/smallstep/ 'Smallstep on github') to build your own internal PKI and empower mTLS between your distributed services. We would love to hear about your experience and [welcome feedback](https://smallstep.com/feedback/ 'feedback') and/or questions on our [community gitter](https://gitter.im/smallstep/community 'smallstep gitter'). Or give us your opinions by taking [the PKI Survey](https://www.surveymonkey.com/r/DC6NTKN). The team continues to innovate on our offerings and new features are coming every couple of weeks so please check back often to follow our progress. Alternatively you can subscribe to our updates by entering your email below.
