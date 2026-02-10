@@ -80,7 +80,7 @@ After connecting Mosyle to Smallstep, you'll find all the certificate details yo
 2. Click on your Mosyle connection
 3. From this page, you can:
    - Download the **Root Certificate** file
-   - Copy the **SCEP URL** (e.g., `https://agents.example.ca.smallstep.com/scep/integration-mosyle-abc123`)
+   - Copy the **SCEP URL** (for example, `https://agents.example.ca.smallstep.com/scep/integration-mosyle-abc123`)
    - Copy the **SCEP Challenge** value
 
 Keep this page open or save these values temporarily—you'll need them for the Mosyle configuration steps below.
@@ -169,7 +169,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
                 <key>PayloadIdentifier</key>
                 <string>com.smallstep.Agent.config</string>
                 <key>PayloadUUID</key>
-                <string>YOUR-UNIQUE-UUID-HERE</string>
+                <string>D0693F64-2ECC-4B93-AEBD-957B032F99ED</string>
                 <key>PayloadVersion</key>
                 <integer>1</integer>
                 <key>TeamSlug</key>
@@ -185,14 +185,14 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
         <key>PayloadType</key>
         <string>Configuration</string>
         <key>PayloadUUID</key>
-        <string>YOUR-PROFILE-UUID-HERE</string>
+        <string>5DC6AFA3-F2C8-48DC-8448-5BE3D8EAAEA8</string>
         <key>PayloadVersion</key>
         <integer>1</integer>
     </dict>
     </plist>
     ```
 
-    Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep, and generate unique UUIDs for the `PayloadUUID` fields (you can use `uuidgen` on macOS).
+    Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep.
 
 8. Configure the profile:
     - Profile Name: `Smallstep Agent Configuration`
