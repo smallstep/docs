@@ -103,6 +103,10 @@
               "path": "/tutorials/sync-okta-users-to-smallstep.mdx"
             },
             {
+              "title": "Sync Google Workspace Users",
+              "path": "/tutorials/sync-google-workspace-users-to-smallstep.mdx"
+            },
+            {
               "title": "Sync Entra ID Users",
               "path": "/tutorials/sync-entra-id-users-to-smallstep.mdx"
             }
