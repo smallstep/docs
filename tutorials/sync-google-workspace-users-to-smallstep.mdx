@@ -1,0 +1,95 @@
+---
+updated_at: February 03, 2026
+title: Sync Google Workspace Users to Smallstep
+html_title: Google Workspace Smallstep Integration Guide
+---
+
+### Prerequisites
+
+You will need:
+
+* An account on the Smallstep platform. Need one? [Register here](https://smallstep.com/signup)
+* Google Admin console privileges for your organization.
+* A single domain name that your users will use, added and verified in the Google Admin console.
+* A Google Cloud Platform (GCP) project dedicated to Smallstep in your Google Workspace Organization.
+  * [Create a GCP project here](https://console.cloud.google.com/projectcreate)
+
+### Features
+
+The following provisioning features are supported:
+
+* New Users and Periodical Pull of All Groups
+  * New users created through Google Workspace will be created in the third party application.
+  * Groups and Memberships will be synchronized periodically
+* Push Profile Updates
+  * Updates made to the user's profile through Google Workspace will be pushed to the third party application.
+* Push User Deactivation
+  * Deactivating the user or disabling the user's access to the application through Google Workspace will remove the user from Smallstep. They will no longer be able to sign in.
+* Reactivate Users
+  * User accounts can be reactivated in the application.
+
+## Overview
+1. Configure the Google Auth Platform
+2. Set up API client access
+3. Configure Google Workspace settings in Smallstep Console
+
+## Step-by-step instructions
+
+### 1. Configure Google Auth Platform
+
+1. Configure the Google Auth Platform
+   1. Visit [Configure Google Auth Platform](https://console.cloud.google.com/auth/overview/create)
+   2. Under App Information:
+      - **App Name**: `Smallstep`
+      - **User support email**: choose a Google email address
+   3. Under Audience:
+      - Choose **Internal**
+   5. Update **Contact Information**
+   3. Agree to terms
+   6. **Create**
+2. Create an OAuth client
+   1. Visit [Create an OAuth client](https://console.cloud.google.com/auth/clients/create)
+   2. Choose **Application type: Web application**
+   3. Name it **Smallstep**
+   4. Under Authorized Redirect URIs, choose **+ Add URI**
+      - Specify `https://api.smallstep.com/auth/openid/callback`
+   5. **Create**
+   6. Copy the value of **Client ID** and **Client secret** and save them.
+
+
+### 2. Connect your Google Workspace IdP
+
+1. In the Smallstep dashboard, visit [Connect a new Google Workspace IdP](https://smallstep.com/app/?next=/settings/users/identity-providers/gsuite/connect)
+2. Enter the **client ID** and **client secret** from above.
+3. For the **configuration endpoint**, enter the following string:
+
+   ```
+   https://accounts.google.com/.well-known/openid-configuration
+   ```
+
+4. For Domain, enter your company's primary Google Workspace domain name.
+5. For Google Workspace Admin Email, enter the email address of a Google Workspace administrator.
+6. Under User Syncing, select Sync users or Invite only.
+7. **Save**
+
+### 3. Set up API client access
+
+In Google Workspace, you'll need to do a [Domain-wide Delegation](https://support.google.com/a/answer/162106).
+You only need to do this once for Smallstep. If you have multiple Smallstep teams,
+your Google domain-wide delegation client ID is shared across those teams.
+
+1. Visit **[Domain-wide Delegation](https://admin.google.com/ac/owl/domainwidedelegation)**.
+2. Under API clients, choose **Add new**.
+3. For **Client ID**, fill in the API Client ID (a 21-digit number) given to you by Smallstep.
+4. For **Scopes**, enter the comma-delimited OAuth Scopes given to you by Smallstep.
+5. Choose **Authorize**.
+
+When you're finished, the Manage API Client Access screen page should resemble this:
+
+![](/graphics/quickstart/g-suite-api-clients.png)
+
+## Confirmation
+
+It may take some time for users to sync over from Google to Smallstep.
+Back in [the Smallstep Users tab](https://smallstep.com/app/?next=/users), you should see your directory with users synced.
+

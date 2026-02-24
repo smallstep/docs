@@ -53,6 +53,10 @@
               "path": "/tutorials/connect-intune-to-smallstep-macos.mdx"
             },
             {
+              "title": "Connect Mosyle",
+              "path": "/tutorials/connect-mosyle-to-smallstep.mdx"
+            },
+            {
               "title": "Connect Jamf Pro",
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             },
@@ -97,6 +101,10 @@
             {
               "title": "Sync Okta Users",
               "path": "/tutorials/sync-okta-users-to-smallstep.mdx"
+            },
+            {
+              "title": "Sync Google Workspace Users",
+              "path": "/tutorials/sync-google-workspace-users-to-smallstep.mdx"
             },
             {
               "title": "Sync Entra ID Users",
