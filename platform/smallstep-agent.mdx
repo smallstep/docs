@@ -147,7 +147,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
     sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
     cat << EOF | sudo tee /etc/apt/sources.list.d/smallstep.sources
     Types: deb
-    URIs: https://pkgs.infra.smallstep.com/stable/debian
+    URIs: https://packages.smallstep.com/stable/debian
     Suites: debs
     Components: main
     Signed-By: /etc/apt/keyrings/smallstep.asc
