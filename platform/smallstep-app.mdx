@@ -19,7 +19,23 @@ On macOS and Windows, the Smallstep Agent includes an optional desktop app UI fo
 The agent runs as a background service on all platforms.
 </Alert>
 
-Installers for macOS, Windows and Linux can be downloaded from [GitHub releases](https://github.com/smallstep/step-agent-plugin/releases). Releases are signed with, and can be verified, by cosign.
+Installers for macOS can be downloaded from [GitHub releases](https://github.com/smallstep/step-agent-plugin/releases). Releases are signed with, and can be verified, by cosign.
+
+Windows installers are available from the Smallstep package repository:
+
+| Architecture | MSI |
+|---|---|
+| amd64 | [step-agent-plugin_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_amd64_latest.msi) |
+| arm64 | [step-agent-plugin_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_arm64_latest.msi) |
+
+Linux packages are available from the Smallstep package repository:
+
+| Architecture | DEB | RPM |
+|---|---|---|
+| amd64 / x86_64 | [step-agent-plugin_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_amd64_latest.deb) | [step-agent-plugin_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_x86_64_latest.rpm) |
+| arm64 / aarch64 | [step-agent-plugin_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_arm64_latest.deb) | [step-agent-plugin_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_aarch64_latest.rpm) |
+
+For Linux installation instructions, see [Deploy the Agent](./smallstep-agent.mdx#linux-installation).
 
 ## System requirements
 
