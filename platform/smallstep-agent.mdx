@@ -147,7 +147,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
     sudo curl -fsSL https://packages.smallstep.com/keys/apt/repo-signing-key.gpg -o /etc/apt/keyrings/smallstep.asc
     cat << EOF | sudo tee /etc/apt/sources.list.d/smallstep.sources
     Types: deb
-    URIs: https://pkgs.infra.smallstep.com/stable/debian
+    URIs: https://packages.smallstep.com/stable/debian
     Suites: debs
     Components: main
     Signed-By: /etc/apt/keyrings/smallstep.asc
@@ -396,9 +396,9 @@ To uninstall the Smallstep Agent from a macOS system:
 
 ## Manual install
 
-1. Download the agent installer from the [Smallstep releases page](https://github.com/smallstep/step-agent-plugin/releases):
-   - For most systems: `step-agent-plugin_amd64_<version>.msi`
-   - For ARM64 systems: `step-agent-plugin_arm64_<version>.msi`
+1. Download the agent installer:
+   - For most systems: [step-agent-plugin_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_amd64_latest.msi)
+   - For ARM64 systems: [step-agent-plugin_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_arm64_latest.msi)
 
 2. Install the agent silently:
 
