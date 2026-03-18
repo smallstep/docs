@@ -107,7 +107,35 @@ The path to the `file` containing the password to decrypt the one-time token
 generating key.
 
 **--kms**=`uri`
-The `uri` to configure a Cloud KMS or an HSM.
+The `uri` to configure a (cloud) KMS or an HSM.
+`uri` is formatted as **kmstype:[key=value;...]?[key=value&...]**. The **;**-separated
+parameters identify the KMS, and **&**-separated parameters contain credentials and additional configuration for those credentials.
+
+Supported KMS types:
+
+- **YubiKey PIV**: Use **yubikey:** URIs. Parameters: **serial**, **pin-value**, **pin-source**, **management-key**, **management-key-source**.
+
+- **PKCS #11**: Use **pkcs11:** URIs. Parameters: **module-path**, **token**, **id**, **object**, **pin-value**, **pin-source**.
+
+- **TPM 2.0**: Use **tpmkms:** URIs. Parameters: **name**, **device**, **attestation-ca-url**.
+
+- **Google Cloud KMS**: Use **cloudkms:** URIs. Parameters: **credentials-file**.
+
+- **AWS KMS**: Use **awskms:** URIs. Parameters: **region**, **profile**, **credentials-file**.
+
+- **Azure Key Vault**: Use **azurekms:** URIs. Parameters: **tenant-id**, **client-id**, **client-secret**, **client-certificate-file**.
+
+Examples:
+
+```shell
+yubikey:pin-value=123456
+pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=pass
+tpmkms:name=my-key;device=/dev/tpmrm0
+awskms:region=us-east-1
+azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE
+```
+
+    For more information, see https://smallstep.com/docs/step-ca/cryptographic-protection/.
 
 **--x5c-cert**=`chain`
 Certificate (`chain`) in PEM format to store in the 'x5c' header of a JWT.
@@ -309,8 +337,9 @@ Generate an X5C provisioner token using a certificate in a YubiKey. Note that a
 YubiKey does not support storing a certificate bundle. To make it work, you must
 add the intermediate and the root in the provisioner configuration:
 ```shell
-$ step ca token --kms yubikey:pin-value=123456 \
-  --x5c-cert yubikey:slot-id=82 --x5c-key yubikey:slot-id=82 \
+$ step ca token \
+  --x5c-cert yubikey:slot-id=82 \
+  --x5c-key 'yubikey:slot-id=82?pin=value=123456' \
   internal.example.com
 ```
 
