@@ -181,13 +181,14 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 - **systemd** (Linux only) - Confirms systemd is running for managing network connections
 
 **Common failure reasons:**
-- No TPM 2.0 module present or enabled in BIOS/UEFI
+- No TPM 2.0 module present or enabled in BIOS/UEFI/Virtual Machine
 - TPM is locked or inaccessible
 - User lacks permissions to access the TPM (Linux)
 - systemd is not the init system (Linux)
 
 **Troubleshooting steps:**
-1. Verify TPM 2.0 is enabled in your system BIOS/UEFI settings
+1. Verify TPM 2.0 is enabled in your system BIOS/UEFI settings.
+   In a virtual machine environment, you will need to either enable "TPM Passthrough" (which uses the host's hardware TPM), or enable TPM emulation for the machine. While emulated TPMs do not offer full hardware attestation, they can be useful for testing environments.
 2. On Linux, check TPM permissions: `ls -l /dev/tpm*`
 3. On Linux, ensure the user has read/write access to `/dev/tpmrm0`
 4. On Windows, verify TPM is enabled: Run `tpm.msc` or check Device Manager
