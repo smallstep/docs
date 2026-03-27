@@ -1,0 +1,23 @@
+{
+  "name": "smallstep-docs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Documentation for Smallstep projects and products",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smallstep/docs.git"
+  },
+  "license": "UNLICENSED",
+  "scripts": {
+    "vale": "vale --no-wrap --glob='!step-cli/reference/**' .",
+    "vale:changed": "git diff --name-only origin/main -- '*.mdx' '*.md' | xargs -r vale --no-wrap --glob='!step-cli/reference/**'",
+    "links": "find . -name '*.mdx' -not -path './node_modules/*' -print0 | xargs -0 -n1 markdown-link-check -q -c .github/mdl.config.json",
+    "links:changed": "git diff --name-only origin/main -- '*.mdx' | xargs -r -n1 markdown-link-check -q -c .github/mdl.config.json",
+    "check": "pnpm vale:changed && pnpm links:changed",
+    "check:all": "pnpm vale && pnpm links"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@9.0.5+sha1.6db99351548f394a1d96aa1de98dec032aef8823"
+}
