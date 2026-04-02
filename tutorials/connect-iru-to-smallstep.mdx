@@ -1,0 +1,206 @@
+---
+updated_at: March 24, 2026
+title: Connect Iru (Kandji) to Smallstep
+html_title: Integrate Iru (Kandji) with Smallstep Tutorial
+description: Integrate Iru (Kandji) with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS environments.
+---
+
+Smallstep can integrate with Iru (Kandji) to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Iru instance for use with your Smallstep team.
+
+This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-iru).
+
+## Requirements & Limitations
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- An [Iru](https://iru.com) tenant
+- An Iru Blueprint that you will use to enroll devices
+
+Client requirements:
+
+- The agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  ```
+
+Limitations:
+
+- Devices must be assigned to a Blueprint in Iru to be synced with Smallstep. Devices not in any Blueprint will not appear in your Smallstep inventory.
+- Iru supports static SCEP for enrollment. This limitation only relates to the Smallstep provisional enrollment certificate for each device. Once the Smallstep agent is enrolled, all credentials are hardware-bound and attested.
+
+## Step-by-step instructions
+
+## Create an API Token in Iru
+
+<Aside type="tip">
+We recommend creating a dedicated Iru API token for the Smallstep integration. This makes it easier to manage access separately and rotate credentials if needed.
+</Aside>
+
+This API token will allow Smallstep to read your Iru device inventory for ongoing inventory syncing.
+
+1. In the Iru dashboard, open your account menu in the bottom left, then choose **Access**
+2. Select the **API tokens** tab
+3. Note your **organization's API URL** (e.g., `your-org.api.kandji.io`) — you'll need this later
+4. Choose **Add Token** and give it a name (e.g., `Smallstep`)
+5. Choose **Copy Token** to copy the token value and save it temporarily — you'll use it in the next step
+6. Save the token and choose **Continue** to manage its API permissions
+7. On the API token page, choose **Edit** and enable the following permissions:
+   - **Device List**
+   - **Device ID**
+8. Choose **Save**
+
+## Connect Iru to Smallstep
+
+Let's add the Iru credentials to Smallstep. You'll need the API URL and the API token you created in the previous step.
+
+1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⚙️ **Settings**
+2. Under Iru, choose ➕ **Connect**
+3. Enter the following credentials:
+   - **Iru API URL**: Your organization's Iru API URL (e.g., `https://your-org.api.kandji.io`)
+   - **API Token**: The token you created in the previous step
+4. Choose **Connect MDM**. Your device inventory will start syncing from Iru to Smallstep. You can check the Logs tab for sync status, and confirm that Iru is syncing by checking the Devices list. By default, all new devices will need to be approved in the Smallstep console.
+
+Your Smallstep team is now linked to Iru. Smallstep will do a partial sync of your device inventory every hour, and a full sync every 8 hours.
+
+## Configure Certificates in Iru
+
+### Get Smallstep CA Details
+
+After connecting Iru to Smallstep, you'll find all the certificate details you need on the Platform Settings page:
+
+1. In the Smallstep console, go to [**Device Management**](https://smallstep.com/app/?next=/settings/devices) in **Settings**
+2. Click on your Iru connection
+3. From this page, you can:
+   - Copy the **SCEP URL** (for example, `https://agents.example.ca.smallstep.com/scep/integration-iru-abc123`)
+   - Copy the **SCEP Challenge** value
+   - Copy the **Root Certificate Fingerprint**
+
+Keep this page open or save these values temporarily — you'll need them for the Iru configuration steps below.
+
+### Create a SCEP Profile in Iru
+
+1. In the Iru sidebar, choose **Library**
+2. Choose **Add Library Item**, then select **SCEP**, and click **Add and Configure**
+3. Set a title (e.g., `Smallstep`)
+4. Under **Assignment**, choose your desired Blueprint
+5. In the **General Settings** section, configure the following:
+    - **URL**: Paste the SCEP URL from the previous step
+    - **Challenge**: Paste the SCEP Challenge from the previous step
+    - **Fingerprint**: Paste the Root Certificate Fingerprint from the previous step
+    - **Subject**: `CN=step-agent-bootstrap`
+    - Enable **Subject Alternative Names (SAN)**:
+      - Key: `Uniform Resource Identifier`
+      - Value: `deviceid:$DEVICE_ID`
+    - **Key Size**: `2048`
+    - **Key Usage**: `Both signing and encryption`
+6. In the **Additional Options** section, enable **Allow all apps to access the private key**
+7. Choose **Save**
+
+## Install the Smallstep Agent
+
+There are two ways to install the agent:
+
+- **via Iru** (below): Use Iru's package distribution and policy management
+- **separately**: Use a separate software management tool like [Munki](https://www.munki.org/munki/), or install the agent manually via scripts. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#macos-installation) guide for detailed macOS installation instructions.
+
+### Install the Agent via Iru
+
+#### Upload the Agent Package
+
+1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
+2. In the Iru sidebar, choose **Library**
+3. Choose **Add Library Item**, then select **Custom App**, and click **Add and Configure**
+4. Set a title (e.g., `Smallstep Agent`)
+5. Under **Assignment**, choose your desired Blueprint
+6. Select **Installer Package** and upload the `.pkg` file you downloaded
+7. Choose **Save**
+
+#### Configure the Agent Settings
+
+The Smallstep Agent requires configuration settings to connect to your Smallstep team. Deploy these via a Custom Profile:
+
+1. In the Smallstep console, choose ⚙️ **Settings** and temporarily save the **Team Slug** value
+2. In the Iru sidebar, choose **Library**
+3. Choose **Add Library Item**, then select **Custom Profile**, and click **Add and Configure**
+4. Set a title (e.g., `Smallstep Agent Configuration`)
+5. Under **Assignment**, choose your desired Blueprint (should match the agent installation scope)
+6. In the **Settings** section, create a `.mobileconfig` file with the following content and upload it:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.smallstep.Agent</string>
+            <key>PayloadIdentifier</key>
+            <string>com.smallstep.Agent.config</string>
+            <key>PayloadUUID</key>
+            <string>D0693F64-2ECC-4B93-AEBD-957B032F99ED</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>TeamSlug</key>
+            <string>YOUR-TEAM-SLUG</string>
+            <key>Certificate</key>
+            <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Smallstep Agent Configuration</string>
+    <key>PayloadIdentifier</key>
+    <string>com.smallstep.Agent.profile</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>5DC6AFA3-F2C8-48DC-8448-5BE3D8EAAEA8</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
+```
+
+    Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep.
+
+7. Choose **Save**
+
+#### Configure Login Items (macOS)
+
+To ensure the Smallstep Agent starts automatically on macOS devices:
+
+1. In the Iru sidebar, choose **Library**
+2. Choose **Add Library Item**, then select **Login & Background Items**, and click **Add and Configure**
+3. Set a title (e.g., `Smallstep Login Item`)
+4. Under **Assignment**, choose your desired Blueprint
+5. Choose **Add Background Item**:
+    - **Identifier Type**: `Bundle Identifier`
+    - **Identifier**: `com.smallstep.Agent`
+6. Choose **Save** in the modal, then **Save** the profile
+
+## Confirmation
+
+There are two ways to confirm installation on an endpoint:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- Alternatively, on the device itself, run `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
+
+## Uninstall Smallstep Agent with Iru
+
+You can remove the Smallstep Agent from macOS endpoints managed by Iru by deleting the Library items you created during setup.
+
+1. In the Iru sidebar, choose **Library**
+2. Select the **Library Items** tab
+3. Find and delete the following items:
+   - **Smallstep Agent** (Custom App)
+   - **Smallstep Agent Configuration** (Custom Profile)
+   - **Smallstep** (SCEP)
+   - **Smallstep Login Item** (Login & Background Items)

@@ -65,6 +65,10 @@
               "path": "/tutorials/connect-workspace-one-to-smallstep.mdx"
             },
             {
+              "title": "Connect Iru",
+              "path": "/tutorials/connect-iru-to-smallstep.mdx"
+            },
+            {
               "title": "Connect Fleet DM",
               "path": "/tutorials/connect-fleet-dm-to-smallstep.mdx"
             }
