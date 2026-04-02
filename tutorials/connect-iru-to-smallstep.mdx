@@ -15,6 +15,7 @@ You will need:
 
 - A [Smallstep team](https://smallstep.com/signup)
 - An [Iru](https://iru.com) tenant
+- An Iru Blueprint that you will use to enroll devices
 
 Client requirements:
 
@@ -32,7 +33,7 @@ Client requirements:
 Limitations:
 
 - Devices must be assigned to a Blueprint in Iru to be synced with Smallstep. Devices not in any Blueprint will not appear in your Smallstep inventory.
-- Iru supports static SCEP
+- Iru supports static SCEP for enrollment. This limitation only relates to the Smallstep provisional enrollment certificate for each device. Once the Smallstep agent is enrolled, all credentials are hardware-bound and attested.
 
 ## Step-by-step instructions
 
@@ -44,13 +45,13 @@ We recommend creating a dedicated Iru API token for the Smallstep integration. T
 
 This API token will allow Smallstep to read your Iru device inventory for ongoing inventory syncing.
 
-1. In the Iru dashboard, click your organization name in the sidebar, then choose **Access**
-2. Select the **API Token** tab
+1. In the Iru dashboard, open your account menu in the bottom left, then choose **Access**
+2. Select the **API tokens** tab
 3. Note your **organization's API URL** (e.g., `your-org.api.kandji.io`) — you'll need this later
 4. Choose **Add Token** and give it a name (e.g., `Smallstep`)
 5. Choose **Copy Token** to copy the token value and save it temporarily — you'll use it in the next step
-6. Click the token from the list, then choose **Configure Permissions**
-7. Enable the following permissions:
+6. Save the token and choose **Continue** to manage its API permissions
+7. On the API token page, choose **Edit** and enable the following permissions:
    - **Device List**
    - **Device ID**
 8. Choose **Save**
@@ -64,7 +65,7 @@ Let's add the Iru credentials to Smallstep. You'll need the API URL and the API 
 3. Enter the following credentials:
    - **Iru API URL**: Your organization's Iru API URL (e.g., `https://your-org.api.kandji.io`)
    - **API Token**: The token you created in the previous step
-4. Choose **Connect MDM**. Your device inventory will start syncing from Iru to Smallstep.
+4. Choose **Connect MDM**. Your device inventory will start syncing from Iru to Smallstep. You can check the Logs tab for sync status, and confirm that Iru is syncing by checking the Devices list. By default, all new devices will need to be approved in the Smallstep console.
 
 Your Smallstep team is now linked to Iru. Smallstep will do a partial sync of your device inventory every hour, and a full sync every 8 hours.
 
@@ -94,8 +95,8 @@ Keep this page open or save these values temporarily — you'll need them for th
     - **Challenge**: Paste the SCEP Challenge from the previous step
     - **Fingerprint**: Paste the Root Certificate Fingerprint from the previous step
     - **Subject**: `CN=step-agent-bootstrap`
-    - **Subject Alternative Name**:
-      - Key: `URI`
+    - Enable **Subject Alternative Names (SAN)**:
+      - Key: `Uniform Resource Identifier`
       - Value: `deviceid:$DEVICE_ID`
     - **Key Size**: `2048`
     - **Key Usage**: `Both signing and encryption`
