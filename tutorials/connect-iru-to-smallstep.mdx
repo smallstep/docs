@@ -133,41 +133,41 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
 5. Under **Assignment**, choose your desired Blueprint (should match the agent installation scope)
 6. In the **Settings** section, create a `.mobileconfig` file with the following content and upload it:
 
-    ```xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-    <plist version="1.0">
-    <dict>
-        <key>PayloadContent</key>
-        <array>
-            <dict>
-                <key>PayloadType</key>
-                <string>com.smallstep.Agent</string>
-                <key>PayloadIdentifier</key>
-                <string>com.smallstep.Agent.config</string>
-                <key>PayloadUUID</key>
-                <string>D0693F64-2ECC-4B93-AEBD-957B032F99ED</string>
-                <key>PayloadVersion</key>
-                <integer>1</integer>
-                <key>TeamSlug</key>
-                <string>YOUR-TEAM-SLUG</string>
-                <key>Certificate</key>
-                <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
-            </dict>
-        </array>
-        <key>PayloadDisplayName</key>
-        <string>Smallstep Agent Configuration</string>
-        <key>PayloadIdentifier</key>
-        <string>com.smallstep.Agent.profile</string>
-        <key>PayloadType</key>
-        <string>Configuration</string>
-        <key>PayloadUUID</key>
-        <string>5DC6AFA3-F2C8-48DC-8448-5BE3D8EAAEA8</string>
-        <key>PayloadVersion</key>
-        <integer>1</integer>
-    </dict>
-    </plist>
-    ```
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>PayloadContent</key>
+    <array>
+        <dict>
+            <key>PayloadType</key>
+            <string>com.smallstep.Agent</string>
+            <key>PayloadIdentifier</key>
+            <string>com.smallstep.Agent.config</string>
+            <key>PayloadUUID</key>
+            <string>D0693F64-2ECC-4B93-AEBD-957B032F99ED</string>
+            <key>PayloadVersion</key>
+            <integer>1</integer>
+            <key>TeamSlug</key>
+            <string>YOUR-TEAM-SLUG</string>
+            <key>Certificate</key>
+            <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
+        </dict>
+    </array>
+    <key>PayloadDisplayName</key>
+    <string>Smallstep Agent Configuration</string>
+    <key>PayloadIdentifier</key>
+    <string>com.smallstep.Agent.profile</string>
+    <key>PayloadType</key>
+    <string>Configuration</string>
+    <key>PayloadUUID</key>
+    <string>5DC6AFA3-F2C8-48DC-8448-5BE3D8EAAEA8</string>
+    <key>PayloadVersion</key>
+    <integer>1</integer>
+</dict>
+</plist>
+```
 
     Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep.
 
