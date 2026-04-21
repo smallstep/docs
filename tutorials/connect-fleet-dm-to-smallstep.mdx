@@ -429,13 +429,13 @@ The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx
 
 You can deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
 1. Download the agent package:
-   - macOS: [step-agent-plugin_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
-   - Windows (x64): [step-agent-plugin_latest_amd64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
-   - Windows (ARM64): [step-agent-plugin_latest_arm64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_arm64.msi)
-   - Linux (Debian/Ubuntu x64): [step-agent-plugin_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_amd64_latest.deb)
-   - Linux (Debian/Ubuntu ARM64): [step-agent-plugin_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_arm64_latest.deb)
-   - Linux (RHEL/Fedora x64): [step-agent-plugin_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_x86_64_latest.rpm)
-   - Linux (RHEL/Fedora ARM64): [step-agent-plugin_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_aarch64_latest.rpm)
+   - macOS: [step-agent_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
+   - Windows (x64): [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
+   - Windows (ARM64): [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+   - Linux (Debian/Ubuntu x64): [step-agent_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb)
+   - Linux (Debian/Ubuntu ARM64): [step-agent_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb)
+   - Linux (RHEL/Fedora x64): [step-agent_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm)
+   - Linux (RHEL/Fedora ARM64): [step-agent_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm)
 2. In Fleet, go to **Software**, choose **Custom Package**, and add the package for distribution
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
@@ -539,12 +539,12 @@ In the same team YAML file, add the Smallstep agent packages:
 ```yaml
 software:
   packages:
-    - url: https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg
-    - url: https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_amd64_latest.deb
+    - url: https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg
+    - url: https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi
+    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_x86_64_latest.rpm
+    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
 ```
@@ -552,22 +552,22 @@ software:
 If your Linux fleet includes multiple architectures, add entries for each variant and use `labels_include_any` to target the correct package to each host:
 
 ```yaml
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_amd64_latest.deb
+    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
       labels_include_any:
         - Ubuntu Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_arm64_latest.deb
+    - url: https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
       labels_include_any:
         - Ubuntu Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_x86_64_latest.rpm
+    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
       labels_include_any:
         - Red Hat Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent-plugin_aarch64_latest.rpm
+    - url: https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm
       post_install_script:
         path: ../lib/smallstep-agent-setup.sh
       labels_include_any:
