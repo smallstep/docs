@@ -367,9 +367,11 @@ To uninstall the Smallstep Agent from a macOS system:
 
    ```bash
    /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
-   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent reset
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent reset <team-id>
    rm /Library/LaunchAgents/com.smallstep.launchd.Agent.plist
    ```
+
+   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
 
 3. Remove the application directory:
 
