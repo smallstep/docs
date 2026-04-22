@@ -96,8 +96,8 @@ Within a few minutes after adding the connection, you should see all of your Wor
 
 In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to devices.
 
-- [Download the Smallstep Agent for x64](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
-- [Download the Smallstep Agent for Arm64](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+- [Download the Smallstep Agent for x64 (MSI)](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
+- [Download the Smallstep Agent for Arm64 (MSI)](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
 
 1. In Workspace One UEM,
     - Go to Resources → Native Apps.
@@ -114,7 +114,7 @@ In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribut
 <Alert severity="info">
 <div>
     **Got ARM64 devices?**<br />
-    If you also are deploying to ARM-based devices, add another Native App for the `arm64` version of our [MSI installer](https://github.com/smallstep/step-agent-plugin/releases/latest). Workspace ONE will try to distribute *both* installers to both `arm64` and `amd64` devices. To avoid this, segregate your devices by OS and CPU Architecture. To do this, create two new Smart Groups in **Groups & Settings → Assignment Groups**—one for `arm64` devices, and one for `amd64` devices. Assign each application to the appropriate Smart Group.
+    If you also are deploying to ARM-based devices, add another Native App for the `arm64` version of our MSI installer. Workspace ONE will try to distribute *both* installers to both `arm64` and `amd64` devices. To avoid this, segregate your devices by OS and CPU Architecture. To do this, create two new Smart Groups in **Groups & Settings → Assignment Groups**—one for `arm64` devices, and one for `amd64` devices. Assign each application to the appropriate Smart Group.
 </div>
 </Alert>
 
