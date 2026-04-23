@@ -440,9 +440,51 @@ You can deploy the agent using Fleet's [software deployment](https://fleetdm.com
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
 
+### Deploy the osquery extension on Linux
+
+Smallstep provides an osquery extension that registers additional device identity information—including the TPM Endorsement Key (EK)—directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a more seamless enrollment experience on Linux.
+
+Download the `step-agent-osquery` binary for your target architecture from [Smallstep's GitHub releases](https://github.com/smallstep/step-agent-plugin/releases).
+
+NOTE: deploying the extension (conditionally) is not fully completed yet!
+
+See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide for guidance.
+
+
+### Create a Smallstep enrollment report in Fleet
+
+Once the extension is active on your Linux devices, create a Fleet report to collect the enrollment data. Smallstep reads this report during device sync to include the TPM EK and other enrollment details alongside the standard Fleet device inventory.
+
+1. In Fleet, go to **Reports**
+2. Ensure **All Fleets** is active. If not, the report won't apply to all your hosts.
+3. Click **Add report**
+4. Enter the following query:
+
+   ```sql
+   SELECT * FROM smallstep_enrollment;
+   ```
+5. Click **Save**; a modal should appear
+6. In the modal, enter the following details:
+  - A **Name** for the query, such as "Smallstep Enrollment"
+  - Optionally, a **Description**
+  - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
+  - Optionally, enable the **Observers can run** checkbox
+  - Enable **Linux** as **Target**
+  - Select **All hosts**
+7. Click **Save**
+
+### Link enrollment report in Smallstep
+
+Once the enrollment report is configured in Fleet, the Smallstep platform needs to know about its existence, so that it can gather the data reported through it.
+
+1. Take not of the numeric ID of the Smallstep enrollment report that was just created
+2. In the Smallstep platform, edit your Fleet configuration
+3. Set the **Enrollment Query ID** to the numeric ID
+
+
 ### Linux agent configuration
 
-Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux registers directly using TPM attestation. After installing the agent package, you must configure it with your Smallstep team slug and CA fingerprint.
+Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux registers directly using TPM attestation. After installing the agent package and the osquery extension, you must configure the agent with your Smallstep team slug and CA fingerprint.
 
 When adding a Linux agent package in Fleet, add the following **post-install script** to configure and start the agent:
 
@@ -492,7 +534,7 @@ fleet-gitops/
 ```
 
 - `default.yml` — Organization-wide settings, including certificate authorities
-- `teams/team.yml` — Per-team configuration for profiles and software
+- `teams/team.yml` — Per-team configuration for profiles, software, and queries
 - `lib/` — Configuration profile files created in [Step 4](#step-4-create-scep-configuration-profiles) and Linux agent setup script
 
 ### Add the Smallstep CA
@@ -575,6 +617,22 @@ If your Linux fleet includes multiple architectures, add entries for each varian
 ```
 
 Adapt the label names to match your Fleet label configuration. Fleet includes built-in labels for common Linux distributions. For architecture-specific targeting, you can create [custom labels](https://fleetdm.com/guides/managing-labels-in-fleet) using osquery queries (for example, `SELECT 1 FROM system_info WHERE cpu_type = 'x86_64'`).
+
+### Add the enrollment query
+
+Add the Smallstep enrollment query to your team YAML. Fleet will collect results from all hosts on a schedule and expose them as a report:
+
+```yaml
+queries:
+  - name: Smallstep enrollment
+    description: Collects Smallstep enrollment data including TPM EK for device identity sync
+    query: SELECT * FROM smallstep_enrollment;
+    interval: 3600
+    platform: linux
+    automations_enabled: true
+    logging: snapshot
+    discard_data: false
+```
 
 ### Apply the configuration
 
