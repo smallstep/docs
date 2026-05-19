@@ -139,7 +139,7 @@ The Smallstep Agent includes a `doctor` command that performs automated health c
 
 **On macOS:**
 ```bash
-step-agent-plugin doctor
+/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent doctor
 ```
 
 **On Windows:**
@@ -149,7 +149,7 @@ step-agent-plugin doctor
 
 **On Linux:**
 ```bash
-sudo step-agent-plugin doctor
+sudo step-agent doctor
 ```
 
 The doctor command runs a series of checks and displays results in a table format:
@@ -332,7 +332,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 To test certificate renewal as part of the doctor checks, use the `--renew` flag:
 
 ```bash
-step-agent-plugin doctor --renew
+step-agent doctor --renew
 ```
 
 This will attempt to renew all endpoint certificates and report any failures. This is useful when:
@@ -349,7 +349,7 @@ The `--renew` flag will trigger certificate renewal for all endpoints, which may
 For scripting or integration with monitoring tools, use the `--json` flag:
 
 ```bash
-step-agent-plugin doctor --json
+step-agent doctor --json
 ```
 
 This outputs check results in JSON format:
@@ -402,7 +402,7 @@ This outputs check results in JSON format:
 
 **Solutions:**
 1. Check system requirements are met
-2. Run `step-agent-plugin doctor` to identify specific issues
+2. Run `step-agent doctor` to identify specific issues
 3. Check agent logs for startup errors
 4. Restart the system if the TPM is in an inconsistent state
 5. On Linux, check for conflicting services using the same ports
@@ -430,7 +430,7 @@ This outputs check results in JSON format:
 
 **Solutions:**
 1. Check system clock is accurate
-2. Run `step-agent-plugin doctor --renew` to force renewal
+2. Run `step-agent doctor --renew` to force renewal
 3. If agent was offline for extended period, certificates may have expired
 4. Check agent logs for renewal errors
 5. Verify connectivity to your team's CA
@@ -499,7 +499,7 @@ If you've tried the troubleshooting steps above and still have issues:
    - **macOS/Windows:** Export logs from the desktop app
 3. **Note your configuration:**
    - Operating system and version
-   - Smallstep Agent version (`step-agent-plugin version`)
+   - Smallstep Agent version (`step-agent version`)
    - Any error messages or failure descriptions
 4. **Contact Smallstep support** with the information above
 
@@ -518,7 +518,7 @@ Quick reference for platform-specific commands and file locations.
 | Check if agent is running | Activity Monitor → search for `SmallstepAgent` |
 | Check agent version | `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` |
 | Restart agent | `launchctl stop com.smallstep.launchd.SmallstepAgent` |
-| Run doctor | `step-agent-plugin doctor` |
+| Run doctor | `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent doctor` |
 | Certificate location | `/Users/<user>/Library/Application Support/Smallstep/certificates/` |
 | Inspect a certificate | `step certificate inspect --bundle /path/to/cert.crt` |
 | Collect logs | `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent logs collect /tmp/smallstep.log` | 
@@ -538,12 +538,12 @@ Quick reference for platform-specific commands and file locations.
 | Task | Command or Location |
 |------|---------------------|
 | Check if agent is running | `systemctl status step-agent` |
-| Check agent version | `step-agent-plugin version` |
+| Check agent version | `step-agent version` |
 | Restart agent | `sudo systemctl restart step-agent` |
-| Run doctor | `sudo step-agent-plugin doctor` |
+| Run doctor | `sudo step-agent doctor` |
 | Certificate location | `/var/lib/step-agent/certificates/` |
 | Agent logs | `/var/lib/step-agent/logs/` or `sudo journalctl -u step-agent` |
-| Collect logs | `step-agent-plugin logs collect --log-dir /var/lib/step-agent/logs` |
+| Collect logs | `step-agent logs collect --log-dir /var/lib/step-agent/logs` |
 | Agent configuration | `/etc/step-agent/agent.yaml` |
 
 <Alert severity="info">
