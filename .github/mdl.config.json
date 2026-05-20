@@ -59,6 +59,9 @@
     },
     {
       "pattern": "^https://www.w3.org"
+    },
+    {
+      "pattern": "^https://wiki.alpinelinux.org"
     }
   ],
   "replacementPatterns": [
