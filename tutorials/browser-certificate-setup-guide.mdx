@@ -105,18 +105,7 @@ when a protected resource is accessed.
      <dict>
        <key>AutoSelectCertificateForUrls</key>
        <array>
-         <dict>
-           <key>pattern</key>
-           <string>[Server URL pattern]</string>
-           <key>filter</key>
-           <dict>
-              <key>ISSUER</key>
-              <dict>
-                <key>CN</key>
-                <string>Smallstep [Team Slug] Accounts Intermediate CA</string>
-              </dict>
-           </dict>
-         </dict>
+         <string>{"pattern":"[Server URL pattern]","filter":{"ISSUER":{"CN":"Smallstep [Team Slug] Accounts Intermediate CA"}}}</string>
        </array>
      </dict>
    </plist>
