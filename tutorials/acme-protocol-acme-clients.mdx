@@ -153,9 +153,7 @@ You can automate renewal with a simple `cron` entry:
 ```
 
 The `certbot` packages for some Linux distributions will create a `cron` entry
-or [systemd
-timer](https://stevenwestmoreland.com/2017/11/renewing-certbot-certificates-using-a-systemd-timer.html)
-like this for you. This entry won't work with `step-ca` because it [doesn't set
+or systemd timer for you. This entry won't work with `step-ca` because it [doesn't set
 the `REQUESTS_CA_BUNDLE` environment
 variable](https://github.com/certbot/certbot/issues/7170). You'll need to
 manually tweak it to do so.
