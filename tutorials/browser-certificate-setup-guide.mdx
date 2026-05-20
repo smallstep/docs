@@ -219,7 +219,7 @@ You should not see any certificate selection dialogs.
 ## ChromeOS
 
 On managed Chromebooks, Smallstep certificates are made available to Chrome
-by the [Smallstep extension for ChromeOS](https://chromewebstore.google.com/detail/smallstep-agent-for-chrom/khlfhcjblheppjmebghnnfgklpkofbob).
+by the Smallstep extension for ChromeOS.
 Once the extension is deployed and a client certificate has been issued,
 you can configure Chrome to select the certificate automatically.
 
@@ -227,9 +227,7 @@ Chrome policies are deployed to managed Chromebooks through the
 [Google Workspace Admin Console](https://admin.google.com),
 so there is no per-device configuration step.
 
-### Google Chrome
-
-#### Client certificate auto-selection
+### Google Chrome client certificate auto-selection
 
 To automatically select the Smallstep client certificate when a user visits a protected URL,
 use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy.
@@ -259,11 +257,10 @@ To verify the policy is in effect, open Chrome on a managed Chromebook and visit
 Then visit one of your target URLs.
 You should not see any certificate selection dialogs.
 
-#### Wi-Fi client certificate auto-selection (802.1X)
+### Wi-Fi client certificate auto-selection (802.1X)
 
 For Wi-Fi networks that authenticate with EAP-TLS,
-client certificate selection is configured per-network in the Google Workspace Admin Console,
-not through `AutoSelectCertificateForUrls`.
+client certificate selection is configured per-network in the Google Workspace Admin Console.
 
 1. In the Google Workspace Admin Console, visit **Devices → Networks → Wi-Fi**.
 2. Edit or create the Wi-Fi network used for 802.1X authentication.
