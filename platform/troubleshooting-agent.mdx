@@ -462,6 +462,19 @@ This outputs check results in JSON format:
 - Chrome/Firefox don't see Smallstep certificates
 - NetworkManager can't use agent certificates
 
+**Diagnose:**
+
+The agent produces a log file or journal entries in systemd, depending on how it is installed and run. Start there.
+
+You can also use tools like `pkcs11-tool` to enumerate the slots exposed by the PKCS#11 server:
+
+```bash
+pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
+         --list-slots
+```
+
+The location of `p11-kit-client.so` may vary by distribution.
+
 **Solutions:**
 1. Verify PKCS#11 socket exists and is accessible
 2. Set environment variable correctly:
@@ -471,6 +484,7 @@ This outputs check results in JSON format:
 3. Install p11-kit if not present
 4. Test with `pkcs11-tool --list-slots`
 5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#openssl-and-pkcs11-support)
+6. See the [p11-kit documentation](https://p11-glue.github.io/p11-glue/p11-kit/manual/) for general PKCS#11 reference
 
 #### Cannot access a resource (wi-fi, VPN, web app)
 

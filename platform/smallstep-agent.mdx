@@ -7,7 +7,7 @@ description: Install, configure, and deploy the Smallstep Agent on macOS, Window
 
 The Smallstep Agent brings automated certificate management, device identity, and configuration management features to your endpoints across macOS, Windows, and Linux.
 
-The agent runs as a background service on all platforms and includes an optional desktop UI for transparency and troubleshooting on macOS, Windows, and Linux.
+The agent runs as a background service on all platforms. Smallstep also has an optional desktop UI for transparency and troubleshooting, offered as a separate package.
 
 # Introduction
 
@@ -23,6 +23,8 @@ Using an MDM? See:
 - [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
 </Alert>
+
+Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubleshooting-agent.mdx).
 
 # System requirements
 
@@ -79,7 +81,14 @@ The agent connects to the following Smallstep hosts:
 
 # Downloads
 
-Stable, unversioned URLs that always point at the latest release on the `stable` channel:
+## All versions
+
+See [releases.smallstep.com](https://releases.smallstep.com) for all release history of 
+the Smallstep Agent, Smallstep Desktop app, and more.
+
+## Latest stable agent packages
+
+Here are URLs that always point at the latest stable release of the agent:
 
 **macOS**
 
@@ -99,9 +108,9 @@ Stable, unversioned URLs that always point at the latest release on the `stable`
 - [step-agent_amd64_latest.pkg.tar.zst](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.pkg.tar.zst)
 - [step-agent_arm64_latest.pkg.tar.zst](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.pkg.tar.zst)
 
-For versioned artifacts — with SHA-256 and signature-verification commands — see [releases.smallstep.com](https://releases.smallstep.com).
-
 # Linux installation
+
+Smallstep also offers Debian and RPM package repositories.
 
 ## Quick install
 
@@ -344,18 +353,7 @@ In Chrome, you should now have access to certificates managed by Smallstep.
 
 For regular usage, add `P11_KIT_SERVER_ADDRESS` to your environment more permanently. For example, you might add `P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`  to your global `/etc/environment` file.
 
-#### Troubleshooting
-
-The agent produces a log file or journal entries in systemd, depending on how it is installed and run.
-
-You can use tools like `pkcs11-tool` for troubleshooting PKCS#11 support:
-
-```bash
-pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so \
-         --list-slots
-```
-
-See the [p11-kit](https://p11-glue.github.io/p11-glue/p11-kit/manual/) documentation for more details.
+If PKCS#11 isn't working as expected, see [PKCS#11 troubleshooting](./troubleshooting-agent.mdx#pkcs11-not-working-linuxmacos).
 
 ## Uninstall
 
