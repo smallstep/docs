@@ -56,12 +56,12 @@ All platforms require an internet connection for normal operation.
 
 ## Windows
 
-- *Administrator privileges* — the Smallstep Agent requires privilege escalation to be able to communicate to the TPM.
+- *Administrator privileges* — the Smallstep Agent requires privilege escalation to be able to communicate with the TPM.
 
 ## macOS
 
-- *Location permission* — to enable management of Wi-Fi networks, the Smallstep Agent needs location permission.
-- *Keychain access* — the Smallstep Agent uses the macOS keychain to store both keys and certificates it manages.
+- *Location permission* — only required if the agent will manage Wi-Fi network configurations.
+- *Keychain access* — the agent uses the macOS keychain to store both keys and certificates it manages.
 - *Network Extension entitlement* — the Smallstep Agent requests the *Network Extension* entitlement so that it can manage VPN connections.
 
 ## Linux
@@ -79,7 +79,27 @@ The agent connects to the following Smallstep hosts:
 
 # Downloads
 
-Browse and download every released artifact (`.deb`, `.rpm`, `.pkg`, `.msi`, `.pkg.tar.zst`) — with SHA-256 and signature-verification commands — at [releases.smallstep.com](https://releases.smallstep.com).
+Stable, unversioned URLs that always point at the latest release on the `stable` channel:
+
+**macOS**
+
+- [step-agent_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
+
+**Windows**
+
+- [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
+- [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+
+**Linux**
+
+- [step-agent_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb)
+- [step-agent_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb)
+- [step-agent_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm)
+- [step-agent_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm)
+- [step-agent_amd64_latest.pkg.tar.zst](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.pkg.tar.zst)
+- [step-agent_arm64_latest.pkg.tar.zst](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.pkg.tar.zst)
+
+For versioned artifacts — with SHA-256 and signature-verification commands — see [releases.smallstep.com](https://releases.smallstep.com).
 
 # Linux installation
 
