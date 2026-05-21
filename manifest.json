@@ -78,11 +78,7 @@
           "title": "Configure Devices for Smallstep",
           "routes": [
             {
-              "title": "Install the Smallstep App",
-              "path": "/platform/smallstep-app.mdx"
-            },
-            {
-              "title": "Deploy the Agent",
+              "title": "Install the Smallstep Agent",
               "path": "/platform/smallstep-agent.mdx"
             },
             {
