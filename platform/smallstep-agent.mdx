@@ -401,13 +401,13 @@ To uninstall the Smallstep Agent from a macOS system:
 
    Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
 
-3. Remove the application directory:
+2. Remove the application directory:
 
    ```bash
    rm -rf /Applications/SmallstepAgent.app
    ```
 
-4. Remove the package receipt:
+3. Remove the package receipt:
 
    ```bash
    if pkgutil --packages | grep -q com.smallstep.Agent; then
