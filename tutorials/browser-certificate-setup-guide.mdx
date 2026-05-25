@@ -238,7 +238,7 @@ use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policie
 4. Add an entry for each protected URL, in the following format:
 
    ```json
-   {"pattern":"[Server URL pattern]","filter":{"ISSUER":{"CN":"Smallstep [Team Slug] Accounts Intermediate CA"}}}
+   {"pattern":"[Server URL pattern]","filter":{"ISSUER":{"CN":"Smallstep ([Team Slug]) Devices Intermediate CA"}}}
    ```
 
    Replace `[Server URL pattern]` with the server that requires certificate authentication.
@@ -268,7 +268,7 @@ client certificate selection is configured per-network in the Google Workspace A
 4. Set the **Issuer pattern** to the full common name of your Smallstep intermediate issuing CA:
 
    ```
-   Smallstep [Team Slug] Accounts Intermediate CA
+   Smallstep ([Team Slug]) Devices Intermediate CA
    ```
 
    Replace `[Team Slug]` with your Smallstep team slug.
