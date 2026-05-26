@@ -3,17 +3,7 @@ name: Vale Prose Lint
 on:
   push:
     branches: [main]
-    paths:
-      - '**.mdx'
-      - '**.md'
-      - '.vale.ini'
-      - '.vale/**'
   pull_request:
-    paths:
-      - '**.mdx'
-      - '**.md'
-      - '.vale.ini'
-      - '.vale/**'
 
 jobs:
   prose:
