@@ -62,6 +62,12 @@
     },
     {
       "pattern": "^https://wiki.alpinelinux.org"
+    },
+    {
+      "pattern": "^https://.*omnissa.com"
+    },
+    {
+      "pattern": "^https://.*cr.yp.to"
     }
   ],
   "replacementPatterns": [
