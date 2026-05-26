@@ -292,7 +292,7 @@ The macOS Smallstep agent picks up the bootstrap certificate from the keychain a
 
 Deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
 
-1. Download the macOS package: [step-agent_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
+1. Download the latest macOS package: [step-agent_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg) ([all versions](https://releases.smallstep.com))
 2. In Fleet, go to **Software**, choose **Custom Package**, and add the package
 3. Scope the software install to your macOS hosts
 
@@ -327,6 +327,7 @@ Pick the packages for your Linux distributions and architectures:
 - Debian/Ubuntu ARM64: [step-agent_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb)
 - RHEL/Fedora x64: [step-agent_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm)
 - RHEL/Fedora ARM64: [step-agent_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm)
+- All past versions are available at [releases.smallstep.com](https://releases.smallstep.com)
 
 When adding the package in Fleet (**Software → Add software → Custom package**), attach this **post-install script**:
 
@@ -615,6 +616,7 @@ Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
 1. Download the agent:
     - x64: [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
     - ARM64: [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+    - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com)
 2. In the Fleet console, go to **Software**, choose **Add software → Custom package**, and upload the MSI
 3. Scope the install to your Windows hosts
 
