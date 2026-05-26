@@ -36,6 +36,10 @@ Supported platforms:
 - Linux (via agent software deployment)
 - Windows Pro or Enterprise — Fleet does not yet support its native Smallstep CA type on Windows, so Windows enrollment goes through Smallstep's NDES-compatible endpoints, configured in Fleet as a Dynamic SCEP CA.
 
+# Apple devices (macOS, iOS, iPadOS)
+
+This flow uses Fleet's native Smallstep CA integration. Devices receive a SCEP certificate via a `.mobileconfig` profile, and the Smallstep agent (on macOS) takes over from there.
+
 ## Step 1. Get a Fleet API token
 
 Smallstep needs a Fleet API token to sync your device inventory. You can use a personal API token for testing, or create a dedicated API-only user for production use.
@@ -146,9 +150,7 @@ For macOS, iOS, and iPadOS, Fleet provides these variables for Smallstep certifi
 
 If you used a different name when adding the CA in Fleet, replace `SMALLSTEP_AGENT` accordingly.
 
-For Windows, see [Windows: bridge via the Workspace ONE connector](#windows-bridge-via-the-workspace-one-connector) — the variables and Fleet CA type are different.
-
-### macOS/iOS SCEP profile (`smallstep-agent.mobileconfig`)
+### SCEP profile (`smallstep-agent.mobileconfig`)
 
 Create a file called `smallstep-agent.mobileconfig` with the following structure.
 
@@ -275,42 +277,58 @@ This profile contains three payloads:
 - If you used a different CA name in Fleet, replace `SMALLSTEP_AGENT` in the variable names accordingly.
 - Replace the `<team-slug>` value with your Smallstep team slug
 
-For Windows configuration profiles, see [Windows: bridge via the Workspace ONE connector](#windows-bridge-via-the-workspace-one-connector) below.
+## Step 5. Upload the configuration profile to Fleet
 
-## Step 5. Deploy the configuration profiles and Smallstep agent
-
-### Upload profiles
-
-1. In Fleet, go to **Controls → OS settings → Custom settings**
+1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
 2. Click **Add profile**
-3. Upload your `smallstep-agent.mobileconfig` file (for macOS/iOS)
-4. Assign the profile to your desired scope (teams or all devices)
+3. Upload your `smallstep-agent.mobileconfig` file
+4. Scope the profile to the teams or labels containing your macOS, iOS, or iPadOS hosts
 
-The profiles will be deployed to devices at their next check-in. Fleet will automatically substitute the variables with the appropriate values for each device.
+The profile will be deployed to devices at their next MDM check-in. Fleet automatically substitutes the `$FLEET_VAR_*` values per host.
 
-For Windows `.xml` SyncML profiles, see [Windows: bridge via the Workspace ONE connector](#windows-bridge-via-the-workspace-one-connector).
+## Step 6. Deploy the Smallstep agent (macOS)
 
-### Deploy the agent
+The macOS Smallstep agent picks up the bootstrap certificate from the keychain and uses it to register the device with Smallstep.
 
-The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent manages certificates and makes it easy to configure endpoints.
+Deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
 
-You can deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
-1. [Download the agent package for your platform](https://releases.smallstep.com/):
-   - Windows (x64): [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
-   - Windows (ARM64): [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
-   - Linux (Debian/Ubuntu x64): [step-agent_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb)
-   - Linux (Debian/Ubuntu ARM64): [step-agent_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb)
-   - Linux (RHEL/Fedora x64): [step-agent_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm)
-   - Linux (RHEL/Fedora ARM64): [step-agent_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm)
-2. In Fleet, go to **Software**, choose **Custom Package**, and add the package for distribution
+1. Download the macOS package: [step-agent_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
+2. In Fleet, go to **Software**, choose **Custom Package**, and add the package
+3. Scope the software install to your macOS hosts
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
 
-### Linux agent configuration
+iOS and iPadOS do not run the Smallstep agent — the SCEP certificate issued by the profile is the end of the flow on those platforms.
 
-Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux registers directly using TPM attestation. After installing the agent package, you must configure it with your Smallstep team slug and CA fingerprint.
+## Step 7. Confirmation (Apple)
 
-When adding a Linux agent package in Fleet, add the following **post-install script** to configure and start the agent:
+To confirm certificate deployment:
+
+1. In the Fleet console, go to **Hosts** and select an Apple device that received the profile
+2. Check the **OS settings** status to verify the profile was applied successfully
+3. In the Smallstep console, go to [**Devices**](https://smallstep.com/app/?next=/devices/all) and confirm the device is enrolled with a certificate
+
+On the device itself:
+
+- **macOS**: Open **Keychain Access** and look for a certificate issued by your Smallstep authority
+- **iOS / iPadOS**: Go to **Settings → General → VPN & Device Management** to view the installed profile
+
+# Linux
+
+Linux does not support MDM configuration profiles, so the SCEP flow used for Apple and Windows devices does not apply. Instead, the Smallstep agent on Linux registers directly with your Smallstep team using TPM attestation. There is no certificate authority to configure in Fleet — you only need to deploy and configure the agent.
+
+## Step 1. Deploy the Smallstep agent
+
+You'll add a Linux agent package to Fleet and attach a post-install script that writes the agent configuration and starts the service.
+
+Pick the packages for your Linux distributions and architectures:
+
+- Debian/Ubuntu x64: [step-agent_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb)
+- Debian/Ubuntu ARM64: [step-agent_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb)
+- RHEL/Fedora x64: [step-agent_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm)
+- RHEL/Fedora ARM64: [step-agent_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm)
+
+When adding the package in Fleet (**Software → Add software → Custom package**), attach this **post-install script**:
 
 ```bash
 #!/bin/bash
@@ -337,139 +355,29 @@ If your fleet includes multiple Linux distributions or architectures, create sep
 
 After deployment, Linux devices will self-register with your Smallstep team via TPM attestation. By default, new devices require admin approval in the [Smallstep console](https://smallstep.com/app/?next=/devices). To automate approval, you can [pre-register devices via API](../platform/smallstep-agent.mdx#pre-registration-via-api).
 
-## GitOps: Configure Fleet with `fleetctl`
+## Step 2. Confirmation (Linux)
 
-As an alternative to Steps 3 through 5, you can manage your entire Fleet configuration with YAML files and the `fleetctl gitops` command. This approach is ideal for version-controlled, repeatable deployments.
+On a Fleet-enrolled Linux host:
 
-### Directory layout
+1. Verify the agent service is running:
 
-A typical GitOps repository for Fleet looks like this:
+   ```bash
+   sudo systemctl status step-agent
+   ```
 
-```
-fleet-gitops/
-├── default.yml
-├── teams/
-│   └── team.yml
-└── lib/
-    ├── smallstep-agent.mobileconfig
-    └── smallstep-agent-setup.sh
-```
+2. Confirm certificate files are present under `/var/lib/step-agent`
+3. In the Smallstep console, check [**Devices**](https://smallstep.com/app/?next=/devices/all) for the host. Approve it if approval is required.
+4. In the Smallstep console, check **Certificate Manager → Inventory** for a freshly issued certificate matching the device
 
-- `default.yml` — Organization-wide settings, including certificate authorities
-- `teams/team.yml` — Per-team configuration for profiles and software
-- `lib/` — Configuration profile files created in [Step 4](#step-4-create-scep-configuration-profiles) and Linux agent setup script
+# Windows
 
-For the Windows bridge flow, see the [Windows GitOps notes](#windows-gitops-notes) below.
+Fleet does not yet support Smallstep as a native CA type on Windows, but it does support Windows SCEP enrollment through its **Dynamic SCEP - Okta CA or Microsoft NDES** CA type. To issue Smallstep certificates to Fleet-managed Windows devices today, point Fleet at Smallstep's NDES-compatible SCEP endpoints. Those endpoints are exposed by Smallstep's Workspace ONE connector, which emulates Microsoft ADCS Dynamic SCEP and NDES.
 
-### Add the Smallstep CA
+Yes, it's a little confusing. But Smallstep's Workspace ONE connector exposes NDES endpoints that Fleet can consume. Workspace ONE itself is not involved.
 
-In `default.yml`, add the Smallstep certificate authority under `org_settings`:
+Our integration with Fleet on Windows does not include device inventory sync. If you want the Smallstep agent on Windows, you can deploy it as Fleet software separately (covered below).
 
-```yaml
-org_settings:
-  certificate_authorities:
-    smallstep:
-      - name: SMALLSTEP_AGENT
-        url: <SCEP URL from Smallstep>
-        challenge_url: <SCEP Challenge URL from Smallstep>
-        username: $SMALLSTEP_CHALLENGE_USERNAME
-        password: $SMALLSTEP_CHALLENGE_PASSWORD
-```
-
-The `$SMALLSTEP_CHALLENGE_USERNAME` and `$SMALLSTEP_CHALLENGE_PASSWORD` values are environment variables. Set them before running `fleetctl gitops`:
-
-```bash
-export SMALLSTEP_CHALLENGE_USERNAME='your-challenge-username'
-export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
-```
-
-### Add configuration profiles
-
-In your team YAML file, reference the profile files from [Step 4](#step-4-create-scep-configuration-profiles):
-
-```yaml
-controls:
-  macos_settings:
-    custom_settings:
-      - path: ../lib/smallstep-agent.mobileconfig
-```
-
-For the Windows bridge flow, add a `windows_settings` block referencing the SyncML profiles created in the [Windows section](#windows-bridge-via-the-workspace-one-connector) below.
-
-### Add the Smallstep agent software
-
-In the same team YAML file, add the Smallstep agent packages:
-
-```yaml
-software:
-  packages:
-    - url: https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg
-    - url: https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi
-    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-```
-
-If your Linux fleet includes multiple architectures, add entries for each variant and use `labels_include_any` to target the correct package to each host:
-
-```yaml
-    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-      labels_include_any:
-        - Ubuntu Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-      labels_include_any:
-        - Ubuntu Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-      labels_include_any:
-        - RedHat Linux
-    - url: https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm
-      post_install_script:
-        path: ../lib/smallstep-agent-setup.sh
-      labels_include_any:
-        - RedHat Linux
-```
-
-Adapt the label names to match your Fleet label configuration. Fleet includes built-in labels for common Linux distributions. For architecture-specific targeting, you can create [custom labels](https://fleetdm.com/guides/managing-labels-in-fleet) using osquery queries (for example, `SELECT 1 FROM system_info WHERE cpu_type = 'x86_64'`).
-
-### Apply the configuration
-
-Run `fleetctl gitops` to apply the configuration:
-
-```bash
-fleetctl gitops -f default.yml -f teams/team.yml
-```
-
-Use `--dry-run` to validate your configuration before applying:
-
-```bash
-fleetctl gitops -f default.yml -f teams/team.yml --dry-run
-```
-
-<Alert severity="info">
-<div>
-The `--dry-run` flag is useful for CI pipelines. You can run it on pull requests to validate configuration changes before merging.
-</div>
-</Alert>
-
-## Windows: bridge via the Workspace ONE connector
-
-Fleet does not yet support Smallstep as a native CA type on Windows, but it does support Windows SCEP enrollment only through its **Dynamic SCEP - Okta CA or Microsoft NDES** CA type. To issue Smallstep certificates to Fleet-managed Windows devices today, point Fleet at Smallstep's NDES-compatible SCEP endpoints. Those endpoints are exposed by Smallstep's Workspace ONE connector, which emulates Microsoft ADCS Dynamic SCEP and NDES.
-
-This is a bridge: the Workspace ONE connector is configured solely to expose NDES endpoints for Fleet to consume. Workspace ONE itself is not involved.
-
-This integration does not include device inventory sync.
-If you want the Smallstep agent on Windows, you can deploy it as Fleet software separately.
-
-### Step 1. Create a Workspace ONE connector in Smallstep
+## Step 1. Create a Workspace ONE connector in Smallstep
 
 Begin by setting up a "Workspace ONE" integration to your Smallstep team:
 
@@ -477,12 +385,12 @@ Begin by setting up a "Workspace ONE" integration to your Smallstep team:
 2. Under **Available Providers**, find **Omnissa Workspace ONE** and click **Connect**
 3. Fill in the form. All four credential fields are required by the form, but only the SCEP/NDES endpoints derived from this connection are used by Fleet. The form does not test the OAuth credentials before saving, so placeholders are accepted:
     - **Name/Alias**: for example, `Fleet-Windows-Bridge`
-    - **REST API URL**: any well-formed HTTPS URL, for example `https://placeholder.example.com/API`
-    - **OAuth Client ID**: any string, for example `placeholder-client-id`
-    - **Token URL**: any well-formed HTTPS URL, for example `https://placeholder.example.com/connect/token`
-    - **OAuth Client Secret**: any string, for example `placeholder-client-secret`
-4. Click **Connect MDM**. The connector is created immediately and the Settings page opens showing the NDES endpoints. You'll need these for the next step.
-5. From the connector's Settings, collect the following values for the next step:
+    - **REST API URL**: Not used by Fleet. Provide any well-formed HTTPS URL, for example `https://placeholder.example.com/API`
+    - **OAuth Client ID**: Not used by Fleet. Provide any string, for example `placeholder-client-id`
+    - **Token URL**: Note used by Fleet. Provide any well-formed HTTPS URL, for example `https://placeholder.example.com/connect/token`
+    - **OAuth Client Secret**: Not used by Fleet. Provide any string, for example `placeholder-client-secret`
+4. Click **Connect MDM**. The connector is created immediately.
+5. Go to the **Settings** tab for your new MDM connection, and collect the following values for the next step:
     - **SCEP URL**
     - **SCEP Challenge URL**
     - **Challenge Username**
@@ -490,7 +398,7 @@ Begin by setting up a "Workspace ONE" integration to your Smallstep team:
     - **Root Certificate Fingerprint**
     - Click **Download Root** to save the Root CA certificate as a PEM file
 
-### Step 2. Add the NDES CA in Fleet
+## Step 2. Add the NDES CA in Fleet
 
 1. In Fleet, go to **Settings → Integrations → Certificate authorities**
 2. Click **+ Add CA**
@@ -508,9 +416,15 @@ Fleet's NDES CA type is single-instance — you can have at most one NDES CA at 
 </div>
 </Alert>
 
-### Step 3. Create the Windows SCEP profile (`smallstep-windows-scep.xml`)
+## Step 3. Create the Windows SyncML profile (`smallstep-windows.xml`)
 
-Create a SyncML configuration profile that requests a SCEP certificate using Fleet's NDES variables. Fleet substitutes these per host at deployment time:
+Fleet does not let you order separately uploaded SyncML profiles, so we put everything Windows needs into a single file. Within one profile, Fleet processes top-level commands in document order, so we can guarantee:
+
+1. The Smallstep Root CA is installed in the device's Trusted Root store
+2. The SCEP CSP nodes are populated
+3. The SCEP `Enroll` is triggered last
+
+Fleet substitutes these variables per host at deployment time:
 
 | Variable | Description |
 |----------|-------------|
@@ -521,7 +435,24 @@ Create a SyncML configuration profile that requests a SCEP certificate using Fle
 
 Get the **CA Thumbprint** from the Smallstep Workspace ONE connector Settings page: switch the dropdown next to **Root Certificate Fingerprint** to **sha1** and copy that value. The Windows SCEP CSP expects a SHA-1 fingerprint for `CAThumbprint`.
 
+Create `smallstep-windows.xml` with the following contents. Replace `YOUR_ROOT_CA_FINGERPRINT` (in two places) with the SHA-1 Root Certificate Fingerprint, and paste the Base64 body of the Root CA PEM (everything between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`) into the `<Data>` element of the first `<Replace>`:
+
 ```xml
+<!-- 1. Install the Smallstep Root CA in the device's Trusted Root store -->
+<Replace>
+    <Item>
+        <Target>
+            <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/YOUR_ROOT_CA_FINGERPRINT/EncodedCertificate</LocURI>
+        </Target>
+        <Meta>
+            <Format xmlns="syncml:metinf">b64</Format>
+        </Meta>
+        <Data>
+        <!-- Paste the Base64-encoded Root CA certificate here (contents between the BEGIN/END lines of the PEM) -->
+        </Data>
+    </Item>
+</Replace>
+<!-- 2. Populate the SCEP CSP nodes -->
 <Replace>
     <Item>
         <Target>
@@ -620,6 +551,7 @@ Get the **CA Thumbprint** from the Smallstep Workspace ONE connector Settings pa
         <Data>YOUR_ROOT_CA_FINGERPRINT</Data>
     </Item>
 </Replace>
+<!-- 3. Trigger SCEP enrollment -->
 <Exec>
     <Item>
         <Target>
@@ -629,45 +561,125 @@ Get the **CA Thumbprint** from the Smallstep Workspace ONE connector Settings pa
 </Exec>
 ```
 
-Replace `YOUR_ROOT_CA_FINGERPRINT` with the SHA-1 **Root Certificate Fingerprint** from the Smallstep Workspace ONE connector Settings page (hex string, no colons).
+## Step 4. Upload the profile to Fleet
 
-### Step 4. Create the Windows Root CA trust profile (`smallstep-windows-root-ca.xml`)
+1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
+2. Click **Add profile**
+3. Upload `smallstep-windows.xml`
+4. Scope the profile to the teams or labels containing your Windows hosts
 
-To install the Smallstep Root CA in the device's Trusted Root store, create a second SyncML profile using the `RootCATrustedCertificates` CSP:
+The profile will be deployed to devices at their next MDM check-in. Fleet substitutes the `$FLEET_VAR_*` values per host.
 
-```xml
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/YOUR_ROOT_CA_FINGERPRINT/EncodedCertificate</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">b64</Format>
-        </Meta>
-        <Data>
-        <!-- Paste the Base64-encoded Root CA certificate here (contents between the BEGIN/END lines of the PEM) -->
-        </Data>
-    </Item>
-</Replace>
+## Step 5. Configure the Smallstep agent via a PowerShell script
+
+The Windows Smallstep agent reads its configuration from `HKLM:\Software\Policies\Smallstep`. Fleet does not have native registry-management, so we set those values with a PowerShell script run by Fleet's [Scripts](https://fleetdm.com/guides/scripts) feature.
+
+The agent needs three values:
+
+- `TeamSlug` — your Smallstep team slug (found in [**Settings → Team**](https://smallstep.com/app/?next=/settings/team))
+- `CAFingerprint` — the SHA-256 root fingerprint of your Smallstep Agents authority (found in [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities) under the Agents authority)
+- `Certificate` — a CAPI selector that points to the bootstrap certificate issued by the SyncML profile in Step 3
+
+Save the following as `smallstep-agent-config.ps1`, replacing `<team-slug>` and `<team-name>` with your values:
+
+```powershell
+$RegistryPath = "HKLM:\Software\Policies\Smallstep"
+
+If (-NOT (Test-Path $RegistryPath)) {
+    New-Item -Path $RegistryPath -Force | Out-Null
+}
+
+Set-ItemProperty -Path $RegistryPath -Name "TeamSlug"      -Value "<team-slug>"
+Set-ItemProperty -Path $RegistryPath -Name "CAFingerprint" -Value "<agents-authority-sha256-fingerprint>"
+Set-ItemProperty -Path $RegistryPath -Name "Certificate"   -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=$env:COMPUTERNAME"
 ```
 
-Open the Root CA PEM you downloaded in Step 1. Copy the Base64 body (everything between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`) into the `<Data>` element. Replace `YOUR_ROOT_CA_FINGERPRINT` with the same fingerprint used in the SCEP profile.
+<Alert severity="info">
+<div>
+If your team was created before October 2024, your issuer CA may have a common name without the team slug (`Smallstep Agents Intermediate CA`). Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities) to confirm.
+</div>
+</Alert>
 
-### Step W5. Upload the profiles to Fleet
+Upload the script to Fleet and run it against your Windows hosts:
 
-1. In Fleet, go to **Controls → OS settings → Custom settings**
-2. Click **Add profile** and upload `smallstep-windows-root-ca.xml`
-3. Click **Add profile** again and upload `smallstep-windows-scep.xml`
-4. Scope both profiles to the teams or labels containing your Windows hosts
+1. In the Fleet console, go to **Controls → Scripts**
+2. Click **Upload script** and select `smallstep-agent-config.ps1`
+3. Scope or target the script to your Windows hosts and run it
 
-Order matters: have the Root CA trust applied before the SCEP enroll runs, otherwise the SCEP install may fail to chain.
+For self-healing enforcement, you can pair this with a [policy automation](https://fleetdm.com/guides/policy-automation-run-script) that checks whether the registry values exist and re-runs the script if they're missing — Fleet documents this pattern in [Prevent tampering of Fleet Orbit](https://fleetdm.com/guides/prevent-tampering-of-fleet-agent).
 
-### Windows GitOps notes
+## Step 6. Deploy the Smallstep agent
 
-If you manage Fleet with `fleetctl gitops`, declare the NDES CA in `default.yml`:
+Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
+
+1. Download the agent:
+    - x64: [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
+    - ARM64: [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+2. In the Fleet console, go to **Software**, choose **Add software → Custom package**, and upload the MSI
+3. Scope the install to your Windows hosts
+
+The agent reads the registry values written in Step 5 on startup, finds the bootstrap certificate from Step 3, and completes TPM-attested registration with your Smallstep team.
+
+## Step 7. Confirmation (Windows)
+
+On a Fleet-enrolled Windows test host:
+
+1. Trigger a sync: either reboot, or run `gpupdate /force` then wait for the MDM scheduler, or use the **Sync** button on the device under **Settings → Accounts → Access work or school**
+2. Open **certlm.msc** (local machine, since this profile uses Device scope)
+3. Under **Personal → Certificates**, confirm a certificate issued by your Smallstep Agents Intermediate CA with `CN=<computer-name>`
+4. Under **Trusted Root Certification Authorities → Certificates**, confirm the Smallstep Root CA is present
+5. Confirm the registry values were written:
+
+   ```powershell
+   Get-ItemProperty -Path HKLM:\Software\Policies\Smallstep
+   ```
+
+6. Confirm the agent service is running:
+
+   ```powershell
+   sc query "Smallstep Agent"
+   ```
+
+7. In the Smallstep console, check **Certificate Manager → Inventory** for a freshly issued certificate matching the device, and confirm the device appears in [**Devices**](https://smallstep.com/app/?next=/devices/all) with an **Enrolled At** timestamp.
+
+If enrollment fails, check Fleet's host detail page for profile errors and `Event Viewer → Applications and Services Logs → Microsoft → Windows → DeviceManagement-Enterprise-Diagnostics-Provider → Admin` on the host for the underlying CSP error.
+
+# GitOps with `fleetctl`
+
+As an alternative to configuring Fleet through the UI, you can manage your entire Fleet configuration with YAML files and the `fleetctl gitops` command. This approach is ideal for version-controlled, repeatable deployments.
+
+## Directory layout
+
+A typical GitOps repository for Fleet looks like this:
+
+```
+fleet-gitops/
+├── default.yml
+├── teams/
+│   └── team.yml
+└── lib/
+    ├── smallstep-agent.mobileconfig
+    ├── smallstep-windows.xml
+    └── smallstep-agent-setup.sh
+```
+
+- `default.yml` — Organization-wide settings, including certificate authorities
+- `teams/team.yml` — Per-team configuration for profiles and software
+- `lib/` — Configuration profile files and the Linux agent setup script
+
+## Add the certificate authorities
+
+In `default.yml`, declare the Smallstep CA (Apple) and the NDES CA (Windows) under `org_settings`:
 
 ```yaml
 org_settings:
+  certificate_authorities:
+    smallstep:
+      - name: SMALLSTEP_AGENT
+        url: <SCEP URL from Smallstep Fleet connector>
+        challenge_url: <SCEP Challenge URL from Smallstep Fleet connector>
+        username: $SMALLSTEP_CHALLENGE_USERNAME
+        password: $SMALLSTEP_CHALLENGE_PASSWORD
   integrations:
     ndes_scep_proxy:
       url: <SCEP URL from the Smallstep Workspace ONE connector>
@@ -676,46 +688,93 @@ org_settings:
       password: $SMALLSTEP_NDES_PASSWORD
 ```
 
-Reference the Windows profiles from your team YAML:
+Omit the block you don't need if you're only targeting one OS family.
 
-```yaml
-controls:
-  windows_settings:
-    custom_settings:
-      - path: ../lib/smallstep-windows-root-ca.xml
-      - path: ../lib/smallstep-windows-scep.xml
-```
-
-Export the credential environment variables before running `fleetctl gitops`:
+Set the credential environment variables before running `fleetctl gitops`:
 
 ```bash
+export SMALLSTEP_CHALLENGE_USERNAME='your-challenge-username'
+export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
 export SMALLSTEP_NDES_USERNAME='<challenge-username-uuid>'
 export SMALLSTEP_NDES_PASSWORD='<challenge-password>'
 ```
 
-### Verifying the Windows flow
+## Add configuration profiles
 
-On a Fleet-enrolled Windows test host:
+In your team YAML file, reference the profile files:
 
-1. Trigger a sync: either reboot, or run `gpupdate /force` then wait for the MDM scheduler, or use the **Sync** button on the device under **Settings → Accounts → Access work or school**
-2. Open **certmgr.msc** (current user) or **certlm.msc** (local machine, since this profile uses Device scope)
-3. Under **Personal → Certificates**, confirm a certificate issued by your Smallstep Agents Intermediate CA with the subject name from `SubjectName`
-4. Under **Trusted Root Certification Authorities → Certificates**, confirm the Smallstep Root CA is present
-5. In the Smallstep console, check **Certificate Manager → Inventory** for a freshly issued certificate matching the device
+```yaml
+controls:
+  macos_settings:
+    custom_settings:
+      - path: ../lib/smallstep-agent.mobileconfig
+  windows_settings:
+    custom_settings:
+      - path: ../lib/smallstep-windows.xml
+```
 
-If enrollment fails, check Fleet's host detail page for profile errors and `Event Viewer → Applications and Services Logs → Microsoft → Windows → DeviceManagement-Enterprise-Diagnostics-Provider → Admin` on the host for the underlying CSP error.
+## Add the Smallstep agent software
 
-## Confirmation
+In the same team YAML file, add the Smallstep agent packages:
 
-To confirm certificate deployment:
+```yaml
+software:
+  packages:
+    - url: https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg
+    - url: https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi
+    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+```
 
-1. In Fleet, go to **Hosts** and select a device that received the profile
-2. Check the **OS settings** status to verify the profile was applied successfully
-3. In the Smallstep console, go to **Devices** to verify the device has enrolled and received a certificate
+If your Linux fleet includes multiple architectures, add entries for each variant and use `labels_include_any` to target the correct package to each host:
 
-On the device itself:
+```yaml
+    - url: https://packages.smallstep.com/stable/linux/step-agent_amd64_latest.deb
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+      labels_include_any:
+        - Ubuntu Linux
+    - url: https://packages.smallstep.com/stable/linux/step-agent_arm64_latest.deb
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+      labels_include_any:
+        - Ubuntu Linux
+    - url: https://packages.smallstep.com/stable/linux/step-agent_x86_64_latest.rpm
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+      labels_include_any:
+        - RedHat Linux
+    - url: https://packages.smallstep.com/stable/linux/step-agent_aarch64_latest.rpm
+      post_install_script:
+        path: ../lib/smallstep-agent-setup.sh
+      labels_include_any:
+        - RedHat Linux
+```
 
-- **macOS**: Open **Keychain Access** and look for a certificate issued by your Smallstep authority
-- **iOS/iPadOS**: Go to **Settings → General → VPN & Device Management** to view installed profiles
-- **Windows**: Open **certmgr.msc** and check the Personal certificates store
-- **Linux**: Run `sudo systemctl status step-agent` to verify the agent is running, and check `/var/lib/step-agent` for certificate files
+Adapt the label names to match your Fleet label configuration. Fleet includes built-in labels for common Linux distributions. For architecture-specific targeting, you can create [custom labels](https://fleetdm.com/guides/managing-labels-in-fleet) using osquery queries (for example, `SELECT 1 FROM system_info WHERE cpu_type = 'x86_64'`).
+
+The PowerShell registry script from the Windows [Step 5](#step-5-configure-the-smallstep-agent-via-a-powershell-script) is run from the Fleet UI rather than GitOps. If you want it under version control, manage it through Fleet's [scripts API](https://fleetdm.com/docs/rest-api/rest-api#scripts).
+
+## Apply the configuration
+
+Run `fleetctl gitops` to apply the configuration:
+
+```bash
+fleetctl gitops -f default.yml -f teams/team.yml
+```
+
+Use `--dry-run` to validate your configuration before applying:
+
+```bash
+fleetctl gitops -f default.yml -f teams/team.yml --dry-run
+```
+
+<Alert severity="info">
+<div>
+The `--dry-run` flag is useful for CI pipelines. You can run it on pull requests to validate configuration changes before merging.
+</div>
+</Alert>
