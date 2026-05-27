@@ -439,7 +439,9 @@ To install the Smallstep Root CA in the device's Trusted Root store, create a Sy
 
 ## Step 4. Create the Windows SCEP profile (`smallstep-windows-scep.xml`)
 
-Create a second SyncML profile that requests a SCEP certificate. Fleet doesn't let you order the application of separately uploaded profiles, so the SCEP install may run before Root CA trust is established. The `RetryCount` and `RetryDelay` nodes below tell Windows to retry the SCEP install several times — by the time the retries fire, the Root CA Replace from Step 3 will have applied and the chain will validate.
+Create a second SyncML profile that requests a SCEP certificate.
+
+The `RetryCount` and `RetryDelay` nodes are SCEP-protocol-level retry settings: they tell the Windows MDM client to retry the SCEP request if Smallstep's NDES endpoint returns a *pending* response. They do **not** wait for the Root CA trust profile in Step 3 to apply.
 
 Fleet substitutes these variables per host at deployment time:
 
@@ -584,18 +586,20 @@ Replace `YOUR_ROOT_CA_FINGERPRINT` with the same SHA-1 fingerprint used in Step 
 
 <Alert severity="info">
 <div>
-Fleet's documentation suggests that a single configuration profile can contain multiple top-level `<Replace>` / `<Exec>` commands ordered by document order, but in our testing the Fleet API returns a 502 on such bundled profiles. Keeping the Root CA and SCEP profiles separate is what works in practice — the `RetryCount` setting above papers over the lack of profile ordering.
+**Why two profiles?** Fleet enforces a homogeneity rule on Windows configuration profiles: a profile that contains any `ClientCertificateInstall/SCEP/` LocURI cannot also contain `RootCATrustedCertificates/...` LocURIs (or vice-versa). Combining the two CSPs in one profile additionally crashes Fleet's API with a 502 that the UI swallows silently, so the profile never appears. Two profiles is the only path that works.
 </div>
 </Alert>
 
 ## Step 5. Upload the profiles to Fleet
 
 1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
-2. Click **Add profile** and upload `smallstep-windows-root-ca.xml`
+2. Click **Add profile** and upload `smallstep-windows-root-ca.xml` first
 3. Click **Add profile** again and upload `smallstep-windows-scep.xml`
 4. Scope both profiles to the teams or labels containing your Windows hosts
 
 The profiles will be deployed to devices at their next MDM check-in. Fleet substitutes the `$FLEET_VAR_*` values per host.
+
+Fleet does not guarantee an order of application between separately uploaded Windows profiles. If the SCEP profile lands first, the SCEP enrollment will fail to chain to the (not-yet-installed) Smallstep Root CA. Fleet retries failed Windows profiles automatically once, and the Windows MDM client also re-evaluates on subsequent MDM sessions, so the chain typically validates within a few minutes. Uploading the Root CA profile first (above) is a best-effort hint, even though Fleet does not promise to honor upload order.
 
 ## Step 6. Configure the Smallstep agent via a PowerShell script
 
