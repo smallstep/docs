@@ -664,59 +664,6 @@ Find the Intermediate CA's SHA-1 fingerprint in [**Certificate Manager → Autho
 </Exec>
 ```
 
-- Replace `YOUR_ROOT_CA_SHA256_FINGERPRINT` with the Root Fingerprint from the Smallstep Agents authority.
-- If you used a different CA name in Fleet, replace `SMALLSTEP_AGENT` in the variable names accordingly.
-
-### Windows Root CA profile (`smallstep-root-ca.xml`)
-
-To install the Smallstep Agent Root CA on Windows, create a second file called `smallstep-root-ca.xml` using the `RootCATrustedCertificates` CSP:
-
-```xml
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/YOUR_ROOT_CA_SHA256_FINGERPRINT/EncodedCertificate</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">b64</Format>
-        </Meta>
-        <Data>
-        <!-- Paste the Base64-encoded Root CA certificate here -->
-        </Data>
-    </Item>
-</Replace>
-```
-
-## Step 5. Deploy the configuration profiles and Smallstep agent
-
-### Upload profiles
-
-1. In Fleet, go to **Controls → OS settings → Custom settings**
-2. Click **Add profile**
-3. Upload your `smallstep-agent.mobileconfig` file (for macOS/iOS) or your `.xml` files (for Windows)
-4. Assign the profile to your desired scope (teams or all devices)
-
-The profiles will be deployed to devices at their next check-in. Fleet will automatically substitute the variables with the appropriate values for each device.
-
-### Deploy the agent
-
-The last step is to deploy the [Smallstep agent](../platform/smallstep-agent.mdx) to your endpoints. The agent manages certificates and makes it easy to configure endpoints.
-
-You can deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/deploy-software-packages) feature:
-1. Download the agent package:
-   - macOS: [step-agent-plugin_latest.pkg](https://packages.smallstep.com/stable/darwin/step-agent-plugin_latest.pkg)
-   - Windows (x64): [step-agent-plugin_latest_amd64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_amd64.msi)
-   - Windows (ARM64): [step-agent-plugin_latest_arm64.msi](https://packages.smallstep.com/stable/windows/step-agent-plugin_latest_arm64.msi)
-   - Linux (Debian/Ubuntu x64): [step-agent-plugin_amd64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_amd64_latest.deb)
-   - Linux (Debian/Ubuntu ARM64): [step-agent-plugin_arm64_latest.deb](https://packages.smallstep.com/stable/linux/step-agent-plugin_arm64_latest.deb)
-   - Linux (RHEL/Fedora x64): [step-agent-plugin_x86_64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_x86_64_latest.rpm)
-   - Linux (RHEL/Fedora ARM64): [step-agent-plugin_aarch64_latest.rpm](https://packages.smallstep.com/stable/linux/step-agent-plugin_aarch64_latest.rpm)
-2. In Fleet, go to **Software**, choose **Custom Package**, and add the package for distribution
-
-Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
-
-Replace `<your-team-slug>` with your Smallstep team slug (found in [**Settings → Team**](https://smallstep.com/app/?next=/settings/team)), and `<your-agents-ca-fingerprint>` with the SHA-256 root fingerprint of your Smallstep Agents authority (found in [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities) under the Agents authority).
-
 <Alert severity="info">
 <div>
 **Why two profiles?** Fleet enforces a homogeneity rule on Windows configuration profiles: a profile that contains any `ClientCertificateInstall/SCEP/` LocURI cannot also contain `RootCATrustedCertificates/...` LocURIs (or vice-versa). Combining the two CSPs in one profile additionally crashes Fleet's API with a 502 that the UI swallows silently, so the profile never appears. Two profiles is the only path that works.
