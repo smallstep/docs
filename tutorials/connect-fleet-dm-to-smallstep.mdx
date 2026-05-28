@@ -368,10 +368,7 @@ Smallstep provides an osquery extension that registers additional device identit
 
 A modal should appear, showing the package upload progress.
 
-By default, a policy will be created that automatically triggers package installation when evaluation of the policy fails. The
-condition of this policy does not include a minimum software version, so any version of the `step-agent-osquery` package is 
-accepted. To force a new package version to be installed, a new version of the package must be uploaded via **Software**, and
-the policy should be edited to include a condition like `and version >= '0.65.1-1'`.
+After upload, a Fleet policy is created that automatically triggers package installation if the package is not yet installed. This policy has no minimum version requirement—any version of `step-agent-osquery` is accepted. To force a new package version to be installed, upload the package to Fleet and edit the policy to include a condition like `and version >= '0.65.1-1'`.
 
 See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide for additional guidance and some troubleshooting options when deploying osquery extensions.
 
@@ -402,8 +399,8 @@ Once the extension is active on your Linux devices, create a Fleet report to col
 
 Once the enrollment report is configured in Fleet, the Smallstep platform needs to know about its existence, so that it can gather the data reported through it.
 
-1. Take not of the numeric ID of the Smallstep enrollment report that was just created
-2. In the Smallstep platform, edit your Fleet configuration
+1. Note the numeric ID of the Smallstep enrollment report that was just created
+2. In the Smallstep console, edit your Fleet configuration
 3. Set the **Enrollment Query ID** to the numeric ID
 
 
