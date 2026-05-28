@@ -536,7 +536,7 @@ Find the Intermediate CA's SHA-1 fingerprint in [**Certificate Manager → Autho
         <Meta>
             <Format xmlns="syncml:metinf">chr</Format>
         </Meta>
-        <Data>CN=%COMPUTERNAME%,OU=$FLEET_VAR_SCEP_RENEWAL_ID</Data>
+        <Data>CN=step-agent-bootstrap,OU=$FLEET_VAR_SCEP_RENEWAL_ID</Data>
     </Item>
 </Replace>
 <Replace>
@@ -629,8 +629,8 @@ If (-NOT (Test-Path $RegistryPath)) {
 }
 
 Set-ItemProperty -Path $RegistryPath -Name "TeamSlug"      -Value "<team-slug>"
-Set-ItemProperty -Path $RegistryPath -Name "CAFingerprint" -Value "<agents-authority-sha256-fingerprint>"
-Set-ItemProperty -Path $RegistryPath -Name "Certificate"   -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=$env:COMPUTERNAME"
+Set-ItemProperty -Path $RegistryPath -Name "CAFingerprint" -Value "<agents-authority-root-sha256-fingerprint>"
+Set-ItemProperty -Path $RegistryPath -Name "Certificate"   -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=step-agent-bootstrap"
 ```
 
 <Alert severity="info">
