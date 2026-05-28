@@ -452,7 +452,15 @@ Fleet substitutes these variables per host at deployment time:
 | `$FLEET_VAR_SCEP_RENEWAL_ID` | Per-device renewal identifier |
 | `$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID` | Per-device certificate node ID in the Windows MDM CSP |
 
-Replace `YOUR_ROOT_CA_FINGERPRINT` with the same SHA-1 fingerprint used in Step 3:
+Replace `YOUR_INTERMEDIATE_CA_FINGERPRINT` with the SHA-1 fingerprint of your Smallstep Agents **Intermediate** CA (hex string, uppercase, no colons).
+
+<Alert severity="warning">
+<div>
+This is the Intermediate CA fingerprint, **not** the Root CA fingerprint from the Workspace ONE connector page. Windows' SCEP client validates `CAThumbprint` against the certificate returned by the SCEP server's `GetCACert` operation, and Fleet's NDES proxy returns the issuing (Intermediate) CA — the Root is never in that response. Using the Root fingerprint here causes SCEP enrollment to fail on the device with `SCEP: Certificate enroll failed. Result: (The hash value is not correct.)` in the `DeviceManagement-Enterprise-Diagnostics-Provider/Admin` event log, even though Fleet shows the profile as Verified.
+</div>
+</Alert>
+
+Find the Intermediate CA's SHA-1 fingerprint in [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities): open the Agents authority and switch the dropdown next to **Intermediate Fingerprint** to **sha1**.
 
 ```xml
 <Replace>
@@ -473,7 +481,7 @@ Replace `YOUR_ROOT_CA_FINGERPRINT` with the same SHA-1 fingerprint used in Step 
         <Meta>
             <Format xmlns="syncml:metinf">int</Format>
         </Meta>
-        <Data>3</Data>
+        <Data>1</Data>
     </Item>
 </Replace>
 <Replace>
@@ -517,7 +525,7 @@ Replace `YOUR_ROOT_CA_FINGERPRINT` with the same SHA-1 fingerprint used in Step 
         <Meta>
             <Format xmlns="syncml:metinf">chr</Format>
         </Meta>
-        <Data>SHA-1</Data>
+        <Data>SHA-2</Data>
     </Item>
 </Replace>
 <Replace>
@@ -572,7 +580,7 @@ Replace `YOUR_ROOT_CA_FINGERPRINT` with the same SHA-1 fingerprint used in Step 
         <Meta>
             <Format xmlns="syncml:metinf">chr</Format>
         </Meta>
-        <Data>YOUR_ROOT_CA_FINGERPRINT</Data>
+        <Data>YOUR_INTERMEDIATE_CA_FINGERPRINT</Data>
     </Item>
 </Replace>
 <Exec>
