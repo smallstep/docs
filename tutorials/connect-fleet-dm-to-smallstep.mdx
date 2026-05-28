@@ -354,9 +354,81 @@ If your fleet includes multiple Linux distributions or architectures, create sep
 </div>
 </Alert>
 
+## Step 2. Deploy the osquery extension on Linux
+
+Smallstep provides an osquery extension that registers additional device identity information, including the TPM Endorsement Key (EK)—directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a more seamless enrollment experience on Linux.
+
+1. Download the `step-agent-osquery` package for your Linux distribution and target architecture from [Smallstep's releases](https://releases.smallstep.com).
+1. In Fleet, go to **Software**
+1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+1. Select **Custom package**
+1. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
+1. Enable **Deploy**
+1. Click **Add software**. 
+
+A modal should appear, showing the package upload progress.
+
+After upload, a Fleet policy is created that automatically triggers package installation if the package is not yet installed. This policy has no minimum version requirement—any version of `step-agent-osquery` is accepted. To force a new package version to be installed, upload the package to Fleet and edit the policy to include a condition like `and version >= '0.65.1-1'`.
+
+See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide for additional guidance and some troubleshooting options when deploying osquery extensions.
+
+
+## Step 3. Create a Smallstep enrollment report in Fleet
+
+Once the extension is active on your Linux devices, create a Fleet report to collect the enrollment data. Smallstep reads this report during device sync to include the TPM EK and other enrollment details alongside the standard Fleet device inventory.
+
+1. In Fleet, go to **Reports**
+2. Ensure **All Fleets** is active. If not, the report won't apply to all your hosts.
+3. Click **Add report**
+4. Enter the following query:
+
+   ```sql
+   SELECT * FROM smallstep_enrollment;
+   ```
+5. Click **Save**; a modal should appear
+6. In the modal, enter the following details:
+  - A **Name** for the query, such as "Smallstep Enrollment"
+  - Optionally, a **Description**
+  - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
+  - Optionally, enable the **Observers can run** checkbox
+  - Enable **Linux** as **Target**
+  - Select **All hosts**
+7. Click **Save**
+
+## Step 4. Link enrollment report in Smallstep
+
+Once the enrollment report is configured in Fleet, the Smallstep platform needs to know about its existence, so that it can gather the data reported through it.
+
+1. Note the numeric ID of the Smallstep enrollment report that was just created
+2. In the Smallstep console, edit your Fleet configuration
+3. Set the **Enrollment Query ID** to the numeric ID
+
+
+## Step 5. Linux agent configuration
+
+Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux registers directly using TPM attestation. After installing the agent package and the osquery extension, you must configure the agent with your Smallstep team slug and CA fingerprint.
+
+When adding a Linux agent package in Fleet, add the following **post-install script** to configure and start the agent:
+
+```bash
+#!/bin/bash
+
+# Configure the Smallstep agent
+mkdir -p /etc/step-agent
+cat > /etc/step-agent/agent.yaml << EOF
+team: "<your-team-slug>"
+fingerprint: "<your-agents-ca-fingerprint>"
+EOF
+
+# Enable and start the agent service
+systemctl daemon-reload
+systemctl enable --now step-agent
+```
+
+
 After deployment, Linux devices will self-register with your Smallstep team via TPM attestation. By default, new devices require admin approval in the [Smallstep console](https://smallstep.com/app/?next=/devices). To automate approval, you can [pre-register devices via API](../platform/smallstep-agent.mdx#pre-registration-via-api).
 
-## Step 2. Confirmation (Linux)
+## Step 6. Confirmation (Linux)
 
 On a Fleet-enrolled Linux host:
 
@@ -705,8 +777,8 @@ fleet-gitops/
 ```
 
 - `default.yml` — Organization-wide settings, including certificate authorities
-- `teams/team.yml` — Per-team configuration for profiles and software
-- `lib/` — Configuration profile files and the Linux agent setup script
+- `teams/team.yml` — Per-team configuration for profiles, software, and queries
+- `lib/` — Configuration profile files and Linux agent setup script
 
 ## Add the certificate authorities
 
@@ -800,6 +872,22 @@ If your Linux fleet includes multiple architectures, add entries for each varian
 Adapt the label names to match your Fleet label configuration. Fleet includes built-in labels for common Linux distributions. For architecture-specific targeting, you can create [custom labels](https://fleetdm.com/guides/managing-labels-in-fleet) using osquery queries (for example, `SELECT 1 FROM system_info WHERE cpu_type = 'x86_64'`).
 
 The PowerShell registry script from the Windows [Step 6](#step-6-configure-the-smallstep-agent-via-a-powershell-script) is run from the Fleet UI rather than GitOps. If you want it under version control, manage it through Fleet's [scripts API](https://fleetdm.com/docs/rest-api/rest-api#scripts).
+
+## Add the enrollment query
+
+Add the Smallstep enrollment query to your team YAML. Fleet will collect results from all hosts on a schedule and expose them as a report:
+
+```yaml
+queries:
+  - name: Smallstep enrollment
+    description: Collects Smallstep enrollment data including TPM EK for device identity sync
+    query: SELECT * FROM smallstep_enrollment;
+    interval: 3600
+    platform: linux
+    automations_enabled: true
+    logging: snapshot
+    discard_data: false
+```
 
 ## Apply the configuration
 
