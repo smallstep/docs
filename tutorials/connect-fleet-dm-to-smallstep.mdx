@@ -448,7 +448,35 @@ The Smallstep agent on Windows registers directly with your Smallstep team using
 
 ## Step 1. Deploy the osquery extension on Windows
 
-NOTE: distributing the osquery extension is currently work in progress.
+Smallstep provides an osquery extension that registers additional device identity information, including the TPM Endorsement Key (EK)—directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a more seamless enrollment experience on Windows.
+
+The osquery extension can be installed by distributing the MSI to your devices, or by distributing it through a custom TUF auto-update server.
+
+### MSI
+
+NOTE: the osquery extension MSI distribution is currently work in progress.
+
+1. Download the `step-agent-osquery.ext.exe` MSI for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
+1. In Fleet, go to **Software**
+1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+1. Select **Custom package**
+1. Click **Choose file**, and select the `step-agent-osquery` MSI that was downloaded before
+1. Enable **Deploy**
+1. Click **Add software**. 
+
+A modal should appear, showing the upload progress.
+
+After upload, a Fleet policy is created that automatically triggers package installation if the package is not yet installed. This policy has no minimum version requirement; any version is accepted. To force a new package version to be installed, upload the package to Fleet and edit the policy to include a condition like `and version >= '0.65.1-1'`.
+
+See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-step-by-step-guide for additional guidance and some troubleshooting options when deploying osquery extensions.
+
+### The Update Framework (TUF) auto-update server
+
+1. Download the `step-agent-osquery.ext.exe` binary for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
+1. Upload the binary to your TUF server
+1. Configure the `extensions` under `agent_options` in Fleet to include the `step-agent-osquery.ext.exe` binaries for your Windows target architecture(s)
+
+See https://fleetdm.com/docs/configuration/agent-configuration#extensions for more information on how to configure extensions through TUF.
 
 ## Step 2. Create a Smallstep enrollment report in Fleet
 
@@ -472,7 +500,6 @@ Once the extension is active on your Windows devices, create a Fleet report to c
   - Select **All hosts**
 7. Click **Save**
 8. Note the numeric ID of the Smallstep enrollment report that was just created
-
 
 
 ## Step 3. Configure the Smallstep agent via a PowerShell script
