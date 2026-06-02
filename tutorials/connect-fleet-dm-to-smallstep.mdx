@@ -685,7 +685,7 @@ If your Linux fleet includes multiple architectures, add entries for each varian
 
 Adapt the label names to match your Fleet label configuration. Fleet includes built-in labels for common Linux distributions. For architecture-specific targeting, you can create [custom labels](https://fleetdm.com/guides/managing-labels-in-fleet) using osquery queries (for example, `SELECT 1 FROM system_info WHERE cpu_type = 'x86_64'`).
 
-The PowerShell registry script from the Windows [Step 6](#step-6-configure-the-smallstep-agent-via-a-powershell-script) is run from the Fleet UI rather than GitOps. If you want it under version control, manage it through Fleet's [scripts API](https://fleetdm.com/docs/rest-api/rest-api#scripts).
+The PowerShell registry script above is run from the Fleet UI rather than GitOps. If you want it under version control, manage it through Fleet's [scripts API](https://fleetdm.com/docs/rest-api/rest-api#scripts).
 
 ## Add the enrollment query
 
