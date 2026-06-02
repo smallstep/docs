@@ -444,244 +444,38 @@ On a Fleet-enrolled Linux host:
 
 # Windows
 
-Fleet does not yet support Smallstep as a native CA type on Windows, but it does support Windows SCEP enrollment through its **Dynamic SCEP - Okta CA or Microsoft NDES** CA type. To issue Smallstep certificates to Fleet-managed Windows devices today, point Fleet at Smallstep's NDES-compatible SCEP endpoints. Those endpoints are exposed by Smallstep's Workspace ONE connector, which emulates Microsoft ADCS Dynamic SCEP and NDES.
+The Smallstep agent on Windows registers directly with your Smallstep team using TPM attestation. There is no certificate authority to configure in Fleet — you only need to deploy and configure the agent.
 
-Yes, it's a little confusing. But Smallstep's Workspace ONE connector exposes NDES endpoints that Fleet can consume. Workspace ONE itself is not involved.
+## Step 1. Deploy the osquery extension on Windows
 
-Our integration with Fleet on Windows does not include device inventory sync. If you want the Smallstep agent on Windows, you can deploy it as Fleet software separately (covered below).
+NOTE: distributing the osquery extension is currently work in progress.
 
-## Step 1. Create a Workspace ONE connector in Smallstep
+## Step 2. Create a Smallstep enrollment report in Fleet
 
-Begin by setting up a "Workspace ONE" integration to your Smallstep team:
+Once the extension is active on your Windows devices, create a Fleet report to collect the enrollment data. Smallstep reads this report during device sync to include the TPM EK and other enrollment details alongside the standard Fleet device inventory.
 
-1. In the Smallstep console, go to [**Settings → Device Management**](https://smallstep.com/app/?next=/settings/devices)
-2. Under **Available Providers**, find **Omnissa Workspace ONE** and click **Connect**
-3. Fill in the form. All four credential fields are required by the form, but only the SCEP/NDES endpoints derived from this connection are used by Fleet. The form does not test the OAuth credentials before saving, so placeholders are accepted:
-    - **Name/Alias**: for example, `Fleet-Windows-Bridge`
-    - **REST API URL**: Not used by Fleet. Provide any well-formed HTTPS URL, for example `https://placeholder.example.com/API`
-    - **OAuth Client ID**: Not used by Fleet. Provide any string, for example `placeholder-client-id`
-    - **Token URL**: Note used by Fleet. Provide any well-formed HTTPS URL, for example `https://placeholder.example.com/connect/token`
-    - **OAuth Client Secret**: Not used by Fleet. Provide any string, for example `placeholder-client-secret`
-4. Click **Connect MDM**. The connector is created immediately.
-5. Go to the **Settings** tab for your new MDM connection, and collect the following values for the next step:
-    - **SCEP URL**
-    - **SCEP Challenge URL**
-    - **Challenge Username**
-    - **Challenge Password**
-    - **Root Certificate Fingerprint**
-    - Click **Download Root** to save the Root CA certificate as a PEM file
+1. In Fleet, go to **Reports**
+2. Ensure **All Fleets** is active. If not, the report won't apply to all your hosts.
+3. Click **Add report**
+4. Enter the following query:
 
-## Step 2. Add the NDES CA in Fleet
+   ```sql
+   SELECT * FROM smallstep_enrollment;
+   ```
+5. Click **Save**; a modal should appear
+6. In the modal, enter the following details:
+  - A **Name** for the query, such as "Smallstep Enrollment"
+  - Optionally, a **Description**
+  - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
+  - Optionally, enable the **Observers can run** checkbox
+  - Enable **Windows** as **Target**
+  - Select **All hosts**
+7. Click **Save**
+8. Note the numeric ID of the Smallstep enrollment report that was just created
 
-1. In Fleet, go to **Settings → Integrations → Certificate authorities**
-2. Click **+ Add CA**
-3. From the type dropdown, choose **Dynamic SCEP - Okta CA or Microsoft Network Device Enrollment Service (NDES)**
-4. Fill in:
-    - **SCEP URL**: the Smallstep **SCEP URL** 
-    - **Admin URL**: the Smallstep **SCEP Challenge URL**
-    - **Username**: the Smallstep **Challenge Username**
-    - **Password**: the Smallstep **Challenge Password**
-5. Click **Add CA**. Fleet will test the connection by retrieving a one-time challenge from the admin URL. A green check confirms the credentials and challenge endpoint are reachable.
 
-<Alert severity="info">
-<div>
-Fleet's NDES CA type is single-instance — you can have at most one NDES CA at a time per Fleet server. The Fleet variable names for this CA do not include a suffix.
-</div>
-</Alert>
 
-## Step 3. Create the Windows Root CA trust profile (`smallstep-windows-root-ca.xml`)
-
-To install the Smallstep Root CA in the device's Trusted Root store, create a SyncML profile using the `RootCATrustedCertificates` CSP. Replace `YOUR_ROOT_CA_FINGERPRINT` with the SHA-1 **Root Certificate Fingerprint** from the Smallstep Workspace ONE connector Settings page (hex string, no colons — switch the dropdown next to **Root Certificate Fingerprint** to **sha1**). Paste the Base64 body of the Root CA PEM (everything between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`) into the `<Data>` element.
-
-```xml
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/RootCATrustedCertificates/Root/YOUR_ROOT_CA_FINGERPRINT/EncodedCertificate</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">b64</Format>
-        </Meta>
-        <Data>
-        <!-- Paste the Base64-encoded Root CA certificate here -->
-        </Data>
-    </Item>
-</Replace>
-```
-
-## Step 4. Create the Windows SCEP profile (`smallstep-windows-scep.xml`)
-
-Create a second SyncML profile that requests a SCEP certificate.
-
-The `RetryCount` and `RetryDelay` nodes are SCEP-protocol-level retry settings: they tell the Windows MDM client to retry the SCEP request if Smallstep's NDES endpoint returns a *pending* response. They do **not** wait for the Root CA trust profile in Step 3 to apply.
-
-Fleet substitutes these variables per host at deployment time:
-
-| Variable | Description |
-|----------|-------------|
-| `$FLEET_VAR_NDES_SCEP_PROXY_URL` | Fleet-hosted SCEP proxy URL for certificate requests |
-| `$FLEET_VAR_NDES_SCEP_CHALLENGE` | One-time dynamic challenge Fleet retrieves from Smallstep's admin URL |
-| `$FLEET_VAR_SCEP_RENEWAL_ID` | Per-device renewal identifier |
-| `$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID` | Per-device certificate node ID in the Windows MDM CSP |
-
-Replace `YOUR_INTERMEDIATE_CA_FINGERPRINT` with the SHA-1 fingerprint of your Smallstep Agents **Intermediate** CA (hex string, uppercase, no colons).
-
-<Alert severity="warning">
-<div>
-This is the Intermediate CA fingerprint, **not** the Root CA fingerprint from the Workspace ONE connector page. Windows' SCEP client validates `CAThumbprint` against the certificate returned by the SCEP server's `GetCACert` operation, and Fleet's NDES proxy returns the issuing (Intermediate) CA — the Root is never in that response. Using the Root fingerprint here causes SCEP enrollment to fail on the device with `SCEP: Certificate enroll failed. Result: (The hash value is not correct.)` in the `DeviceManagement-Enterprise-Diagnostics-Provider/Admin` event log, even though Fleet shows the profile as Verified.
-</div>
-</Alert>
-
-Find the Intermediate CA's SHA-1 fingerprint in [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities): open the Agents authority and switch the dropdown next to **Intermediate Fingerprint** to **sha1**.
-
-```xml
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">node</Format>
-        </Meta>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/RetryCount</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">int</Format>
-        </Meta>
-        <Data>1</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/RetryDelay</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">int</Format>
-        </Meta>
-        <Data>10</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/KeyUsage</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">int</Format>
-        </Meta>
-        <Data>160</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/KeyLength</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">int</Format>
-        </Meta>
-        <Data>2048</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/HashAlgorithm</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>SHA-2</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/SubjectName</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>CN=step-agent-bootstrap,OU=$FLEET_VAR_SCEP_RENEWAL_ID</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/EKUMapping</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>1.3.6.1.5.5.7.3.2</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/ServerURL</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>$FLEET_VAR_NDES_SCEP_PROXY_URL</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/Challenge</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>$FLEET_VAR_NDES_SCEP_CHALLENGE</Data>
-    </Item>
-</Replace>
-<Replace>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/CAThumbprint</LocURI>
-        </Target>
-        <Meta>
-            <Format xmlns="syncml:metinf">chr</Format>
-        </Meta>
-        <Data>YOUR_INTERMEDIATE_CA_FINGERPRINT</Data>
-    </Item>
-</Replace>
-<Exec>
-    <Item>
-        <Target>
-            <LocURI>./Device/Vendor/MSFT/ClientCertificateInstall/SCEP/$FLEET_VAR_SCEP_WINDOWS_CERTIFICATE_ID/Install/Enroll</LocURI>
-        </Target>
-    </Item>
-</Exec>
-```
-
-<Alert severity="info">
-<div>
-**Why two profiles?** Fleet enforces a homogeneity rule on Windows configuration profiles: a profile that contains any `ClientCertificateInstall/SCEP/` LocURI cannot also contain `RootCATrustedCertificates/...` LocURIs (or vice-versa). Combining the two CSPs in one profile additionally crashes Fleet's API with a 502 that the UI swallows silently, so the profile never appears. Two profiles is the only path that works.
-</div>
-</Alert>
-
-## Step 5. Upload the profiles to Fleet
-
-1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
-2. Click **Add profile** and upload `smallstep-windows-root-ca.xml` first
-3. Click **Add profile** again and upload `smallstep-windows-scep.xml`
-4. Scope both profiles to the teams or labels containing your Windows hosts
-
-The profiles will be deployed to devices at their next MDM check-in. Fleet substitutes the `$FLEET_VAR_*` values per host.
-
-Fleet does not guarantee an order of application between separately uploaded Windows profiles. If the SCEP profile lands first, the SCEP enrollment will fail to chain to the (not-yet-installed) Smallstep Root CA. Fleet retries failed Windows profiles automatically once, and the Windows MDM client also re-evaluates on subsequent MDM sessions, so the chain typically validates within a few minutes. Uploading the Root CA profile first (above) is a best-effort hint, even though Fleet does not promise to honor upload order.
-
-## Step 6. Configure the Smallstep agent via a PowerShell script
+## Step 3. Configure the Smallstep agent via a PowerShell script
 
 The Windows Smallstep agent reads its configuration from `HKLM:\Software\Policies\Smallstep`. Fleet does not have native registry-management, so we set those values with a PowerShell script run by Fleet's [Scripts](https://fleetdm.com/guides/scripts) feature.
 
@@ -689,7 +483,6 @@ The agent needs three values:
 
 - `TeamSlug` — your Smallstep team slug (found in [**Settings → Team**](https://smallstep.com/app/?next=/settings/team))
 - `CAFingerprint` — the SHA-256 root fingerprint of your Smallstep Agents authority (found in [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities) under the Agents authority)
-- `Certificate` — a CAPI selector that points to the bootstrap certificate issued by the SyncML profile in Step 3
 
 Save the following as `smallstep-agent-config.ps1`, replacing `<team-slug>` and `<team-name>` with your values:
 
@@ -702,14 +495,7 @@ If (-NOT (Test-Path $RegistryPath)) {
 
 Set-ItemProperty -Path $RegistryPath -Name "TeamSlug"      -Value "<team-slug>"
 Set-ItemProperty -Path $RegistryPath -Name "CAFingerprint" -Value "<agents-authority-root-sha256-fingerprint>"
-Set-ItemProperty -Path $RegistryPath -Name "Certificate"   -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=step-agent-bootstrap"
 ```
-
-<Alert severity="info">
-<div>
-If your team was created before October 2024, your issuer CA may have a common name without the team slug (`Smallstep Agents Intermediate CA`). Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities) to confirm.
-</div>
-</Alert>
 
 Upload the script to Fleet and run it against your Windows hosts:
 
@@ -719,7 +505,22 @@ Upload the script to Fleet and run it against your Windows hosts:
 
 For self-healing enforcement, you can pair this with a [policy automation](https://fleetdm.com/guides/policy-automation-run-script) that checks whether the registry values exist and re-runs the script if they're missing — Fleet documents this pattern in [Prevent tampering of Fleet Orbit](https://fleetdm.com/guides/prevent-tampering-of-fleet-agent).
 
-## Step 7. Deploy the Smallstep agent
+## Step 4. Connect Fleet to Smallstep
+
+1. In the Smallstep console, go to [**Settings → Device Management**](https://smallstep.com/app/?next=/settings/devices)
+2. Under Available Providers, find **Fleet** and click **Connect**
+3. Fill in the fields:
+   - **API Base URL**: Your Fleet server URL (for example, `https://fleet.example.com`)
+   - **API Token**: Paste the API token from the previous step
+   - **Name/Alias**: An optional identifier for this connection (for example, `Production Fleet`)
+   - **Enrollment Query ID**: The numeric ID of the Fleet enrollment report
+4. Click **Connect MDM**
+5. After connecting, temporarily save the following values:
+   - Under **Authority Certificates**, copy the SHA256 fingerprint of the Agents Root CA certificate.
+
+Within a few minutes, you will see your Fleet devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory syncs from Fleet approximately every four hours.
+
+## Step 5. Deploy the Smallstep agent
 
 Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
 
@@ -730,16 +531,16 @@ Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
 2. In the Fleet console, go to **Software**, choose **Add software → Custom package**, and upload the MSI
 3. Scope the install to your Windows hosts
 
-The agent reads the registry values written in Step 6 on startup, finds the bootstrap certificate from Step 4, and completes TPM-attested registration with your Smallstep team.
+The agent reads the registry values written in Step 3 on startup, and completes TPM-attested registration with your Smallstep team.
 
-## Step 8. Confirmation (Windows)
+## Step 6. Confirmation (Windows)
 
 On a Fleet-enrolled Windows test host:
 
 1. Trigger a sync: either reboot, or run `gpupdate /force` then wait for the MDM scheduler, or use the **Sync** button on the device under **Settings → Accounts → Access work or school**
 2. Open **certlm.msc** (local machine, since this profile uses Device scope)
-3. Under **Personal → Certificates**, confirm a certificate issued by your Smallstep Agents Intermediate CA with `CN=<computer-name>`
-4. Under **Trusted Root Certification Authorities → Certificates**, confirm the Smallstep Root CA is present
+3. Under **Personal → Certificates**, confirm a certificate issued by your Smallstep Agents Intermediate CA with `CN=<tpm-ek-uri>`
+4. Under **Trusted Root Certification Authorities → Certificates**, confirm the Smallstep Agents Root CA is present
 5. Confirm the registry values were written:
 
    ```powershell
@@ -771,8 +572,6 @@ fleet-gitops/
 │   └── team.yml
 └── lib/
     ├── smallstep-agent.mobileconfig
-    ├── smallstep-windows-root-ca.xml
-    ├── smallstep-windows-scep.xml
     └── smallstep-agent-setup.sh
 ```
 
@@ -782,7 +581,7 @@ fleet-gitops/
 
 ## Add the certificate authorities
 
-In `default.yml`, declare the Smallstep CA (Apple) and the NDES CA (Windows) under `org_settings`:
+In `default.yml`, declare the Smallstep CA (Apple) under `org_settings`:
 
 ```yaml
 org_settings:
@@ -793,12 +592,6 @@ org_settings:
         challenge_url: <SCEP Challenge URL from Smallstep Fleet connector>
         username: $SMALLSTEP_CHALLENGE_USERNAME
         password: $SMALLSTEP_CHALLENGE_PASSWORD
-  integrations:
-    ndes_scep_proxy:
-      url: <SCEP URL from the Smallstep Workspace ONE connector>
-      admin_url: <SCEP Challenge URL from the Smallstep Workspace ONE connector>
-      username: $SMALLSTEP_NDES_USERNAME
-      password: $SMALLSTEP_NDES_PASSWORD
 ```
 
 Omit the block you don't need if you're only targeting one OS family.
@@ -808,8 +601,6 @@ Set the credential environment variables before running `fleetctl gitops`:
 ```bash
 export SMALLSTEP_CHALLENGE_USERNAME='your-challenge-username'
 export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
-export SMALLSTEP_NDES_USERNAME='<challenge-username-uuid>'
-export SMALLSTEP_NDES_PASSWORD='<challenge-password>'
 ```
 
 ## Add configuration profiles
@@ -821,10 +612,6 @@ controls:
   macos_settings:
     custom_settings:
       - path: ../lib/smallstep-agent.mobileconfig
-  windows_settings:
-    custom_settings:
-      - path: ../lib/smallstep-windows-root-ca.xml
-      - path: ../lib/smallstep-windows-scep.xml
 ```
 
 ## Add the Smallstep agent software
