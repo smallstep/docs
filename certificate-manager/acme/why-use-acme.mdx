@@ -25,6 +25,7 @@ Examples of older standards include Certificate Management over CMS (CMC, [RFC 5
 These standards were originally designed for certificate management in internal networks and can be found in many deployments and new deployments using these protocols still happen.
 Some issues with these standards include the fact that they're getting older, them offering too many configuration options, and not being specified strictly enough.
 These result in the older standards being harder to implement and to be less aligned with current operational practices.
+For device identity specifically, [ACME device attestation](https://smallstep.com/platform/acme-device-attestation/)—an ACME extension Smallstep developed with Google at the IETF—is the modern replacement for SCEP, binding certificates to a device's hardware through the `device-attest-01` challenge.
 
 ### Automated
 

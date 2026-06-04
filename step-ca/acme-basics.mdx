@@ -120,10 +120,12 @@ This is a popular challenge type in cases where an ingress controller fronts cli
 ### The device attestation challenge (device-attest-01)
 
 The device attestation challenge (`device-attest-01`) is designed to issue client certificates bound to a device identifier.
+Where the other challenge types prove control of a domain or IP address to secure a *server*, `device-attest-01` proves a *device's* hardware identity—the basis of ACME device attestation (ACME DA).
 
 It allows clients with an attached security module (TPM, Secure Enclave, YubiKey, etc) to request a certificate bound to the security module's permanent hardware identifier. It can also be used to attest the hardware protection of a private key in the security module.
 
 Further reading:
+* [ACME Device Attestation](https://smallstep.com/platform/acme-device-attestation/)—Smallstep's platform for issuing hardware-bound device certificates with ACME DA, natively supported on macOS, iOS, Windows, Android, and Linux.
 * [Managed Device Attestation: ACME as the Bottom Turtle in Mobile Device Management](https://smallstep.com/blog/managed-device-attestation/)
 * [ACME Device Attestation Explained](https://smallstep.com/blog/acme-managed-device-attestation-explained/) focuses Device Attestation for MDM certificate enrollment on Apple devices.
 
