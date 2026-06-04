@@ -43,6 +43,9 @@ The below listing is an overview of exemplary scenarios in which the ACME protoc
 - Kubernetes, with [cert-manager](https://cert-manager.io/) and the [ACME issuer](https://cert-manager.io/docs/configuration/acme/) enabled.
     For this to work, challenges for the identifiers need to be solvable by `cert-manager`.
     An example detailing this use case is available here: [Integrate Kubernetes cert-manager with an internal ACME CA](../../tutorials/kubernetes-acme-ca.mdx).
+- An environment that needs strong, hardware-bound device identity.
+    [ACME device attestation (ACME DA)](https://smallstep.com/platform/acme-device-attestation/)—a standard Smallstep developed with Google at the IETF—extends ACME with the `device-attest-01` challenge, letting a device prove its identity using a built-in hardware security module such as a TPM or Secure Enclave.
+    It's natively supported on macOS, iOS, Windows, Android, and Linux, and is the modern replacement for SCEP.
 
 ### When not to use ACME
 
@@ -56,9 +59,7 @@ These are summarized below:
     *   Some cases that involve a technical issue or compliance requirement may still be supported when deploying an instance of the CA in Registration Authority (RA) mode.
         Our [RA documentation page](../../step-ca/registration-authority-ra-mode.mdx) describes this configuration in more detail.
         Or [contact us](mailto:support@smallstep.com) to see if we can support your use case.
-    *   A [draft RFC for an ACME extension](https://datatracker.ietf.org/doc/draft-bweeks-acme-device-attest/) is in the making, describing how the ACME protocol can be used with challenges "solved" by a secure hardware component, like a Trusted Platform Module (TPM) or Secure Enclave (SE).
-        This protocol extension, optionally combined with ACME External Account Binding, could obviate the need for a separate channel for solving challenges.
-        At Smallstep we're closely monitoring progress of the RFC and may support this functionality in the future.
+    *   For device identity, a hardware security module can prove control instead. See [ACME device attestation](https://smallstep.com/platform/acme-device-attestation/), described above under [Scenarios](#scenarios).
 - When a certificate requires email addresses to be signed, email signing certificates, for example. 
     An informational extension to the ACME RFC adds [support for S/MIME](https://datatracker.ietf.org/doc/rfc8823/) certificates.
     The Smallstep platform doesn't currently support the extension, but we might do so in the future.

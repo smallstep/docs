@@ -68,6 +68,9 @@
     },
     {
       "pattern": "^https://.*cr.yp.to"
+    },
+    {
+      "pattern": "^https://datatracker.ietf.org"
     }
   ],
   "replacementPatterns": [

@@ -22,6 +22,12 @@ including enterprise use cases.
 - [When to use ACME](./when-to-use-acme.mdx) describes scenarios for which ACME is a great fit. It also includes some scenarios for which ACME isn't a good solution.
 - [How to use ACME](./how-to-use-acme.mdx) describes how you can use the Smallstep platform to deploy ACME in your internal network.
 
+<Alert severity="info">
+  <div>
+    <strong>ACME vs. ACME device attestation.</strong> Standard ACME issues certificates to servers and workloads, proving control of a domain or IP address through the <code>http-01</code>, <code>dns-01</code>, or <code>tls-alpn-01</code> challenges. <a href="https://smallstep.com/platform/acme-device-attestation/">ACME device attestation (ACME DA)</a> extends the same protocol to issue hardware-bound certificates for <em>device</em> identity, using the <code>device-attest-01</code> challenge to verify a device's built-in security module. Reach for ACME DA when you're identifying devices rather than servers.
+  </div>
+</Alert>
+
 Deploying and maintaining a PKI with ACME support on your internal network becomes a breeze using [Certificate Manager](https://smallstep.com/certificate-manager/).
 Follow our [getting started](./how-to-use-acme.mdx#get-started) guide to start issuing certificates on your internal network using ACME.
 [Contact support](mailto:support@smallstep.com) in case you need help with deploying ACME in your enterprise.
