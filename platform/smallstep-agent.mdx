@@ -1,5 +1,5 @@
 ---
-updated_at: May 21, 2026
+updated_at: June 9, 2026
 title: Install the Smallstep Agent
 html_title: Install the Smallstep Agent on macOS, Windows, and Linux
 description: Install, configure, and deploy the Smallstep Agent on macOS, Windows, and Linux endpoints. Includes manual install, MDM integration, system requirements, and network endpoints.
@@ -141,20 +141,20 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 2. Install the Smallstep agent:
     
     ```bash
-    sudo dnf makecache && sudo dnf install -y step-agent-plugin
+    sudo dnf makecache && sudo dnf install -y step-agent
     ```
     
 3. Check that it was installed correctly:
     
     ```bash
-    step-agent-plugin version
+    step-agent version
     ```
     
     Output:
     
     ```bash
-    🚀 step-agent-plugin/0.38.0 (linux/amd64)
-       Release Date: 2024-10-10T14:55:48Z
+    step-agent/0.67.3 (linux/amd64)
+    Release Date: 2026-05-19 17:16 UTC
     ```
     
 
@@ -177,20 +177,20 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 2. Install the Smallstep agent:
     
     ```bash
-    sudo dnf makecache && sudo dnf install -y step-agent-plugin
+    sudo dnf makecache && sudo dnf install -y step-agent
     ```
     
 3. Check that it was installed correctly:
     
     ```bash
-    step-agent-plugin version
+    step-agent version
     ```
     
     Output:
     
     ```bash
-    🚀 step-agent-plugin/0.38.0 (linux/amd64)
-       Release Date: 2024-10-10T14:55:48Z
+    step-agent/0.67.3 (linux/amd64)
+    Release Date: 2026-05-19 17:16 UTC
     ```
     
 
@@ -218,20 +218,20 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 3. Install the Smallstep agent:
     
     ```bash
-    sudo apt-get update && sudo apt-get -y install step-agent-plugin
+    sudo apt-get update && sudo apt-get -y install step-agent
     ```
     
 4. Check that it was installed correctly:
     
     ```bash
-    step-agent-plugin version
+    step-agent version
     ```
     
     Output:
     
     ```bash
-    🚀 step-agent-plugin/0.38.0 (linux/amd64)
-       Release Date: 2024-10-10T14:55:48Z
+    step-agent/0.67.3 (linux/amd64)
+    Release Date: 2026-05-19 17:16 UTC
     ```
     
 
@@ -240,7 +240,6 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 1. In the Terminal, install dependencies:
 
     ```bash
-    DEBIAN_FRONTEND=noninteractive
     sudo apt-get update && sudo apt-get install -y --no-install-recommends curl gpg ca-certificates
     ```
 
@@ -260,20 +259,20 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 3. Install the Smallstep agent
     
     ```bash
-    sudo apt-get update && sudo apt-get -y install step-agent-plugin openssl-tpm2-engine
+    sudo apt-get update && sudo apt-get -y install step-agent openssl-tpm2-engine
     ```
     
 4. Check that it was installed correctly
     
     ```bash
-    step-agent-plugin version
+    step-agent version
     ```
     
     Output:
     
     ```bash
-    🚀 step-agent-plugin/0.38.0 (linux/amd64)
-       Release Date: 2024-10-10T14:55:48Z
+    step-agent/0.67.3 (linux/amd64)
+    Release Date: 2026-05-19 17:16 UTC
     ```
     
 
@@ -284,7 +283,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 Users can configure the agent and register their Linux device with your Smallstep team by running:
 
 ```bash
-sudo step-agent-plugin register [team name]
+sudo step-agent register [team name]
 ```
 
 By default, self-registration is not trust-on-first-use (TOFU).
@@ -317,6 +316,7 @@ Finally, enable and start the agent:
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable --now step-agent
+sudo systemctl enable --now step-agent-restart.path
 ```
 
 If you get any errors, check the agent’s status:
@@ -363,12 +363,12 @@ To uninstall the Smallstep Agent from a Linux system:
 
    **For Fedora/RHEL/Enterprise Linux:**
    ```bash
-   sudo dnf remove step-agent-plugin
+   sudo dnf remove step-agent
    ```
 
    **For Debian/Ubuntu:**
    ```bash
-   sudo apt-get remove step-agent-plugin
+   sudo apt-get remove step-agent
    ```
 
 2. Optionally, remove configuration and certificate files:
