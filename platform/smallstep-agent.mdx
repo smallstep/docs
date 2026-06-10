@@ -58,7 +58,8 @@ All platforms require an internet connection for normal operation.
 
 On Windows and Linux, the agent supports multi-user environments, with a couple caveats: 
 There's currently a 1:1 mapping in our backend between users and devices.
-This only becomes a problem if user-based properties need to be included
+This works well on shared systems.
+It only becomes a problem if user-based properties need to be included
 in credentials issued by the agent.
 Also, on Linux, a TPM access broker (eg. `tpm2-abrmd`) is needed when multiple processes are using the TPM.
 
