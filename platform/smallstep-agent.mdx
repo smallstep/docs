@@ -38,7 +38,7 @@ Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubles
 
 - macOS 13 (Ventura) or later
 - Secure Enclave
-- The agent must be installed for a single user (multi-user deployments are not yet supported)
+- The agent must be installed for a single user
 
 ## Linux
 
@@ -55,6 +55,12 @@ Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubles
 # Runtime requirements
 
 All platforms require an internet connection for normal operation.
+
+On Windows and Linux, the agent supports multi-user environments, with a couple caveats: 
+There's currently a 1:1 mapping in our backend between users and devices.
+This only becomes a problem if user-based properties need to be included
+in credentials issued by the agent.
+Also, on Linux, a TPM access broker (eg. `tpm2-abrmd`) is needed when multiple processes are using the TPM.
 
 ## Windows
 
