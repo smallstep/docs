@@ -1,5 +1,6 @@
 ---
-title: Configuring `step-ca`
+updated_at: February 03, 2026
+title: Configuring step-ca
 html_title: Configuring open source step-ca
 description: Learn how to configure step-ca
 ---
@@ -33,7 +34,7 @@ learn how to configure your CA to:
   - [PostgreSQL](#postgresql)
   - [Schema](#schema)
 
-## Specify a Configuration File
+## Specify a configuration file
 
 When you run `step-ca`, you must provide a path to a configuration file
 (`ca.json`).
@@ -51,13 +52,13 @@ For non-interactive use (eg. as a `systemd` service),
 the `--password-file` flag accepts
  the name of a file containing the password for the CA's keys.
 
-## Environment Variables
+## Environment variables
 
 * `STEPDEBUG` When set to `1`, `step-ca` provides extra diagnostic information for debugging. This variable can also be used with `step`.
 
-## Basic Configuration Options
+## Basic configuration options
 
-### Example Configuration
+### Example configuration
 
 ```json
 {
@@ -195,7 +196,7 @@ the `--password-file` flag accepts
 }
 ```
 
-### Configuration Options
+### Configuration options
 
 - **root**: location of the root certificate PEM file  on the filesystem. The root certificate is used to mutually authenticate all API clients of the CA. This can be a string containing one root PEM file, or an array containing multiple root CA files (useful for root rotation).
 
@@ -221,7 +222,7 @@ the `--password-file` flag accepts
 
 - **address**: ex. 127.0.0.1:8080 - address and port on which the CA bind and respond to requests.
 
-- **dnsNames**: comma separated list of DNS name(s) for the CA.
+- **dnsNames**: comma separated list of DNS names for the CA.
 
 - **logger**: the default logging format for the CA is _text_. The other option is _json_.
 
@@ -255,31 +256,31 @@ the `--password-file` flag accepts
 
   - **policy**: authority-wide policy for certificate identifiers. See [Policies](./policies.mdx).
 
-  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing.
+  - **disableIssuedAtCheck**: ☠️  disable a check verifying that provisioning tokens must be issued after the CA has booted. This claim is one prevention against token reuse. The default value is false. Do not change this unless you know what you are doing. All time duration values follow [Go's `time.Duration` string format](https://pkg.go.dev/time#ParseDuration).
 
   - **claims**: default validation for requested attributes in the certificate request. Can be overridden by similar claims objects defined by individual provisioners.
 
-    - **minTLSCertDuration**: do not allow certificates with a duration less than this value.
+    - **minTLSCertDuration**: do not allow TLS certificates with a duration less than this value.
 
-    - **maxTLSCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxTLSCertDuration**: do not allow TLS certificates with a duration greater than this value.
 
-    - **defaultTLSCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultTLSCertDuration**: if no TLS certificate validity period is specified, use this value. 
 
     - **disableRenewal**: do not allow any certificates to be renewed. The default is false.
 
     - **allowRenewalAfterExpiry**: ☠️  allow expired certificates to be renewed. The default is false. This option adds security risk; proceed with caution and consider alternatives.
 
-    - **minUserSSHCertDuration**: do not allow certificates with a duration less than this value.
+    - **minUserSSHCertDuration**: do not allow SSH user certificates with a duration less than this value.
 
-    - **maxUserSSHCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxUserSSHCertDuration**: do not allow SSH user certificates with a duration greater than this value.
 
-    - **defaultUserSSHCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultUserSSHCertDuration**: if no SSH user certificate validity period is specified by the client, use this value.
 
-    - **minHostSSHCertDuration**: do not allow certificates with a duration less than this value.
+    - **minHostSSHCertDuration**: do not allow SSH host certificates with a duration less than this value.
 
-    - **maxHostSSHCertDuration**: do not allow certificates with a duration greater than this value.
+    - **maxHostSSHCertDuration**: do not allow SSH host certificates with a duration greater than this value.
 
-    - **defaultHostSSHCertDuration**: if no certificate validity period is specified, use this value.
+    - **defaultHostSSHCertDuration**: if no SSH host certificate validity period is specified by the client, use this value.
 
     - **enableSSHCA**: enable this provisioner to generate SSH Certificates. The default value is false.
 
@@ -512,7 +513,7 @@ The [`libpq` docs](https://www.postgresql.org/docs/current/libpq-ssl.html) cover
 
 As the interface is a key-value store, the schema is very simple. We support tables, keys, and values. An entry in the database is a `[]byte value` that is indexed by `[]byte table` and `[]byte key`.
 
-### Exporting Data
+### Exporting data
 
 At this time `step-ca` does not have any API or interface for easily exporting data. Because the data is stored in a `noSQL` like manner, it is difficult to explore the data even when using a SQL backend like MySQL. We do have [a scripted example for accessing the DB][scripted-export-db] to give users a jumping off point for writing their own reporting and logging tools.
 

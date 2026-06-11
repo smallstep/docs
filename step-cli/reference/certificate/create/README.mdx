@@ -140,7 +140,35 @@ The path to the `file` containing the password to
 decrypt the CA private key.
 
 **--kms**=`uri`
-The `uri` to configure a Cloud KMS or an HSM.
+The `uri` to configure a (cloud) KMS or an HSM.
+`uri` is formatted as **kmstype:[key=value;...]?[key=value&...]**. The **;**-separated
+parameters identify the KMS, and **&**-separated parameters contain credentials and additional configuration for those credentials.
+
+Supported KMS types:
+
+- **YubiKey PIV**: Use **yubikey:** URIs. Parameters: **serial**, **pin-value**, **pin-source**, **management-key**, **management-key-source**.
+
+- **PKCS #11**: Use **pkcs11:** URIs. Parameters: **module-path**, **token**, **id**, **object**, **pin-value**, **pin-source**.
+
+- **TPM 2.0**: Use **tpmkms:** URIs. Parameters: **name**, **device**, **attestation-ca-url**.
+
+- **Google Cloud KMS**: Use **cloudkms:** URIs. Parameters: **credentials-file**.
+
+- **AWS KMS**: Use **awskms:** URIs. Parameters: **region**, **profile**, **credentials-file**.
+
+- **Azure Key Vault**: Use **azurekms:** URIs. Parameters: **tenant-id**, **client-id**, **client-secret**, **client-certificate-file**.
+
+Examples:
+
+```shell
+yubikey:pin-value=123456
+pkcs11:module-path=/usr/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=pass
+tpmkms:name=my-key;device=/dev/tpmrm0
+awskms:region=us-east-1
+azurekms:client-id=fooo;client-secret=bar;tenant-id=9de53416-4431-4181-7a8b-23af3EXAMPLE
+```
+
+    For more information, see https://smallstep.com/docs/step-ca/cryptographic-protection/.
 
 **--key**=`file`
 The `file` of the private key to use instead of creating a new one (PEM file).
@@ -426,7 +454,17 @@ $ step certificate create --csr --template csr.tpl --san coyote@acme.corp \
   "Wile E. Coyote" coyote.csr coyote.key
 ```
 
+Create a CSR using `step-kms-plugin`:
+```shell
+$ step certificate create --csr --key 'yubikey:slot-id=9a?pin=value=123456' coyote@acme.corp coyote.csr
+```
+
 Create a root certificate using `step-kms-plugin`:
+```shell
+$ step certificate create --profile root-ca --key 'yubikey:slot-id=9a?pin=value=123456' 'KMS Root' root_ca.crt
+```
+
+Create a root certificate using `step-kms-plugin` and the `--kms` flag:
 ```shell
 $ step kms create \
   --kms 'pkcs11:module-path=/usr/local/lib/softhsm/libsofthsm2.so;token=smallstep?pin-value=password' \

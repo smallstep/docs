@@ -1,5 +1,8 @@
 ---
+updated_at: February 03, 2026
 title: Certificate Revocation
+html_title: Certificate Revocation Management in step-ca
+description: Implement certificate revocation in step-ca. Support CRL and OCSP for comprehensive certificate lifecycle management and security.
 ---
 
 The hardware, software and policies for managing and distributing public keys and certificates is called Public Key Infrastructure (PKI). 
@@ -10,7 +13,7 @@ You can independently validate any certificate you receive without communicating
 Certificate-based is PKI inherently fault-tolerant, and trivial to scale.
 
 With simplicity comes an inherent trade-off:
-Once a certificate is issued, the certificate authority (CA) can't un-issue it.
+once a certificate is issued, the certificate authority (CA) can't un-issue it.
 It's valid until it expires.
 Certificates do eventually expire,
 but until they do, a bad actor can use a compromised private key to impersonate the certificate owner.
@@ -27,14 +30,6 @@ Contrast this with _active revocation_ techniques used on the public internet.
 Web TLS certificates are valid for up to a year.
 Web browsers have to check CRLs (Certificate Revocation Lists) or use OCSP (Online Certificate Status Protocol) to verify that every certificate they receive has not been revoked.
 Active revocation requires clients to take an active role in certificate validation for the benefit of real-time certificate status.
-
-<Alert severity="info">
-  <AlertTitle>Need active revocation?</AlertTitle>
-  <div>
-    <Code>step-ca</Code> does not currently support active revocation mechanisms like a Certificate Revocation List (CRL) or Online Certificate Status Protocol (OCSP).
-	If you're sure you need it, our <a href="https://smallstep.com/signup?product=cm">Certificate Manager Advanced Authority</a> service supports active revocation.
-  </div>
-</Alert>
 
 This section will walk through a few examples for revoking X.509 certificates using `step-ca`.
 
@@ -183,7 +178,7 @@ $ step ca revoke --offline --cert localhost.crt --key localhost.key
 Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
 ```
 
-### Further Reading
+### Further reading
 
 - [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
 - [Enable active revocation on your intermediate CA](certificate-authority-server-production.mdx#enable-active-revocation-on-your-intermediate-ca)

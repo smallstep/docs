@@ -1,0 +1,6 @@
+extends: substitution
+message: "Consider using '%s' instead of '%s'."
+level: suggestion
+ignorecase: true
+swap:
+  public key infrastructure: PKI

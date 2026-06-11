@@ -1,7 +1,8 @@
 ---
+updated_at: September 17, 2025
 title: Why ACME for Internal Networks?
-html_title: Why ACME for Internal Networks?
-description: Why should you use the ACME protocol to issue and renew certificates in internal networks.
+html_title: Benefits of ACME for Internal PKI Systems
+description: Discover why ACME protocol transforms internal certificate management. Learn the benefits of automation over manual PKI processes.
 ---
 
 The Automated Certificate Management Environment (ACME) protocol is used to automate certificate issuance, renewal and revocation of X.509 certificates.
@@ -24,6 +25,7 @@ Examples of older standards include Certificate Management over CMS (CMC, [RFC 5
 These standards were originally designed for certificate management in internal networks and can be found in many deployments and new deployments using these protocols still happen.
 Some issues with these standards include the fact that they're getting older, them offering too many configuration options, and not being specified strictly enough.
 These result in the older standards being harder to implement and to be less aligned with current operational practices.
+For device identity specifically, [ACME device attestation](https://smallstep.com/platform/acme-device-attestation/)—an ACME extension Smallstep developed with Google at the IETF—is the modern replacement for SCEP, binding certificates to a device's hardware through the `device-attest-01` challenge.
 
 ### Automated
 

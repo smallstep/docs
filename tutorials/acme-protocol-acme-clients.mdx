@@ -1,7 +1,8 @@
 ---
+updated_at: February 03, 2026
 title: Configure popular ACME clients to use a private CA with the ACME protocol
-html_title: Configure ACME clients to use a private CA with the ACME protocol
-description: Connect popular ACME clients to a private ACME server with this ACME protocol client configuration tutorial.
+html_title: Configure ACME Clients with step-ca Tutorial
+description: Configure popular ACME clients with step-ca. Support for Certbot, acme.sh, and other ACME implementations for automated certificate management.
 ---
 
 The Automated Certificate Management Environment (ACME) protocol radically simplifies TLS deployment.
@@ -49,7 +50,7 @@ For example, an ACME provisioner named `ACME` on the host `ca.internal` has the 
 
 You'll need to select the ACME challenge type.
 
-### CA Certificate
+### CA certificate
 
 Communication between an ACME client and server uses HTTPS.
 Many clients will validate the server’s TLS certificate using the public root certificates in your system’s default [trust store][pki-ts].
@@ -61,7 +62,7 @@ Clients will validate the server’s HTTPS certificate using the public root cer
 When you’re connecting to Let’s Encrypt, it’s a public certificate authority and its root certificate is already in your system’s default trust store.
 Your internal root certificate isn’t, so HTTPS connections from ACME clients to `step-ca` will fail.
 
-There are two ways to address this challenge.
+Two ways exist to address this challenge.
 Either:
 
 - Explicitly configure your ACME client to trust `step-ca`’s root certificate, or
@@ -86,16 +87,17 @@ Once your root certificate is installed, no additional client configuration is n
 </Alert>
 
 
-### Renewal Period
+### Renewal period
 
 With most ACME clients, you can configure how often you want to renew your certificates.
 Choose a renewal period that is two-thirds of the entire certificate's lifetime, so that you'll have enough time to fix any renewal issues before it's too late.
 
-## Popular ACME Clients
+## Popular ACME clients
 
 * [Certbot](#certbot)
 * [acme.sh](#acmesh)
 * [lego](#lego)
+* [acme-tiny](#acme-tiny)
 * [win-acme](#win-acme)
 * [Caddy v2](#caddy-v2)
 * [NGINX](#nginx)
@@ -151,9 +153,7 @@ You can automate renewal with a simple `cron` entry:
 ```
 
 The `certbot` packages for some Linux distributions will create a `cron` entry
-or [systemd
-timer](https://stevenwestmoreland.com/2017/11/renewing-certbot-certificates-using-a-systemd-timer.html)
-like this for you. This entry won't work with `step-ca` because it [doesn't set
+or systemd timer for you. This entry won't work with `step-ca` because it [doesn't set
 the `REQUESTS_CA_BUNDLE` environment
 variable](https://github.com/certbot/certbot/issues/7170). You'll need to
 manually tweak it to do so.
@@ -170,9 +170,9 @@ within a few hours of expiry by adding a line like:
 renew_before_expiry = 8 hours
 ```
 
-to the top of your renewal configuration (e.g., in `/etc/letsencrypt/renewal/foo.internal.conf`).
+to the top of your renewal configuration (for example, in `/etc/letsencrypt/renewal/foo.internal.conf`).
 
-### acme.sh
+### Acme.sh
 
 [acme.sh](https://github.com/Neilpang/acme.sh) is another popular command-line ACME client. It's written completely in shell (`bash`, `dash`, and `sh` compatible) with very few dependencies.
 
@@ -193,13 +193,13 @@ sudo acme.sh --issue --standalone -d foo.internal \
 
 Like `certbot`, `acme.sh` can solve the `http-01` challenge in [_standalone_ mode](https://github.com/Neilpang/acme.sh#4-use-standalone-server-to-issue-cert) and [_webroot_ mode](https://github.com/Neilpang/acme.sh#2-just-issue-a-cert). It can also solve the `dns-01` challenge for [many DNS providers](https://github.com/Neilpang/acme.sh/wiki/dnsapi).
 
-Renewals are slightly easier since `acme.sh` remembers to use the right root certificate. It can also remember how long you'd like to wait before renewing a certificate. Unfortunately, the [duration is specified in days](https://github.com/Neilpang/acme.sh/issues/2422) (via the `--days` flag) which is too coarse for `step-ca`'s default 24 hour certificate lifetimes. So the easiest way to schedule renewals with `acme.sh` is to force them at a reasonable frequency, like every 8 hours, via cron:
+Renewals are slightly easier since `acme.sh` remembers to use the right root certificate. It can also remember how long you'd like to wait before renewing a certificate. Unfortunately, the [duration is specified in days](https://github.com/Neilpang/acme.sh/issues/2422) (via the `--days` flag) which is too coarse for `step-ca`'s default 24 hour certificate lifetimes. The easiest way to schedule renewals with `acme.sh` is to force them at a reasonable frequency, like every 8 hours, via cron:
 
 ```
 0 */8 * * * root "/home/<user>/.acme.sh"/acme.sh --cron --home "/home/<user>/.acme.sh" --force > /dev/null
 ```
 
-### lego
+### Lego
 
 [lego](https://go-acme.github.io/lego/) is another popular command-line ACME client.
 It's written completely in Go and works on all platforms (Windows, Linux, Mac).
@@ -217,7 +217,7 @@ sudo LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" \
   -s https://ca.internal/acme/acme/directory --http run
 ```
 
-Like `certbot`, `lego` can solve the `http-01` challenge in [_standalone_ mode](https://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-the-built-in-web-server) and [_webroot_ mode](hhttps://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-an-existing-running-web-server).
+Like `certbot`, `lego` can solve the `http-01` challenge in [_standalone_ mode](https://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-the-built-in-web-server) and [_webroot_ mode](https://go-acme.github.io/lego/usage/cli/obtain-a-certificate/index.html#using-an-existing-running-web-server).
 It can also solve the `dns-01` challenge for [many DNS providers](https://go-acme.github.io/lego/dns/index.html).
 
 You can [renew the certificates](https://go-acme.github.io/lego/usage/cli/renew-a-certificate/index.html) you've installed using `lego` by running:
@@ -232,7 +232,41 @@ You can automate renewal with a simple `cron` entry:
 */15 * * * * root LEGO_CA_CERTIFICATES="$(step path)/certs/root_ca.crt" lego --email=you@example.com -d foo.internal --http renew
 ```
 
-### win-acme
+### ACME-tiny
+
+[acme-tiny][] is a minimalist ACME client that provides just what you need for automated certificate issuance—nothing more.
+It's written in Python and is designed to be simple, auditable, and easy to understand.
+
+[acme-tiny]: https://github.com/diafygi/acme-tiny
+
+To get a certificate from `step-ca` using `acme-tiny` you need to:
+
+1. Point `acme-tiny` at your ACME directory URL using the `--directory-url` flag
+2. Tell `acme-tiny` to trust your root certificate using the `REQUESTS_CA_BUNDLE` environment variable
+
+For example:
+
+```shell
+REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt \
+    python acme_tiny.py \
+    --account-key account.key \
+    --csr domain.csr \
+    --acme-dir /var/www/challenges/ \
+    --directory-url https://ca.internal/acme/acme/directory \
+    > signed_chain.crt
+```
+
+`acme-tiny` uses the `http-01` challenge type, where it writes challenge files to a directory that your web server serves. You'll need to configure your web server to serve files from the directory specified by `--acme-dir`.
+
+You can automate renewal with a simple `cron` entry:
+
+```shell
+0 0 * * * REQUESTS_CA_BUNDLE=$(step path)/certs/root_ca.crt python /path/to/acme_tiny.py --account-key /path/to/account.key --csr /path/to/domain.csr --acme-dir /var/www/challenges/ --directory-url https://ca.internal/acme/acme/directory > /path/to/signed_chain.crt 2>> /var/log/acme_tiny.log
+```
+
+Like with `certbot`, you'll want to adjust the renewal frequency based on your certificate lifetime. For `step-ca`'s default 24-hour certificate lifetimes, you may want to run renewals more frequently.
+
+### Win-ACME
 
 [win-acme][] (`wacs.exe`) is a popular ACME client for Windows.
 
@@ -305,7 +339,7 @@ Caddy will automatically renew its certificates after &frac23; of the validity p
 * The [njs-acme](https://github.com/nginx/njs-acme) module allows for automatic generation and renewal of TLS certificates for NGINX using ACME.
 * You can use a command-line ACME client to get certificates for NGINX.
 
-#### Using the njs-acme module
+#### Using the njs-ACME module
 
 See [njs-acme](https://github.com/nginx/njs-acme) for full documentation.
 
@@ -328,7 +362,7 @@ server {
 With this code, you are telling NGINX to listen on port 443 using TLS, with a certificate and private key stored on disk.
 [Other resources][nginx-le-docker] provide a more thorough explanation of NGINX's various TLS configuration options.
 
-[nginx-le-docker]: https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71
+[nginx-le-docker]: https://nginx.org/en/docs/http/configuring_https_servers.html
 
 We can start an HTTP server using python and check our work with curl:
 
@@ -517,7 +551,7 @@ Hello, mike@example.com!`}
 
 With a few tweaks to this code you can implement robust access control.
 
-There are other good options for programmatic ACME in Go.
+Other good options for programmatic ACME in Go exist.
 The [certmagic][] package builds on lego and offers higher level, easier to use abstractions.
 The [x/crypto/acme package][xcrypto-acme] is lower level and offers more control, but it currently implements a pre-standardization draft version of ACME that doesn’t work with `step-ca`.
 
