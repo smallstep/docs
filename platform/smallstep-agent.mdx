@@ -85,6 +85,7 @@ The agent connects to the following Smallstep hosts:
 - Agent API: `control.infra.smallstep.com`
 - Smallstep API: `gateway.smallstep.com`
 - TPM Attestation CA: `att.smallstep.com`
+- Telemetry: `tel.smallstep.com`
 
 # Downloads
 
@@ -481,7 +482,7 @@ Replace `<team-slug>` and `<agents-ca-fingerprint>` with your Smallstep [team ID
 2. On the device, navigate to the agent installation directory and obtain the device's TPM fingerprint:
 
 ```
-cd 'C:\Program Files\Smallstep\SmallstepApp\'
+cd 'C:\Program Files\Smallstep\SmallstepAgent\'
 .\smallstep-agent.exe tpm --fingerprint
 ```
 
