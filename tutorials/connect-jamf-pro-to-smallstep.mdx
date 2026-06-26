@@ -132,7 +132,7 @@ Next, we’ll configure the Script we just created to run on your client devices
 
 In this step, we’ll tie everything together by deploying a configuration profile that enrolls devices using the Smallstep Agent. Smallstep generates this profile for your Jamf connection, so you can download it from the Smallstep dashboard and upload it directly to Jamf Pro. There’s no need to build the payloads by hand.
 
-The downloaded profile bundles everything required to enroll a device: the SCEP payload (with your provisioner URL pre-filled), the root and intermediate CA certificates, the agent’s managed settings (including your Team Slug), and the Managed Login Items entry for the agent. The SCEP payload relies on the dynamic challenge served by the SCEP enrollment webhook you configured earlier, so that webhook must be in place for enrollment to succeed.
+The downloaded profile bundles everything required to enroll a device: the SCEP payload, your root and intermediate CA certificates, the Smallstep agent settings, and the Login Items entry for the agent. The SCEP payload relies on the dynamic challenge served by the SCEP enrollment webhook you configured earlier, so that webhook must be in place for enrollment to succeed.
 
 1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⛭ **Settings**
 2. Open your Jamf connection, then choose the **Settings** tab
