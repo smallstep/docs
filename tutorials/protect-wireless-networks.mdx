@@ -700,7 +700,7 @@ Remove the colons from the fingerprint values before using them.
 			<preAuthMode>disabled</preAuthMode>
 			<OneX xmlns="http://www.microsoft.com/networking/OneX/v1">
 				<cacheUserData>true</cacheUserData>
-				<authMode>user</authMode>
+				<authMode>machine</authMode>
 				<EAPConfig>
 					<EapHostConfig xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
 						<EapMethod>
@@ -749,6 +749,10 @@ Remove the colons from the fingerprint values before using them.
     The <code>IssuerHash</code> value is the SHA-1 fingerprint of the <strong>intermediate (issuing) CA</strong> for your client credential,
     and <code>TrustedRootCA</code> is the SHA-1 fingerprint of your RADIUS server CA.
     The <code>authentication</code> and <code>encryption</code> values must match your network gear—use <code>WPA2</code>/<code>AES</code> for WPA2-Enterprise networks.
+    The <code>authMode</code> element must match the certificate store where the credential is placed:
+    on Windows, the agent stores credentials with <code>HARDWARE_ATTESTED</code> key protection in the computer certificate store (use <code>machine</code>, as in this guide's example),
+    and credentials with all other protection levels in the user certificate store (use <code>user</code>).
+    See <a href="https://learn.microsoft.com/en-us/windows/win32/nativewifi/onexschema-onex-element">Microsoft's OneX schema documentation</a>.
   </div>
 </Alert>
 
