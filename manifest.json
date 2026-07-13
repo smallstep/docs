@@ -113,23 +113,19 @@
           ]
         },
         {
-          "title": "Smallstep for WPA-Enterprise Wi-Fi",
+          "title": "Protect",
           "routes": [
             {
-              "title": "Set up Wi-Fi Access Points for EAP-TLS",
-              "path": "/tutorials/wifi-setup-guide.mdx"
+              "title": "Wireless Networks",
+              "path": "/tutorials/protect-wireless-networks.mdx"
             },
             {
-              "title": "Deploy EAP-TLS Wi-Fi with Intune",
-              "path": "/tutorials/intune-mdm-setup-guide.mdx"
+              "title": "Wired Networks",
+              "path": "/tutorials/protect-wired-networks.mdx"
             },
             {
-              "title": "Deploy EAP-TLS Wi-Fi with Jamf Pro",
-              "path": "/tutorials/apple-mdm-jamf-setup-guide.mdx"
-            },
-            {
-              "title": "Wi-Fi Authentication Webhooks",
-              "path": "/tutorials/wifi-authentication-webhooks.mdx"
+              "title": "SSH for GitHub",
+              "path": "/tutorials/protect-github-ssh.mdx"
             }
           ]
         },
