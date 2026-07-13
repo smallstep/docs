@@ -361,6 +361,7 @@ The subsections below cover the common combinations:
 
 - [macOS and iOS with Jamf Pro (SCEP)](#macos-and-ios-with-jamf-pro-scep)
 - [macOS with Jamf Pro (ACME Device Attestation)](#macos-with-jamf-pro-acme-device-attestation)
+- [macOS with Workspace ONE UEM](#macos-with-workspace-one-uem)
 - [Windows with Intune (SCEP)](#windows-with-intune-scep)
 - [Windows with Intune (agent credential + OMA-URI profile)](#windows-with-intune-agent-credential--oma-uri-profile)
 - [Windows with Workspace ONE UEM](#windows-with-workspace-one-uem)
@@ -522,6 +523,28 @@ The Subject Common Name will contain the device serial number, and the `Hardware
 Due to how managed device attestation works on macOS,
 the issued certificate won't appear in the Keychain application;
 you can inspect it with `sudo /usr/libexec/mdmclient QueryCertificates` instead.
+
+### macOS with Workspace ONE UEM
+
+Workspace ONE UEM can deploy the configuration profile Smallstep generates for your Wi-Fi resource,
+which configures CA trust, certificate enrollment, and the Wi-Fi network on the device.
+
+First, [connect Workspace ONE UEM to Smallstep](./connect-workspace-one-to-smallstep.mdx) if you haven't already.
+
+Then open your Wi-Fi resource in the dashboard, under [Protect → Wi-Fi](https://smallstep.com/app/?next=/protect/wifi),
+and download the configuration profile.
+
+In Workspace ONE UEM:
+
+1. Navigate to **Resources**
+2. Select **Profiles** from the **Profiles & Baselines** section of the navigation
+3. Select **Add**, then **Upload Profile**
+4. Select **macOS**
+5. Select **Device Profile**
+6. Upload the configuration file you downloaded from the Smallstep Console, and click **Save**
+7. Assign the uploaded profile to the desired device groups, and click **Publish**
+
+Enrolled devices in the assigned groups will receive the profile and be ready to join the network.
 
 ### Windows with Intune (SCEP)
 
