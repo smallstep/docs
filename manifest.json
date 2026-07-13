@@ -61,8 +61,12 @@
               "path": "/tutorials/connect-jamf-pro-to-smallstep.mdx"
             },
             {
-              "title": "Connect Workspace One UEM",
+              "title": "Connect Workspace One UEM (Windows)",
               "path": "/tutorials/connect-workspace-one-to-smallstep.mdx"
+            },
+            {
+              "title": "Connect Workspace One UEM (macOS)",
+              "path": "/tutorials/connect-workspace-one-to-smallstep-macos.mdx"
             },
             {
               "title": "Connect Iru",
