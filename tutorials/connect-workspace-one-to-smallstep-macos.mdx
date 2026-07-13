@@ -1,0 +1,186 @@
+---
+updated_at: February 03, 2026
+title: Connect Workspace One UEM to Smallstep (macOS)
+html_title: Omnissa Workspace ONE macOS Integration Guide
+description: Connect Workspace ONE UEM to Smallstep for unified device identity on macOS. Enterprise guide for Apple device security management.
+---
+
+Smallstep can integrate with [Omnissa Workspace ONE UEM](https://www.omnissa.com/products/workspace-one-unified-endpoint-management/) to keep your device inventory in sync and to exchange SCEP tokens. A SCEP token is a single-use password that's used by devices to get a certificate from Smallstep.
+
+This guide covers deploying the Smallstep Agent to **macOS** endpoints with Workspace ONE UEM. If you are managing Windows devices, see [Connect Workspace One UEM to Smallstep](./connect-workspace-one-to-smallstep.mdx) instead.
+
+# Prerequisites
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A [Workspace ONE UEM](https://www.omnissa.com/products/workspace-one-unified-endpoint-management/) tenant
+- A test device to enroll for management
+    - This should be a Mac running macOS 13 (Ventura) or later with a Secure Enclave, enrolled in Workspace ONE UEM.
+
+# Step-by-step instructions
+
+### 1. Connect Smallstep to Workspace ONE via OAuth
+
+First, we’ll create a scoped API role for Smallstep:
+
+1. In Workspace ONE UEM, navigate to **Accounts → Admin Roles** and choose **+ Add Role**
+2. Create a role named “Smallstep” with a description of “Smallstep Integration”
+3. Smallstep needs Read access to Devices, using the REST API. Choose API → REST on the left, and choose ✅ Read for the row “Devices”
+    
+    ![Workspace ONE API Panel](/graphics/workspace-one-api-panel.png)
+ 
+4. Choose **Save**
+
+Next, we’ll create an OAuth client for Smallstep:
+
+1. In Workspace ONE UEM, navigate to **Groups & Settings → Configurations** and find **OAuth Client Management** in the list
+2. Choose **Add** and add a new client with a name of “Smallstep” and description of “Smallstep MDM Integration for Device Sync”
+3. For **Organization Group**, select the group most appropriate for managing your desired device inventory
+4. For **Role**, choose **Smallstep**
+5. Choose **Save**
+6. Save the resulting client ID and secret value to a temporary location
+
+### 2. Configure Smallstep OAuth settings
+
+In Smallstep, navigate to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices).
+
+Configure a new Omnissa Workspace ONE Integration with the values you gathered above:
+
+- The Workspace ONE UEM REST API URL for your tenant.
+    - This URL is shown in UEM’s settings. Navigate to  
+      **Groups and Settings** → **All Settings** → **System** → **Advanced** → **API** → **Rest API**
+    - Copy the REST API URL from that page
+- The Workspace ONE UEM [OAuth 2.0 Token URL for your region](https://docs.omnissa.com/bundle/WorkspaceONE-UEM-Console-BasicsVSaaS/page/UsingUEMFunctionalityWithRESTAPI.html#datacenter_and_token_urls_for_oauth_20_support)
+- The OAuth client ID and secret you saved in Step 1
+
+After saving the Workspace ONE connection, you will see settings for your integration. Copy the following details for later:
+
+- SCEP URL
+- SCEP Challenge URL
+- Challenge Basic Authentication Username
+- Challenge Basic Authentication Password
+
+Within a few minutes after adding the connection, you should see all of your Workspace ONE devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Device inventory is synced approximately every four hours.
+
+### 3. Deploy the Smallstep agent
+
+In this step, we’ll add the Smallstep Agent to Workspace One UEM for distribution to your macOS devices.
+
+**Note:** if you don't want to use Workspace ONE UEM to install the agent, see the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#macos-installation) guide.
+
+- [Download the Smallstep Agent for macOS (PKG)](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
+- [See all versions](https://releases.smallstep.com/)
+
+The macOS package is universal, so a single `.pkg` covers both Apple silicon and Intel Macs.
+
+1. In Workspace One UEM,
+    - Go to Resources → Native Apps.
+    - Choose Add → Application File.
+    - Download the latest version of the agent from the link above and select it for upload to UEM.
+    - Choose **Continue**
+2. In the Add Application panel’s **Details tab**,
+    - For Minimum OS, select macOS 13.0 (Ventura)
+3. In the Add Application panel’s **Deployment Options** tab,
+    - Set Install Context to **Device**
+4. Finally, choose **Save & Assign**
+
+#### Assigning the application
+
+After saving the Native App, you'll see the Application Assignment panel.
+
+1. Give the Assignment a name
+2. Choose the groups you’d like to assign the application to. Assign the app to a single device or a small group of test devices for a staged rollout.
+3. Select App Delivery Method: Auto
+4. Create the Assignment.
+5. Choose **Save**
+6. Choose **Publish** to begin distributing the app.
+
+### 4. Configure the agent enrollment and configuration profile
+
+In this step, we’ll tie everything together by creating a macOS profile that issues a certificate to each device and configures the Smallstep Agent to enroll with your team.
+
+#### Gather required details
+
+You’ll need the following values from when you configured your Workspace ONE connection:
+    - SCEP URL
+    - SCEP Challenge URL
+    - Challenge Basic Authentication Username
+    - Challenge Basic Authentication Password
+
+    If you need to retrieve these again, you can always visit: **[Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
+
+You’ll also need your **Team ID** (team slug), shown in the Smallstep UI under [Settings → Team](https://smallstep.com/app/?next=/settings/team).
+
+#### Add a Workspace ONE CA resource
+
+For compatibility with Workspace ONE, Smallstep emulates the Microsoft ADCS’s Dynamic SCEP and NDES enrollment protocols.
+
+1. In Workspace One UEM, visit **Resources → Certificate Authorities**
+2. Choose **+ Add**
+    1. Provide a name for the CA connection, for example, Smallstep Agents CA
+    2. For Authority Type, choose `Microsoft ADCS`
+    3. For Protocol, choose `SCEP` 
+    4. For Version, choose `NDES 2008/2012` ([NDES for SCEP](https://docs.omnissa.com/bundle/CertificateAuthorityIntegrationsV2410/page/NDESforSCEP.html))
+    5. Provide the SCEP URL
+    6. For Challenge Type, choose `Dynamic`
+    7. Provide the Challenge Username and Password
+    8. No client certificate is needed
+    9. Provide the SCEP Challenge URL
+    10. Choose **Show Advanced Options**
+        - For SCEP Challenge Length, choose `32`
+    11. Choose **Test Connection** and wait for a ✅ success modal
+3. Choose **Save and Add Template**
+
+#### Add a Workspace ONE certificate request template
+
+A new modal screen will be presented with the empty Request Template configuration
+
+1. Provide a name for the Template, for example, `Smallstep Agents`
+2. For Certificate Authority, choose the Smallstep CA you just connected
+3. For the subject name, use a value of `CN={DeviceUuid}`
+4. For Private Key Length, use 2048
+5. For Private Key Type, choose both Signing and Encryption
+6. Add a new SAN Type of type URL, and set the value to `deviceid://{DeviceUuid}`
+7. For Automatic Certificate Renewal, choose Enabled
+    - Pick an appropriate Auto Renewal Period (5 days is common)
+8. Ensure Publish Private Key is Disabled
+9. Choose **Save**
+
+#### Create a macOS profile
+
+1. In Workspace One UEM,
+    1. Go to Resources → Profiles.
+    2. Click Add, and pick Add Profile from the drop-down
+    3. Click **Apple macOS**, and then select **Device Profile**
+    4. Under General, Provide a name (for example, "Smallstep Device Enrollment")
+        1. Select the appropriate group in the Smart Groups select list
+        2. Other options can be left as-is
+        3. Optionally, click the View Device Assignment button to see the devices to which the profile will be distributed
+    5. Select the **SCEP** payload type on the left and choose **Configure**. Set the following settings:
+        1. Credential Source: Defined Certificate Authority
+        2. Certificate Authority: Choose the CA connection you created earlier
+        3. Certificate Template: choose the `Smallstep Agents` template you created earlier
+        4. Allow all applications access: ☑️ (so the Smallstep Agent can use the issued identity)
+    6. Select the **Custom Settings** payload type on the left and choose **Configure**. This delivers the Smallstep Agent configuration as a managed preference in the `com.smallstep.Agent` domain.
+        - Paste the following, replacing `<team-id>` with the Team ID value you copied from the Smallstep UI earlier:
+
+            ```xml
+            <dict>
+              <key>TeamSlug</key>
+              <string>&lt;team-id&gt;</string>
+              <key>Certificate</key>
+              <string>mackms:label=$PROFILE_IDENTIFIER;se=false;tag=</string>
+            </dict>
+            ```
+
+        - The `Certificate` value is a KMS URI that points the agent at the identity installed by the SCEP payload above. The `label` must match the keychain label Workspace ONE assigns to that identity; adjust it to the lookup value your Workspace ONE tenant uses if `$PROFILE_IDENTIFIER` does not resolve.
+    7. Click Save and Publish to finalize the configuration of the profile.
+    8. A modal screen will be shown with the devices to which the profile will be distributed. Click Publish if the assignment looks OK.
+
+### Confirmation
+
+In the Smallstep console, find your device. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+Workspace ONE's device UI also shows both the installed apps and issued certificates on the device.
+
+On the device itself, you can run `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` to confirm the agent is installed. In **System Settings → General → Login Items**, you should also see a **Smallstep Agent** entry.
