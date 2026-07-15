@@ -1,5 +1,5 @@
 ---
-updated_at: March 24, 2026
+updated_at: July 14, 2026
 title: Connect Iru (Kandji) to Smallstep
 html_title: Integrate Iru (Kandji) with Smallstep Tutorial
 description: Integrate Iru (Kandji) with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS environments.
@@ -101,8 +101,28 @@ Keep this page open or save these values temporarily — you'll need them for th
       - Value: `deviceid:$DEVICE_ID`
     - **Key Size**: `2048`
     - **Key Usage**: `Both signing and encryption`
-6. In the **Additional Options** section, enable **Allow all apps to access the private key**
+6. In the **Additional Options** section, configure the following:
+    - Enable **Allow all apps to access the private key**
+    - Enable **Automatic profile redistribution**, and set the number of days before certificate expiration when Iru should redistribute the profile (Iru defaults to 30 days). This is what lets the agent's enrollment certificate renew before it expires.
 7. Choose **Save**
+
+When automatic profile redistribution is enabled, Iru appends the SCEP library item's UUID (its `$PROFILE_UUID` value) to the Subject on every request. The Common Name of the issued certificate will be `step-agent-bootstrap <uuid>` (with a single space before the UUID) rather than `step-agent-bootstrap` alone. The agent configuration below must reference this full name.
+
+### Copy the SCEP Library Item UUID
+
+The agent configuration in the next section requires the UUID of the SCEP library item you just created, so the SCEP library item must exist before you create the agent's Custom Profile.
+
+The UUID is the last path segment of the library item's URL in your browser's address bar:
+
+```
+https://<your-tenant>.iru.com/library/scep/<UUID>
+```
+
+Copy the UUID and save it temporarily. You'll need it when configuring the agent settings below.
+
+<Aside>
+Deleting and recreating the SCEP library item generates a new UUID. That breaks certificate renewal on every enrolled device until you update the agent configuration to match the new UUID.
+</Aside>
 
 ## Install the Smallstep Agent
 
@@ -125,7 +145,9 @@ There are two ways to install the agent:
 
 #### Configure the Agent Settings
 
-The Smallstep Agent requires configuration settings to connect to your Smallstep team. Deploy these via a Custom Profile:
+The Smallstep Agent requires configuration settings to connect to your Smallstep team. Deploy these via a Custom Profile.
+
+The configuration includes the UUID of the SCEP library item, so you must [create the SCEP library item](#create-a-scep-profile-in-iru) and copy its UUID before creating this profile.
 
 1. In the Smallstep console, choose ⚙️ **Settings** and temporarily save the **Team Slug** value
 2. In the Iru sidebar, choose **Library**
@@ -153,7 +175,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
             <key>TeamSlug</key>
             <string>YOUR-TEAM-SLUG</string>
             <key>Certificate</key>
-            <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
+            <string>mackms:label=step-agent-bootstrap SCEP_LIBRARY_ITEM_UUID;se=false;tag=</string>
         </dict>
     </array>
     <key>PayloadDisplayName</key>
@@ -172,7 +194,17 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
 
     Replace `YOUR-TEAM-SLUG` with your actual team slug from Smallstep.
 
+    Replace `SCEP_LIBRARY_ITEM_UUID` with the UUID of the SCEP library item you copied earlier. The agent looks up its certificate by an exact, case-sensitive match on this label, and the label must match the issued certificate's Common Name: `step-agent-bootstrap`, followed by a single space, followed by the UUID. For example:
+
+    ```
+    mackms:label=step-agent-bootstrap 0be2373f-40ce-4675-8a97-c25a2b0e51b2;se=false;tag=
+    ```
+
 7. Choose **Save**
+
+<Aside>
+Do not use Iru's `$PROFILE_UUID` variable in this Custom Profile. Iru variables render the UUID of the library item they appear in, so `$PROFILE_UUID` here produces the Custom Profile's own UUID, not the SCEP library item's, and the agent will never find its certificate. Paste the SCEP library item's UUID as a literal value.
+</Aside>
 
 #### Configure Login Items (macOS)
 
