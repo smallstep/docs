@@ -134,7 +134,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
 2. In the Iru sidebar, choose **Library**
 3. Choose **Add Library Item**, then select **Custom Profile**, and click **Add and Configure**
 4. Set a title (e.g., `Smallstep Agent Configuration`)
-5. Under **Assignment**, choose the same Blueprint you assigned to the SCEP profile. This is required: Iru renders `$BLUEPRINT_ID` in both library items, and the values only match when both are assigned to the same Blueprint.
+5. Under **Assignment**, choose the same Blueprint you assigned to the SCEP profile. This is required for the agent to find the certificate.
 6. In the **Settings** section, create a `.mobileconfig` file with the following content and upload it:
 
 ```xml
