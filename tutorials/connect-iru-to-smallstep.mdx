@@ -106,8 +106,7 @@ Keep this page open or save these values temporarily — you'll need them for th
     - Enable **Automatic profile redistribution**, and set the number of days before certificate expiration when Iru should redistribute the profile (Iru defaults to 30 days). This is what lets the agent's enrollment certificate renew before it expires.
 7. Choose **Save**
 
-A note on the Subject: with automatic profile redistribution enabled, Iru puts the SCEP profile's UUID in the Common Name, so the CN isn't a stable way to identify the certificate. The other two components give the agent stable values to search on instead. Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `L=step-agent-bootstrap` is a fixed marker value. The agent configuration below looks up the certificate by these two fields.
-
+A note on the Subject: Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `L=step-agent-bootstrap` is a fixed marker value. In the agent configuration below, the agent uses these fields to look up the certificate on the device.
 ## Install the Smallstep Agent
 
 There are two ways to install the agent:
