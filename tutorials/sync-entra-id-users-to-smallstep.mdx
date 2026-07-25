@@ -96,9 +96,12 @@ The following provisioning features are supported:
     
     Most of these are part of the default mappings.
     
-    The only one you will need to customize is:
+    Two of them need to be customized:
     
     - `externalId` should map to `objectId`. This is a unique ID representing the user that is not reusable.
+    - `emails[type eq "work"].value` should map to the expression [`Coalesce([mail],[userPrincipalName])`](https://learn.microsoft.com/en-us/entra/identity/app-provisioning/functions-for-customizing-application-data#coalesce). Entra maps this attribute to `mail` by default, including in the screenshot above; change the **Mapping type** from **Direct** to **Expression** to replace it.
+
+    > **Why not map `emails[type eq "work"].value` straight to `mail`?** Microsoft [documents](https://learn.microsoft.com/en-us/entra/identity/saas-apps/atlassian-cloud-provisioning-tutorial#connector-limitations) that the `mail` attribute "is only populated if the user has a Microsoft Exchange Mailbox," and Entra [skips null attributes](https://learn.microsoft.com/en-us/entra/identity/app-provisioning/known-issues#null-attribute-cant-be-provisioned) rather than sending them. Users without a mailbox — contractors, service accounts, shared and bot accounts — therefore sync to Smallstep with no email address at all. Smallstep matches SSO logins by email address, so those users appear in your directory looking correctly provisioned, but signing in fails with "You are not authorized to access this account." `Coalesce` falls back to `userPrincipalName`, which every user has, so nobody syncs without an email address.
 
 4. Remove any other default attributes that are not in the list above. The only attributes you need to send to Smallstep are:
     - `userName`
@@ -109,6 +112,7 @@ The following provisioning features are supported:
     - `externalId`
 5. Save your user attribute mappings.
 6. Change "Provisioning Status" to "On", and save the settings.
+7. If you changed a mapping on a configuration that had already synced users, choose **Restart provisioning** in the Provisioning panel. Entra only sends users it considers changed, so users that synced under the old mappings are not re-sent otherwise. To check the new mapping against a single user first, use **Provision on demand**.
 
 It may take up to 40 minutes to enable provisioning.
 
@@ -123,4 +127,6 @@ It may take up to 40 minutes to enable provisioning.
     - Owners have all the same privileges as Admins, with the additional privilege that Owners can create Admins.
 
 > **Don't see your users and groups?** Microsoft's SCIM service may add a 40-minute delay after you set it up. You can force an update by clicking **Restart provisioning** in the Provisioning panel. Even then, it may take a minute to sync with Smallstep.
+
+> **A synced user can't sign in with SSO?** If a user reaches Smallstep after signing in to Entra but is told "You are not authorized to access this account," check that user in the Users tab. If they have no email address listed, they were provisioned without one and Smallstep can't match them to the account they signed in with. Correct the `emails[type eq "work"].value` mapping in [Step 5](#step-5-adjust-user-attribute-mappings), then **Restart provisioning**.
 
