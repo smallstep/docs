@@ -40,6 +40,10 @@ env:
 jobs:
   upload:
     runs-on: ubuntu-latest
+    # A full sync of all 128 graphics takes ~3 minutes. Without this the job
+    # inherits GitHub's 6-hour default, which is how a stuck credentials step
+    # sat for 19 minutes with hours of headroom left.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
         with:
@@ -97,6 +101,12 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ASSETS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+          # The action defaults to no timeout and 12 retries. A TCP connect
+          # timeout to STS takes ~6m45s per attempt, so the default can spend
+          # ~81 minutes on a failure that cannot succeed — the OIDC token
+          # expires partway through. Cap the whole step instead.
+          action-timeout-s: 120
+          retry-max-attempts: 3
 
       - name: Upload to S3
         if: steps.plan.outputs.count != '0' && inputs.dry_run != true
