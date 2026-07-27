@@ -1,5 +1,5 @@
 ---
-updated_at: June 9, 2026
+updated_at: July 27, 2026
 title: Install the Smallstep Agent
 html_title: Install the Smallstep Agent on macOS, Windows, and Linux
 description: Install, configure, and deploy the Smallstep Agent on macOS, Windows, and Linux endpoints. Includes manual install, MDM integration, system requirements, and network endpoints.
@@ -267,7 +267,7 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 3. Install the Smallstep agent
     
     ```bash
-    sudo apt-get update && sudo apt-get -y install step-agent openssl-tpm2-engine
+    sudo apt-get update && sudo apt-get -y install step-agent
     ```
     
 4. Check that it was installed correctly
@@ -333,13 +333,19 @@ If you get any errors, check the agent’s status:
 sudo systemctl status step-agent.service
 ```
 
-### OpenSSL and PKCS#11 support
+### PKCS#11 support
 
-The Smallstep agent stores the certificate on the filesystem alongside a TPM TSS2-formatted file, which is a reference to a TPM-bound key. As a result, any software that integrates with OpenSSL's `tpm2-openssl` provider, or with the underlying `libtpm2-tss`, can use the TPM-bound key for TLS handshakes or other purposes.
+Keys managed by the Smallstep agent are bound to the device's TPM and cannot be exported. To let other software use those keys for TLS handshakes and other purposes, the agent runs a PKCS#11 server, exposed as a UNIX socket at `/run/step-agent/step-agent-pkcs11.sock`.
 
-Because PKCS#11 is a common integration point, the Smallstep agent also provides a PKCS#11 server
-for use with software like NetworkManager, `wpa_supplicant`, or web browsers.
-The PKCS#11 server is exposed as a UNIX socket at `$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`. 
+PKCS#11 is the supported integration point for software like NetworkManager, `wpa_supplicant`, VPN clients, and web browsers.
+
+The Linux packages register the agent as a PKCS#11 module for you, by installing `/etc/pkcs11/modules/step-agent.module`. Software that discovers modules through p11-kit picks up the agent's keys with no further configuration.
+
+<Alert severity="info">
+  Module registration requires Smallstep agent v0.67.4 or later.
+</Alert>
+
+NSS-based applications, such as Google Chrome and Firefox, don't read p11-kit module configuration. For those, register the module manually, as shown below.
 
 #### Example usage: Google Chrome
 
@@ -352,14 +358,14 @@ To use Smallstep certificates in Chrome, run:
 ```
 modutil -dbdir ~/.pki/nssdb -add step-agent \
         -libfile /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so
-export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+export P11_KIT_SERVER_ADDRESS=unix:path=/run/step-agent/step-agent-pkcs11.sock
 ```
 
 Next, start Chrome from the command line.
 
 In Chrome, you should now have access to certificates managed by Smallstep.
 
-For regular usage, add `P11_KIT_SERVER_ADDRESS` to your environment more permanently. For example, you might add `P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock`  to your global `/etc/environment` file.
+For regular usage, add `P11_KIT_SERVER_ADDRESS` to your environment more permanently. For example, you might add `P11_KIT_SERVER_ADDRESS=unix:path=/run/step-agent/step-agent-pkcs11.sock`  to your global `/etc/environment` file.
 
 If PKCS#11 isn't working as expected, see [PKCS#11 troubleshooting](./troubleshooting-agent.mdx#pkcs11-not-working-linuxmacos).
 
