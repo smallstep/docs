@@ -47,7 +47,7 @@ The Smallstep platform authenticates to your Google Workspace through Workspace 
 6. Select **OpenID Connect (OIDC)** as the provider
 7. Set a name, e.g. "Smallstep Google Workspace Sync"
 8. Set the issuer URL to **https://container.googleapis.com/v1/projects/prod-us-central1-e5bd/locations/us-central1/clusters/primary**
-9. Keep **Default audience** checked
+9. Set **Allowed audiences** to `sts.googleapis.com`
 10. Click **Continue**
 11. For the **google.subject** attribute, set **assertion.sub**
 12. Click **Add mapping**, and set **attribute.k8s_sa** to **assertion.kubernetes.io.serviceaccount.name**
@@ -99,7 +99,7 @@ In Smallstep, visit [Settings → Device Management](https://smallstep.com/app/?
 Configure a new Google Workspace Integration with the following values:
 
 - The **Customer ID** of your Google Workspace tenant. The Customer ID is a short alphanumeric string. It can be obtained from the Google Workspace Admin [Account Settings](https://admin.google.com/ac/accountsettings/profile) page
-- The **Project ID** of the GCP project your service account was created in
+- The numeric **Project ID** of the GCP project your service account was created in
 - The **workload identity pool**
 - The **workload identity provider**
 - The service account **principal**
