@@ -90,7 +90,10 @@ jobs:
 
       - name: Configure AWS credentials
         if: steps.plan.outputs.count != '0' && inputs.dry_run != true
-        uses: aws-actions/configure-aws-credentials@v4
+        # Pinned to a commit SHA, not a tag: tags are mutable, and this action
+        # mints AWS credentials. v6 requires a Node 24 runner, which
+        # ubuntu-latest already provides.
+        uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
         with:
           role-to-assume: ${{ vars.AWS_ASSETS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
