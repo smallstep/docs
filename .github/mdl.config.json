@@ -71,6 +71,9 @@
     },
     {
       "pattern": "^https://datatracker.ietf.org"
+    },
+    {
+      "pattern": "^https://container.googleapis.com/*"
     }
   ],
   "replacementPatterns": [
