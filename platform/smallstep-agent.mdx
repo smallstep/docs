@@ -347,13 +347,18 @@ For this example, we’re using Ubuntu 24.04. The location of `p11-kit-client.so
 
 Let’s make client certificates and keys from the agent available to Google Chrome via PKCS#11 tokens. We will use `modutil` and an NSS database. Google Chrome defaults to storing an NSS database in `~/.pki/nssdb`, so we can leverage that.
 
-To use Smallstep certificates in Chrome, run:
+To use Smallstep certificates in Chrome, first point the p11-kit client library at the agent's running PKCS#11 socket, then register it with `modutil`:
 
-```
+```bash
+export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+
 modutil -dbdir ~/.pki/nssdb -add step-agent \
         -libfile /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so
-export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
 ```
+
+<Alert severity="warning">
+Export `P11_KIT_SERVER_ADDRESS` and point it at the running agent's socket **before** you run `modutil`. `modutil` loads and initializes the module as it adds it, so running it first fails with a load error and can leave a broken module registered in the NSS database. If you hit this, see [Recovering from a failed `modutil` add](./troubleshooting-agent.mdx#recovering-from-a-failed-modutil-add).
+</Alert>
 
 Next, start Chrome from the command line.
 
