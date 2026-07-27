@@ -1,23 +1,192 @@
 name: Upload Assets
 
+# Publishes graphics/ to S3 and purges imgix so the change is actually visible.
+#
+# The site serves graphics through imgix (smallstep.imgix.net), backed by the
+# smallstep-cms-images S3 bucket. imgix caches origin objects for 30 days and
+# does NOT notice that an object was replaced under the same key, so an upload
+# without a purge is invisible to readers. Upload and purge are driven from the
+# same git-derived file list so they can never drift apart.
+
 on:
   push:
     branches:
       - 'main'
     paths:
       - 'graphics/**'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Log the plan without uploading or purging'
+        type: boolean
+        default: false
+      full_sync:
+        description: 'Act on every file in graphics/, not just changed ones'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: upload-assets
+  cancel-in-progress: false
+
+env:
+  IMGIX_DOMAIN: smallstep.imgix.net
+  IMGIX_SOURCE_ID: 63e650f0a0256ff8b53f7b00
 
 jobs:
   upload:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - name: Upload to S3
-        uses: shallwefootball/upload-s3-action@v1.3.3
-        id: S3
+      - uses: actions/checkout@v5
         with:
-          aws_key_id: ${{ secrets.AWS_ASSETS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.AWS_ASSETS_SECRET_ACCESS_KEY}}
-          aws_bucket: ${{ secrets.AWS_ASSETS_BUCKET }}
-          source_dir: 'graphics'
-          destination_dir: 'graphics'
+          # Full history: the changed-file list is a diff against the pre-push commit.
+          fetch-depth: 0
+
+      - name: Determine affected graphics
+        id: plan
+        env:
+          FULL_SYNC: ${{ inputs.full_sync }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -euo pipefail
+
+          if [ "$FULL_SYNC" = "true" ]; then
+            # git ls-files, not find: publish what is tracked, never stray
+            # working-tree junk.
+            git ls-files graphics | sort > affected.txt
+            echo "Full sync: every tracked file under graphics/"
+          else
+            before="$BEFORE_SHA"
+            # github.event.before is empty on workflow_dispatch and all-zeros on
+            # a branch's first push; fall back to the first parent either way.
+            if [ -z "$before" ] || ! git cat-file -e "${before}^{commit}" 2>/dev/null; then
+              before="$(git rev-parse HEAD^)"
+            fi
+            # Deletions are excluded on purpose: the role has no s3:DeleteObject,
+            # because the bucket is shared with the CMS and has no versioning.
+            git diff --name-only --diff-filter=ACMRT "$before" "$GITHUB_SHA" -- graphics/ \
+              | sort > affected.txt
+            echo "Changed between $before and $GITHUB_SHA"
+          fi
+
+          count=$(wc -l < affected.txt | tr -d ' ')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "### Affected graphics: $count"
+            echo
+            if [ "$count" -gt 0 ]; then
+              echo '```'
+              cat affected.txt
+              echo '```'
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          cat affected.txt
+
+      - name: Configure AWS credentials
+        if: steps.plan.outputs.count != '0' && inputs.dry_run != true
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_ASSETS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Upload to S3
+        if: steps.plan.outputs.count != '0' && inputs.dry_run != true
+        env:
+          BUCKET: ${{ vars.AWS_ASSETS_BUCKET }}
+        run: |
+          set -euo pipefail
+          # Repo paths are already the bucket keys: graphics/foo.png -> s3://bucket/graphics/foo.png
+          while IFS= read -r file; do
+            aws s3 cp "$file" "s3://${BUCKET}/${file}" --only-show-errors
+            echo "uploaded $file"
+          done < affected.txt
+
+      - name: Purge imgix
+        if: steps.plan.outputs.count != '0' && inputs.dry_run != true
+        env:
+          IMGIX_API_KEY: ${{ secrets.IMGIX_API_KEY }}
+        run: |
+          set -uo pipefail
+          # Must run after the upload: purging first just re-caches the old bytes.
+          failed=0
+          while IFS= read -r file; do
+            url="https://${IMGIX_DOMAIN}/${file}"
+            body=$(jq -nc \
+              --arg url "$url" \
+              --arg sid "$IMGIX_SOURCE_ID" \
+              '{data:{attributes:{url:$url,source_id:$sid},type:"purges"}}')
+            code=$(curl -sS -o response.json -w '%{http_code}' \
+              -X POST https://api.imgix.com/api/v1/purge \
+              -H "Authorization: Bearer ${IMGIX_API_KEY}" \
+              -H 'Content-Type: application/vnd.api+json' \
+              -d "$body")
+            case "$code" in
+              # 409 means an identical purge landed within imgix's 10s window.
+              # It still succeeds, so treat it as success.
+              200|409) echo "purged $url ($code)" ;;
+              *)
+                echo "::error::imgix purge failed for $url (HTTP $code)"
+                cat response.json
+                failed=1
+                ;;
+            esac
+          done < affected.txt
+          rm -f response.json
+          exit "$failed"
+
+      - name: Verify images are live
+        # A 200 from the purge API means "received", not "completed" — imgix
+        # gives no completion guarantee and recommends verifying by re-fetching.
+        # Advisory only: a slow purge is not a reason to fail the build.
+        if: steps.plan.outputs.count != '0' && inputs.dry_run != true
+        continue-on-error: true
+        env:
+          BUCKET: ${{ vars.AWS_ASSETS_BUCKET }}
+        run: |
+          set -uo pipefail
+          # imgix passes through the origin object's Last-Modified, so comparing
+          # it against the S3 object's own timestamp proves imgix refetched after
+          # our upload. Comparing byte size would be wrong: imgix rewrites SVGs
+          # on serve (drops generator comments, reorders attributes), so a
+          # correctly purged SVG never matches its origin file byte-for-byte.
+          aws s3api list-objects-v2 --bucket "$BUCKET" --prefix graphics/ \
+            --query 'Contents[].[Key,LastModified]' --output text > s3times.tsv
+
+          # Retry in rounds rather than per file, so total wait stays bounded
+          # (~50s) whether one graphic changed or all of them did.
+          pending=$(cat affected.txt)
+          for round in 1 2 3 4; do
+            [ -z "$pending" ] && break
+            sleep $(( round * 5 ))
+            still=""
+            while IFS= read -r file; do
+              [ -z "$file" ] && continue
+              s3lm=$(awk -F'\t' -v k="$file" '$1==k{print $2}' s3times.tsv)
+              imglm=$(curl -sS -I "https://${IMGIX_DOMAIN}/${file}" \
+                | awk 'tolower($1)=="last-modified:"{sub(/^[^:]*: /,""); print}' \
+                | tr -d '\r')
+              if [ -n "$s3lm" ] && [ -n "$imglm" ] &&
+                 [ "$(date -u -d "$imglm" +%s)" -ge "$(date -u -d "$s3lm" +%s)" ]; then
+                echo "live $file"
+              else
+                still="${still}${file}"$'\n'
+              fi
+            done <<< "$pending"
+            pending=$(printf '%s' "$still" | sed '/^$/d')
+          done
+
+          if [ -n "$pending" ]; then
+            count=$(printf '%s\n' "$pending" | wc -l | tr -d ' ')
+            while IFS= read -r file; do
+              echo "::warning::$file not confirmed live yet — purge may still be propagating"
+            done <<< "$pending"
+            echo "$count image(s) not yet confirmed live on ${IMGIX_DOMAIN}." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "All affected graphics confirmed live on ${IMGIX_DOMAIN}." >> "$GITHUB_STEP_SUMMARY"
+          fi
