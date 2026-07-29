@@ -150,9 +150,10 @@ After saving the Google Workspace connection, you will see settings for your int
 9. Click the newly created extension to edit it
 10. Select **Force install + pin** as the **Installation policy**
 11. Under **Certificate management**, enable **allow access to keys** and **Allow enterprise challenge** 
-12. Under **Policy for extensions**, add the following JSON, replacing **<team-slug>>** with your Smallstep team slug:
+12. Under **Policy for extensions**, add the following JSON, replacing <team-slug> with your Smallstep team slug:
 
-```{
+```
+{
   "team": {
     "Value": "<team-slug>"
   }
