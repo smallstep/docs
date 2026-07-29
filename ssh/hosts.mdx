@@ -12,11 +12,13 @@ html_title: SSH Host Certificate Quick Setup Tutorial
 * You'll need the **enrollment token** you received upon signup.
 * We support `amd64` and `arm64` architectures
 * We support the following host platforms:
-  * RHEL 8 or greater
-  * CentOS 7 or greater
-  * Ubuntu 16.04 LTS or greater
-  * Debian 8 or greater
-  * Amazon Linux 2
+  * RHEL 8 or greater, and compatible distributions (Rocky Linux, AlmaLinux, CentOS Stream 9 or greater)
+  * Ubuntu 22.04 LTS or greater
+  * Debian 12 or greater
+  * Amazon Linux 2 and 2023
+  * SUSE Linux Enterprise Server 15 SP6, 15 SP7, and 16
+  * openSUSE Leap 15.6 or greater, and openSUSE Tumbleweed
+* CentOS 7 and other releases that have reached end of life upstream may still install and run our packages, but we no longer test or support them.
 * Running this quickstart will modify config files related to `systemd`, PAM, NSS, and SSHD:
   * We add `step-ssh-renew` and `step-ssh-metadata` services to `systemd`:
     * `step-ssh-renew` rotates the SSH host certificate every eight hours.
