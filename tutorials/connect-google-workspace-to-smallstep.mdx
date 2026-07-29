@@ -19,11 +19,12 @@ You will need:
 
 In Google Cloud Console, select a project you will use for Smallstep. This can be any project, as long as you can grant domain-wide delegation to the client in a future step.
 
-Your Google Cloud project must have the Admin SDK API enabled. By default, it is disabled.
+Your Google Cloud project must have the Admin SDK and Chrome Verified Access APIs enabled. By default, they're disabled.
 
-### 0. Enable admin SDK API
+### 0. Enable APIs
 
 1. Go to [Admin SDK API](https://console.cloud.google.com/apis/api/admin.googleapis.com) for your project, and choose **Enable API**
+2. Go to [Chrome Verified Access API](https://console.cloud.google.com/marketplace/product/google/verifiedaccess.googleapis.com) for your project, and choose **Enable API**
 
 ### 1. Create a service account for Smallstep
 
