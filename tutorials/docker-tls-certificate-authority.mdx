@@ -1,5 +1,5 @@
 ---
-updated_at: October 02, 2025
+updated_at: February 03, 2026
 title: Run a private online TLS certificate authority in a Docker container
 html_title: Run step-ca in Docker Container Tutorial
 description: Run step-ca certificate authority in Docker. Containerized PKI deployment for modern infrastructure environments with easy scalability options.
@@ -121,7 +121,7 @@ Your PKI is ready to go. To generate certificates for individual services see 's
 
 **Save the root fingerprint value**! You'll need it for client bootstrapping.
 
-### 3. Place the PKI root password in a known safe location.
+### 3. Place the PKI root password in a known safe location
 
 The image is expecting the password to be placed in `/home/step/secrets/password`. Bring up the shell prompt in the container again and write that file:
 
@@ -181,7 +181,7 @@ Output:
 - See our [Configuration Guide](https://smallstep.com/docs/step-ca/configuration) to learn more about tailoring `step-ca` to your infrastructure.
 - Or, set up a development environment in the next section.
 
-## Setting Up a Development Environment
+## Setting up a development environment
 
 **You will need:**
 
@@ -254,7 +254,7 @@ $ curl https://localhost:8443
 
 Or visit [https://localhost:8443](https://localhost:8443/) from your browser.
 
-### Further Reading
+### Further reading
 
 - [`step` Documentation](https://smallstep.com/docs/step-cli)
 - [Getting Started](https://smallstep.com/docs/step-cli/basic-crypto-operations)

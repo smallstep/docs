@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Use Keycloak to issue user certificates with step-ca
 html_title: Keycloak OIDC Integration Complete Guide
 description: Configure Keycloak as OIDC provisioner for step-ca. Enable enterprise SSO for certificate issuance with identity provider integration.
@@ -130,7 +130,7 @@ If all goes well, you will be sent to the browser to sign in,
 and an SSH certificate will be issued and added to your SSH agent,
 with your username and email address as principals.
 
-## Further Reading
+## Further reading
 
 Our tutorial [DIY Single Sign-On for SSH](https://smallstep.com/blog/diy-single-sign-on-for-ssh/) puts this tutorial into a larger context,
 detailing how to set up an SSH CA for your users and hosts.
@@ -184,11 +184,11 @@ This will take you through the OAuth login flow, and output the OIDC token at th
 Common issues are:
 * The `email` field in the token is empty; `step-ca` requires `email` to be populated.
 * The email address used with [`step ssh login`](../step-cli/reference/ssh/login) doesn't match the email address of the Keycloak user.
-* There is a `domains` list in the OIDC provisioner configuration, and the email domain in the token isn't listed in `domains`.
+* A `domains` list in the OIDC provisioner configuration exists, and the email domain in the token isn't listed in `domains`.
 
 ### Keycloak TLS certificate issues
 
-There is a [known issue](https://issues.redhat.com/browse/KEYCLOAK-16927) in Keycloak
-where the TLS certificate and key files are never reloaded by the Docker container after they are renewed,
+A [known issue](https://issues.redhat.com/browse/KEYCLOAK-16927) in Keycloak
+causes the TLS certificate and key files to never be reloaded by the Docker container after they are renewed,
 even if you restart the container.
 For now, you'll have to delete the Keycloak container and recreate it once you've renewed your certificate.

@@ -1,13 +1,13 @@
 ---
 title: Configure strongSwan VPN With Smallstep
-updated_at: September 17, 2025
-html_title: StrongSwan VPN with Certificates Guide
-description: Configure StrongSwan VPN using Smallstep certificates. Secure remote access with certificate-based authentication for enterprises.
+updated_at: February 03, 2026
+html_title: strongSwan VPN with Certificates Guide
+description: Configure strongSwan VPN using Smallstep certificates. Secure remote access with certificate-based authentication for enterprises.
 ---
 
 This configuration was tested with strongSwan 5.9.13.
 
-### Configure strongSwan to accept Smallstep-issued Client Certificates
+### Configure strongSwan to accept Smallstep-issued client certificates
 
 In this section, you'll configure strongSwan to use full EAP-TLS client authentication with Smallstep client certificates.
 
@@ -34,7 +34,7 @@ For testing, you can get a certificate from the Accounts CA using the Smallstep 
 
 To deploy and manage certificates for strongSwan to all your VPN clients, you can use MDM or the Smallstep agent app.
 
-### Configure strongSwan with a Server TLS Certificate
+### Configure strongSwan with a server TLS certificate
 
 In this section, you'll configure a strongSwan Server TLS certificate issued from your Smallstep CA.
 
@@ -51,7 +51,7 @@ In this section, you'll configure a strongSwan Server TLS certificate issued fro
     
 4. Deploy the new Workload Collection.
 5. Confirm that the Smallstep-managed certificate and private key for strongSwan appear on the VM, in `/etc/swanctl/x509/vpn.crt` and `/etc/swanctl/private/vpn.key`. These will be managed and renewed by the `step-agent` process.
-6. The `vpn.crt` file is a PEM bundle containing the server certificate and the Workloads Intermediate CA certificate. **strongSwan will only read the first certificate in `vpn.crt`. So, the Intermediate CA certificate will need to be in a separate file.**
+6. The `vpn.crt` file is a PEM bundle containing the server certificate and the Workloads Intermediate CA certificate. **strongSwan will only read the first certificate in `vpn.crt`. The Intermediate CA certificate will need to be in a separate file.**
     
     Run the following to separate the two certificates:
     

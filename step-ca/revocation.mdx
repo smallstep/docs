@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: February 03, 2026
 title: Certificate Revocation
 html_title: Certificate Revocation Management in step-ca
 description: Implement certificate revocation in step-ca. Support CRL and OCSP for comprehensive certificate lifecycle management and security.
@@ -13,7 +13,7 @@ You can independently validate any certificate you receive without communicating
 Certificate-based is PKI inherently fault-tolerant, and trivial to scale.
 
 With simplicity comes an inherent trade-off:
-Once a certificate is issued, the certificate authority (CA) can't un-issue it.
+once a certificate is issued, the certificate authority (CA) can't un-issue it.
 It's valid until it expires.
 Certificates do eventually expire,
 but until they do, a bad actor can use a compromised private key to impersonate the certificate owner.
@@ -178,7 +178,7 @@ $ step ca revoke --offline --cert localhost.crt --key localhost.key
 Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
 ```
 
-### Further Reading
+### Further reading
 
 - [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
 - [Enable active revocation on your intermediate CA](certificate-authority-server-production.mdx#enable-active-revocation-on-your-intermediate-ca)

@@ -27,7 +27,7 @@ jobs:
       - name: Check changed files only (PR)
         if: github.event_name == 'pull_request'
         run: |
-          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- '*.mdx')
+          CHANGED_FILES=$(git diff --name-only --diff-filter=ACMR origin/${{ github.base_ref }}...HEAD -- '*.mdx')
           if [ -z "$CHANGED_FILES" ]; then
             echo "No .mdx files changed"
             exit 0

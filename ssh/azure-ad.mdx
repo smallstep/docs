@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Microsoft Entra ID Quickstart
 html_title: SSH with Microsoft Entra ID (Azure AD)
 description: Integrate SSH certificates with Microsoft Entra ID. Enable single sign-on for SSH using enterprise identity providers for unified access.
@@ -29,9 +29,9 @@ The following provisioning features are supported:
 4. Enable user provisioning (SCIM) in Azure
 5. Check logs to confirm users and groups are syncing to Smallstep SSH
 
-## Step By Step Instructions
+## Step by step instructions
 
-### Step 1. Create Groups
+### Step 1. Create groups
 
 You'll grant access to your hosts via Active Directory Groups. If you don't already have groups set up, you'll want to create a group for each kind of user access to your servers. For example, you might have a group for `ssh` users, and one for `sudo` users.
 
@@ -41,7 +41,7 @@ In the Azure portal, start at the [Groups](https://portal.azure.com/#blade/Micro
 
 When creating your groups, give them names and accept the defaults on all other settings.
 
-### Step 2. Tell us your directory's Tenant ID
+### Step 2. Tell us your directory's tenant ID
 
 1. In the Smallstep SSH console, under the Users tab, choose Azure.
 2. Paste your Tenant ID from the [Active Directory Overview](https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview) blade into the "Add Your Team" dialog:
@@ -50,7 +50,7 @@ When creating your groups, give them names and accept the defaults on all other 
 
 3. Choose **Save**.
 
-### Step 3. Add the Smallstep SSH Azure Enterprise Application
+### Step 3. Add the Smallstep SSH Azure enterprise application
 
 #### Sign in to Smallstep SSH
 
@@ -122,7 +122,7 @@ Your Users and Groups list should now look something like this:
 >  ToLower(Replace(Replace([userPrincipalName], , "(?<=^.{1}).\w+.\.", "", "", , ), , "(@(.)*)","","" , ,))
 >  ```
 
-##### Turn on Provisioning
+##### Turn on provisioning
 
 1.  Save your settings and return to the **Provisioning** panel.
 2.  Choose **Start Provisioning**.
@@ -142,9 +142,9 @@ Return to the Smallstep console.
 
 > **Don't see your users and groups?** Microsoft's SCIM service may add a 40-minute delay after you set it up. You can force an update by clicking **Restart provisioning** in the Provisioning panel. Even then, it may take a minute to sync with Smallstep.
 
-### Entra ID Configuration Complete
+### Entra ID configuration complete
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
 * Initial activation of Entra ID OIDC provisioning in Smallstep SSH requires entering your **Application (client) ID**, **Client secret**, and **Configuration Endpoint** into the Smallstep UI. Contact Smallstep support with any questions | [support@smallstep.com](mailto:support@smallstep.com)
 * Note: When users are deactivated in Entra ID, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on Smallstep managed hosts. To permanently delete user data on Smallstep managed hosts, contact Smallstep support | [support@smallstep.com](mailto:support@smallstep.com)

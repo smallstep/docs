@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: "Smallstep Certificate Manager: Customize Certificates"
 html_title: Create Custom Certificate Templates Guide
 description: Create custom certificate templates in Certificate Manager. Tailor certificates to specific enterprise requirements and use cases.
@@ -21,7 +21,7 @@ The 24-hour default validity window for certificates is arbitrary. Depending on 
 - Server certificates and service account certificates typically are longer lived, lasting 1-90 days.
 - Client certificates for humans are typically shorter-lived and could expire after a few minutes or up to a month.
 
-A TLS certificate only needs to be valid at the moment the connection is established. So, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
+A TLS certificate only needs to be valid at the moment the connection is established. Therefore, a client certificate allowing access to a sensitive database might only need to be valid for five minutes, and the client can stay connected for as long as they need to complete the task at hand.
 
 You can adjust the certificate `not-before` and `not-after` parameters when requesting a certificate.
 Let's look at a couple of examples. 
@@ -154,6 +154,6 @@ Check out our [open-source documentation](https://smallstep.com/docs/step-ca/tem
   </div>
 </Alert>
 
-## Next Steps
+## Next steps
 - You've created your custom certificate; now it's time to explore [automating certificate renewal](../step-ca/renewal.mdx).
 - Ready to dive into a specific technology? Check out our [practical zero trust project](https://smallstep.com/practical-zero-trust). It provides step-by-step instructions for configuring TLS for popular technologies in Linux, Docker, and Kubernetes. 

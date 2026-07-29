@@ -1,5 +1,5 @@
 ---
-updated_at: September 18, 2025
+updated_at: February 03, 2026
 title: "step-ca server"
 html_title: step-ca Certificate Authority Overview
 description: Complete documentation for step-ca certificate authority. Deploy and manage your own private CA for enterprise PKI operations.
@@ -44,7 +44,7 @@ Teams use `step-ca` to:
 With `step-ca`, you can:
 
 - Automate certificate issuance and renewal for clients, servers, and Kubernetes workloads.
-- Issue certificates to humans, e.g., using Single Sign-on (OpenID Connect) for authentication.
+- Issue certificates to humans, for example, using Single Sign-on (OpenID Connect) for authentication.
 - Choose key types (RSA, ECDSA and EdDSA) and lifetimes to suit your needs.
 - Issue [short-lived certificates](https://smallstep.com/blog/passive-revocation.html) with automated enrollment, renewal, and passive revocation.
 - Operate [an online intermediate CA](https://smallstep.com/docs/tutorials/intermediate-ca-new-ca) on an existing root CA, eg. to add support for ACME to an existing PKI.
@@ -66,11 +66,11 @@ They offer different modes of authorization for the CA.
 
 For example, you can have your CA issue certificates in exchange for:
 - [ACME challenge responses](../tutorials/acme-protocol-acme-clients.mdx) from any ACMEv2 client
-- [OAuth OIDC single sign-on tokens](https://smallstep.com/blog/easily-curl-services-secured-by-https-tls.html), e.g.:
+- [OAuth OIDC single sign-on tokens](https://smallstep.com/blog/easily-curl-services-secured-by-https-tls.html), for example:
   - ID tokens from Okta, Google Workspace, Microsoft Entra ID and Auth0
   - ID tokens from an OAuth OIDC service you host, like [Keycloak](https://www.keycloak.org/) or [Dex](https://github.com/dexidp/dex)
 - [Cloud instance identity documents](https://smallstep.com/blog/embarrassingly-easy-certificates-on-aws-azure-gcp/) for VMs on AWS, GCP, and Azure
-- [Single-use, short-lived JWK tokens](./provisioners.mdx#jwk), e.g., issued by your CD tool — Puppet, Chef, Ansible, Terraform, etc.
+- [Single-use, short-lived JWK tokens](./provisioners.mdx#jwk), for example, issued by your CD tool—Puppet, Chef, Ansible, Terraform, etc.
 
 ### Templates
 
@@ -82,11 +82,11 @@ For example, you can have your CA issue certificates in exchange for:
 `step-ca` ships with several built-in templates for everyday operations,
 and you can use Golang's `text/template` syntax to create new templates.
 
-### Cryptographic Protection
+### Cryptographic protection
 
 For strong protection of your CA signing keys, we've built [`step-ca` integrations](./configuration.mdx#cryptographic-protection) for PKCS #11 HSMs, Google Cloud KMS, AWS KMS, and YubiKey PIV, among others.
 
-### Other Integrations
+### Other integrations
 
 `step-ca` plays well with Kubernetes cert-manager and Envoy Secret Discovery Service. For more information, see [Integrations](./integrations.mdx).
 

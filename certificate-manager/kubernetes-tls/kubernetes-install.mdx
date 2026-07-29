@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Kubernetes Install TLS
 html_title: Install Certificate Manager in Kubernetes
 description: Deploy Certificate Manager in Kubernetes clusters. Step-by-step installation guide for automated TLS certificate management at scale.
@@ -14,23 +14,23 @@ Beyond certificates for the components, you will need to secure the API server a
 The API Server is the API you connect to in order to push pods and whatnot. 
 This API uses TLS and needs a certificate. 
 
-### Our Recommendation
+### Our recommendation
 
-We think issuing a one-year certificate and moving on is setting you up for pain 365 days later. 
-So much so, that we [blogged about a better way](https://smallstep.com/blog/kubernetes-the-secure-way) and created a pull request to Hightower's repo. 
+We think issuing a one-year certificate and moving on is setting you up for pain 365 days later.
+In fact, we [blogged about a better way](https://smallstep.com/blog/kubernetes-the-secure-way) and created a pull request to Hightower's repo. 
 You should certainly check it out if you are building a Kubernetes cluster from scratch.
 
-### Extra Credit: Admission Controllers
+### Extra credit: Admission Controllers
 
 An *[Admission Controller](https://kubernetes.io/blog/2019/03/21/a-guide-to-kubernetes-admission-controllers/)* is a plugin that can intercept calls to the Kubernetes API server and modify the request or reject it altogether. 
 For example, the `autocert` project also uses a *mutating* Admission Controller to inject a secret into the Pod-spec during Pod creation. 
 Admission Controllers are invoked via Webhook and will *only* connect over TLS.
 
-When you create an Admission Controller Resource with the API Server, you tell the API Server *rules* for when to invoke your Admission Controller (e.g., *on pod create*) and you specify a CA Bundle that the API Server should use as the root of trust when it connects to your Admission Controllers. In short, **Admission Controllers must use TLS, so they need certs.**
+When you create an Admission Controller Resource with the API Server, you tell the API Server *rules* for when to invoke your Admission Controller (for example, *on pod create*) and you specify a CA Bundle that the API Server should use as the root of trust when it connects to your Admission Controllers. In short, **Admission Controllers must use TLS, so they need certs.**
 
 The *right way* to deliver a certificate to an Admission Controller is a little hard to answer broadly, since Admission Controllers are just HTTPS endpoints, which means they can run anywhere and be implemented however you'd like. 
-That said, it's very common to run an Admission Controller as a pod in the cluster itself. 
-So in this scenario, delivering a TLS certificate to an Admission Controller is the same as [delivering a certificate to any other container.](./kubernetes-container-tls.mdx)
+That said, it's very common to run an Admission Controller as a pod in the cluster itself.
+In this scenario, delivering a TLS certificate to an Admission Controller is the same as [delivering a certificate to any other container.](./kubernetes-container-tls.mdx)
 
 <Alert severity="info">
   <div>

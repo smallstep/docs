@@ -1,6 +1,6 @@
 ---
 title: Configure Web Browser Certificates
-updated_at: January 27, 2026
+updated_at: February 03, 2026
 html_title: Browser mTLS Certificate Setup Tutorial
 description: Configure browser certificates for mutual TLS authentication. Enable secure web access with client certificates across all browsers.
 ---
@@ -20,7 +20,7 @@ offering simple remediation flows when an error occurs,
 and ensuring that web browsers are configured to find client certificates automatically,
 so the user can have a seamless experience.
 
-Smallstep browser certificates are available for macOS, Windows, and Linux devices.
+Smallstep browser certificates are available for macOS, Windows, Linux, and ChromeOS devices.
 
 ## Before you begin
 
@@ -105,18 +105,7 @@ when a protected resource is accessed.
      <dict>
        <key>AutoSelectCertificateForUrls</key>
        <array>
-         <dict>
-           <key>pattern</key>
-           <string>[Server URL pattern]</string>
-           <key>filter</key>
-           <dict>
-              <key>ISSUER</key>
-              <dict>
-                <key>CN</key>
-                <string>Smallstep [Team Slug] Accounts Intermediate CA</string>
-              </dict>
-           </dict>
-         </dict>
+         <string>{"pattern":"[Server URL pattern]","filter":{"ISSUER":{"CN":"Smallstep [Team Slug] Accounts Intermediate CA"}}}</string>
        </array>
      </dict>
    </plist>
@@ -129,7 +118,7 @@ when a protected resource is accessed.
 
    Replace `[Team Slug]` with your Smallstep team slug.
 
-   Note: According to [Understand Chrome policy management](https://support.google.com/chrome/a/answer/9037717),
+   Note: according to [Understand Chrome policy management](https://support.google.com/chrome/a/answer/9037717),
    Chrome will *not* merge multiple `AutoSelectCertificateForUrls` policies.
    You must add all of your certificate selection preferences into a single managed configuration profile.
 
@@ -165,7 +154,7 @@ To test the certificate, restart the browser and visit one your target URLs.
 For Chrome and Edge, we can use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy to prevent the certificate selection dialog from appearing.
 
 1. Open the Registry Editor (`regedit`)
-2. Navigate to to the key for your browser.
+2. Navigate to the key for your browser.
 
    - For Chrome, visit `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome`
    - For Edge, visit `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge`
@@ -226,4 +215,68 @@ Use the <a href="about:certificate">about:certificate</a> URL to see all of the 
 
 To test the certificate, restart the browser and visit one your target URLs.
 You should not see any certificate selection dialogs.
+
+## ChromeOS
+
+On managed Chromebooks, Smallstep certificates are made available to Chrome
+by the Smallstep extension for ChromeOS.
+Once the extension is deployed and a client certificate has been issued,
+you can configure Chrome to select the certificate automatically.
+
+Chrome policies are deployed to managed Chromebooks through the
+[Google Workspace Admin Console](https://admin.google.com),
+so there is no per-device configuration step.
+
+### Google Chrome client certificate auto-selection
+
+To automatically select the Smallstep client certificate when a user visits a protected URL,
+use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy.
+
+1. In the Google Workspace Admin Console, visit **Devices → Chrome → Settings → Users & browsers**.
+2. Choose the organizational unit you want to apply the policy to.
+3. Find the **Client certificates** section and locate **Auto-select client certificate for these sites**.
+4. Add an entry for each protected URL, in the following format:
+
+   ```json
+   {"pattern":"[Server URL pattern]","filter":{"ISSUER":{"CN":"Smallstep ([Team Slug]) Devices Intermediate CA"}}}
+   ```
+
+   Replace `[Server URL pattern]` with the server that requires certificate authentication.
+   This field is a [Chrome Enterprise policy URL pattern](https://chromeenterprise.google/policies/url-patterns/).
+
+   - Example: `[.*]xample.com` matches `xample.com` and `hello.xample.com` for any scheme, port, and path. It will not match `example.com`.
+   - For more examples, see [the Chrome Enterprise docs](https://chromeenterprise.google/policies/url-patterns/).
+
+   Replace `[Team Slug]` with your Smallstep team slug.
+
+5. Save the policy.
+
+The policy is applied to managed devices the next time they sync with Google Workspace.
+
+To verify the policy is in effect, open Chrome on a managed Chromebook and visit [chrome://policy](chrome://policy).
+Then visit one of your target URLs.
+You should not see any certificate selection dialogs.
+
+### Wi-Fi client certificate auto-selection (802.1X)
+
+For Wi-Fi networks that authenticate with EAP-TLS,
+client certificate selection is configured per-network in the Google Workspace Admin Console.
+
+1. In the Google Workspace Admin Console, visit **Devices → Networks → Wi-Fi**.
+2. Edit or create the Wi-Fi network used for 802.1X authentication.
+3. Set the **EAP type** to **EAP-TLS**.
+4. Set the **Issuer pattern** to the full common name of your Smallstep intermediate issuing CA:
+
+   ```
+   Smallstep ([Team Slug]) Devices Intermediate CA
+   ```
+
+   Replace `[Team Slug]` with your Smallstep team slug.
+
+5. Save the network configuration.
+
+When a Chromebook connects to the network,
+it will automatically select the Smallstep client certificate
+issued by the matching intermediate CA,
+without prompting the user.
 

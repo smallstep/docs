@@ -1,5 +1,5 @@
 ---
-updated_at: January 15, 2026
+updated_at: February 03, 2026
 title: Connect Intune to Smallstep (macOS)
 html_title: Connect Microsoft Intune to Smallstep for macOS Tutorial
 description: Connect Microsoft Intune to Smallstep for macOS device identity. Step-by-step guide for enterprise device trust with MDM integration.
@@ -22,7 +22,7 @@ You will need:
 
 # Step-by-step instructions
 
-### 1. Register an Entra ID Application
+### 1. Register an Entra ID application
 
 You'll need to register an Application in Entra ID that connects Smallstep to Intune.
 
@@ -44,7 +44,7 @@ Select **＋ New client secret**, and use the following properties:
 
 Copy the **Client Secret Value**, which you will register with Smallstep later.
 
-### 2. Grant API Permissions
+### 2. Grant API permissions
 
 Now we'll connect the App Registration to Intune by adding application permissions.
 
@@ -77,7 +77,7 @@ Configure the Integration with the values you gathered above:
 
 Within a few minutes, you will see all of your Intune devices in the [Devices](https://smallstep.com/app/?next=/devices/all) tab. Your Smallstep device inventory is synced approximately every four hours.
 
-### 4. Configure Agent Enrollment
+### 4. Configure agent enrollment
 
 In this step, we'll gather the values needed to configure macOS devices to enroll with Smallstep.
 
@@ -89,7 +89,7 @@ In this step, we'll gather the values needed to configure macOS devices to enrol
 2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
     1. Copy and temporarily save the **Team Slug** value
 
-### 5. Create Configuration Profiles in Intune
+### 5. Create configuration profiles in Intune
 
 In this step, we'll create macOS configuration profiles in Intune to enroll devices using the Smallstep Agent.
 
@@ -198,7 +198,7 @@ In this step, we'll create macOS configuration profiles in Intune to enroll devi
 
 Your Smallstep team is now linked to Intune, and the devices that you scoped will receive a certificate and have the agent configured.
 
-## Installing the Smallstep Agent
+## Installing the Smallstep agent
 
 The Intune configuration profiles above configure the agent settings, but you will also need to install the Smallstep Agent application on your macOS devices.
 

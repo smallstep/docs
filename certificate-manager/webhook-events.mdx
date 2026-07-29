@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Webhook Events
 html_title: Configure Certificate Webhook Events Guide
 description: Integrate certificate lifecycle events via webhooks. Automate workflows based on certificate issuance, renewal, and revocation.
@@ -15,7 +15,7 @@ You can use Webhook Events to:
 - **Stream events to monitoring solutions** - Push detailed certificate information to third-party monitoring and alerting systems.
 - **Monitor certificate operations** - Ensure your automated certificate toolchain is operating as expected.
 
-## Webhook Event Types
+## Webhook event types
 We currently have four webhook event types, namely:
 
 - **SSH**: Sends a webhook event for SSH start and stop sessions and user change events.
@@ -28,12 +28,12 @@ We currently have four webhook event types, namely:
 
 **Note**: <em>We do not send certificate expiration events for OIDC certificates, to minimize noise, since they're usually short-lived. However, certificate creation events for such certificates will always be sent.</em>
 
-## Using Webhook Events
+## Using webhook events
 To register a webhook, go to Settings > Webhooks and fill out the form as shown below:
 
 ![image](/graphics/webhook-events-demo.png 'Webhook Events Requirements')
 
-## Webhook Events Response Formats
+## Webhook events response formats
 Here are examples of the response data you should expect to receive for each webhook event type:
 
 
@@ -219,7 +219,7 @@ Where:
     </TableBody>
 </Table>
 
-## Deleting Webhook Events
+## Deleting webhook events
 If you no longer have need for a webhook and wish to delete it:  
 
 1. Go to **Settings > Webhooks**

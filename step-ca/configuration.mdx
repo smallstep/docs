@@ -1,5 +1,5 @@
 ---
-updated_at: November 03, 2025
+updated_at: February 03, 2026
 title: Configuring step-ca
 html_title: Configuring open source step-ca
 description: Learn how to configure step-ca
@@ -34,7 +34,7 @@ learn how to configure your CA to:
   - [PostgreSQL](#postgresql)
   - [Schema](#schema)
 
-## Specify a Configuration File
+## Specify a configuration file
 
 When you run `step-ca`, you must provide a path to a configuration file
 (`ca.json`).
@@ -52,13 +52,13 @@ For non-interactive use (eg. as a `systemd` service),
 the `--password-file` flag accepts
  the name of a file containing the password for the CA's keys.
 
-## Environment Variables
+## Environment variables
 
 * `STEPDEBUG` When set to `1`, `step-ca` provides extra diagnostic information for debugging. This variable can also be used with `step`.
 
-## Basic Configuration Options
+## Basic configuration options
 
-### Example Configuration
+### Example configuration
 
 ```json
 {
@@ -196,7 +196,7 @@ the `--password-file` flag accepts
 }
 ```
 
-### Configuration Options
+### Configuration options
 
 - **root**: location of the root certificate PEM file  on the filesystem. The root certificate is used to mutually authenticate all API clients of the CA. This can be a string containing one root PEM file, or an array containing multiple root CA files (useful for root rotation).
 
@@ -222,7 +222,7 @@ the `--password-file` flag accepts
 
 - **address**: ex. 127.0.0.1:8080 - address and port on which the CA bind and respond to requests.
 
-- **dnsNames**: comma separated list of DNS name(s) for the CA.
+- **dnsNames**: comma separated list of DNS names for the CA.
 
 - **logger**: the default logging format for the CA is _text_. The other option is _json_.
 
@@ -513,7 +513,7 @@ The [`libpq` docs](https://www.postgresql.org/docs/current/libpq-ssl.html) cover
 
 As the interface is a key-value store, the schema is very simple. We support tables, keys, and values. An entry in the database is a `[]byte value` that is indexed by `[]byte table` and `[]byte key`.
 
-### Exporting Data
+### Exporting data
 
 At this time `step-ca` does not have any API or interface for easily exporting data. Because the data is stored in a `noSQL` like manner, it is difficult to explore the data even when using a SQL backend like MySQL. We do have [a scripted example for accessing the DB][scripted-export-db] to give users a jumping off point for writing their own reporting and logging tools.
 

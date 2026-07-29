@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Okta Quickstart
 description: SSH Okta Quickstart | Smallstep Documentation
 ---
@@ -42,7 +42,7 @@ In this quickstart, we will:
 3. Add and configure the Smallstep application from the Okta Application Directory, for user sync via SCIM
 4. Check logs to confirm users and groups are syncing to Smallstep SSH
 
-## Step By Step Instructions
+## Step by step instructions
 
 ### **Step 1. Create Okta OIDC Application**
 
@@ -74,7 +74,7 @@ In this quickstart, we will:
      * Repeat this process for any other groups you created for controlling SSH/sudo access
 7. Go back to **General** tab and scroll down to "Client Credentials." You'll refer to these values in the next step.
 
-### Step 2. Enter your OIDC Details into the Smallstep console
+### Step 2. Enter your OIDC details into the Smallstep console
 
 1. Open a new browser tab and log in to Smallstep: `https://smallstep.com/app/[TEAM-NAME]`
 2. Navigate the Onboarding Dialog. If the dialog is not open, you can relaunch it by visiting the **Users** tab.
@@ -99,7 +99,7 @@ In this quickstart, we will:
 5. Click **"SAVE"**
 6. You've completed this portion of the setup.
 
-### Step 3. Add the Smallstep App Integration and Configure User Sync in Okta
+### Step 3. Add the Smallstep app integration and configure user sync in Okta
 
 * In the OKTA admin console, add the Smallstep application
   * Applications → Browse App Catalog
@@ -165,9 +165,9 @@ Sign in at `https://smallstep.com/app/[Team ID]`
 * Select the **Users** tab. If the onboarding dialog is open, press `Esc` to close.
 * You should see your Users and Groups synced over from Okta.
 
-### OKTA Configuration Complete
+### Okta configuration complete
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
 * Initial activation of Okta OIDC provisioning in Smallstep SSH requires entering your **Client ID, Client Secret**, and **base domain of your Okta instance.** Contact Smallstep support with any questions | [support@smallstep.com](mailto:support@smallstep.com)
 * UIDs and GIDs. By default, Smallstep will auto-assign POSIX UIDs and GIDs for your users. Alternatively, you can sync POSIX UIDs and GIDs values from your Okta directory to Smallstep.

@@ -47,6 +47,7 @@ DTLS
 DevOps
 Diffie-Hellman
 Dockerfile
+Docker Compose
 EAB
 EAP
 ECDH
@@ -60,7 +61,10 @@ Encrypt
 Enrollment
 Entra ID
 FIPS
+F5 Access
+F5 Edge
 FQDN
+FreeBSD
 GCP
 Gartner
 GitHub
@@ -92,7 +96,9 @@ JWSs
 JWT
 JWTs
 Jamf
+Jamf Pro
 JavaScript
+Juniper Mist
 Kubernetes
 LDAP
 LTV
@@ -104,12 +110,14 @@ Merkle
 MicroTik
 Micromdm
 MikroTik
+Microsoft Edge
 Modbus
 Modelling
 NDES
 NDR
 NGINX
 NIST
+NixOS
 NSS
 NTP
 NTPS
@@ -164,6 +172,8 @@ PII
 PIV
 PKCE
 PKCS
+PKG
+PKGs
 PKI
 PKIX
 POLP
@@ -313,6 +323,7 @@ Webhook
 Webhooks
 Wi
 Winget
+Wire
 Wireguard
 WjX
 Wolfi
@@ -377,6 +388,7 @@ catalogued
 certkeys
 certmagic
 certspotter
+certutil
 cfcc
 chown
 chxwEdmr
@@ -676,6 +688,7 @@ ie
 ACLs
 Admin
 APIs
+Aruba
 apk
 Asus
 boolean
@@ -712,6 +725,7 @@ plist
 RAs
 rollout
 Sophos
+Sophos UTM
 SSIDs
 STMicro
 tss
@@ -761,7 +775,6 @@ attestationRoots
 clientId
 complexify
 customappsso
-Emojivoto
 encryptedKey
 excludeIntermediate
 failover
@@ -870,6 +883,7 @@ reasonCode
 redirect_uri
 reverse_proxy
 root_ca_key
+root_ca
 sed
 select_account
 serverAuth
@@ -936,3 +950,4 @@ organizationalUnit
 publicKey
 serialNumber
 testuser
+disallow

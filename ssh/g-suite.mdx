@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: Google Workspace Quickstart
 description: Enable SSH access with Google Workspace credentials. Integrate enterprise identity provider with SSH certificate authentication.
 html_title: Google Workspace SSH Integration Guide
@@ -36,9 +36,9 @@ The following provisioning features are supported:
 3. Set up API client access
 4. Configure Google Workspace settings in Smallstep SSH UI
 
-## Step-by-step Instructions
+## Step-by-step instructions
 
-### Step 1. Create an OAuth Client ID
+### Step 1. Create an OAuth client ID
 
 1. Configure the OAuth Consent Screen
    1. In the Google Cloud Console, visit [Configure the OAuth Consent Screen](https://console.cloud.google.com/apis/credentials/consent)
@@ -54,7 +54,7 @@ The following provisioning features are supported:
    4. **Create**
    5. Copy the Value of **Your Client ID** and **Your Client Secret** and save them.
 
-### Step 2. Enter your OIDC Settings into the Smallstep SSH UI
+### Step 2. Enter your OIDC settings into the Smallstep SSH UI
 
 1. Open a new browser tab and log in at `https://smallstep.com/app/[TEAM-NAME]`
 2. Enter the **client ID** and **client secret** from above.
@@ -68,7 +68,7 @@ The following provisioning features are supported:
 5. **Enable Single Sign-On**
 6. Keep this tab open for the next step, where you will need the values from **User Group Synchronization Details**.
 
-### Step 3. Set up API Client Access
+### Step 3. Set up API client access
 
 In Google Admin, you'll need to do a [Domain-wide Delegation](https://support.google.com/a/answer/162106).
 
@@ -83,12 +83,12 @@ When you're finished, the Manage API Client Access screen page should resemble t
 
 ![](/graphics/quickstart/g-suite-api-clients.png)
 
-### Step 4. Configure Google Workspace Settings in Smallstep
+### Step 4. Configure Google Workspace settings in Smallstep
 
 1. Fill in your **domain name** and **the email address of a Google Admin** in your organization, and Save.
 2. Wait while we configure and sync your Google Workspace directory. Please note that Google Workspace sync is periodical and might take a few minutes.
 3. You should see your directory with users and groups synced.
 
-## Troubleshooting Tips
+## Troubleshooting tips
 
 * Note: When users are deactivated in Google Workspace, they will be deactivated in Smallstep. Users will not be able to SSH to servers, but their user accounts will remain on Smallstep managed hosts. To permanently delete user data on Smallstep managed hosts, contact Smallstep support, ([support@smallstep.com](mailto:support@smallstep.com)).

@@ -1,5 +1,5 @@
 ---
-updated_at: January 28, 2026
+updated_at: February 03, 2026
 title: ACME Registration Authority for Google Certificate Authority Service
 html_title: ACME RA for Google Cloud CAS Setup Guide
 description: Connect ACME to Google Cloud Certificate Authority Service. Automate certificate issuance using managed cloud PKI infrastructure.
@@ -21,9 +21,9 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
 [gcpproject]: https://console.cloud.google.com/projectselector2/home/dashboard
 [gcloud]: https://cloud.google.com/sdk/gcloud
 
-## Configuration Guide
+## Configuration guide
 
-#### 1. Create or select an existing GCP project and enable `CAS` APIs. 
+#### 1. Create or select an existing GCP project and enable `CAS` APIs.. 
 
   For the purposes of this example, lets use the project ID `smallstep-cas-test`.
   
@@ -37,7 +37,7 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
   $ gcloud services enable privateca.googleapis.com
   ```
 
-#### 2. Create a CA Pool
+#### 2. Create a CA pool
 
   Run:
 
@@ -45,7 +45,7 @@ We will deploy the RA as a VM instance that issues X.509 Certificates for intern
    gcloud privateca pools create example-ca-pool --location us-west1
   ```
 
-#### 3. Create and Enable a Root CA
+#### 3. Create and enable a root CA
 
 To create, run:
 
@@ -76,7 +76,7 @@ To enable CA, run:
       --location us-west1 
   ```
 
-#### 4. Create and Enable an Intermediate CA.
+#### 4. Create and enable an intermediate CA.
 
   To create, run:
 
@@ -100,7 +100,7 @@ To enable CA, run:
        --location us-west1
    ```
 
-#### 5. (Optional) Test Root and Intermediate CA
+#### 5. (optional) test root and intermediate CA
 
 To inspect the root and intermediate CA, you need to have the following dependencies installed:
 * [step](https://smallstep.com/cli/)
@@ -122,7 +122,7 @@ gcloud privateca subordinates describe example-intermediate-ca \
 --pool example-ca-pool --format json | jq -r '.pemCaCertificates[0]' | step certificate inspect
 ```
 
-#### 6. Configure a service account with necessary role bindings to request and manage X.509 Certificates using CAS. 
+#### 6. Configure a service account with necessary role bindings to request and manage X.509 certificates using CAS. 
 
   Run:
 
@@ -140,7 +140,7 @@ gcloud privateca subordinates describe example-intermediate-ca \
       --role=roles/privateca.certificateRequester
   ```
 
-#### 7. Launch a "Smallstep ACME Registration Authority for CAS" deployment
+#### 7. Launch a "Smallstep ACME registration authority for CAS" deployment
 
 1. Select "Smallstep ACME Registration Authority for CAS" from GCP marketplace
 and hit the `Launch` button.
@@ -231,11 +231,11 @@ new ACME RA for CAS, but any popular ACME client should work.
 
   Hooray!
 
-## Next Steps
+## Next steps
 
 A few considerations for making your ACME RA for CAS production ready.
 
-### Security Hardening
+### Security hardening
 
 VM instance configuration:
 

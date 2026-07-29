@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: "Smallstep Certificate Manager: Bring Your Own Root"
 html_title: Bring Your Own Root CA Integration Guide
 description: Use existing root CAs with Certificate Manager. Preserve PKI investments while modernizing certificate automation infrastructure.
@@ -39,7 +39,7 @@ To find it,
 Here, you can upload the PEM file for your existing root CA certificate.
 **Do not upload your root private key to Smallstep.**
 
-## How to Sign the Certificate Signing Request
+## How to sign the certificate signing request
 
 Smallstep will send a CSR file for you to download and sign.
 
@@ -109,7 +109,7 @@ To run it, fill in the ARN of your CA and run:
 $ python issue_certificate.py < csr-9e63a172-EXAMPLE-5b0c7.csr > intermediate.crt
 ```
 
-### Hashicorp Vault
+### HashiCorp Vault
 
 You will need [`jq`](https://jqlang.github.io/jq/) installed, to extract the certificate PEM programmatically.
 

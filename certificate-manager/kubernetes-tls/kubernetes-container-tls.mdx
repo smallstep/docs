@@ -1,5 +1,5 @@
 ---
-updated_at: September 17, 2025
+updated_at: February 03, 2026
 title: Kubernetes Container TLS
 html_title: Container-to-Container TLS in Kubernetes
 description: Enable mTLS between Kubernetes containers. Secure pod-to-pod communication with automated certificate provisioning and renewal.
@@ -14,7 +14,7 @@ Here are a few examples.
 - A container running a program that connects to Redis or Postgres using mTLS might need a client TLS certificate
 - You may want to enable service-to-service mTLS everywhere
 
-There are two primary patterns used to get certificates to containers
+Two primary patterns exist for getting certificates to containers
 
 **1. A `kubernetes.io/tls` Secret**
 
@@ -28,7 +28,7 @@ Autocert is a kubernetes add-on that automatically injects TLS/HTTPS certificat
 To get a certificate, simply annotate your pods with a name. 
 An X.509 (TLS/HTTPS) certificate is automatically created and mounted at `/var/run/autocert.step.sm/` along with a corresponding private key and root certificate (everything you need for mTLS).
 
-### Our Recommendation
+### Our recommendation
 
 When you want to get a certificate to a container in Kubernetes, you must first ask:
 
