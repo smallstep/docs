@@ -317,112 +317,13 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     ];
     ```
 
-2. Save the following as `step-agent.nix` alongside your `configuration.nix`,
-   and add `./step-agent.nix` to its `imports` list:
+2. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix) alongside your `configuration.nix`,
+   and add `./step-agent.nix` to its `imports` list.
+   It declares the `step-agent` system user, the systemd service and its restart path unit,
+   the `polkit` rules the agent needs, and the `p11-kit` module that publishes its PKCS#11 server.
 
-    ```nix
-    { config, lib, pkgs, ... }:
-
-    {
-      # The step-agent package is unfree.
-      nixpkgs.config.allowUnfreePredicate = pkg: lib.getName pkg == "step-agent";
-
-      environment.systemPackages = [ pkgs.step-agent ];
-
-      # The agent talks to the TPM from user space, so it needs read/write access
-      # to the TPM resource manager. This creates the tss group and the udev rules
-      # that grant that group /dev/tpmrm0.
-      security.tpm2.enable = true;
-
-      users.groups.step-agent = { };
-      users.users.step-agent = {
-        isSystemUser = true;
-        group = "step-agent";
-        home = "/var/lib/step-agent";
-        extraGroups = [ "tss" ];
-      };
-
-      # /run/step-agent holds the PKCS#11 and SSH sockets that other users connect
-      # to. Create it with tmpfiles rather than systemd's RuntimeDirectory=, which
-      # deletes the directory every time the service stops.
-      systemd.tmpfiles.rules = [
-        "d /run/step-agent 0755 step-agent step-agent - -"
-      ];
-
-      systemd.services.step-agent = {
-        description = "Smallstep Agent";
-        documentation = [ "https://u.step.sm/docs/agent" ];
-        after = [ "network-online.target" ];
-        requires = [ "network-online.target" ];
-        wantedBy = [ "multi-user.target" ];
-
-        # The agent starts once the device is registered and agent.yaml exists.
-        unitConfig.ConditionPathIsReadWrite = "/etc/step-agent/agent.yaml";
-
-        environment = {
-          HOME = "/var/lib/step-agent";
-          RUNTIME_DIRECTORY = "/run/step-agent";
-        };
-
-        serviceConfig = {
-          Type = "notify";
-          WatchdogSec = "60s";
-          ExecStart = "${lib.getExe pkgs.step-agent} start";
-          ExecReload = "${pkgs.coreutils}/bin/kill -HUP $MAINPID";
-          User = "step-agent";
-          Group = "step-agent";
-          ConfigurationDirectory = "step-agent";
-          StateDirectory = "step-agent";
-          Restart = "always";
-          RestartSec = 10;
-
-          ProtectSystem = true;
-          ProtectHome = "read-only";
-          PrivateTmp = true;
-          SecureBits = "keep-caps";
-          AmbientCapabilities = [ "CAP_IPC_LOCK" "CAP_CHOWN" "CAP_DAC_OVERRIDE" "CAP_FOWNER" ];
-          CapabilityBoundingSet = [ "CAP_SYSLOG" "CAP_IPC_LOCK" "CAP_CHOWN" "CAP_DAC_OVERRIDE" "CAP_FOWNER" ];
-          DeviceAllow = [ "/dev/tpmrm0 rw" ];
-          ReadWritePaths = [ "-/dev/tpmrm0" ];
-
-          LimitNOFILE = 65536;
-          LimitMEMLOCK = "infinity";
-        };
-      };
-
-      # Restart the agent when its configuration changes, such as after registering.
-      systemd.paths.step-agent-restart = {
-        wantedBy = [ "multi-user.target" ];
-        pathConfig.PathChanged = "/etc/step-agent/agent.yaml";
-      };
-
-      systemd.services.step-agent-restart.serviceConfig = {
-        Type = "oneshot";
-        ExecStart = "${config.systemd.package}/bin/systemctl restart step-agent.service";
-      };
-
-      # Let the agent restart units and manage NetworkManager connections.
-      security.polkit.enable = true;
-      security.polkit.extraConfig = ''
-        polkit.addRule(function(action, subject) {
-          if (subject.user == "step-agent") {
-            if (action.id == "org.freedesktop.systemd1.manage-units") {
-              return polkit.Result.YES;
-            }
-            if (action.id.indexOf("org.freedesktop.NetworkManager.") == 0) {
-              return polkit.Result.YES;
-            }
-          }
-        });
-      '';
-
-      # Publish the agent's PKCS#11 server to p11-kit clients. The module path has
-      # to be explicit: the agent searches FHS locations that do not exist on NixOS.
-      environment.etc."pkcs11/modules/step-agent.module".text = ''
-        module: ${pkgs.p11-kit}/lib/pkcs11/p11-kit-client.so
-        server-address: unix:path=/run/step-agent/step-agent-pkcs11.sock
-      '';
-    }
+    ```bash
+    curl -fsSLO https://files.smallstep.com/step-agent.nix
     ```
 
 3. Rebuild your system:
