@@ -313,7 +313,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
 **Troubleshooting steps:**
 1. Verify the PKCS#11 socket exists:
    ```bash
-   ls -l $XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+   ls -l /run/step-agent/step-agent-pkcs11.sock
    ```
 2. Check the environment variable:
    ```bash
@@ -323,7 +323,7 @@ Each check validates a specific aspect of the agent's functionality. A **PASS** 
    ```bash
    pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so --list-slots
    ```
-4. See [PKCS#11 Support](./smallstep-agent.mdx#openssl-and-pkcs11-support) for configuration details
+4. See [PKCS#11 Support](./smallstep-agent.mdx#pkcs11-support) for configuration details
 
 #### Advanced doctor options
 
@@ -479,16 +479,16 @@ The location of `p11-kit-client.so` may vary by distribution.
 1. Verify PKCS#11 socket exists and is accessible
 2. Set environment variable correctly:
    ```bash
-   export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+   export P11_KIT_SERVER_ADDRESS=unix:path=/run/step-agent/step-agent-pkcs11.sock
    ```
 3. Install p11-kit if not present
 4. Test with `pkcs11-tool --list-slots`
-5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#openssl-and-pkcs11-support)
+5. See [PKCS#11 configuration guide](./smallstep-agent.mdx#pkcs11-support)
 6. See the [p11-kit documentation](https://p11-glue.github.io/p11-glue/p11-kit/manual/) for general PKCS#11 reference
 
 ##### Recovering from a failed `modutil` add
 
-If you ran `modutil -add` before exporting `P11_KIT_SERVER_ADDRESS` (see [OpenSSL and PKCS#11 support](./smallstep-agent.mdx#openssl-and-pkcs11-support)), the add can fail or register a broken module, because `modutil` loads `p11-kit-client.so` as it adds it and the client library cannot initialize without a reachable agent socket. To recover:
+If you ran `modutil -add` before exporting `P11_KIT_SERVER_ADDRESS` (see [PKCS#11 support](./smallstep-agent.mdx#pkcs11-support)), the add can fail or register a broken module, because `modutil` loads `p11-kit-client.so` as it adds it and the client library cannot initialize without a reachable agent socket. To recover:
 
 1. Close any application using the NSS database (for example, Google Chrome). `modutil` cannot modify a database that is in use.
 
@@ -509,7 +509,7 @@ If you ran `modutil -add` before exporting `P11_KIT_SERVER_ADDRESS` (see [OpenSS
 
 4. Export `P11_KIT_SERVER_ADDRESS`, then re-add the module in the correct order:
    ```bash
-   export P11_KIT_SERVER_ADDRESS=unix:path=$XDG_RUNTIME_DIR/step-agent/step-agent-pkcs11.sock
+   export P11_KIT_SERVER_ADDRESS=unix:path=/run/step-agent/step-agent-pkcs11.sock
    modutil -dbdir ~/.pki/nssdb -add step-agent \
            -libfile /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so
    ```
