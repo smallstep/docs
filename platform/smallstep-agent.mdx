@@ -317,10 +317,8 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     ];
     ```
 
-2. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix) alongside your `configuration.nix`,
-   and add `./step-agent.nix` to its `imports` list.
-   It declares the `step-agent` system user, the systemd service and its restart path unit,
-   the `polkit` rules the agent needs, and the `p11-kit` module that publishes its PKCS#11 server.
+2. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix), place it alongside your `configuration.nix`, and add `./step-agent.nix` to your `imports` list.
+   The `.nix` file declares the `step-agent` system user, the systemd service and its restart path unit, the `polkit` rules the agent needs, and the `p11-kit` module that publishes our PKCS#11 server.
 
     ```bash
     curl -fsSLO https://files.smallstep.com/step-agent.nix
