@@ -47,6 +47,7 @@ Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubles
     - Ubuntu (Current Stable and LTS)
     - Debian (Current Releases)
     - Fedora (Current Releases)
+    - NixOS
 - `systemd`-based service manager
 - A TPM 2.0 module is required. Smallstep depends on TPMs to create a high-assurance device inventory.
 - `p11-kit`, `tpm-tss2`
@@ -284,6 +285,76 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
     ```
     
 
+### NixOS
+
+The [`step-agent`](https://search.nixos.org/packages?query=step-agent) package is in nixpkgs, on the `nixos-unstable` channel.
+NixOS has no `services.step-agent` module yet,
+so the system user, systemd service, and PKCS#11 wiring that the Debian and RPM packages install are declared in your own configuration instead.
+
+<Alert severity="info">
+<div>
+The agent requires a hardware TPM 2.0 on NixOS.
+The Debian and RPM packages fall back to a software TPM on hosts without one,
+but the helper scripts that set that up are not part of the nixpkgs package,
+so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
+</div>
+</Alert>
+
+1. If you track a stable NixOS channel, add an overlay so that `pkgs.step-agent` resolves.
+   Skip this step on `nixos-unstable`.
+
+    ```nix
+    nixpkgs.overlays = [
+      (final: prev: {
+        inherit
+          (import (builtins.fetchTarball "https://github.com/NixOS/nixpkgs/archive/nixos-unstable.tar.gz") {
+            system = prev.stdenv.hostPlatform.system;
+            config.allowUnfreePredicate = pkg: prev.lib.getName pkg == "step-agent";
+          })
+          step-agent
+          ;
+      })
+    ];
+    ```
+
+2. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix), place it alongside your `configuration.nix`, and add `./step-agent.nix` to your `imports` list.
+   The `.nix` file declares the `step-agent` system user, the systemd service and its restart path unit, the `polkit` rules the agent needs, and the `p11-kit` module that publishes our PKCS#11 server.
+
+    ```bash
+    curl -fsSLO https://files.smallstep.com/step-agent.nix
+    ```
+
+3. Rebuild your system:
+
+    ```bash
+    sudo nixos-rebuild switch
+    ```
+
+4. Register the device with your team:
+
+    ```bash
+    sudo step-agent register [team name]
+    ```
+
+    Registration writes `agent.yaml` into `/etc/step-agent`,
+    which systemd creates and keeps writable through `ConfigurationDirectory=`.
+    Do not manage `agent.yaml` with `environment.etc`:
+    that produces a read-only symlink into the Nix store, and the service refuses to start.
+
+5. Check that it was installed correctly:
+
+    ```bash
+    step-agent version
+    ```
+
+    Output:
+
+    ```bash
+    step-agent/0.67.3 (linux/amd64)
+    Release Date: 2026-05-19 15:50 UTC
+    ```
+    
+
 ## Registering and approving endpoints
 
 ### Self-registration
@@ -327,6 +398,8 @@ sudo systemctl enable --now step-agent
 sudo systemctl enable --now step-agent-restart.path
 ```
 
+On NixOS, `nixos-rebuild switch` enables and starts both units, so skip this step.
+
 If you get any errors, check the agent’s status:
 
 ```bash
@@ -366,6 +439,9 @@ modutil -dbdir ~/.pki/nssdb -add step-agent \
 Export `P11_KIT_SERVER_ADDRESS` and point it at the running agent's socket **before** you run `modutil`. `modutil` loads and initializes the module as it adds it, so running it first fails with a load error and can leave a broken module registered in the NSS database. If you hit this, see [Recovering from a failed `modutil` add](./troubleshooting-agent.mdx#recovering-from-a-failed-modutil-add).
 </Alert>
 
+On NixOS, `p11-kit-client.so` lives in the Nix store rather than under `/usr/lib`.
+Point `modutil` at it with `-libfile $(nix eval --raw nixpkgs#p11-kit)/lib/pkcs11/p11-kit-client.so`.
+
 Next, start Chrome from the command line.
 
 In Chrome, you should now have access to certificates managed by Smallstep.
@@ -389,6 +465,8 @@ To uninstall the Smallstep Agent from a Linux system:
    ```bash
    sudo apt-get remove step-agent
    ```
+
+   **For NixOS:** remove `./step-agent.nix` from your `imports` list, then run `sudo nixos-rebuild switch`.
 
 2. Optionally, remove configuration and certificate files:
 

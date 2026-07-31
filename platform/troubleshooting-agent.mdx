@@ -593,6 +593,11 @@ Quick reference for platform-specific commands and file locations.
 | Collect logs | `step-agent logs collect --log-dir /var/lib/step-agent/logs` |
 | Agent configuration | `/etc/step-agent/agent.yaml` |
 
+On NixOS these paths are the same, with two differences.
+There is no `/usr/bin/step-agent`: the binary is a Nix store path on your `PATH`.
+And `step-agent doctor` reports p11-kit as missing unless the client module is registered by its store path,
+as shown in [the NixOS install instructions](./smallstep-agent.mdx#nixos).
+
 <Alert severity="info">
 If the agent won't start, check for this message in the logs:
 ```
