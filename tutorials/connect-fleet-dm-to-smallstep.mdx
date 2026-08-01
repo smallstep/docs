@@ -121,7 +121,7 @@ Now we'll add the Smallstep SCEP credentials to Fleet.
 3. Click **Add CA**
 4. From the dropdown, select **Smallstep**
 5. Fill in the fields:
-   - **Name**: A unique identifier using letters, numbers, and underscores only (for example, `SMALLSTEP_AGENT`). Fleet will create configuration profile variables with this name as a suffix.
+   - **Name**: Enter `SMALLSTEP_AGENT`. Fleet creates configuration profile variables with this name as a suffix, and the configuration profile you download from Smallstep in the next step references the `SMALLSTEP_AGENT` suffix. If you choose a different name here, you must edit the downloaded profile to match.
    - **SCEP URL**: Paste the SCEP URL from Smallstep
    - **Challenge URL**: Paste the SCEP Challenge URL from Smallstep
    - **Username**: Paste the Challenge Username from Smallstep
@@ -136,153 +136,21 @@ If you plan to use GitOps instead of the Fleet UI, skip this step and see the [G
 </div>
 </Alert>
 
-## Step 4. Create SCEP configuration profiles
+## Step 4. Download the configuration profile
 
-Fleet deploys certificates to devices using configuration profiles. You'll need to create profiles that include the SCEP payload with Fleet's dynamic variables.
+Fleet deploys certificates to devices using a configuration profile. You can download this from the Smallstep dashboard and upload it to Fleet. No need to build the payloads or paste certificate data by hand.
 
-For macOS, iOS, and iPadOS, Fleet provides these variables for Smallstep certificate enrollment:
+1. In the Smallstep console, go to [**Settings → Device Management**](https://smallstep.com/app/?next=/settings/devices)
+2. Open your Fleet connection, then choose the **Settings** tab
+3. Under **Configuration Profile (macOS only)**, click **Download** to save the profile. The downloaded file is named `fleet-<connection-id>.mobileconfig`.
 
-| Variable | Description |
-|----------|-------------|
-| `$FLEET_VAR_SMALLSTEP_SCEP_CHALLENGE_SMALLSTEP_AGENT` | The dynamic SCEP challenge string |
-| `$FLEET_VAR_SMALLSTEP_SCEP_PROXY_URL_SMALLSTEP_AGENT` | The SCEP proxy URL for certificate requests |
-| `$FLEET_VAR_SCEP_RENEWAL_ID` | A unique renewal identifier for the device |
-| `$FLEET_VAR_HOST_END_USER_EMAIL_IDP` | The end user's email from the identity provider |
-
-If you used a different name when adding the CA in Fleet, replace `SMALLSTEP_AGENT` accordingly.
-
-### SCEP profile (`smallstep-agent.mobileconfig`)
-
-Create a file called `smallstep-agent.mobileconfig` with the following structure.
-
-This profile contains three payloads:
-
-1. **SCEP payload**: Issues a provisional SCEP certificate that the Smallstep agent uses for bootstrapping into a Device Attested environment
-2. **Root CA trust payload**: Installs the Smallstep Agent Root CA so the agent can validate its certificate chain.
-   To create this payload, open the downloaded `.pem` file in a text editor and copy the Base64-encoded certificate contents (everything between `-----BEGIN CERTIFICATE-----` and `-----END CERTIFICATE-----`, not including those lines)
-   You will paste this value inside the `<data>` field of the Root CA trust payload below.
-3. **Agent Configuration**: A configuration payload for the Smallstep Agent that includes your Smallstep team slug.
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-    <key>PayloadContent</key>
-    <array>
-        <!-- Payload 1: SCEP Certificate Enrollment -->
-        <dict>
-            <key>PayloadDisplayName</key>
-            <string>Smallstep SCEP</string>
-            <key>PayloadIdentifier</key>
-            <string>com.smallstep.scep</string>
-            <key>PayloadType</key>
-            <string>com.apple.security.scep</string>
-            <key>PayloadUUID</key>
-            <string>C15F6CB6-473E-4B66-9B5B-A7B01C07152F</string>
-            <key>PayloadVersion</key>
-            <integer>1</integer>
-            <key>PayloadContent</key>
-            <dict>
-                <key>Challenge</key>
-                <string>$FLEET_VAR_SMALLSTEP_SCEP_CHALLENGE_SMALLSTEP_AGENT</string>
-                <key>Key Type</key>
-                <string>RSA</string>
-                <key>Key Usage</key>
-                <integer>5</integer>
-                <key>Keysize</key>
-                <integer>2048</integer>
-                <key>Subject</key>
-                <array>
-                    <array>
-                        <array>
-                            <string>CN</string>
-                            <string>step-agent-bootstrap</string>
-                        </array>
-                    </array>
-                    <array>
-                        <array>
-                            <string>OU</string>
-                            <string>$FLEET_VAR_SCEP_RENEWAL_ID</string>
-                        </array>
-                    </array>
-                </array>
-                <key>URL</key>
-                <string>$FLEET_VAR_SMALLSTEP_SCEP_PROXY_URL_SMALLSTEP_AGENT</string>
-            </dict>
-        </dict>
-        <!-- Payload 2: Smallstep Agent Root CA Trust -->
-        <dict>
-            <key>PayloadDisplayName</key>
-            <string>Smallstep Agent Root CA</string>
-            <key>PayloadIdentifier</key>
-            <string>com.smallstep.root-ca</string>
-            <key>PayloadType</key>
-            <string>com.apple.security.pem</string>
-            <key>PayloadUUID</key>
-            <string>CCE7C356-A5DB-4796-86B5-E8DFAEA7F08E</string>
-            <key>PayloadVersion</key>
-            <integer>1</integer>
-            <key>PayloadContent</key>
-            <data>
-            <!-- Paste the Base64-encoded Root CA certificate here -->
-            </data>
-        </dict>
-        <!-- Payload 3: Smallstep Agent Settings -->
-        <dict>
-            <key>PayloadContent</key>
-            <array>
-                <dict>
-                    <key>PayloadType</key>
-                    <string>com.smallstep.Agent</string>
-                    <key>PayloadVersion</key>
-                    <integer>1</integer>
-                    <key>PayloadIdentifier</key>
-                    <string>com.smallstep.Agent.settings</string>
-                    <key>PayloadUUID</key>
-                    <string>EBEA31C0-C9A4-4862-A939-E16DA63DE35B</string>
-                    <key>PayloadDisplayName</key>
-                    <string>Smallstep Agent Settings</string>
-                    <key>TeamSlug</key>
-                    <string><team-slug></string>
-                    <key>Certificate</key>
-                    <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
-                </dict>
-            </array>
-            <key>PayloadDisplayName</key>
-            <string>Smallstep Agent</string>
-            <key>PayloadIdentifier</key>
-            <string>com.smallstep.Agent</string>
-            <key>PayloadType</key>
-            <string>Configuration</string>
-            <key>PayloadUUID</key>
-            <string>18F9A37B-AEDB-4D9E-808F-F946ACBF3A46</string>
-            <key>PayloadVersion</key>
-            <integer>1</integer>
-        </dict>
-    </array>
-    <key>PayloadDisplayName</key>
-    <string>Smallstep Certificate</string>
-    <key>PayloadIdentifier</key>
-    <string>com.smallstep.certificate-profile</string>
-    <key>PayloadType</key>
-    <string>Configuration</string>
-    <key>PayloadUUID</key>
-    <string>AD981C97-F3F4-41D8-996A-9DE254012810</string>
-    <key>PayloadVersion</key>
-    <integer>1</integer>
-</dict>
-</plist>
-```
-
-- If you used a different CA name in Fleet, replace `SMALLSTEP_AGENT` in the variable names accordingly.
-- Replace the `<team-slug>` value with your Smallstep team slug
+The downloaded profile bundles everything required to enroll a device: the SCEP payload, your root and intermediate CA certificates, the Smallstep agent settings, and the Login Items entry for the agent. Its SCEP URL and challenge are embedded as Fleet's `$FLEET_VAR_*` placeholders; Fleet substitutes them per host at deploy time using the certificate authority you added in Step 3. That CA must be in place and named `SMALLSTEP_AGENT`.
 
 ## Step 5. Upload the configuration profile to Fleet
 
 1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
 2. Click **Add profile**
-3. Upload your `smallstep-agent.mobileconfig` file
+3. Upload the `fleet-<connection-id>.mobileconfig` file you downloaded in the previous step
 4. Scope the profile to the teams or labels containing your macOS, iOS, or iPadOS hosts
 
 The profile will be deployed to devices at their next MDM check-in. Fleet automatically substitutes the `$FLEET_VAR_*` values per host.
@@ -599,7 +467,7 @@ fleet-gitops/
 ├── teams/
 │   └── team.yml
 └── lib/
-    ├── smallstep-agent.mobileconfig
+    ├── fleet-<connection-id>.mobileconfig
     └── smallstep-agent-setup.sh
 ```
 
@@ -633,13 +501,13 @@ export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
 
 ## Add configuration profiles
 
-In your team YAML file, reference the profile files:
+Download the configuration profile for your Fleet connection from the Smallstep dashboard, as described in **Step 4** of the Apple section above, and place the `fleet-<connection-id>.mobileconfig` file in your `lib/` directory. Then reference it from your team YAML file:
 
 ```yaml
 controls:
   macos_settings:
     custom_settings:
-      - path: ../lib/smallstep-agent.mobileconfig
+      - path: ../lib/fleet-<connection-id>.mobileconfig
 ```
 
 ## Add the Smallstep agent software
