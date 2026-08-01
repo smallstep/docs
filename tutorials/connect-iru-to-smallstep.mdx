@@ -1,5 +1,5 @@
 ---
-updated_at: March 24, 2026
+updated_at: July 16, 2026
 title: Connect Iru (Kandji) to Smallstep
 html_title: Integrate Iru (Kandji) with Smallstep Tutorial
 description: Integrate Iru (Kandji) with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS environments.
@@ -95,15 +95,18 @@ Keep this page open or save these values temporarily — you'll need them for th
     - **URL**: Paste the SCEP URL from the previous step
     - **Challenge**: Paste the SCEP Challenge from the previous step
     - **Fingerprint**: Paste the Root Certificate Fingerprint from the previous step
-    - **Subject**: `CN=step-agent-bootstrap`
+    - **Subject**: `CN=$PROFILE_UUID,OU=$BLUEPRINT_ID,L=step-agent-bootstrap`
     - Enable **Subject Alternative Names (SAN)**:
       - Key: `Uniform Resource Identifier`
       - Value: `deviceid:$DEVICE_ID`
     - **Key Size**: `2048`
     - **Key Usage**: `Both signing and encryption`
-6. In the **Additional Options** section, enable **Allow all apps to access the private key**
+6. In the **Additional Options** section, configure the following:
+    - Enable **Allow all apps to access the private key**
+    - Enable **Automatic profile redistribution**, and set the number of days before certificate expiration when Iru should redistribute the profile (Iru defaults to 30 days). This is what lets the agent's enrollment certificate renew before it expires.
 7. Choose **Save**
 
+A note on the Subject: Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `L=step-agent-bootstrap` is a fixed marker value. In the agent configuration below, the agent uses these fields to look up the certificate on the device.
 ## Install the Smallstep Agent
 
 There are two ways to install the agent:
@@ -131,7 +134,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
 2. In the Iru sidebar, choose **Library**
 3. Choose **Add Library Item**, then select **Custom Profile**, and click **Add and Configure**
 4. Set a title (e.g., `Smallstep Agent Configuration`)
-5. Under **Assignment**, choose your desired Blueprint (should match the agent installation scope)
+5. Under **Assignment**, choose the same Blueprint you assigned to the SCEP profile. This is required for the agent to find the certificate.
 6. In the **Settings** section, create a `.mobileconfig` file with the following content and upload it:
 
 ```xml
@@ -153,7 +156,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
             <key>TeamSlug</key>
             <string>YOUR-TEAM-SLUG</string>
             <key>Certificate</key>
-            <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
+            <string>mackms:ou=$BLUEPRINT_ID;l=step-agent-bootstrap;se=false;tag=</string>
         </dict>
     </array>
     <key>PayloadDisplayName</key>
