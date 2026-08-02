@@ -5,7 +5,7 @@ html_title: Configure ChromeOS Device Identity Certificates for mTLS | Smallstep
 description: Issue mTLS-capable device identity certificates to ChromeOS devices enrolled in Google Workspace, for use in Wi-Fi, VPN, or internal application authentication.
 ---
 
-Smallstep issues two different kinds of certificate to a ChromeOS device enrolled through [Google Workspace](./connect-google-workspace-to-smallstep.mdx): a short-lived **attestation certificate**, issued automatically, and a longer-lived **device identity certificate**, which is what you actually use for mTLS — Wi-Fi (802.1X), VPN, or authenticating to internal applications.
+Smallstep issues a **device identity certificate** to ChromeOS devices enrolled through [Google Workspace](./connect-google-workspace-to-smallstep.mdx) — the certificate you'll use for mTLS: Wi-Fi (802.1X), VPN, or authenticating to internal applications.
 
 This guide covers issuing that device identity certificate. It's a prerequisite for [ChromeOS Wi-Fi Enrollment](./protect-wireless-networks.mdx#chromeos-with-google-workspace-acme-device-attestation) and for any other mTLS use case involving ChromeOS devices.
 
@@ -14,23 +14,7 @@ This guide covers issuing that device identity certificate. It's a prerequisite 
 - A completed [Connect Google Workspace to Smallstep](./connect-google-workspace-to-smallstep.mdx) integration, with devices syncing into Smallstep
 - The Smallstep ChromeOS extension deployed to your target Organizational Unit (covered in that same guide)
 
-# Attestation certificate vs. device identity certificate
-
-A freshly enrolled ChromeOS device receives only the attestation certificate. It cannot be used for mTLS. Until you complete the steps below, the device will not have a usable identity certificate, even though it will appear fully enrolled and "high assurance" in both the Smallstep dashboard and the Admin Console.
-
-| | Attestation certificate | Device identity certificate |
-|---|---|---|
-| Issued by | Team's Intermediate CA | Devices (or Accounts) Intermediate CA |
-| Lifetime | 24 hours | 30 days |
-| Subject alternative name | `urn:ak:sha256:…` (attestation key) | `urn:smallstep:device:permanent-identifier:<serial>` |
-| Purpose | Proves genuine hardware after Chrome Verified Access; used as the credential in the ACME Device Attestation exchange | The credential presented for mTLS |
-| Available from Certificate Manager? | No — not published to customers | Yes |
-
-<Alert severity="info">
-<div>
-Only the device identity certificate can be used for mTLS. If a device presents only the attestation certificate to an mTLS endpoint, the connection will fail — see Troubleshooting below.
-</div>
-</Alert>
+A freshly enrolled device isn't ready for mTLS until you complete the steps below, even though it may already appear fully enrolled and "high assurance" in both the Smallstep dashboard and the Admin Console.
 
 # Step-by-step instructions
 
@@ -86,7 +70,7 @@ The reboot matters — a device can otherwise continue presenting its old certif
 
 ### 5. Verify certificate issuance
 
-On the Chromebook, go to `chrome://certificate-manager/clientcerts/platformclientcerts`. You should see two certificates: the original attestation certificate, and a new one issued by your chosen authority's Intermediate CA. Open the new certificate's **Details** and confirm the **Issuer** matches the authority you configured in Step 1.
+On the Chromebook, go to `chrome://certificate-manager/clientcerts/platformclientcerts`. You should see a new certificate issued by your chosen authority's Intermediate CA (there may be other certificates listed too). Open its **Details** and confirm the **Issuer** matches the authority you configured in Step 1.
 
 <Alert severity="info">
 <div>
