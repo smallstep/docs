@@ -229,6 +229,9 @@ so there is no per-device configuration step.
 
 ### Google Chrome client certificate auto-selection
 
+Prerequisite: complete [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx)
+first so a client certificate has actually been issued to select.
+
 To automatically select the Smallstep client certificate when a user visits a protected URL,
 use the [`AutoSelectCertificateForUrls`](https://chromeenterprise.google/policies/?policy=AutoSelectCertificateForUrls) policy.
 
@@ -259,24 +262,7 @@ You should not see any certificate selection dialogs.
 
 ### Wi-Fi client certificate auto-selection (802.1X)
 
-For Wi-Fi networks that authenticate with EAP-TLS,
-client certificate selection is configured per-network in the Google Workspace Admin Console.
-
-1. In the Google Workspace Admin Console, visit **Devices → Networks → Wi-Fi**.
-2. Edit or create the Wi-Fi network used for 802.1X authentication.
-3. Set the **EAP type** to **EAP-TLS**.
-4. Set the **Issuer pattern** to the full common name of your Smallstep intermediate issuing CA:
-
-   ```
-   Smallstep ([Team Slug]) Devices Intermediate CA
-   ```
-
-   Replace `[Team Slug]` with your Smallstep team slug.
-
-5. Save the network configuration.
-
-When a Chromebook connects to the network,
-it will automatically select the Smallstep client certificate
-issued by the matching intermediate CA,
-without prompting the user.
+Wi-Fi client certificate selection for ChromeOS is now covered in
+[ChromeOS with Google Workspace (ACME Device Attestation)](../tutorials/protect-wireless-networks.mdx#chromeos-with-google-workspace-acme-device-attestation),
+alongside the RADIUS and access point setup it depends on.
 

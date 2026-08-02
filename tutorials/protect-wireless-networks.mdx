@@ -365,6 +365,7 @@ The subsections below cover the common combinations:
 - [Windows with Intune (SCEP)](#windows-with-intune-scep)
 - [Windows with Intune (agent credential + OMA-URI profile)](#windows-with-intune-agent-credential--oma-uri-profile)
 - [Windows with Workspace ONE UEM](#windows-with-workspace-one-uem)
+- [ChromeOS with Google Workspace (ACME Device Attestation)](#chromeos-with-google-workspace-acme-device-attestation)
 
 ### macOS and iOS with Jamf Pro (SCEP)
 
@@ -792,6 +793,66 @@ Workspace ONE UEM can deploy the same WLAN profile XML shown above:
 4. Find the **WiFi** template and click **Add**
 5. Enter the WLAN profile XML in the `Wlan Xml` field
 6. Click **Next**, set the assignments as desired, and click **Save and Publish**
+
+### ChromeOS with Google Workspace (ACME Device Attestation)
+
+ChromeOS devices get their Wi-Fi credential through the **Smallstep extension for ChromeOS**,
+using ACME Device Attestation against Google's Chrome Verified Access API — not through an MDM profile push,
+and not through Smallstep's Wi-Fi or credential resources described above.
+
+<Alert severity="info" mb={4}>
+<div>
+Skip Step 1 (credential) and the Wi-Fi resource created at the top of Step 3 for ChromeOS. Neither applies here: the client certificate comes from Certificate Manager directly, and the Wi-Fi network profile is delivered by Google Admin rather than by Smallstep.
+</div>
+</Alert>
+
+First, complete [Connect Google Workspace to Smallstep](./connect-google-workspace-to-smallstep.mdx) and [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx) — the second guide covers deploying the extension and issuing an mTLS-capable device identity certificate, which is a prerequisite for everything below.
+
+#### Configure your RADIUS server
+
+Choose one of the three options from [Step 2: Configure the enforcement point](#step-2-configure-the-enforcement-point) above — Smallstep Managed RADIUS, Smallstep Enterprise RADIUS, or your own RADIUS server. ChromeOS has no platform-specific requirement here; whichever option you choose, you'll need the resulting `serverCA` (or your own RADIUS server's CA) for the Google Admin Wi-Fi policy below.
+
+Make sure the RADIUS server's client-facing trust store includes the **root and intermediate** of whichever authority you chose in [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx) — that's the chain it needs to verify ChromeOS clients.
+
+#### Configure the EAP-TLS Wi-Fi network in Google Admin
+
+1. In the Admin Console, go to **Devices → Networks → Wi-Fi** and select your target Organizational Unit.
+2. Click **Add Wi-Fi network** and configure:
+
+   | Field | Value |
+   |---|---|
+   | Name | Your Wi-Fi network SSID |
+   | Security type | WPA/WPA2 Enterprise |
+   | EAP method | EAP-TLS |
+   | EAP Identity | `${DEVICE_ASSET_ID}` or `${USER_EMAIL}`, depending on which authority you chose |
+   | Issuer pattern → Common name | See below |
+   | CA certificate | Your RADIUS server's CA (`serverCA` from above) — upload it first under **Devices → Networks → Certificates** |
+
+#### Set the issuer pattern
+
+The issuer pattern tells ChromeOS which client certificate to present. It must match the exact common name of the intermediate CA you configured in [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx):
+
+```
+Smallstep (<team-slug>) Devices Intermediate CA
+```
+
+(or `Accounts Intermediate CA` if you chose that authority instead.) Leave **Locality**, **Organization**, and **Organizational unit** empty, and leave **Subject pattern** empty entirely — Smallstep's device certificates don't set those fields, and any value there will prevent a match.
+
+<Alert severity="warning" mb={4}>
+<div>
+Don't guess this value — read it directly off an issued certificate at <code>chrome://certificate-manager/clientcerts/platformclientcerts</code> → open the certificate → <strong>Details</strong> → <strong>Issuer</strong>. A mismatched issuer pattern produces <strong>"Error configuring network"</strong> on the device with <em>zero RADIUS traffic generated</em> — the device fails before it ever associates, which looks identical to an access-point or RADIUS problem but isn't one.
+</div>
+</Alert>
+
+#### Verify
+
+On the Chromebook, the configured network should appear and connect automatically with no password prompt. If you're running your own RADIUS server, a foreground `freeradius -X` (or equivalent verbose mode) session will show the full handshake, including a two-certificate chain (device leaf + issuing intermediate).
+
+If it doesn't connect:
+
+- **No RADIUS traffic at all** — the device never associated. This is always a client-side certificate selection failure; recheck the issuer pattern above, not the network or access point.
+- **`unknown CA` / `unable to get local issuer certificate`** — the RADIUS server's trust store is missing the issuing authority's root or intermediate.
+- **The certificate being presented has the wrong issuer** — confirm [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx) was completed and the device was rebooted after re-enrollment; a device can continue presenting a stale certificate until it restarts.
 
 # Verify and troubleshoot
 
