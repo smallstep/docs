@@ -18,14 +18,16 @@ A freshly enrolled device isn't ready for mTLS until you complete the steps belo
 
 # Step-by-step instructions
 
-### 1. Choose an issuing authority
+### 1. Confirm your issuing authority
 
-The device identity certificate can be issued from either of two authorities in Certificate Manager:
+The device identity certificate is issued from an authority in Certificate Manager, typically set up together with your Smallstep contact during onboarding rather than chosen independently. There are two conceptual patterns:
 
-- **Devices** — binds the certificate to the device itself (subject is the hardware serial number). Use this for device-level authentication such as Wi-Fi.
-- **Accounts** — binds the certificate to the Google Workspace user currently signed in to the device (subject is the user's email). Use this if you need to authenticate the user rather than the device.
+- **Device-bound** (e.g. a "Devices" authority) — binds the certificate to the device itself (subject is the hardware serial number). Use this for device-level authentication such as Wi-Fi.
+- **User-bound** (e.g. an "Accounts" authority) — binds the certificate to the Google Workspace user currently signed in to the device (subject is the user's email). Use this if you need to authenticate the user rather than the device.
 
-Both authorities support ACME Device Attestation, so the enrollment mechanics in the steps below are identical either way — only the resulting certificate's identity differs.
+Confirm with your Smallstep contact which authority applies to your setup before continuing — the rest of this guide refers to it as "the authority you chose."
+
+Both patterns support ACME Device Attestation, so the enrollment mechanics in the steps below are identical either way — only the resulting certificate's identity differs.
 
 ### 2. Distribute the authority's trust root to Google Admin
 
