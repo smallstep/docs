@@ -1,0 +1,105 @@
+---
+updated_at: July 31, 2026
+title: Configure ChromeOS Device Identity Certificates
+html_title: Configure ChromeOS Device Identity Certificates for mTLS | Smallstep
+description: Issue mTLS-capable device identity certificates to ChromeOS devices enrolled in Google Workspace, for use in Wi-Fi, VPN, or internal application authentication.
+---
+
+Smallstep issues two different kinds of certificate to a ChromeOS device enrolled through [Google Workspace](./connect-google-workspace-to-smallstep.mdx): a short-lived **attestation certificate**, issued automatically, and a longer-lived **device identity certificate**, which is what you actually use for mTLS — Wi-Fi (802.1X), VPN, or authenticating to internal applications.
+
+This guide covers issuing that device identity certificate. It's a prerequisite for [ChromeOS Wi-Fi Enrollment](./protect-wireless-networks.mdx#chromeos-with-google-workspace-acme-device-attestation) and for any other mTLS use case involving ChromeOS devices.
+
+# Prerequisites
+
+- A completed [Connect Google Workspace to Smallstep](./connect-google-workspace-to-smallstep.mdx) integration, with devices syncing into Smallstep
+- The Smallstep ChromeOS extension deployed to your target Organizational Unit (covered in that same guide)
+
+# Attestation certificate vs. device identity certificate
+
+A freshly enrolled ChromeOS device receives only the attestation certificate. It cannot be used for mTLS. Until you complete the steps below, the device will not have a usable identity certificate, even though it will appear fully enrolled and "high assurance" in both the Smallstep dashboard and the Admin Console.
+
+| | Attestation certificate | Device identity certificate |
+|---|---|---|
+| Issued by | Team's Intermediate CA | Devices (or Accounts) Intermediate CA |
+| Lifetime | 24 hours | 30 days |
+| Subject alternative name | `urn:ak:sha256:…` (attestation key) | `urn:smallstep:device:permanent-identifier:<serial>` |
+| Purpose | Proves genuine hardware after Chrome Verified Access; used as the credential in the ACME Device Attestation exchange | The credential presented for mTLS |
+| Available from Certificate Manager? | No — not published to customers | Yes |
+
+<Alert severity="info">
+<div>
+Only the device identity certificate can be used for mTLS. If a device presents only the attestation certificate to an mTLS endpoint, the connection will fail — see Troubleshooting below.
+</div>
+</Alert>
+
+# Step-by-step instructions
+
+### 1. Choose an issuing authority
+
+The device identity certificate can be issued from either of two authorities in Certificate Manager:
+
+- **Devices** — binds the certificate to the device itself (subject is the hardware serial number). Use this for device-level authentication such as Wi-Fi.
+- **Accounts** — binds the certificate to the Google Workspace user currently signed in to the device (subject is the user's email). Use this if you need to authenticate the user rather than the device.
+
+Both authorities support ACME Device Attestation, so the enrollment mechanics in the steps below are identical either way — only the resulting certificate's identity differs.
+
+### 2. Distribute the authority's trust root to Google Admin
+
+This step must happen **before** step 3, not after. Each authority's ACME directory is served over TLS using a certificate signed by that authority's own private root. If the Chromebook doesn't already trust that root, it cannot reach the directory at all — and the failure is completely silent. No error appears in the extension, in `chrome://policy`, or in the Smallstep dashboard; the device simply keeps its existing certificate indefinitely.
+
+1. In Certificate Manager, go to **Authorities**, select the authority you chose in Step 1, and download its **Root Certificate** and **Intermediate Certificate**.
+2. In Google Admin, go to **Devices → Networks → Certificates**, select your target Organizational Unit, and add both certificates. Check ✅ **Enabled for Chromebook** for each.
+
+<Alert severity="warning">
+<div>
+You can confirm whether trust distribution succeeded from any machine, before touching a Chromebook: `curl -sS https://<authority>.<team-slug>.ca.smallstep.com/acme/acme-da/directory`. A TLS error like `unable to get local issuer certificate` means the root hasn't propagated yet or wasn't uploaded. A JSON response means you're clear to continue.
+</div>
+</Alert>
+
+### 3. Set the extension policy
+
+In Google Admin, go to **Devices → Chrome → Apps & Extensions → Users & browsers**, select your Organizational Unit, and open the Smallstep extension's **Policy for extensions**. Add `devices_ca_directory_url`, pointing at the ACME Device Attestation directory of the authority you chose:
+
+```json
+{
+  "team": { "Value": "<team-slug>" },
+  "devices_ca_directory_url": {
+    "Value": "https://devices.<team-slug>.ca.smallstep.com/acme/acme-da/directory"
+  }
+}
+```
+
+Use `devices.<team-slug>...` for the Devices authority, or `accounts.<team-slug>...` for the Accounts authority.
+
+### 4. Force a fresh enrollment
+
+The extension will not re-enroll while it already holds a valid certificate, so a policy save alone has no effect. On the Chromebook:
+
+1. In Google Admin, set the extension's **Installation policy** to **Block**, and save.
+2. On the device, open `chrome://policy` and click **Reload policies**.
+3. In Google Admin, set the **Installation policy** back to **Force install + pin**, and save.
+4. Reload policies again, then **reboot the Chromebook**.
+
+The reboot matters — a device can otherwise continue presenting its old certificate to an mTLS endpoint even after the new one has been issued.
+
+### 5. Verify certificate issuance
+
+On the Chromebook, go to `chrome://certificate-manager/clientcerts/platformclientcerts`. You should see two certificates: the original attestation certificate, and a new one issued by your chosen authority's Intermediate CA. Open the new certificate's **Details** and confirm the **Issuer** matches the authority you configured in Step 1.
+
+<Alert severity="info">
+<div>
+The Smallstep dashboard's device detail page may continue to show "This device does not have any identity certificates" even after a certificate has been issued and is actively in use. ChromeOS certificates are issued over SCEP/ACME rather than the agent path this panel tracks, so it isn't a reliable place to check. Confirm issuance on the device itself, or under **Certificate Manager → Certificates → x509** in the Smallstep dashboard, where issued certificates are listed normally.
+</div>
+</Alert>
+
+# Troubleshooting
+
+**Setting `devices_ca_directory_url` had no visible effect.** Confirm the authority's root and intermediate were uploaded to Google Admin (Step 2) before the policy was set. If they were added afterward, repeat Step 4 to force re-enrollment.
+
+**Only one certificate appears after re-enrollment.** Confirm the Organizational Unit in Google Admin actually matches the device — and, separately, the signed-in user's OU, since extension policy is scoped to the user's OU rather than the device's.
+
+**The certificate's issuer doesn't match what a downstream service expects (e.g. a RADIUS server's configured issuer pattern).** Read the issuer directly off the certificate at `chrome://certificate-manager/clientcerts/platformclientcerts` rather than assuming a value — it's the only way to be certain which authority actually signed it.
+
+# Next steps
+
+With a device identity certificate issued, continue to [ChromeOS Wi-Fi Enrollment](./protect-wireless-networks.mdx#chromeos-with-google-workspace-acme-device-attestation) to use it for passwordless 802.1X Wi-Fi authentication.
