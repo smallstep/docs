@@ -44,7 +44,7 @@ You can confirm whether trust distribution succeeded from your own computer, wit
 
 ### 3. Set the extension policy
 
-The **Devices** authority is already the default: if that's what you chose in Step 1, the extension issues a device identity certificate from it automatically with just the `team` field, and you can skip to Step 4.
+The **Devices** authority is already the default: if that's what you chose in Step 1, the extension issues a device identity certificate from it automatically with just the `team` field, and you can skip to Step 5.
 
 `devices_ca_directory_url` is only needed if you chose the **Accounts** authority instead, or need to point at a non-default Devices authority. In Google Admin, go to **Devices → Chrome → Apps & Extensions → Users & browsers**, select your Organizational Unit, and open the Smallstep extension's **Policy for extensions**. Add `devices_ca_directory_url`, pointing at the ACME Device Attestation directory of the authority you chose:
 
@@ -61,7 +61,7 @@ Use `devices.<team-slug>...` for the Devices authority, or `accounts.<team-slug>
 
 ### 4. Force a fresh enrollment
 
-The extension will not re-enroll while it already holds a valid certificate, so a policy save alone has no effect. On the Chromebook:
+This step only applies if you completed the policy change in Step 3 — for example switching to the Accounts authority, or changing `devices_ca_directory_url` on a device that already has a valid certificate. The extension won't pick up a policy change on its own while it already holds a valid certificate, so a policy save alone has no effect. On the Chromebook:
 
 1. In Google Admin, set the extension's **Installation policy** to **Block**, and save.
 2. On the device, open `chrome://policy` and click **Reload policies**.
