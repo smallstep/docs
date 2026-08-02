@@ -45,20 +45,22 @@ Both authorities support ACME Device Attestation, so the enrollment mechanics in
 
 ### 2. Distribute the authority's trust root to Google Admin
 
-This step must happen **before** step 3, not after. Each authority's ACME directory is served over TLS using a certificate signed by that authority's own private root. If the Chromebook doesn't already trust that root, it cannot reach the directory at all — and the failure is completely silent. No error appears in the extension, in `chrome://policy`, or in the Smallstep dashboard; the device simply keeps its existing certificate indefinitely.
+This step must happen **before** step 3, not after. Each authority's ACME directory is served over TLS using a certificate signed by that authority's own private root. If the Chromebook doesn't already trust that root, it cannot reach the directory — the extension retries in the background, but nothing about this is visible: no error appears in the extension, in `chrome://policy`, or in the Smallstep dashboard, and the device keeps presenting its existing certificate until the root is in place.
 
 1. In Certificate Manager, go to **Authorities**, select the authority you chose in Step 1, and download its **Root Certificate** and **Intermediate Certificate**.
 2. In Google Admin, go to **Devices → Networks → Certificates**, select your target Organizational Unit, and add both certificates. Check ✅ **Enabled for Chromebook** for each.
 
-<Alert severity="warning">
+<Alert severity="info">
 <div>
-You can confirm whether trust distribution succeeded from any machine, before touching a Chromebook: `curl -sS https://<authority>.<team-slug>.ca.smallstep.com/acme/acme-da/directory`. A TLS error like `unable to get local issuer certificate` means the root hasn't propagated yet or wasn't uploaded. A JSON response means you're clear to continue.
+You can confirm whether trust distribution succeeded from your own computer, without touching a Chromebook at all: `curl -sS https://<authority>.<team-slug>.ca.smallstep.com/acme/acme-da/directory`. A TLS error like `unable to get local issuer certificate` means the root hasn't propagated yet or wasn't uploaded. A JSON response means you're clear to continue.
 </div>
 </Alert>
 
 ### 3. Set the extension policy
 
-In Google Admin, go to **Devices → Chrome → Apps & Extensions → Users & browsers**, select your Organizational Unit, and open the Smallstep extension's **Policy for extensions**. Add `devices_ca_directory_url`, pointing at the ACME Device Attestation directory of the authority you chose:
+The **Devices** authority is already the default: if that's what you chose in Step 1, the extension issues a device identity certificate from it automatically with just the `team` field, and you can skip to Step 4.
+
+`devices_ca_directory_url` is only needed if you chose the **Accounts** authority instead, or need to point at a non-default Devices authority. In Google Admin, go to **Devices → Chrome → Apps & Extensions → Users & browsers**, select your Organizational Unit, and open the Smallstep extension's **Policy for extensions**. Add `devices_ca_directory_url`, pointing at the ACME Device Attestation directory of the authority you chose:
 
 ```json
 {
@@ -88,7 +90,7 @@ On the Chromebook, go to `chrome://certificate-manager/clientcerts/platformclien
 
 <Alert severity="info">
 <div>
-The Smallstep dashboard's device detail page may continue to show "This device does not have any identity certificates" even after a certificate has been issued and is actively in use. ChromeOS certificates are issued over SCEP/ACME rather than the agent path this panel tracks, so it isn't a reliable place to check. Confirm issuance on the device itself, or under **Certificate Manager → Certificates → x509** in the Smallstep dashboard, where issued certificates are listed normally.
+The Smallstep dashboard's device detail page may continue to show "This device does not have any identity certificates" even after a certificate has been issued and is actively in use. This is a known gap in the ChromeOS extension today, not a sign anything went wrong — device identity certificates issued to ChromeOS devices don't yet surface on this panel. Confirm issuance on the device itself, or under **Certificate Manager → Certificates → x509** in the Smallstep dashboard, where issued certificates are listed normally.
 </div>
 </Alert>
 
