@@ -80,8 +80,9 @@ the configuration Smallstep uses to issue a Wi-Fi client certificate to each of 
 <Alert severity="info" mb={4}>
   <div>
     If all of your clients will be MDM-managed (using SCEP or ACME Device Attestation to get certificates),
-    you can skip to <a href="#step-2-configure-the-enforcement-point">Step 2</a>.
-    A credential resource is only needed for agent-managed clients.
+    please skip to <a href="#step-2-configure-the-enforcement-point">Step 2</a>.
+    A credential resource is only needed for macOS, Windows, or Linux clients managed by the Smallstep agent.
+    ChromeOS clients should skip this step, too.
   </div>
 </Alert>
 
@@ -314,6 +315,14 @@ so that clients trust your server during the EAP-TLS handshake.
 
 Now that certificates are being issued and the RADIUS server is running,
 create the **Wi-Fi resource** that describes the network to your clients.
+
+<Alert severity="info" mb={4}>
+  <div>
+    **Deploying to ChromeOS?**<br />
+    Wi-Fi settings for ChromeOS clients are managed inside Google Workspace.
+    Skip this section and continue at [ChromeOS with Google Workspace (ACME Device Attestation)](#chromeos-with-google-workspace-acme-device-attestation).
+  </div>
+</Alert>
 
 Use the [Create Wi-Fi](https://gateway.smallstep.com/v2025-01-01/operations/PostWifi) endpoint:
 
@@ -797,21 +806,20 @@ Workspace ONE UEM can deploy the same WLAN profile XML shown above:
 ### ChromeOS with Google Workspace (ACME Device Attestation)
 
 ChromeOS devices get their Wi-Fi credential through the **Smallstep extension for ChromeOS**,
-using ACME Device Attestation against Google's Chrome Verified Access API.
+using ACME Device Attestation against the Chrome Verified Access API.
 
-<Alert severity="info" mb={4}>
-<div>
-Skip Step 1 (credential) and the Wi-Fi resource created at the top of Step 3 for ChromeOS. Neither applies here: the client certificate comes from Certificate Manager directly, and the Wi-Fi network profile is delivered by Google Admin rather than by Smallstep.
-</div>
-</Alert>
+#### Before you begin
 
-First, complete [Connect Google Workspace to Smallstep](./connect-google-workspace-to-smallstep.mdx) and [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx) — the second guide covers deploying the extension and issuing an mTLS-capable device identity certificate, which is a prerequisite for everything below.
+This guide covers deploying the Smallstep ChromeOS extension and issuing a device identity certificate on your endpoints.
 
-#### Configure your RADIUS server
+First, complete the steps in [Connect Google Workspace to Smallstep](./connect-google-workspace-to-smallstep.mdx) and [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx).
 
-Choose one of the three options from [Step 2: Configure the enforcement point](#step-2-configure-the-enforcement-point) above — Smallstep Managed RADIUS, Smallstep Enterprise RADIUS, or your own RADIUS server. ChromeOS has no platform-specific requirement here; whichever option you choose, you'll need the resulting `serverCA` (or your own RADIUS server's CA) for the Google Admin Wi-Fi policy below.
+Second, you will need your RADIUS server details, including:
+- The CA certificate that issued your RADIUS server certificate.
 
-Make sure the RADIUS server's client-facing trust store includes the **root** of whichever authority you chose in [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx) — ChromeOS's EAP-TLS handshake already includes the client intermediate, so the root alone is sufficient.
+#### Configure RADIUS server trust
+
+If you're using an external RADIUS server, make sure your RADIUS server's client certificate trust configuration includes the **root** of whichever authority you chose in [Configure ChromeOS Device Identity Certificates](./chromeos-device-identity-certificates.mdx). ChromeOS's EAP-TLS handshake includes the client intermediate, so the root alone is sufficient.
 
 #### Configure the EAP-TLS Wi-Fi network in Google Admin
 
@@ -835,13 +843,9 @@ The issuer pattern tells ChromeOS which client certificate to present. It must m
 Smallstep (<team-slug>) Devices Intermediate CA
 ```
 
-(or `Accounts Intermediate CA` if you chose that authority instead.) Leave **Locality**, **Organization**, and **Organizational unit** empty, and leave **Subject pattern** empty entirely — Smallstep's device certificates don't set those fields, and any value there will prevent a match.
+Or use `Smallstep (<team-slug>) Accounts Intermediate CA` if you chose that authority.
 
-<Alert severity="warning" mb={4}>
-<div>
-Don't guess this value — read it directly off an issued certificate at <code>chrome://certificate-manager/clientcerts/platformclientcerts</code> → open the certificate → <strong>Details</strong> → <strong>Issuer</strong>. A mismatched issuer pattern produces <strong>"Error configuring network"</strong> on the device with <em>zero RADIUS traffic generated</em> — the device fails before it ever associates, which looks identical to an access-point or RADIUS problem but isn't one.
-</div>
-</Alert>
+Replace `<team-slug>` with your Smallstep team label . Leave **Locality**, **Organization**, and **Organizational unit** empty, and leave **Subject pattern** empty entirely. Smallstep's device certificates don't set those fields, and any value there will prevent a match.
 
 #### Verify
 
