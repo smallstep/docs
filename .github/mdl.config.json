@@ -71,6 +71,12 @@
     },
     {
       "pattern": "^https://datatracker.ietf.org"
+    },
+    {
+      "pattern": "^https://container.googleapis.com/*"
+    },
+    {
+      "pattern": "^https://console.cloud.google.com/marketplace/product/google/verifiedaccess.googleapis.com"
     }
   ],
   "replacementPatterns": [
