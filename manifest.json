@@ -94,6 +94,10 @@
               "path": "/tutorials/browser-certificate-setup-guide.mdx"
             },
             {
+              "title": "Configure ChromeOS Device Identity Certificates",
+              "path": "/tutorials/chromeos-device-identity-certificates.mdx"
+            },
+            {
               "title": "Configure Enterprise Relay",
               "path": "/tutorials/configure-enterprise-relay.mdx"
             }

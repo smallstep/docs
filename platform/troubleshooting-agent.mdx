@@ -616,7 +616,7 @@ This may indicate the device needs to be registered and approved. See [Registeri
 | Check extension version | Click the Smallstep extension icon in Chrome toolbar (version shown at bottom) |
 | Verify device enrollment | Device must be enrolled in Google Workspace for enterprise/education |
 | Check policies | Navigate to `chrome://policy` and look for `Smallstep Agent for ChromeOS` |
-| Verify certificates | Navigate to `chrome://certificate-manager` |
+| Verify certificates | Navigate to `chrome://certificate-manager` — see [Configure ChromeOS Device Identity Certificates](../tutorials/chromeos-device-identity-certificates.mdx) if the device only has an attestation certificate rather than a usable device identity certificate |
 
 **ChromeOS Requirements:**
 - Device enrolled in a Google Workspace domain
@@ -627,5 +627,7 @@ This may indicate the device needs to be registered and approved. See [Registeri
   - `Smallstep Agent for ChromeOS` configuration with your team slug
   - `ExtensionInstallForceList` containing the ChromeOS extension ID
   - `AttestationExtensionAllowList` containing the ChromeOS extension ID
+
+For initial setup of these requirements and policies, see [Connect Google Workspace to Smallstep](../tutorials/connect-google-workspace-to-smallstep.mdx).
 
 The extension retries certificate issuance every ~30 seconds. If enrollment continues to fail, contact Smallstep support.
