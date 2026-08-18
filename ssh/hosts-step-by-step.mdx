@@ -44,7 +44,7 @@ This step will install modules and services.
 ### Step 4. Configure `step` to connect to your CA
 
 ```shell
-step ca bootstrap --team="[your smallstep team ID]"
+step ca bootstrap --team="[your smallstep team slug]"
 ```
 
 ### Step 5. Get an SSH host certificate
@@ -142,6 +142,6 @@ Before you sign out of your `sudo` session, test your installation by logging in
 
 **This step is especially important if you have made any non-standard changes to your PAM or NSS stacks.**
 
-Now sign in at `https://smallstep.com/app/[Team ID]`
+Now sign in at `https://smallstep.com/app/[team slug]`
 
 You should see your host listed under the "**Hosts**" tab.

@@ -96,7 +96,7 @@ bash <(curl -sSf https://files.smallstep.com/ssh-host.sh)
 ```
 
 You'll be prompted for
-your team ID,
+your team slug,
 enrollment token,
 hostname,
 and a list of space-separated host tags
@@ -106,7 +106,7 @@ and a list of space-separated host tags
 
 The `ssh-host.sh` utility can also be run non-interactively,
 as long as you provide the following _required flags_:
-* `--team "[your team ID]"`
+* `--team "[your team slug]"`
 * `--token "[your enrollment token]"`
 * `--hostname "[the hostname]"`
 * One or more `--tag "key=value"` to assign [host tags](#understanding-host-tags)
@@ -124,7 +124,7 @@ Before you sign out of your `sudo` session, test your installation by logging in
 
 **This step is especially important if you have made any non-standard changes to your PAM or NSS stacks.**
 
-Now sign in at `https://smallstep.com/app/[Team ID]`
+Now sign in at `https://smallstep.com/app/[team slug]`
 
 You should see your host listed under the "**Hosts**" tab.
 

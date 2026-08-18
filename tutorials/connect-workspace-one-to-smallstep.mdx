@@ -69,7 +69,7 @@ Within a few minutes after adding the connection, you should see all of your Wor
 2. Choose **Add** and then **Windows**
     1. In the General tab, provide a name for the script, such as “Smallstep Agent Enrollment”
     2. On the Details tab, ensure the **Language** is “Powershell” and the **Execution Context & Privileges** is “System Context”
-    3. Use the following snippet as the **Code**, making sure to replace `<team-id>` with the Team ID value you copied from the Smallstep UI earlier. `<team-name>` should be replaced with your full Team name shown in the Smallstep dashboard.
+    3. Use the following snippet as the **Code**, making sure to replace `<team-slug>` with the Team slug value you copied from the Smallstep UI earlier. `<team-name>` should be replaced with your full Team name shown in the Smallstep dashboard.
         
         ```xml
         $RegistryPath = "HKLM:\Software\Policies\Smallstep"
@@ -78,7 +78,7 @@ Within a few minutes after adding the connection, you should see all of your Wor
           New-Item -Path $RegistryPath
         }
 
-        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-id>"
+        Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Value "<team-slug>"
         Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=$env:DEVICE_ID"
         ```
         
