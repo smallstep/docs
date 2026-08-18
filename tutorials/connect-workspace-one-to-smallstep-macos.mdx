@@ -110,7 +110,7 @@ You’ll need the following values from when you configured your Workspace ONE c
 
     If you need to retrieve these again, you can always visit: **[Settings → Device Management](https://smallstep.com/app/?next=/settings/devices) → Omnissa Workspace ONE**
 
-You’ll also need your **Team ID** (team slug), shown in the Smallstep UI under [Settings → Team](https://smallstep.com/app/?next=/settings/team).
+You’ll also need your **Team slug**, shown in the Smallstep UI under [Settings → Team](https://smallstep.com/app/?next=/settings/team).
 
 #### Add a Workspace ONE CA resource
 
@@ -163,12 +163,12 @@ A new modal screen will be presented with the empty Request Template configurati
         3. Certificate Template: choose the `Smallstep Agents` template you created earlier
         4. Allow all applications access: ☑️ (so the Smallstep Agent can use the issued identity)
     6. Select the **Custom Settings** payload type on the left and choose **Configure**. This delivers the Smallstep Agent configuration as a managed preference in the `com.smallstep.Agent` domain.
-        - Paste the following, replacing `<team-id>` with the Team ID value you copied from the Smallstep UI earlier:
+        - Paste the following, replacing `<team-slug>` with the Team slug value you copied from the Smallstep UI earlier:
 
             ```xml
             <dict>
               <key>TeamSlug</key>
-              <string>&lt;team-id&gt;</string>
+              <string>&lt;team-slug&gt;</string>
               <key>Certificate</key>
               <string>mackms:label=$PROFILE_IDENTIFIER;se=false;tag=</string>
             </dict>

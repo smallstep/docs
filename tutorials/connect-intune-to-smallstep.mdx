@@ -135,7 +135,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
     3. Download the Intermediate Certificate
     4. Copy and temporarily save the **SCEP server URL** shown on the page, eg. `https://agents.example.ca.smallstep.com/scep/integration-intune-b967f507`
 2. Visit [Team Settings](https://smallstep.com/app/?next=/settings/team)
-    1. Copy and temporarily save the **Team Name** and **Team ID** values
+    1. Copy and temporarily save the **Team Name** and **Team slug** values
 
 ### 6. Create a policy in Intune
 
@@ -161,7 +161,7 @@ In this step, we’ll tie everything together by creating Windows policy to enro
         3. Choose Setting Name: Smallstep → Settings → Smallstep Enrollment Settings
         4. Within the settings pane:
             1. Supported on: Enabled
-            2. Team Slug: (paste the Team ID you saved earlier)
+            2. Team Slug: (paste the Team slug you saved earlier)
             3. Certificate URI:
                ```
                capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=step-agent-bootstrap

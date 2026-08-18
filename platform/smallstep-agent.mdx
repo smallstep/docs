@@ -488,10 +488,10 @@ Your agent needs to enroll with your team.
 To self-enroll a device, run:
 
    ```
-   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-id>
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-slug>
    ```
 
-   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
+   Replace `<team-slug>` with your team slug from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
 
 ## Confirmation
 
@@ -508,11 +508,11 @@ To uninstall the Smallstep Agent from a macOS system:
 
    ```bash
    /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent svc uninstall
-   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent reset <team-id>
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent reset <team-slug>
    rm /Library/LaunchAgents/com.smallstep.launchd.Agent.plist
    ```
 
-   Replace `<team-id>` with your Team ID from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
+   Replace `<team-slug>` with your team slug from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
 
 2. Remove the application directory:
 
@@ -566,7 +566,7 @@ Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "TeamSlug" -Val
 Set-ItemProperty -Path "HKLM:\Software\Policies\Smallstep" -Name "CAFingerprint" -Value "<agents-ca-fingerprint>"
 ```
 
-Replace `<team-slug>` and `<agents-ca-fingerprint>` with your Smallstep [team ID](https://smallstep.com/app/?next=/settings) and the CA fingerprint of your Smallstep Agents CA.
+Replace `<team-slug>` and `<agents-ca-fingerprint>` with your Smallstep [team slug](https://smallstep.com/app/?next=/settings) and the CA fingerprint of your Smallstep Agents CA.
 
 2. On the device, navigate to the agent installation directory and obtain the device's TPM fingerprint:
 
