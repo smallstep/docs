@@ -337,9 +337,24 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     ```
 
     Registration writes `agent.yaml` into `/etc/step-agent`,
-    which systemd creates and keeps writable through `ConfigurationDirectory=`.
-    Do not manage `agent.yaml` with `environment.etc`:
-    that produces a read-only symlink into the Nix store, and the service refuses to start.
+    which systemd creates through `ConfigurationDirectory=`.
+
+    You can declare `agent.yaml` instead of registering interactively,
+    which is what makes a hands-off NixOS deployment possible.
+    Follow [Pre-registration via API](#pre-registration-via-api) to add and approve your devices
+    and to find your team slug and agent CA fingerprint, then declare the file and skip this step:
+
+    ```nix
+    environment.etc."step-agent/agent.yaml".text = ''
+      team: "[team name]"
+      fingerprint: "[agents CA fingerprint]"
+    '';
+    ```
+
+    The agent only ever reads this file.
+    Everything it writes lives in `/var/lib/step-agent`,
+    so serving `agent.yaml` from the Nix store is fine.
+    Every host in a fleet gets the same two values; nothing in it is per-device.
 
 5. Check that it was installed correctly:
 
