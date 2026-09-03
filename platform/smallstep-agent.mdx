@@ -288,19 +288,26 @@ curl -fsSL https://packages.smallstep.com/scripts/smallstep-agent-install.sh | s
 ### NixOS
 
 The [`step-agent`](https://search.nixos.org/packages?query=step-agent) package is in nixpkgs, on the `nixos-unstable` channel.
-NixOS has no `services.step-agent` module yet,
-so the system user, systemd service, and PKCS#11 wiring that the Debian and RPM packages install are declared in your own configuration instead.
+The `services.step-agent` module that runs it is not in nixpkgs yet,
+so download it from Smallstep and import it into your configuration.
+Once the module is in nixpkgs, the `imports` line goes away and your `services.step-agent` block stays as it is.
 
 <Alert severity="info">
 <div>
 The agent requires a hardware TPM 2.0 on NixOS.
 The Debian and RPM packages fall back to a software TPM on hosts without one,
 but the helper scripts that set that up are not part of the nixpkgs package,
-so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
+so on a host with no <code>/dev/tpmrm0</code> the service exits with <code>flag --identity-token is required</code> and cannot enroll yet.
 </div>
 </Alert>
 
-1. If you track a stable NixOS channel, add an overlay so that `pkgs.step-agent` resolves.
+1. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix), place it alongside your `configuration.nix`, and add `./step-agent.nix` to your `imports` list.
+
+    ```bash
+    curl -fsSLO https://files.smallstep.com/step-agent.nix
+    ```
+
+2. If you track a stable NixOS channel, add an overlay so that `pkgs.step-agent` resolves.
    Skip this step on `nixos-unstable`.
 
     ```nix
@@ -317,29 +324,41 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     ];
     ```
 
-2. Download [`step-agent.nix`](https://files.smallstep.com/step-agent.nix), place it alongside your `configuration.nix`, and add `./step-agent.nix` to your `imports` list.
-   The `.nix` file declares the `step-agent` system user, the systemd service and its restart path unit, the `polkit` rules the agent needs, and the `p11-kit` module that publishes our PKCS#11 server.
+3. [Add your devices via API](./enrollment-guide.mdx#add-devices-via-api) so that they are pre-approved,
+   and look up your team slug and agent CA fingerprint as described in [Pre-registration via API](#pre-registration-via-api).
+   Then enable the agent:
 
-    ```bash
-    curl -fsSLO https://files.smallstep.com/step-agent.nix
+    ```nix
+    services.step-agent = {
+      enable = true;
+      settings = {
+        team = "[team name]";
+        fingerprint = "[agent CA fingerprint]";
+      };
+    };
     ```
 
-3. Rebuild your system:
+    This declares the `step-agent` system user, the systemd service and its PKCS#11 socket, the `polkit` rules the agent needs, and the `p11-kit` module that publishes the agent's PKCS#11 server.
+    `settings` is written to `/etc/step-agent/agent.yaml`.
+    Every host in a fleet gets the same two values; nothing in the file is per-device.
+    The agent uses the standard systemd directories:
+    it reads its config from `/etc/step-agent`, keeps its state in `/var/lib/step-agent`, and puts its sockets in `/run/step-agent`.
+    The daemon never writes to the config directory; only `step-agent register` does.
+
+    To register interactively instead, leave `settings` out
+    and run `sudo step-agent register [team name]` after the rebuild.
+    The agent starts as soon as that writes `agent.yaml`.
+    With `settings` declared, you can still register a device interactively:
+    run `sudo step-agent register [team name] --skip-config`,
+    which registers the device without trying to rewrite the file you declared.
+
+4. Rebuild your system:
 
     ```bash
     sudo nixos-rebuild switch
     ```
 
-4. Register the device with your team:
-
-    ```bash
-    sudo step-agent register [team name]
-    ```
-
-    Registration writes `agent.yaml` into `/etc/step-agent`,
-    which systemd creates and keeps writable through `ConfigurationDirectory=`.
-    Do not manage `agent.yaml` with `environment.etc`:
-    that produces a read-only symlink into the Nix store, and the service refuses to start.
+    This installs the package and enables and starts the agent, which enrolls the device on its first start.
 
 5. Check that it was installed correctly:
 
@@ -350,10 +369,37 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     Output:
 
     ```bash
-    step-agent/0.67.3 (linux/amd64)
-    Release Date: 2026-05-19 15:50 UTC
+    step-agent/0.69.2 (linux/arm64)
+    Release Date: 2026-08-31 18:14 UTC
     ```
-    
+
+    And that the service is running:
+
+    ```bash
+    systemctl status step-agent.service
+    ```
+
+#### Edge releases
+
+nixpkgs carries a stable release, and only once it has been packaged there.
+To run an edge release, or a stable release your channel does not have yet,
+point `services.step-agent.package` at the release tarball on `packages.smallstep.com`:
+
+```nix
+services.step-agent.package = pkgs.step-agent.overrideAttrs (final: prev: rec {
+  version = "0.69.2";
+  src = pkgs.fetchurl {
+    url = "https://packages.smallstep.com/edge/step-agent/linux/${version}/step-agent_${version}_linux_amd64.tar.gz";
+    hash = "sha256-HIIXGIczw6bqVY05mTaCW0JhZNbgHW8cDKSmeUTzSf0=";
+  };
+});
+```
+
+Pick the version on [releases.smallstep.com](https://releases.smallstep.com),
+then copy the tarball's `sha256_sri` value from the version's manifest at `https://packages.smallstep.com/edge/step-agent/linux/[version]/index.json`.
+That is the `sha256-…` form Nix prints in its own messages, so a mismatch is easy to spot.
+On `aarch64` hosts, use the `_linux_arm64.tar.gz` file and its hash.
+Then run `sudo nixos-rebuild switch` and confirm with `step-agent version`.
 
 ## Registering and approving endpoints
 
@@ -466,7 +512,7 @@ To uninstall the Smallstep Agent from a Linux system:
    sudo apt-get remove step-agent
    ```
 
-   **For NixOS:** remove `./step-agent.nix` from your `imports` list, then run `sudo nixos-rebuild switch`.
+   **For NixOS:** remove the `services.step-agent` block and `./step-agent.nix` from your `imports` list, then run `sudo nixos-rebuild switch`.
 
 2. Optionally, remove configuration and certificate files:
 
