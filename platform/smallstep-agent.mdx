@@ -346,6 +346,9 @@ so on a host with no <code>/dev/tpmrm0</code> the service exits with <code>flag 
     To register interactively instead, leave `settings` out
     and run `sudo step-agent register [team name]` after the rebuild.
     The agent starts as soon as that writes `agent.yaml`.
+    With `settings` declared, you can still register a device interactively:
+    run `sudo step-agent register [team name] --skip-config`,
+    which registers the device without trying to rewrite the file you declared.
 
 4. Rebuild your system:
 
