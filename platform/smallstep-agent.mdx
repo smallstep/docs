@@ -390,14 +390,14 @@ services.step-agent.package = pkgs.step-agent.overrideAttrs (final: prev: rec {
   version = "0.69.2";
   src = pkgs.fetchurl {
     url = "https://packages.smallstep.com/edge/step-agent/linux/${version}/step-agent_${version}_linux_amd64.tar.gz";
-    sha256 = "1c8217188733c3a6ea558d399936825b426164d6e01d6f1c0ca4a67944f349fd";
+    hash = "sha256-HIIXGIczw6bqVY05mTaCW0JhZNbgHW8cDKSmeUTzSf0=";
   };
 });
 ```
 
-Pick the version on [releases.smallstep.com](https://releases.smallstep.com) and copy the `sha256` of the tarball from its listing there,
-or from the version's manifest at `https://packages.smallstep.com/edge/step-agent/linux/[version]/index.json`.
-Nix accepts the hex form as-is.
+Pick the version on [releases.smallstep.com](https://releases.smallstep.com),
+then copy the tarball's `sha256_sri` value from the version's manifest at `https://packages.smallstep.com/edge/step-agent/linux/[version]/index.json`.
+That is the `sha256-…` form Nix prints in its own messages, so a mismatch is easy to spot.
 On `aarch64` hosts, use the `_linux_arm64.tar.gz` file and its hash.
 Then run `sudo nixos-rebuild switch` and confirm with `step-agent version`.
 
