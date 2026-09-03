@@ -341,7 +341,9 @@ so on a host with no <code>/dev/tpmrm0</code> the service exits with <code>flag 
     This declares the `step-agent` system user, the systemd service and its PKCS#11 socket, the `polkit` rules the agent needs, and the `p11-kit` module that publishes the agent's PKCS#11 server.
     `settings` is written to `/etc/step-agent/agent.yaml`.
     Every host in a fleet gets the same two values; nothing in the file is per-device.
-    The agent only reads it, and everything it writes lives in `/var/lib/step-agent`.
+    The agent uses the standard systemd directories:
+    it reads its config from `/etc/step-agent`, keeps its state in `/var/lib/step-agent`, and puts its sockets in `/run/step-agent`.
+    The daemon never writes to the config directory; only `step-agent register` does.
 
     To register interactively instead, leave `settings` out
     and run `sudo step-agent register [team name]` after the rebuild.
