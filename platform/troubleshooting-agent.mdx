@@ -604,6 +604,8 @@ If the agent won't start, check for this message in the logs:
 step-agent.service was skipped because of an unmet condition check
 (ConditionPathIsReadWrite=/etc/step-agent/agent.yaml)
 ```
+On NixOS the check is `ConditionPathExists=`.
+
 This may indicate the device needs to be registered and approved. See [Registering and Approving Endpoints](./smallstep-agent.mdx#registering-and-approving-endpoints).
 </Alert>
 
