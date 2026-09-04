@@ -73,6 +73,10 @@
               "path": "/tutorials/connect-iru-to-smallstep.mdx"
             },
             {
+              "title": "Connect JumpCloud (Windows)",
+              "path": "/tutorials/connect-jumpcloud-to-smallstep.mdx"
+            },
+            {
               "title": "Connect Fleet DM",
               "path": "/tutorials/connect-fleet-dm-to-smallstep.mdx"
             }

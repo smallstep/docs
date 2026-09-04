@@ -1,0 +1,215 @@
+---
+updated_at: September 04, 2026
+title: Connect JumpCloud to Smallstep
+html_title: Integrate JumpCloud with Smallstep Tutorial
+description: Integrate JumpCloud with Smallstep for Windows device identity. Complete guide for enrolling a JumpCloud-managed Windows fleet with the Smallstep Agent.
+---
+
+Smallstep can integrate with JumpCloud to synchronize your device inventory, and to enroll your Windows fleet with Smallstep using the Smallstep Agent. In this document, we will configure your JumpCloud tenant for use with your Smallstep team.
+
+This document covers **Windows** only. macOS support through JumpCloud is not covered here yet.
+
+This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-jumpcloud).
+
+## Requirements & Limitations
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- A [JumpCloud](https://jumpcloud.com) tenant
+- Windows devices **enrolled in JumpCloud MDM**. The SCEP policy is delivered over Windows MDM, so a device that only runs the JumpCloud agent will not receive it.
+
+Client requirements:
+
+- Windows 10 or later. Windows Home editions are not supported.
+- A TPM 2.0. Smallstep identifies a Windows device by its TPM endorsement key.
+- The agent will need to reach the following domains:
+  ```
+  smallstep.com
+  api.smallstep.com
+  gateway.smallstep.com
+  control.infra.smallstep.com
+  *.[team-name].ca.smallstep.com
+  auth.smallstep.com
+  att.smallstep.com
+  tel.smallstep.com
+  ```
+
+Limitations:
+
+- JumpCloud supports **static SCEP** only; its SCEP policy will not work with a dynamic challenge. This limitation relates only to the Smallstep provisional enrollment certificate for each device. Once the Smallstep Agent is enrolled, all credentials are hardware-bound and attested.
+- Because the challenge is static, every device in the assigned scope presents the same SCEP secret. Scope the policy to the device group you intend to enroll, and rotate the connection if the secret is exposed.
+- JumpCloud only substitutes device variables in the SCEP **Subject Name** field, so the device identifier is carried in the certificate's common name rather than in a subject alternative name.
+
+## Step-by-step instructions
+
+## Create an API Key in JumpCloud
+
+<Aside type="tip">
+We recommend creating a dedicated JumpCloud API key for the Smallstep integration. This makes it easier to manage access separately and rotate credentials if needed.
+</Aside>
+
+This API key allows Smallstep to read your JumpCloud device inventory for ongoing inventory syncing, and to read the user bound to each device so that devices arrive in Smallstep already associated with a person.
+
+1. In the JumpCloud Admin Portal, open your account menu in the top right and choose **My API Key**
+2. Choose **Generate New API Key**
+3. Copy the key and save it temporarily — you'll use it in the next step
+
+<Aside type="note">
+A JumpCloud API key inherits the permissions of the administrator who created it. Create it as an administrator with read access to Devices and Users.
+</Aside>
+
+## Connect JumpCloud to Smallstep
+
+Let's add the JumpCloud credentials to Smallstep.
+
+1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⚙️ **Settings**
+2. Under JumpCloud, choose ➕ **Connect**
+3. Enter the following credentials:
+   - **API Key**: The key you created in the previous step
+   - **JumpCloud API URL**: Leave blank unless you use a non-default console URL
+   - **Organization ID**: Only required for multi-tenant (MSP) JumpCloud accounts
+4. Choose **Connect MDM**. Your device inventory will start syncing from JumpCloud to Smallstep. You can check the Logs tab for sync status, and confirm that JumpCloud is syncing by checking the Devices list.
+
+Your Smallstep team is now linked to JumpCloud. Smallstep will do a partial sync of your device inventory every hour, and a full sync every 8 hours.
+
+## Configure Certificates in JumpCloud
+
+### Get Smallstep CA Details
+
+After connecting JumpCloud to Smallstep, you'll find the certificate details you need on the Platform Settings page:
+
+1. In the Smallstep console, go to [**Device Management**](https://smallstep.com/app/?next=/settings/devices) in **Settings**
+2. Click on your JumpCloud connection
+3. From this page, you can:
+   - Copy the **SCEP URL** (for example, `https://agents.example.ca.smallstep.com/scep/integration-jumpcloud-abc123`)
+   - Copy the **SCEP Challenge** value
+   - Download the **Root Certificate** and the **Intermediate Certificate**
+
+Keep this page open or save these values temporarily — you'll need them below.
+
+JumpCloud's SCEP policy identifies the CA by **SHA-1 thumbprint**, which is not shown in the Smallstep console. Compute it from the intermediate certificate you downloaded:
+
+```bash
+step certificate fingerprint --format hex --sha1 intermediate.crt
+```
+
+Or, without the `step` CLI:
+
+```bash
+openssl x509 -in intermediate.crt -noout -fingerprint -sha1
+```
+
+Remove the colons from the result — JumpCloud expects an unbroken hexadecimal string.
+
+### Trust the Smallstep CA on your devices
+
+The device must trust the Smallstep Agents CA before it will accept a certificate from it.
+
+1. In JumpCloud, go to **Device Management** > **Policy Management**
+2. Choose **Add New** > **Device Policy**, select the **Windows** tab, and search for `Certificate`
+3. Configure a **Windows Install Certificate** policy for the **Root** certificate you downloaded, with the destination store set to **Root**
+4. Repeat for the **Intermediate** certificate
+
+<Aside type="note">
+As with our Intune integration, install the Smallstep Agents **Intermediate** certificate into the **Root** store as well. This is a legacy requirement of the enrollment flow.
+</Aside>
+
+### Create a SCEP Profile in JumpCloud
+
+1. In JumpCloud, go to **Device Management** > **Policy Management**
+2. Choose **Add New** > **Device Policy**
+3. Select the **Windows** tab, search for `SCEP`, and choose **Configure** on **SCEP Profiles**
+4. Give the policy a name (e.g., `Smallstep`)
+5. Configure the settings:
+    - **CA ThumbPrint**: The SHA-1 thumbprint you computed above
+    - **Challenge**: The SCEP Challenge from Smallstep
+    - **Key Length**: `2048` — JumpCloud defaults to `1024`, which Smallstep rejects
+    - **Subject Name**: `CN=%JumpCloudSystemID%`
+    - **Server URL**: The SCEP URL from Smallstep
+    - **Renew Period**: A value shorter than the certificate lifetime, e.g. `21`
+    - Enable **Include Client Authentication EKU**
+    - Leave **Subject Alternative Names** empty
+6. Under **Device Groups** or **Devices**, scope the policy to the Windows devices you want to enroll
+7. Choose **Create Policy**
+
+A note on the Subject: JumpCloud replaces `%JumpCloudSystemID%` with the device's JumpCloud system ID, and Smallstep uses that ID to identify which device is asking for a certificate. It must be the entire common name, with nothing else in it.
+
+## Install the Smallstep Agent
+
+There are two ways to install the agent:
+
+- **via JumpCloud** (below): Use JumpCloud's Software Management or Commands
+- **separately**: Use a separate software management tool, or install the agent manually. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide for detailed Windows installation instructions.
+
+### Install the Agent via JumpCloud
+
+1. Download the latest installer from [packages.smallstep.com](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi) (or the `arm64` installer for ARM devices)
+2. In JumpCloud, go to **Device Management** > **Software Management**
+3. Choose **Add New Software** and select **Private Repository**
+4. Upload the `.msi` file and assign it to the same device group you scoped the SCEP policy to
+
+Alternatively, run a JumpCloud Command that installs the agent with [Winget](https://learn.microsoft.com/en-us/windows/package-manager/winget/):
+
+```powershell
+winget install --exact --id Smallstep.step-agent --silent --accept-package-agreements --accept-source-agreements
+```
+
+### Configure the Agent Settings
+
+The Smallstep Agent reads its configuration from the registry. Deploy it with a JumpCloud Command.
+
+1. In the Smallstep console, choose ⚙️ **Settings** and temporarily save the **Team Slug** value
+2. In the Smallstep console, go to **Authorities**, select the **Smallstep Agents** authority, and note the **Intermediate CA common name** — it looks like `Smallstep (your-team) Agents Intermediate CA`
+3. In JumpCloud, go to **Device Management** > **Commands**
+4. Choose **New Command**, and select **Windows** as the type
+5. Paste the command below, replacing `YOUR-TEAM-SLUG` and `YOUR-AGENTS-INTERMEDIATE-CA`
+6. Under **Device Groups** or **Devices**, scope it to the same devices as the SCEP policy
+7. Set the **Launch Event** to **Run as Repeating**, so devices that enroll later are configured without another manual run
+
+```powershell
+$teamSlug = 'YOUR-TEAM-SLUG'
+$issuer   = 'YOUR-AGENTS-INTERMEDIATE-CA'
+
+# The SCEP certificate's common name is this device's JumpCloud system ID, so
+# the agent is pointed at it per device.
+$conf = @(
+  "$env:ProgramFiles\JumpCloud\Plugins\Contrib\jcagent.conf",
+  "${env:ProgramFiles(x86)}\JumpCloud\Plugins\Contrib\jcagent.conf"
+) | Where-Object { Test-Path $_ } | Select-Object -First 1
+
+if (-not $conf) { throw 'JumpCloud agent configuration not found' }
+
+$systemId = (Get-Content $conf -Raw | ConvertFrom-Json).systemKey
+if (-not $systemId) { throw 'Could not read the JumpCloud system ID' }
+
+New-Item -Path 'HKLM:\Software\Policies\Smallstep' -Force | Out-Null
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Smallstep' -Name 'TeamSlug' -Value $teamSlug
+Set-ItemProperty -Path 'HKLM:\Software\Policies\Smallstep' -Name 'Certificate' `
+  -Value "capi:store-location=machine;store=My;issuer=$issuer;cn=$systemId"
+
+Restart-Service -Name 'Smallstep Agent' -ErrorAction SilentlyContinue
+```
+
+The agent waits for this configuration, so it does not matter whether the command runs before or after the agent is installed.
+
+## Confirmation
+
+To confirm the agent is installed and running:
+
+- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- On Windows, check that the agent service is running: `sc query "Smallstep Agent"`
+- Confirm the SCEP certificate arrived: `Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Issuer -like '*Agents Intermediate CA*' }`
+
+By default, devices synced from JumpCloud are approved automatically, and become high assurance once the agent has attested the device's TPM and the device is bound to a user. You can change approval behavior in [Team Settings](https://smallstep.com/app/?next=/settings/team).
+
+## Uninstall Smallstep Agent with JumpCloud
+
+1. In JumpCloud, remove the SCEP policy, the certificate policies, and the configuration command from the assigned device groups
+2. Remove the Smallstep Agent software assignment
+3. To remove the agent from devices that already have it, run a JumpCloud Command:
+
+```powershell
+& cmd /c "$(((Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where-Object { $_.DisplayName -like "*Smallstep Agent*" }).UninstallString -replace '/I', '/X')) /quiet"
+Remove-Item -Path 'HKLM:\Software\Policies\Smallstep' -Recurse -Force -ErrorAction SilentlyContinue
+```
