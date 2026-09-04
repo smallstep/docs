@@ -63,7 +63,7 @@ A JumpCloud API key inherits the permissions of the administrator who created it
 
 Let's add the JumpCloud credentials to Smallstep.
 
-1. In the Smallstep UI, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⚙️ **Settings**
+1. In the Smallstep console, go to the [**Device Management**](https://smallstep.com/app/?next=/settings/devices) tab in ⚙️ **Settings**
 2. Under JumpCloud, choose ➕ **Connect**
 3. Enter the following:
    - **Name/Alias**: A label for this connection, e.g. `JumpCloud`. This is the name the connection is shown under in Smallstep
@@ -88,8 +88,8 @@ You need four things from Smallstep: a SCEP URL, a SCEP challenge, the CA certif
 
 **CA certificates and fingerprint**
 
-1. In the Smallstep console, go to **Certificate Manager** > **Authorities**
-2. Choose **View details** on the **Smallstep (your-team) Agents** authority
+1. In the Smallstep console, go to [**Certificate Manager** > **Authorities**](https://smallstep.com/app/?next=/cm/authorities)
+2. Under **Hosted Authorities**, choose **View details** on the **Smallstep (\<team-name\>) Agents** authority
 3. In **Authority Settings**:
    - Download the **Root Certificate** and the **Intermediate Certificate**
    - Next to **Intermediate Fingerprint**, change the hash dropdown from `sha256` to `sha1`, then copy the value
@@ -110,7 +110,7 @@ The device must trust the Smallstep Agents CA before it will accept a certificat
 4. Repeat for the **Intermediate** certificate
 
 <Aside type="note">
-As with our Intune integration, install the Smallstep Agents **Intermediate** certificate into the **Root** store as well. This is a legacy requirement of the enrollment flow.
+**Careful!** As with our Intune integration, the Smallstep Agents **Intermediate** certificate goes into the **Root** store, not the intermediate store. This is a legacy requirement of the enrollment flow, and choosing the intermediate store will cause enrollment errors.
 </Aside>
 
 ### Create a SCEP Profile in JumpCloud
@@ -160,7 +160,7 @@ The Smallstep Agent reads its configuration from the registry. Deploy it with a 
 First, collect two values from the Smallstep console:
 
 - Your **team slug**. It is the path segment after `/app/` in the console URL — for a team at `https://smallstep.com/app/acme-corp`, the slug is `acme-corp`.
-- Your **Agents intermediate CA issuer name**. Go to **Certificate Manager** > **Authorities** and copy the **Authority Name** of the **Smallstep (your-team) Agents** authority, then append ` Intermediate CA` to it. The result looks like `Smallstep (your-team) Agents Intermediate CA`. (This is the subject common name of the intermediate certificate you downloaded earlier, so you can also read it out of that file.)
+- Your **Agents intermediate CA issuer name**. In your [Authority list](https://smallstep.com/app/?next=/cm/authorities), copy the **Authority Name** of the **Smallstep (\<team-name\>) Agents** authority, then append ` Intermediate CA` to it. The result looks like `Smallstep (<team-name>) Agents Intermediate CA`. (This is the subject common name of the intermediate certificate you downloaded earlier, so you can also read it out of that file.) If your team was created before October, 2024, your issuer CA may have a common name without the team name (`Smallstep Agents Intermediate CA`).
 
 Then create the command:
 
@@ -199,7 +199,7 @@ The agent waits for this configuration, so it does not matter whether the comman
 
 To confirm the agent is installed and running:
 
-- In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+- In the Smallstep console, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
 - On Windows, check that the agent service is running: `sc query "Smallstep Agent"`
 - Confirm the SCEP certificate arrived: `Get-ChildItem Cert:\LocalMachine\My | Where-Object { $_.Issuer -like '*Agents Intermediate CA*' }`
 
