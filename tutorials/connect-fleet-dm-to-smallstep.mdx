@@ -1,5 +1,5 @@
 ---
-updated_at: May 21, 2026
+updated_at: September 8, 2026
 title: Connect Fleet DM to Smallstep
 html_title: Integrate Fleet DM with Smallstep Tutorial
 description: Connect Fleet DM with Smallstep for device security. Complete guide for deploying certificates and syncing device inventory using Fleet's device management platform.
@@ -427,7 +427,13 @@ systemctl enable --now step-agent
 ```
 
 
-After deployment, Linux devices will self-register with your Smallstep team via TPM attestation. By default, new devices require admin approval in the [Smallstep console](https://smallstep.com/app/?next=/devices). To automate approval, you can [pre-register devices via API](../platform/smallstep-agent.mdx#pre-registration-via-api).
+When the agent starts, it attests with the host's TPM, and Smallstep matches the attestation to the inventory entry that Fleet synced along with the TPM Endorsement Key. No registration step runs on the host. By default, devices synced from Fleet need admin approval: if the host shows as pending in the [Smallstep console](https://smallstep.com/app/?next=/devices), approve it there. To approve Fleet-synced devices automatically, add `Fleet` to `autoApproveSources` using the [Device Enrollment Policy API](https://gateway.smallstep.com/v2025-01-01/operations/put-device-enrollment-policy).
+
+<Alert severity="warning">
+<div>
+Do not run `step-agent register` or `step-agent start --login` on a host that Fleet has already synced to Smallstep, and do not add the host through the Smallstep API. The host is already in your inventory, and registering it again fails with `unprocessable entity` or prompts you to register a duplicate device. The agent configuration above is all the host needs.
+</div>
+</Alert>
 
 ## Step 6. Confirmation (Linux)
 
@@ -559,7 +565,13 @@ Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
 2. In the Fleet console, go to **Software**, choose **Add software → Custom package**, and upload the MSI
 3. Scope the install to your Windows hosts
 
-The agent reads the registry values written in Step 3 on startup, and completes TPM-attested registration with your Smallstep team.
+The agent reads the registry values written in Step 3 on startup, attests with the host's TPM, and Smallstep matches the attestation to the inventory entry that Fleet synced along with the TPM Endorsement Key. By default, devices synced from Fleet need admin approval: if the host shows as pending in the [Smallstep console](https://smallstep.com/app/?next=/devices), approve it there. To approve Fleet-synced devices automatically, add `Fleet` to `autoApproveSources` using the [Device Enrollment Policy API](https://gateway.smallstep.com/v2025-01-01/operations/put-device-enrollment-policy).
+
+<Alert severity="warning">
+<div>
+Do not run `step-agent register` or `step-agent start --login` on a host that Fleet has already synced to Smallstep, and do not add the host through the Smallstep API. The host is already in your inventory, and registering it again fails with `unprocessable entity` or prompts you to register a duplicate device. The agent configuration above is all the host needs.
+</div>
+</Alert>
 
 ## Step 6. Confirmation (Windows)
 

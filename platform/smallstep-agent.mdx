@@ -1,5 +1,5 @@
 ---
-updated_at: July 27, 2026
+updated_at: September 8, 2026
 title: Install the Smallstep Agent
 html_title: Install the Smallstep Agent on macOS, Windows, and Linux
 description: Install, configure, and deploy the Smallstep Agent on macOS, Windows, and Linux endpoints. Includes manual install, MDM integration, system requirements, and network endpoints.
@@ -22,6 +22,7 @@ Using an MDM? See:
 - [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx) (macOS)
 - [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
+- [Connect Fleet DM to Smallstep](../tutorials/connect-fleet-dm-to-smallstep.mdx) (macOS, Linux, Windows)
 </Alert>
 
 Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubleshooting-agent.mdx).
@@ -359,7 +360,7 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
 
 ### Self-registration
 
-Users can configure the agent and register their Linux device with your Smallstep team by running:
+For a device that is not yet in your Smallstep inventory, users can configure the agent and register their Linux device with your Smallstep team by running:
 
 ```bash
 sudo step-agent register [team name]
@@ -370,7 +371,7 @@ Devices must be approved by an admin before they can be used.
 
 ### Pre-registration via API
 
-Alternatively, you can pre-register all of your team's devices:
+If your devices are inventoried in a system that Smallstep can't sync from, you can pre-register them via the API instead of having each device self-register:
 
 1. [Register and approve your devices via API](./enrollment-guide.mdx#add-devices-via-api).
    The devices you add via API will be pre-approved.
@@ -387,6 +388,7 @@ Alternatively, you can pre-register all of your team's devices:
        - Select the Smallstep Agents authority
        - Use the sha256 Root fingerprint displayed on this page
 
+If Smallstep already syncs your inventory from an MDM that reports each device's TPM Endorsement Key, such as Fleet with the Smallstep osquery extension, skip step 1. The devices are already in your inventory, and adding them again via the API or with `step-agent register` creates a conflicting entry. Write `agent.yaml` as in step 2 and start the agent. It attests with its TPM and is matched to the synced entry. See [Connect Fleet DM to Smallstep](../tutorials/connect-fleet-dm-to-smallstep.mdx#linux) for the full Fleet flow.
 
 ## Start the agent
 

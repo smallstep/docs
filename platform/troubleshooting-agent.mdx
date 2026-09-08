@@ -1,5 +1,5 @@
 ---
-updated_at: July 27, 2026
+updated_at: September 8, 2026
 title: Troubleshooting Guide
 html_title: Smallstep Troubleshooting Guide
 description: Troubleshoot Smallstep Device Identity issues. Diagnose platform, MDM, and endpoint problems with step-by-step guidance.
@@ -96,6 +96,15 @@ The agent may not be installed or may not be running on the device.
    - Check if the agent process is running on the device.
    - Try rebooting the device.
 4. If the agent still hasn't logged in, contact Smallstep support.
+
+**Symptom:** "`step-agent register` fails with `unprocessable entity`, or the browser prompts me to register a device that is already in my inventory"
+
+The device already exists in your Smallstep inventory. This happens when the device was synced from an MDM that reports its TPM Endorsement Key (for example, Fleet with the Smallstep osquery extension) or was added via the API. `step-agent register` tries to create a second device entry, which conflicts with the existing one.
+
+**Troubleshooting steps:**
+1. Don't run `step-agent register` on the device. Write the agent configuration file directly and start the agent service. It attests with its TPM and is matched to the existing entry. See [Linux agent configuration](../tutorials/connect-fleet-dm-to-smallstep.mdx#step-5-linux-agent-configuration) in the Fleet tutorial, or [Pre-registration via API](./smallstep-agent.mdx#pre-registration-via-api) in the agent guide.
+2. If a duplicate device was created, delete it in the [Smallstep console](https://smallstep.com/app/?next=/devices) and keep the entry that came from the MDM sync or the API.
+3. If the device shows as pending after the agent starts, approve it in the console.
 
 **Symptom:** "The device is approved, but it's not converting to a Smallstep-managed device (no green dot)"
 

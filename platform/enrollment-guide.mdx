@@ -1,5 +1,5 @@
 ---
-updated_at: February 03, 2026
+updated_at: September 8, 2026
 title: Device Enrollment Guide
 html_title: Device Enrollment Implementation Guide
 description: Step-by-step guide for device enrollment and inventory management. Set up secure certificate enrollment for all enterprise devices.
@@ -72,6 +72,13 @@ see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.m
 ### Add devices via API
 
 You can import devices from any source into Smallstep using our API.
+Use this when your devices are inventoried in a system that Smallstep can't sync from.
+If Smallstep already syncs your inventory from an MDM,
+don't add the same devices via the API as well:
+the result is a duplicate entry that blocks agent enrollment.
+For Fleet-managed Linux and Windows hosts,
+deploy the [Smallstep osquery extension](../tutorials/connect-fleet-dm-to-smallstep.mdx#linux)
+so that Fleet reports each device's TPM Endorsement Key to Smallstep.
 
 Devices added via API are automatically approved.
 but they will not be marked as high-assurance
