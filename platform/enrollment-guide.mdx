@@ -31,7 +31,7 @@ into your Smallstep inventory:
 You can [manually invite users
 to join your Smallstep team](https://smallstep.com/app/?next=/users/invite),
 and they will be able to self-enroll devices
-using the [Smallstep Agent](./smallstep-agent.mdx).
+using the [Smallstep Agent](./smallstep-agent.mdx)'s `step-agent register` subcommand.
 
 By default, administrators
 must approve a new device
@@ -69,16 +69,17 @@ until Smallstep receives an attestation from the device.
 For a concrete example,
 see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx)
 
+### Use osquery-based enrollment
+
+For [Fleet-managed](../tutorials/connect-fleet-dm-to-smallstep.mdx) Linux and Windows hosts, deploy the Smallstep osquery extension.
+The osquery extension will report each device's TPM Endorsement Key to Fleet.
+Smallstep then syncs the data into your inventory.
+
 ### Add devices via API
 
 You can import devices from any source into Smallstep using our API.
+
 Use this when your devices are inventoried in a system that Smallstep can't sync from.
-If Smallstep already syncs your inventory from an MDM,
-don't add the same devices via the API as well:
-the result is a duplicate entry that blocks agent enrollment.
-For Fleet-managed Linux and Windows hosts,
-deploy the [Smallstep osquery extension](../tutorials/connect-fleet-dm-to-smallstep.mdx#linux)
-so that Fleet reports each device's TPM Endorsement Key to Smallstep.
 
 Devices added via API are automatically approved.
 but they will not be marked as high-assurance
@@ -86,7 +87,7 @@ until Smallstep receives an attestation from the device.
 
 You'll need [an API token](https://smallstep.com/app/?next=/settings/api/tokens/add) with all “device” scopes (put-device, patch-device, etc.).
 
-Use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDevices) endpoint to create a device.
+Use the [Add Device](https://gateway.smallstep.com/v2026-05-01/operations/PostDevices) endpoint to create a device.
 - For Apple devices, the `permanentIdentifier` must be the device's 9-character serial number.
 - For TPM 2.0 devices, the `permanentIdentifier` must be the TPM Endorsement Key URI, in the format `urn:ek:sha256:ul3sYf6uQ6jVEXAMPLEXoAuHI10U8gTvEJ6bMj95LXI=`. (You can retrieve the EK URI by running `step agent tpm --fingerprint` on the device.)
 - To create and assign a user to a device, fill in the `user` fields.
@@ -94,7 +95,7 @@ Use the [Add Device](https://gateway.smallstep.com/v2025-01-01/operations/PostDe
 Once added,
 the devices will be automatically approved.
 
-You can see the device using the [List Devices](https://gateway.smallstep.com/v2025-01-01/operations/ListDevices) endpoint:
+You can see the device using the [List Devices](https://gateway.smallstep.com/v2026-05-01/operations/ListDevices) endpoint:
 
 ```bash
 set +o history
@@ -103,7 +104,7 @@ set -o history
 curl -sH @api_headers --request GET \
   --url https://gateway.smallstep.com/api/devices \
   --header 'Accept: application/json' \
-  --header 'x-smallstep-api-version: 2025-01-01' | jq
+  --header 'x-smallstep-api-version: 2026-05-01' | jq
 ```
 
 You'll also see new devices in the Smallstep console,

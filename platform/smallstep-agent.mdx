@@ -22,7 +22,7 @@ Using an MDM? See:
 - [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.mdx) (macOS)
 - [Connect Intune to Smallstep](../tutorials/connect-intune-to-smallstep.mdx) (Windows)
 - [Connect Workspace ONE to Smallstep](../tutorials/connect-workspace-one-to-smallstep.mdx) (Windows)
-- [Connect Fleet DM to Smallstep](../tutorials/connect-fleet-dm-to-smallstep.mdx) (macOS, Linux, Windows)
+- [Connect Fleet DM to Smallstep](../tutorials/connect-fleet-dm-to-smallstep.mdx)
 </Alert>
 
 Running into trouble? See the [Smallstep Agent troubleshooting guide](./troubleshooting-agent.mdx).
@@ -356,7 +356,7 @@ so a host with no <code>/dev/tpmrm0</code> cannot enroll yet.
     ```
     
 
-## Registering and approving endpoints
+## Registering and approving NixOS endpoints
 
 ### Self-registration
 
@@ -387,8 +387,6 @@ If your devices are inventoried in a system that Smallstep can't sync from, you 
        - In the Smallstep console, select Authorities
        - Select the Smallstep Agents authority
        - Use the sha256 Root fingerprint displayed on this page
-
-If Smallstep already syncs your inventory from an MDM that reports each device's TPM Endorsement Key, such as Fleet with the Smallstep osquery extension, skip step 1. The devices are already in your inventory, and adding them again via the API or with `step-agent register` creates a conflicting entry. Write `agent.yaml` as in step 2 and start the agent. It attests with its TPM and is matched to the synced entry. See [Connect Fleet DM to Smallstep](../tutorials/connect-fleet-dm-to-smallstep.mdx#linux) for the full Fleet flow.
 
 ## Start the agent
 
