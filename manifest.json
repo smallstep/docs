@@ -75,11 +75,21 @@
         },
         {
           "title": "Wi-Fi",
-          "path": "/tutorials/protect-wireless-networks.mdx"
+          "path": "/use-cases/wifi.mdx"
+        },
+        {
+          "title": "Wi-Fi (previous guide)",
+          "path": "/tutorials/protect-wireless-networks.mdx",
+          "hideFromSidebar": true
         },
         {
           "title": "Wired",
-          "path": "/tutorials/protect-wired-networks.mdx"
+          "path": "/use-cases/wired.mdx"
+        },
+        {
+          "title": "Wired (previous guide)",
+          "path": "/tutorials/protect-wired-networks.mdx",
+          "hideFromSidebar": true
         },
         {
           "title": "VPN",
@@ -108,7 +118,12 @@
         },
         {
           "title": "Web apps (mTLS)",
-          "path": "/tutorials/browser-certificate-setup-guide.mdx"
+          "path": "/use-cases/web-apps.mdx"
+        },
+        {
+          "title": "Web apps (previous guide)",
+          "path": "/tutorials/browser-certificate-setup-guide.mdx",
+          "hideFromSidebar": true
         },
         {
           "title": "SSO device factor",
@@ -432,8 +447,132 @@
           "path": "/platform/smallstep-agent.mdx"
         },
         {
+          "title": "Access points",
+          "path": "/reference/access-points.mdx"
+        },
+        {
+          "title": "RADIUS authorization webhooks",
+          "path": "/reference/radius-webhooks.mdx"
+        },
+        {
+          "title": "Windows network profile XML",
+          "path": "/reference/wlan-profile-xml.mdx"
+        },
+        {
           "heading": true,
           "title": "Troubleshooting"
+        },
+        {
+          "title": "Troubleshooting",
+          "path": "/troubleshooting/README.mdx"
+        },
+        {
+          "title": "Wi-Fi",
+          "routes": [
+            {
+              "title": "unknown CA on the RADIUS server",
+              "path": "/troubleshooting/wifi/unknown-ca.mdx"
+            },
+            {
+              "title": "No RADIUS traffic reaches Smallstep",
+              "path": "/troubleshooting/wifi/no-radius-traffic.mdx"
+            },
+            {
+              "title": "New site gets no answer",
+              "path": "/troubleshooting/wifi/new-site-no-answer.mdx"
+            },
+            {
+              "title": "Certificate with the wrong issuer",
+              "path": "/troubleshooting/wifi/wrong-issuer.mdx"
+            },
+            {
+              "title": "mobileconfig installed by hand",
+              "path": "/troubleshooting/wifi/mobileconfig-installed-by-hand.mdx"
+            },
+            {
+              "title": "SCEP payload failing for every device",
+              "path": "/troubleshooting/wifi/scep-payload-failing.mdx"
+            },
+            {
+              "title": "SCEP errors after Intune profiles install",
+              "path": "/troubleshooting/wifi/intune-intermediate-store.mdx"
+            },
+            {
+              "title": "ACME certificate not in Keychain Access",
+              "path": "/troubleshooting/wifi/acme-cert-not-in-keychain.mdx"
+            },
+            {
+              "title": "Windows needs a restart for the profile",
+              "path": "/troubleshooting/wifi/windows-profile-needs-restart.mdx"
+            },
+            {
+              "title": "Can't connect on an agent-managed device",
+              "path": "/troubleshooting/wifi/cannot-connect-agent-device.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Wired",
+          "routes": [
+            {
+              "title": "Port never authorizes",
+              "path": "/troubleshooting/wired/port-never-authorizes.mdx"
+            },
+            {
+              "title": "Windows does not attempt 802.1X",
+              "path": "/troubleshooting/wired/windows-wired-autoconfig-stopped.mdx"
+            },
+            {
+              "title": "Devices without certificates lose connectivity",
+              "path": "/troubleshooting/wired/devices-without-certificates.mdx"
+            },
+            {
+              "title": "LAN profile does not present the certificate",
+              "path": "/troubleshooting/wired/lan-profile-wrong-issuer-hash.mdx"
+            }
+          ]
+        },
+        {
+          "title": "Web apps",
+          "routes": [
+            {
+              "title": "Certificate selection dialog appears",
+              "path": "/troubleshooting/web-apps/certificate-selection-dialog.mdx"
+            },
+            {
+              "title": "Browser does not see the certificate",
+              "path": "/troubleshooting/web-apps/browser-does-not-see-certificate.mdx"
+            },
+            {
+              "title": "Auto-select policy not applied",
+              "path": "/troubleshooting/web-apps/policy-not-applied.mdx"
+            },
+            {
+              "title": "Certificate expired or invalid",
+              "path": "/troubleshooting/web-apps/certificate-expired.mdx"
+            }
+          ]
+        },
+        {
+          "title": "SSO device factor",
+          "routes": [
+            {
+              "title": "OpenID Connect IdP missing in Okta",
+              "path": "/troubleshooting/sso-device-factor/okta-oidc-idp-missing.mdx"
+            },
+            {
+              "title": "Certificate email does not match the username",
+              "path": "/troubleshooting/sso-device-factor/email-san-mismatch.mdx"
+            },
+            {
+              "title": "Certificate picker at sign-in",
+              "path": "/troubleshooting/sso-device-factor/certificate-picker-at-sign-in.mdx"
+            },
+            {
+              "title": "Lifecycle failure page",
+              "path": "/troubleshooting/sso-device-factor/lifecycle-failure.mdx"
+            }
+          ]
         },
         {
           "title": "Agent",
