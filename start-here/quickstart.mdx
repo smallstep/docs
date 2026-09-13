@@ -28,10 +28,9 @@ At the end you have:
 
 ```mermaid
 graph LR
-  cred["Credential<br/>(client certificate)"] --> wifi["Wi-Fi resource<br/>(SSID and trust)"]
-  radius["Smallstep RADIUS"] -->|server CA| wifi
+  cred["Credential<br/>(client certificate)"] --> network["Wi-Fi resource<br/>(SSID and trust)"] --> device["Device with the agent"]
+  radius["Smallstep RADIUS"] -->|server CA| network
   radius -->|"IP, port, shared secret"| ap["Access point"]
-  wifi --> device["Device with the agent"]
 ```
 
 ## Before you start

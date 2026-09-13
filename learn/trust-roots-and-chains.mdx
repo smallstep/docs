@@ -18,7 +18,7 @@ It answers by looking in its own trust store.
 Whatever is in that store is the whole universe of authorities the verifier will accept.
 A certificate from anyone else is rejected with an error that usually blames the certificate.
 
-So every use case has a step that is easy to skip:
+Every use case therefore has a step that is easy to skip:
 put your authority's trust roots where the verifier will look.
 The [Wi-Fi guide](../tutorials/protect-wireless-networks.mdx) does it when it registers your client CA with the RADIUS server; the [SSH guide](../ssh/hosts.mdx) does it when it points `sshd` at the user CA; a web app does it in its server configuration.
 
@@ -40,12 +40,11 @@ your existing root signs a Smallstep intermediate, and everything that already t
 ## The chain
 
 A verifier that trusts the root has never seen the intermediate.
-So the presenter must send both its own certificate and the intermediate's certificate, and the verifier walks the chain:
+The presenter must therefore send both its own certificate and the intermediate's certificate, and the verifier walks the chain:
 
 ```mermaid
 flowchart LR
-  leaf["Device certificate<br/>(sent by the device)"] -->|signed by| int["Intermediate<br/>(sent by the device)"]
-  int -->|signed by| root["Root<br/>(in the verifier's trust store)"]
+  leaf["Device certificate<br/>(sent by the device)"] -->|signed by| intermediate["Intermediate<br/>(sent by the device)"] -->|signed by| root["Root<br/>(in the verifier's trust store)"]
 ```
 
 Three ways this breaks, and they all look the same from the outside:

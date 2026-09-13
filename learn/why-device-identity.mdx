@@ -40,7 +40,7 @@ An authority that receives one can check the manufacturer's signature, confirm t
 The certificate cannot be copied in any useful way, because the key it belongs to cannot be exported.
 Presenting it proves not just "someone has this certificate" but "this device, the one we enrolled, is the one connecting now".
 
-The standard that carries this over the wire is ACME with the `device-attest-01` challenge.
+The standard that carries this between the device and the authority is ACME with the `device-attest-01` challenge.
 The device sends the attestation with its certificate request; the authority verifies it before signing.
 Apple ships it natively for managed devices; Smallstep co-developed the standard and performs the attestation through the agent on devices with a TPM.
 [Attestation explained](./attestation-explained.mdx) walks through the levels of assurance and what each one requires.

@@ -44,7 +44,7 @@ The indirection is what lets you rotate or retire an intermediate without touchi
 ## Chains
 
 A verifier does not know your intermediate; it knows your root, because the root is what was installed in its trust store.
-So a presented certificate has to arrive with the intermediate's certificate too, and the verifier walks the **chain**:
+A presented certificate therefore has to arrive with the intermediate's certificate too, and the verifier walks the **chain**:
 leaf signed by intermediate, intermediate signed by root, root in the trust store.
 One missing link and the handshake fails with an error that looks like a bad certificate.
 [Trust roots and chains](./trust-roots-and-chains.mdx) is about that failure and how to avoid it.
