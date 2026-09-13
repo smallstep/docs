@@ -242,11 +242,13 @@
         },
         {
           "title": "Trust (Certificate Manager core concepts)",
-          "path": "/certificate-manager/core-concepts.mdx"
+          "path": "/certificate-manager/core-concepts.mdx",
+          "hideFromSidebar": true
         },
         {
           "title": "Trust (Certificate Manager how it works)",
-          "path": "/certificate-manager/how-it-works.mdx"
+          "path": "/certificate-manager/how-it-works.mdx",
+          "hideFromSidebar": true
         },
         {
           "heading": true,
