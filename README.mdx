@@ -2,61 +2,101 @@
 disableSidebar: true
 ---
 
+## Start here
+
 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-spacing-6">
   <IndexCard
     className="text-blue-500"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
-    title="Platform"
-    description="Quickly and reliably connect devices, workloads, and people using end-to-end encryption."
+    title="I’m evaluating"
+    description="Understand what device identity is and why hardware attestation changes the security model."
     href="/docs/platform/"
   />
   <IndexCard
     className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="I’m building"
+    description="Get a first device onto a first resource. Start with Wi-Fi: about twenty minutes plus your access-point change."
+    href="/docs/tutorials/protect-wireless-networks/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="I’m operating"
+    description="Run the platform: inventory, trust, credentials, policy, and audit."
+    href="/docs/platform/enrollment-guide/"
+  />
+</div>
+
+## Use cases
+
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-spacing-6">
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="Wi-Fi"
+    description="EAP-TLS with hardware-attested device credentials."
+    href="/docs/tutorials/protect-wireless-networks/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="Wired"
+    description="802.1X on your switches."
+    href="/docs/tutorials/protect-wired-networks/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="VPN"
+    description="Certificate-based VPN with strongSwan, F5, or Azure."
+    href="/docs/tutorials/vpn-setup-guide/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_mutual_tls_1_0960977120.svg"
+    title="Web apps"
+    description="Browser mTLS for Entra, Okta, and your own apps."
+    href="/docs/tutorials/browser-certificate-setup-guide/"
+  />
+  <IndexCard
+    className="text-blue-500"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_ssh_1_70b1ab2d27.svg"
-    title="Smallstep SSH"
-    description="Smallstep SSH, seamless SSH access with zero key management. Product documentation."
-    href="/docs/ssh"
+    title="SSH"
+    description="Hosts, users, and GitHub with SSH certificates."
+    href="/docs/ssh/"
   />
   <IndexCard
     className="text-blue-500"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_certificate_manager_1_86b2f377b7.svg"
-    title="Certificate Manager"
-    description="Smallstep Certificate Manager, your hosted certificate authority. Product documentation."
-    href="/docs/certificate-manager/"
+    title="Workloads"
+    description="Certificates for services on your hosts and in Kubernetes."
+    href="/docs/certificate-manager/kubernetes-tls/"
   />
-  <IndexCard
-    className="text-blue-500"
-    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_registration_autohorities_1_0006dbd36d.svg"
-    title="Registration Authorities"
-    description="Smallstep Registration Authorities, extend your existing PKI. Product documentation."
-    href="/docs/registration-authorities/"
-  />
+</div>
+
+## Open source
+
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-spacing-6">
   <IndexCard
     className="text-blue-900"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_step_cli_1_9eca92f992.svg"
     title="step CLI"
-    description="Streamline PKI and crypto operations with our open source command line toolchain."
+    description="The open source command-line toolchain for PKI and crypto operations."
     href="/docs/step-cli/"
   />
   <IndexCard
     className="text-blue-900"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_step_ca_1_342e1dcdd6.svg"
     title="step-ca"
-    description="Run your open source Certificate Authority (CA) and PKI. Issue certificates to everything."
+    description="Run your own certificate authority. Smallstep’s hosted authorities run it too."
     href="/docs/step-ca/"
   />
   <IndexCard
     className="text-blue-900"
-    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_mutual_tls_1_0960977120.svg"
-    title="Mutual TLS"
-    description="Instructions and code for connecting apps, systems, and workloads using mTLS."
-    href="/docs/mtls/"
-  />
-  <IndexCard
-    className="text-blue-900"
     iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_tutorials_1_0d50c76b6a.svg"
-    title="Tutorials"
-    description="Deploy the `step` toolchain across popular deployment scenarios. Learn by doing."
+    title="step-ca tutorials"
+    description="Deploy the step toolchain across popular scenarios. Learn by doing."
     href="/docs/tutorials/"
   />
 </div>
