@@ -1,0 +1,155 @@
+---
+updated_at: September 13, 2026
+title: RADIUS authorization webhooks
+html_title: RADIUS authorization webhook specification
+description: The request Smallstep RADIUS sends to your webhook on every authentication, how to verify its signature, and the response it expects.
+kind: reference
+---
+
+With an authorization webhook, Smallstep RADIUS consults your own HTTP server on every EAP-TLS authentication after the client certificate has been verified.
+Your server evaluates or logs the presented certificate and returns an authorization decision, so you can layer device posture or your own rules on top of certificate verification.
+
+Webhooks are part of the dedicated Smallstep RADIUS deployment described in the [Wi-Fi guide](../use-cases/wifi.mdx#create).
+Smallstep configures a webhook for your team today; the webhook's ID and signing secret are handed to you when it is created.
+Smallstep authenticates to your server with a bearer token or HTTP basic authentication if you configure one.
+
+## Requirements
+
+Your webhook server must present a TLS certificate issued by a public Web PKI CA.
+
+## Request
+
+- Method `POST`, content type `application/json`.
+- Headers:
+  - `X-Smallstep-Webhook-ID`: the UUID of the webhook making the request.
+  - `X-Smallstep-Signature`: hex-encoded HMAC-SHA256 of the raw request body, keyed with the webhook's signing secret.
+  - `Authorization`: optional; `Bearer <token>` or HTTP basic auth when configured.
+- Body:
+  - `timestamp`: the RFC 8222 timestamp of the request.
+  - `x509Certificate`: a JSON representation of the client certificate following [this structure](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L17), plus a `raw` field holding the base64-encoded DER certificate.
+
+Example body:
+
+```json
+{
+  "timestamp": "2024-01-15T10:30:00Z",
+  "x509Certificate": {
+    "subject": {
+      "country": ["US"],
+      "organization": ["Example Corp"],
+      "organizationalUnit": ["Engineering"],
+      "locality": ["San Francisco"],
+      "province": ["CA"],
+      "streetAddress": ["123 Main St"],
+      "postalCode": ["94105"],
+      "serialNumber": "123456",
+      "commonName": "craig@smallstep.com",
+      "names": [
+        {
+          "type": "2.5.4.3",
+          "value": "craig@smallstep.com"
+        }
+      ],
+      "extraNames": []
+    },
+    "issuer": {
+      "country": ["US"],
+      "organization": ["Example CA"],
+      "organizationalUnit": ["CA Unit"],
+      "locality": ["San Francisco"],
+      "province": ["CA"],
+      "streetAddress": ["456 CA St"],
+      "postalCode": ["94105"],
+      "serialNumber": "CA123",
+      "commonName": "Example Root CA",
+      "names": [],
+      "extraNames": []
+    },
+    "serialNumber": "270390854734985720984572058347298347234",
+    "sans": [
+      {
+        "type": "email",
+        "value": "craig@smallstep.com"
+      }
+    ],
+    "emailAddresses": ["craig@smallstep.com"],
+    "ipAddresses": [],
+    "uris": [],
+    "extensions": [],
+    "keyUsage": ["digitalSignature", "keyEncipherment"],
+    "extKeyUsage": ["serverAuth", "clientAuth"],
+    "unknownExtKeyUsage": [],
+    "subjectKeyId": "base64EncodedSKID==",
+    "authorityKeyId": "base64EncodedAKID==",
+    "ocspServer": ["http://ocsp.example.com"],
+    "issuingCertificateURL": ["http://ca.example.com/ca.crt"],
+    "dnsNames": ["example.com", "www.example.com"],
+    "permittedDNSDomainsCritical": false,
+    "permittedDNSDomains": [],
+    "excludedDNSDomains": [],
+    "permittedIPRanges": [],
+    "excludedIPRanges": [],
+    "permittedEmailAddresses": [],
+    "excludedEmailAddresses": [],
+    "permittedURIDomains": [],
+    "excludedURIDomains": [],
+    "crlDistributionPoints": ["http://crl.example.com/ca.crl"],
+    "policyIdentifiers": [],
+    "publicKey": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA...",
+    "publicKeyAlgorithm": "RSA",
+    "notBefore": "2024-01-01T00:00:00Z",
+    "notAfter": "2025-01-01T00:00:00Z",
+    "raw": "MIIDXTCCAkWgAwIBAgIJAKb..."
+  }
+}
+```
+
+## Signature verification
+
+You need the signing secret associated with the `X-Smallstep-Webhook-ID`.
+
+1. Compute HMAC-SHA256 over the raw request body bytes with the secret.
+2. Hex-encode the result and compare it to the `X-Smallstep-Signature` header.
+
+## Response
+
+- Content type `application/json`.
+- Status `200` means the webhook was processed; any other status denies the authentication.
+- Body:
+  - `allow` (boolean): whether the client may join.
+  - `error` (object, optional): a `message` and `code` that appear in your Smallstep event log.
+
+Minimal allow:
+
+```json
+{ "allow": true }
+```
+
+Deny with a reason:
+
+```json
+{
+  "allow": false,
+  "error": {
+    "message": "Device non-compliant with posture check",
+    "code": "E1002"
+  }
+}
+```
+
+## Example server
+
+Smallstep publishes an [example RADIUS webhook server](https://github.com/smallstep/radius-webhooks/) in Go as a starting point.
+
+## Operating a webhook
+
+- Several webhooks can be configured.
+  They are called after Smallstep verifies the client certificate, sequentially, with no guarantee of order.
+- A timeout (10 seconds) or a non-`200` status is a denial.
+  Build for availability and fast failover: at least two replicas behind a load balancer.
+- Smallstep may retry briefly on a transient `5xx`.
+- Deny known-bad cases with `"allow": false`; reserve non-`200` statuses for unexpected failures, so an outage does not read as a policy decision.
+- Store the signing secret securely.
+  Rotate it by creating a new webhook, distributing its secret, then retiring the old one.
+- Log request IDs, the webhook ID, and your decision for auditing.
+  Avoid logging full certificates where you can.

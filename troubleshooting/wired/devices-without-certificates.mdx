@@ -1,0 +1,29 @@
+---
+updated_at: September 13, 2026
+title: Printers and other devices lose connectivity after port authentication is enabled
+html_title: "Wired: devices without certificates lose connectivity"
+description: Devices that cannot do 802.1X need a guest VLAN, an unauthenticated VLAN, or separate ports, because Smallstep RADIUS does not do MAC Authentication Bypass.
+kind: troubleshooting
+---
+
+After you enable port authentication on the access ports, printers, phones, or other devices without certificates drop off the network.
+
+## Cause
+
+Those devices cannot do 802.1X, so the switch never gets an Access-Accept for them.
+MAC Authentication Bypass (MAB), which many switches offer for such devices, is not supported by Smallstep RADIUS: it authenticates certificates only.
+
+## Fix
+
+Give those devices a path that does not depend on RADIUS:
+
+- A guest VLAN or a dedicated unauthenticated VLAN that the switch assigns when 802.1X fails or times out, or
+- Ports without port authentication reserved for them.
+
+## Check
+
+The affected devices are reachable on their VLAN, and devices with certificates still authorize on the 802.1X ports.
+
+## Go back to
+
+[Configure your switches](../../use-cases/wired.mdx#configure-external) in the wired guide.

@@ -1,0 +1,181 @@
+---
+updated_at: September 13, 2026
+title: Windows network profile XML
+html_title: Windows WLAN and LAN profile XML for EAP-TLS with an agent credential
+description: The WLAN and LAN profile XML that Intune and Workspace ONE deploy when the agent owns the certificate and the MDM owns the network settings.
+kind: reference
+---
+
+These profiles are used by the [Wi-Fi guide](../use-cases/wifi.mdx#deliver) and the [wired guide](../use-cases/wired.mdx#deliver) when the agent manages the credential and Intune or Workspace ONE delivers the Windows network profile.
+The profile selects the certificate by the SHA-1 fingerprint of its issuing CA and validates the RADIUS server by the SHA-1 fingerprint of the RADIUS CA.
+
+## The two fingerprints
+
+```bash
+# The RADIUS server CA (radius_ca.crt from the guide)
+openssl x509 -in radius_ca.crt -noout -fingerprint -sha1
+
+# The CA that issues the client certificates: the *intermediate* of the authority
+# you chose; download it from the authority's page in the Console
+openssl x509 -in issuing_ca.crt -noout -fingerprint -sha1
+```
+
+Remove the colons before pasting the values.
+
+## Values to set
+
+| Element | Value |
+|---|---|
+| `IssuerHash` | The issuing (intermediate) CA fingerprint |
+| `TrustedRootCA` | The RADIUS server CA fingerprint |
+| `ServerNames` | <<radius-server-name>> |
+| `authMode` | `machine` for credentials with `HARDWARE_ATTESTED` key protection (the agent stores them in the computer certificate store); `user` for every other protection level |
+| `authentication` and `encryption` (WLAN only) | Must match the access point: `WPA2` and `AES` for a WPA2 Enterprise network |
+
+See [Microsoft's OneX schema documentation](https://learn.microsoft.com/en-us/windows/win32/nativewifi/onexschema-onex-element) for the elements.
+
+## WLAN profile (Wi-Fi) {#wlan}
+
+Deployed at the OMA-URI `./Vendor/MSFT/WiFi/Profile/<<ssid>>/WlanXml` (URL-encode spaces in the SSID as `%20`).
+Microsoft documents the format in [Wi-Fi settings import](https://learn.microsoft.com/en-us/intune/intune-service/configuration/wi-fi-settings-import-windows-8-1).
+
+```xml
+<?xml version="1.0"?>
+<WLANProfile xmlns="http://www.microsoft.com/networking/WLAN/profile/v1">
+	<name><<ssid>></name>
+	<SSIDConfig>
+		<SSID>
+			<name><<ssid>></name>
+		</SSID>
+		<nonBroadcast>false</nonBroadcast>
+	</SSIDConfig>
+	<connectionType>ESS</connectionType>
+	<connectionMode>auto</connectionMode>
+	<autoSwitch>false</autoSwitch>
+	<MSM>
+		<security>
+			<authEncryption>
+				<authentication>WPA3ENT192</authentication>
+				<encryption>GCMP256</encryption>
+				<useOneX>true</useOneX>
+				<FIPSMode xmlns="http://www.microsoft.com/networking/WLAN/profile/v2">false</FIPSMode>
+			</authEncryption>
+			<PMKCacheMode>enabled</PMKCacheMode>
+			<PMKCacheTTL>720</PMKCacheTTL>
+			<PMKCacheSize>128</PMKCacheSize>
+			<preAuthMode>disabled</preAuthMode>
+			<OneX xmlns="http://www.microsoft.com/networking/OneX/v1">
+				<cacheUserData>true</cacheUserData>
+				<authMode>machine</authMode>
+				<EAPConfig>
+					<EapHostConfig xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+						<EapMethod>
+							<Type xmlns="http://www.microsoft.com/provisioning/EapCommon">13</Type>
+							<VendorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorId>
+							<VendorType xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorType>
+							<AuthorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</AuthorId>
+						</EapMethod>
+						<Config xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+							<Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+								<Type>13</Type>
+								<EapType xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV1">
+									<CredentialsSource>
+										<CertificateStore>
+											<SimpleCertSelection>true</SimpleCertSelection>
+										</CertificateStore>
+									</CredentialsSource>
+									<ServerValidation>
+										<DisableUserPromptForServerValidation>true</DisableUserPromptForServerValidation>
+										<ServerNames><<radius-server-name>></ServerNames>
+										<TrustedRootCA>RADIUS_CA_SHA1_FINGERPRINT</TrustedRootCA>
+									</ServerValidation>
+									<DifferentUsername>false</DifferentUsername>
+									<PerformServerValidation xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">true</PerformServerValidation>
+									<AcceptServerName xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">true</AcceptServerName>
+									<TLSExtensions xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">
+										<FilteringInfo xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV3">
+											<CAHashList Enabled="true">
+												<IssuerHash>ISSUING_CA_SHA1_FINGERPRINT</IssuerHash>
+											</CAHashList>
+										</FilteringInfo>
+									</TLSExtensions>
+								</EapType>
+							</Eap>
+						</Config>
+					</EapHostConfig>
+				</EAPConfig>
+			</OneX>
+		</security>
+	</MSM>
+</WLANProfile>
+```
+
+## LAN profile (wired) {#lan}
+
+Deployed at the OMA-URI `./Device/Vendor/MSFT/WiredNetwork/LanXML`.
+Microsoft documents the format in the [LAN profile schema](https://learn.microsoft.com/en-us/windows/win32/nativewifi/lan-profileschema-lanprofile-element).
+The EKU filter restricts selection to certificates with the Client Authentication extended key usage.
+
+```xml
+<?xml version="1.0"?>
+<LANProfile xmlns="http://www.microsoft.com/networking/LAN/profile/v1">
+    <MSM>
+        <security>
+            <OneXEnforced>false</OneXEnforced>
+            <OneXEnabled>true</OneXEnabled>
+            <OneX xmlns="http://www.microsoft.com/networking/OneX/v1">
+                <authMode>machine</authMode>
+                <EAPConfig>
+                    <EapHostConfig xmlns="http://www.microsoft.com/provisioning/EapHostConfig">
+                        <EapMethod>
+                            <Type xmlns="http://www.microsoft.com/provisioning/EapCommon">13</Type>
+                            <VendorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorId>
+                            <VendorType xmlns="http://www.microsoft.com/provisioning/EapCommon">0</VendorType>
+                            <AuthorId xmlns="http://www.microsoft.com/provisioning/EapCommon">0</AuthorId>
+                        </EapMethod>
+                        <Config>
+                            <Eap xmlns="http://www.microsoft.com/provisioning/BaseEapConnectionPropertiesV1">
+                                <Type>13</Type>
+                                <EapType xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV1">
+                                    <CredentialsSource>
+                                        <CertificateStore>
+                                            <SimpleCertSelection>true</SimpleCertSelection>
+                                        </CertificateStore>
+                                    </CredentialsSource>
+                                    <ServerValidation>
+                                        <DisableUserPromptForServerValidation>false</DisableUserPromptForServerValidation>
+                                        <ServerNames><<radius-server-name>></ServerNames>
+                                        <TrustedRootCA>RADIUS_CA_SHA1_FINGERPRINT</TrustedRootCA>
+                                    </ServerValidation>
+                                    <DifferentUsername>false</DifferentUsername>
+                                    <PerformServerValidation xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">true</PerformServerValidation>
+                                    <AcceptServerName xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">true</AcceptServerName>
+                                    <TLSExtensions xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV2">
+                                        <FilteringInfo xmlns="http://www.microsoft.com/provisioning/EapTlsConnectionPropertiesV3">
+                                            <AllPurposeEnabled>false</AllPurposeEnabled>
+                                            <CAHashList Enabled="true">
+                                                <IssuerHash>ISSUING_CA_SHA1_FINGERPRINT</IssuerHash>
+                                            </CAHashList>
+                                            <EKUMapping>
+                                                <EKUMap>
+                                                    <EKUName>Client Authentication</EKUName>
+                                                    <EKUOID>1.3.6.1.5.5.7.3.2</EKUOID>
+                                                </EKUMap>
+                                            </EKUMapping>
+                                            <ClientAuthEKUList Enabled="true">
+                                                <EKUMapInList>
+                                                    <EKUName>Client Authentication</EKUName>
+                                                </EKUMapInList>
+                                            </ClientAuthEKUList>
+                                        </FilteringInfo>
+                                    </TLSExtensions>
+                                </EapType>
+                            </Eap>
+                        </Config>
+                    </EapHostConfig>
+                </EAPConfig>
+            </OneX>
+        </security>
+    </MSM>
+</LANProfile>
+```

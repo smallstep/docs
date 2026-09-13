@@ -1,0 +1,37 @@
+---
+updated_at: September 13, 2026
+title: The Intune wired profile installs but Windows does not present the certificate
+html_title: "Wired: Windows does not present the certificate from the LAN profile"
+description: The LAN profile selects the certificate by issuer fingerprint and store; a root fingerprint or the wrong authMode leaves Windows with nothing to present.
+kind: troubleshooting
+---
+
+The custom OMA-URI profile shows as applied in Intune, the device has a certificate from the agent, and 802.1X fails on the port with no certificate presented.
+
+## Cause
+
+The LAN profile XML selects the certificate by two things, and one of them does not match:
+
+- `IssuerHash` must be the SHA-1 fingerprint of the **intermediate** (issuing) CA of the authority, not the root.
+- `authMode` must match the store the agent put the certificate in: `machine` for a credential with `HARDWARE_ATTESTED` key protection (the computer store), `user` for every other protection level (the user store).
+
+A `TrustedRootCA` that is not the RADIUS server CA's fingerprint fails later, at server validation, rather than at certificate selection.
+
+## Fix
+
+1. Recompute the issuing CA fingerprint from the authority's intermediate certificate and remove the colons:
+
+   ```bash
+   openssl x509 -in issuing_ca.crt -noout -fingerprint -sha1
+   ```
+
+2. Check the credential's `key.protection` and set `authMode` accordingly.
+3. Update the OMA-URI value in Intune with the corrected [LAN profile XML](../../reference/wlan-profile-xml.mdx#lan) and sync the device.
+
+## Check
+
+Event Viewer's **Wired-AutoConfig** log shows the EAP-TLS exchange completing, and the switch shows the session as authorized.
+
+## Go back to
+
+[Deliver to devices, Intune](../../use-cases/wired.mdx#deliver) in the wired guide.

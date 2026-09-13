@@ -1,0 +1,27 @@
+---
+updated_at: September 13, 2026
+title: The device presents a certificate with the wrong issuer
+html_title: "Wi-Fi: the device presents a certificate with the wrong issuer"
+description: The RADIUS server sees a certificate from an authority it does not trust because the device kept a stale certificate after re-enrollment.
+kind: troubleshooting
+---
+
+The RADIUS server logs a certificate whose issuer is not the authority you configured, and rejects it.
+
+## Cause
+
+The device is presenting a certificate issued before you changed its enrollment.
+A ChromeOS device keeps presenting a stale certificate until it restarts, even after re-enrollment completes.
+
+## Fix
+
+1. Confirm the device's enrollment completed with the authority you chose; for ChromeOS, that [ChromeOS device identity certificates](../../tutorials/chromeos-device-identity-certificates.mdx) finished.
+2. Restart the device so it stops presenting the old certificate.
+
+## Check
+
+The next authentication shows the expected issuer on the RADIUS server and answers Access-Accept.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.

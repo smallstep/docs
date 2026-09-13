@@ -1,0 +1,26 @@
+---
+updated_at: September 13, 2026
+title: "`OpenID Connect IdP` is not in Okta's list of identity providers"
+html_title: "SSO device factor: OpenID Connect IdP is not in Okta's list"
+description: Okta hides the generic OpenID Connect identity provider type behind a tenant feature that Okta support enables.
+kind: troubleshooting
+---
+
+Under **Security → Identity Providers → Add identity provider**, Okta offers social and SAML providers but no **OpenID Connect IdP**.
+
+## Cause
+
+The generic OpenID Connect identity provider type is behind the `GENERIC_OIDC_IDP` feature on your Okta tenant, and it is not enabled.
+
+## Fix
+
+[Open a support case with Okta](https://support.okta.com/help/s/article/How-to-Create-a-Support-Case?language=en_US) and ask for the `GENERIC_OIDC_IDP` feature to be enabled for your tenant.
+Nothing on the Smallstep side changes.
+
+## Check
+
+**Add identity provider** lists **OpenID Connect IdP**.
+
+## Go back to
+
+[Configure your identity provider, Okta](../../use-cases/sso-device-factor.mdx#configure-external) in the SSO device factor guide.

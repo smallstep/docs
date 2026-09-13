@@ -1,0 +1,31 @@
+---
+updated_at: September 13, 2026
+title: The port never authorizes and `show authentication sessions` shows no session
+html_title: "Wired: the port never authorizes"
+description: The switch shows no 802.1X session for the port, so either the port is not doing 802.1X or the device is not answering the EAP request.
+kind: troubleshooting
+---
+
+A device is plugged into an 802.1X-enabled port, gets no address on the corporate VLAN, and `show authentication sessions` (or `show dot1x interface <port>` on a Cisco-style command line) shows no session or an unauthorized one.
+
+## Cause
+
+Either the switch is not running 802.1X on that port, or the device's supplicant is not answering.
+Check the switch first: 802.1X must be enabled globally and the port must have port authentication (`dot1x port-control auto` on Cisco IOS-style switches) and the RADIUS server registered.
+If the switch is right, the device has no 802.1X profile for the wired interface yet, or its supplicant is not running.
+
+## Fix
+
+1. On the switch, confirm global 802.1X, port authentication on this port, and the RADIUS server entry with the IP, port, and secret from the guide.
+2. On the device, confirm the wired network profile exists.
+   The agent creates it on its next sync for devices in the credential's assignment policy; check the device's **Resources** tab in the Console.
+3. On Windows, confirm the **Wired AutoConfig** service is running; see [Windows does not attempt 802.1X on the wired interface](./windows-wired-autoconfig-stopped.mdx).
+4. Unplug and plug the cable, or bounce the port, to start a new authentication.
+
+## Check
+
+`show authentication sessions` shows the device with an **Authorized** state, and the activity appears on the resource's page under **Protect → Ethernet**.
+
+## Go back to
+
+[Configure your switches](../../use-cases/wired.mdx#configure-external) in the wired guide.

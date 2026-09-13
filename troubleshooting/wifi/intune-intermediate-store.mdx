@@ -1,0 +1,33 @@
+---
+updated_at: September 13, 2026
+title: SCEP enrollment errors after the Intune trusted certificate profiles install
+html_title: "Wi-Fi: SCEP enrollment errors on Windows after the Intune profiles install"
+description: Windows SCEP enrollment fails when the intermediate CA was placed in the intermediate certificate store instead of the root store, or when the SCEP profile points at the root instead of the intermediate.
+kind: troubleshooting
+---
+
+The two trusted certificate profiles and the SCEP profile deployed, and Windows devices log SCEP enrollment errors in Event Viewer under **Applications and Services Logs → Microsoft → Windows → DeviceManagement-Enterprise-Diagnostics-Provider**.
+
+## Cause
+
+One of two profile settings is wrong:
+
+- The intermediate CA's trusted certificate profile has **Destination store** set to the intermediate store.
+  It must go in **Computer certificate store - root**.
+- The SCEP certificate profile's **Root Certificate** is the root CA.
+  It must be the intermediate CA, because the enrolling device's SCEP client checks the fingerprint of the intermediate, not the root.
+
+## Fix
+
+1. Edit the intermediate CA's trusted certificate profile and set the destination store to **Computer certificate store - root**.
+2. Edit the SCEP certificate profile and select the intermediate CA as its root certificate.
+3. Sync the device from **Settings → Accounts → Access work or school → Info → Sync**.
+
+## Check
+
+Intune's reports show the device enrolled without errors, and the certificate appears in the Windows certificate store (`certlm.msc` for the computer store).
+Microsoft's [SCEP troubleshooting documentation](https://learn.microsoft.com/en-us/troubleshoot/mem/intune/certificates/troubleshoot-scep-certificate-profiles) covers the remaining error codes.
+
+## Go back to
+
+[Deliver to devices, Intune](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.

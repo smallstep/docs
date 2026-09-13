@@ -1,0 +1,49 @@
+---
+updated_at: September 13, 2026
+title: Troubleshooting
+html_title: Troubleshooting
+description: One entry per symptom, with its cause, fix, and the guide step to return to.
+kind: troubleshooting
+---
+
+Each entry is one symptom: the error text or the failure you can see, its cause, the fix, a check that proves the fix, and the guide step to return to.
+Start from the symptom you have.
+For an agent that is not healthy on any use case, start with the [agent troubleshooting page](../platform/troubleshooting-agent.mdx) and `step-agent doctor`.
+
+## Wi-Fi
+
+- [`unknown CA` or `unable to get local issuer certificate` on the RADIUS server](./wifi/unknown-ca.mdx)
+- [No RADIUS traffic reaches Smallstep when a device tries to join](./wifi/no-radius-traffic.mdx)
+- [Access points at a new site get no answer from Smallstep RADIUS](./wifi/new-site-no-answer.mdx)
+- [The device presents a certificate with the wrong issuer](./wifi/wrong-issuer.mdx)
+- [The `.mobileconfig` installed by hand does not connect](./wifi/mobileconfig-installed-by-hand.mdx)
+- [`The SCEP Certificate payload is failing for every device`](./wifi/scep-payload-failing.mdx)
+- [SCEP enrollment errors after the Intune trusted certificate profiles install](./wifi/intune-intermediate-store.mdx)
+- [The ACME certificate does not appear in Keychain Access](./wifi/acme-cert-not-in-keychain.mdx)
+- [Windows does not pick up the profile until it restarts](./wifi/windows-profile-needs-restart.mdx)
+- [`I can't connect to Wi-Fi` on an agent-managed device](./wifi/cannot-connect-agent-device.mdx)
+
+## Wired
+
+- [The port never authorizes and `show authentication sessions` shows no session](./wired/port-never-authorizes.mdx)
+- [Windows does not attempt 802.1X on the wired interface](./wired/windows-wired-autoconfig-stopped.mdx)
+- [Printers and other devices lose connectivity after port authentication is enabled](./wired/devices-without-certificates.mdx)
+- [The Intune wired profile installs but Windows does not present the certificate](./wired/lan-profile-wrong-issuer-hash.mdx)
+
+## Web apps
+
+- [The browser shows a certificate selection dialog](./web-apps/certificate-selection-dialog.mdx)
+- [Chrome or Firefox does not see the Smallstep certificate](./web-apps/browser-does-not-see-certificate.mdx)
+- [`chrome://policy` does not list `AutoSelectCertificateForUrls`](./web-apps/policy-not-applied.mdx)
+- [The app rejects the certificate as expired or invalid](./web-apps/certificate-expired.mdx)
+
+## SSO device factor
+
+- [`OpenID Connect IdP` is not in Okta's list of identity providers](./sso-device-factor/okta-oidc-idp-missing.mdx)
+- [The identity provider rejects the factor because the certificate's email does not match the username](./sso-device-factor/email-san-mismatch.mdx)
+- [A certificate selection dialog appears during the device check](./sso-device-factor/certificate-picker-at-sign-in.mdx)
+- [The person lands on the lifecycle failure page](./sso-device-factor/lifecycle-failure.mdx)
+
+## Agent
+
+- [Agent troubleshooting](../platform/troubleshooting-agent.mdx): the doctor command, each of its checks, and the platform-specific commands and file locations.

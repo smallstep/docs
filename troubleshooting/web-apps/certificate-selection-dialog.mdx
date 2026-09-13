@@ -1,0 +1,38 @@
+---
+updated_at: September 13, 2026
+title: The browser shows a certificate selection dialog
+html_title: "Web apps: the browser shows a certificate selection dialog"
+description: The auto-select policy is missing, does not cover this URL, or names an issuer that does not match the certificate.
+kind: troubleshooting
+---
+
+Opening the app prompts the person to choose a certificate instead of connecting silently.
+Choosing the Smallstep certificate works.
+
+## Cause
+
+The browser has the certificate but no rule that tells it to present it for this origin.
+One of:
+
+- The `AutoSelectCertificateForUrls` policy (Chrome, Edge) or the Firefox preferences are not applied on this device.
+- The policy's `pattern` does not match the URL; a pattern like `[.*]xample.com` does not match `example.com`.
+- The policy's `ISSUER.CN` is not the exact common name of the authority's intermediate CA.
+- Several `AutoSelectCertificateForUrls` policies were deployed.
+  Chrome does not merge them; only one applies.
+
+## Fix
+
+1. Open `chrome://policy` (or `edge://policy`) on the device and check that the policy is listed with the expected value.
+   If it is missing, see [`chrome://policy` does not list `AutoSelectCertificateForUrls`](./policy-not-applied.mdx).
+2. Compare the `pattern` with the URL the person opened, following the [Chrome Enterprise URL pattern rules](https://chromeenterprise.google/policies/url-patterns/).
+3. Compare `ISSUER.CN` with the intermediate CA name on the authority's page under **Authorities**.
+4. Put every protected URL into one policy and remove the others.
+5. Restart the browser.
+
+## Check
+
+Opening the app connects with no dialog.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/web-apps.mdx#deliver) in the web apps guide.

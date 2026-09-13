@@ -1,0 +1,34 @@
+---
+updated_at: September 13, 2026
+title: The app rejects the certificate as expired or invalid
+html_title: "Web apps: the app rejects the certificate as expired or invalid"
+description: The certificate expired while the device was offline, or the device clock is wrong, so the browser presents a certificate the app will not accept.
+kind: troubleshooting
+---
+
+The browser presents the certificate and the app or proxy returns a TLS error about an expired or invalid client certificate; the doctor's **Verify issued certificates** row fails.
+
+## Cause
+
+The certificate is outside its validity period from the app's point of view.
+Either it expired because the agent was offline past the renewal window, or the device's clock is wrong so a valid certificate looks not yet valid or already expired.
+
+## Fix
+
+1. Check the device clock with `date` and correct it; restart the agent if it was wrong.
+2. Force renewal of the device's certificates:
+
+   ```bash
+   sudo step-agent doctor --renew
+   ```
+
+   Renewal briefly interrupts anything using those certificates.
+3. If renewal fails, check the agent logs for the error and confirm the device can reach `<<team-slug>>.ca.smallstep.com`.
+
+## Check
+
+The doctor's **Verify issued certificates** row passes, the browser's certificate list shows the new validity dates, and the app connects.
+
+## Go back to
+
+[Roll out and operate](../../use-cases/web-apps.mdx#operate) in the web apps guide.

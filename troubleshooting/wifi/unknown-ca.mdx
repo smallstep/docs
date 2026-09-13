@@ -1,0 +1,35 @@
+---
+updated_at: September 13, 2026
+title: "`unknown CA` or `unable to get local issuer certificate` on the RADIUS server"
+html_title: "Wi-Fi: unknown CA or unable to get local issuer certificate"
+description: The RADIUS server rejects the EAP-TLS handshake because it cannot build a chain from the device's certificate to a root it trusts.
+kind: troubleshooting
+---
+
+The device associates, RADIUS traffic reaches the server, and the server logs `unknown CA` or `unable to get local issuer certificate` and answers Access-Reject.
+
+## Cause
+
+The RADIUS server's client trust store is missing the root, or the intermediate, of the authority that issued the device's certificate.
+On Smallstep RADIUS this is the `clientCA` you registered; on your own server it is the trusted client CA bundle.
+ChromeOS devices send the intermediate in the handshake, so the root alone is enough for them; other supplicants may send only the leaf.
+
+## Fix
+
+1. Download the root certificate of the authority named in the credential's `authorityID`.
+2. Smallstep RADIUS: update the server's `clientCA` with `PUT /managed-radius/{managedRadiusID}` so it holds that root.
+   Your own server: add the root (and the intermediate if your supplicants do not send it) to the trusted client CA bundle and reload the server.
+3. Have the device reconnect.
+
+## Check
+
+The next authentication answers Access-Accept, and the activity appears on the network's page under **Protect → Wi-Fi**.
+To confirm which authority signed the device's certificate, inspect it on the device:
+
+```bash
+step certificate inspect --bundle /path/to/cert.crt
+```
+
+## Go back to
+
+[Create the RADIUS server](../../use-cases/wifi.mdx#create) in the Wi-Fi guide.

@@ -1,0 +1,190 @@
+---
+updated_at: September 13, 2026
+title: Access points
+html_title: Access point reference for EAP-TLS Wi-Fi
+description: Where each access point vendor takes the RADIUS server IP, port, shared secret, and the WPA Enterprise setting. Companion to the Wi-Fi guide.
+kind: reference
+---
+
+Every access point takes the same values from the [Wi-Fi guide](../use-cases/wifi.mdx#configure-external):
+
+| Setting | Value |
+|---|---|
+| Security | WPA2 Enterprise or WPA3 Enterprise |
+| RADIUS server IP | <<radius-server-ip>> |
+| RADIUS server port | <<radius-server-port>> |
+| Shared secret | <<radius-secret>> |
+| Server certificate name (where asked) | <<radius-server-name>> |
+
+The sections below say where each vendor's interface takes them.
+The guide's vendor tabs cover Meraki, Ubiquiti UniFi, Aruba, Cisco WLC, and Juniper Mist; they are repeated here so this page is complete.
+
+## Ubiquiti UniFi {#ubiquiti-unifi}
+
+Create a RADIUS profile in the UniFi Network app:
+
+1. Go to **Settings → Profiles → RADIUS → Create New**.
+2. Name the profile.
+3. Under **Authentication servers**, add <<radius-server-ip>>, <<radius-server-port>>, and <<radius-secret>>.
+4. Save.
+
+Create the network and link the profile:
+
+1. Go to **Settings → WiFi → Create New**.
+2. Enter <<ssid>>.
+3. Under **Advanced Configuration**, choose **Manual**.
+4. Under **Security**, select **WPA-3 Enterprise** and, for **RADIUS Profile**, the profile you created.
+5. Save.
+
+## MikroTik {#mikrotik}
+
+For a MikroTik access point running RouterOS, from WebFig or the terminal.
+
+Add the RADIUS client:
+
+1. Go to **RADIUS → Add New**.
+2. For **Service**, select **wireless**.
+3. Enter <<radius-server-ip>> as the address and <<radius-secret>> as the secret.
+4. Set **Timeout** to 5000 ms and confirm.
+
+```bash
+/radius
+add address=<<radius-server-ip>> secret="<<radius-secret>>" \
+service=wireless timeout=5s
+```
+
+Add a security profile:
+
+1. Go to **Wireless → Security Profiles → Add New** and name it `EAP_AP`.
+2. For **Mode**, choose **dynamic keys**; for **Authentication Types**, select **WPA2 EAP**; for **Supplicant Identity**, enter `Mikrotik`.
+3. Confirm.
+
+```bash
+/interface wireless security-profiles
+add authentication-types=wpa2-eap eap-method=passthrough mode=dynamic-keys name=EAP_AP supplicant-identity=Mikrotik
+```
+
+Attach the profile to the wireless interface:
+
+1. Go to **Wireless Interfaces**, open the interface, and set **Security Profile** to `EAP_AP`.
+
+```bash
+/interface/wireless
+set [find] security-profile=EAP_AP
+```
+
+See the [MikroTik documentation](https://help.mikrotik.com/docs/display/ROS/Enterprise+wireless+security+with+User+Manager+v5) for more.
+
+## Aerohive {#aerohive}
+
+Create the RADIUS profile:
+
+1. Go to **Configuration → Common Objects → Authentication → External RADIUS Servers** and add a server.
+2. Name it and enter <<radius-server-ip>>, <<radius-server-port>>, and <<radius-secret>>.
+3. Save.
+
+Create the network:
+
+1. Go to **Configure → Network Policies → Add Network Policy**, select **Wireless**, name the policy, and continue.
+2. Add a wireless SSID with the SSID name and broadcast name <<ssid>>.
+3. Under **SSID Usage**: authentication **Enterprise WPA/WPA2 802.1X**, key management **WPA2-(WPA2 Enterprise)-802.1X**, encryption **CCMP (AES)**.
+4. Under **Authentication Settings**, add the RADIUS profile to the **Default RADIUS Server Group** and save.
+
+![Aerohive EAP-TLS setup](/graphics/Aerohive.png)
+
+## Aruba {#aruba}
+
+These steps follow an Aruba mobility controller; see [Aruba's WLAN configuration documentation](https://arubanetworking.hpe.com/techdocs/VSG/docs/020-campus-deploy/esp-campus-deploy-110-configuring-wireless-access/) for other products.
+
+Create the server group:
+
+1. Go to **Configuration → Authentication → Auth Servers**.
+2. Add a **Server Group** and submit.
+3. Open the group, add a new server, enter <<radius-server-ip>> and <<radius-server-name>>, set **Type** to **RADIUS**, and submit.
+
+Create the WLAN:
+
+1. Go to **Configuration → WLAN** and add a WLAN.
+2. On **General**: name <<ssid>>, primary usage **Employee**, the AP groups to broadcast on, forwarding mode **tunnel**.
+3. On **VLANs**: your VLAN ID.
+4. On **Security → Enterprise**: key management **WPA-3 Enterprise**; under **Auth servers**, add the server group.
+5. On **Access**: the default role for authenticated devices; finish.
+6. Open **Pending Changes** and deploy.
+
+## Meraki {#meraki}
+
+1. Go to **Wireless → Configure → SSIDs** and enable an unconfigured SSID.
+2. Rename it to <<ssid>> and save.
+3. Open **edit settings** to reach the SSID's Access control tab.
+4. Set **Association requirements** to **Enterprise with my RADIUS server**.
+5. Under **RADIUS servers**, add <<radius-server-ip>>, <<radius-server-port>>, and <<radius-secret>>.
+6. Save.
+
+![Meraki EAP-TLS Wi-Fi setup](/graphics/meraki.png)
+
+## Cisco Wireless LAN Controller {#cisco-wlc}
+
+1. Go to **Security → RADIUS → Authentication**, choose **New**, and enter <<radius-server-ip>>, <<radius-secret>>, and <<radius-server-port>>; apply.
+2. On the **WLANs** tab, choose **Create New**, name the WLAN <<ssid>>, and apply.
+3. On **General**, set **Status** to **Enabled**.
+4. On **Security → AAA Servers**, select the server as **Server 1** under **Authentication Servers** and apply.
+
+## Extreme Networks {#extreme-networks}
+
+Create the RADIUS server:
+
+1. Go to **ONBOARD → AAA**.
+2. Under **RADIUS Servers** on the default AAA configuration, choose **Add** and enter <<radius-server-ip>>, <<radius-server-port>>, and <<radius-secret>>.
+3. Save.
+
+![Extreme EAP-TLS setup](/graphics/Extreme.png)
+
+Create the network:
+
+1. Go to **Networks → Add**: a network name, SSID <<ssid>>, status **Enable**, auth type **WPA2 Enterprise w/ RADIUS**, authentication method **RADIUS**, primary RADIUS the server you added, a backup RADIUS if you have one, default auth role **Enterprise User**, and a default VLAN.
+2. Save.
+
+## Juniper Mist {#juniper-mist}
+
+1. Go to **Organization → WLAN Templates** and open or create a template.
+2. Choose **Add WLAN** and enter <<ssid>>.
+3. Under **Security**, select **WPA3** or **WPA2**, then **Enterprise (802.1X)**.
+4. Under **Authentication Servers**, choose **Add Server** and enter <<radius-server-ip>> and <<radius-secret>>.
+5. Save.
+
+See [Juniper Mist's RADIUS documentation](https://www.juniper.net/documentation/us/en/software/mist/mist-wireless/topics/topic-map/radius-configuration.html) for more.
+
+## Sophos UTM {#sophos-utm}
+
+Create the authentication server:
+
+1. Go to **Definitions & Users → Authentication Services**.
+2. On **Servers**, choose **New Authentication Server**: backend **RADIUS**, position **Top**, server <<radius-server-ip>>, shared secret <<radius-secret>>.
+3. Save.
+
+Use it for enterprise authentication:
+
+1. Go to **Wireless Protection → Global Settings → Advanced**.
+2. Under **Enterprise Authentication**, select the server and apply.
+
+Create the network:
+
+1. Go to **Wireless Protection → Wireless Networks** and choose **Add Wireless Network**.
+2. Enter a network name and the SSID <<ssid>>, set **Encryption mode** to **WPA2/WPA Enterprise**, and choose the client traffic option that fits (see the [Sophos UTM administrator guide](https://docs.sophos.com/nsg/sophos-utm/utm/9.717/help/en-us/Content/utm/utmAdminGuide/WirelessNetworks.htm)).
+3. Save and assign the network to your access points.
+
+## Asus {#asus}
+
+These steps follow the RT-AX1800S; current Asus routers have a similar interface.
+Set up a separate band with a WPA2 password first so you keep a way in if the enterprise band misbehaves.
+
+1. Go to **Advanced Settings → Wireless**.
+2. On **General**: network name <<ssid>>, authentication method **WPA2-Enterprise**, and the server IP address, server port, and connection string set to <<radius-server-ip>>, <<radius-server-port>>, and <<radius-secret>>.
+3. Apply.
+
+![ASUS EAP-TLS setup](/graphics/asus-eaptls.png)
+
+## Not listed?
+
+Any access point that supports WPA Enterprise with an external RADIUS server works with the values at the top of this page.
+Open an issue on [the docs repository](https://github.com/smallstep/docs/issues) to ask for a vendor.
