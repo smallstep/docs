@@ -5,6 +5,11 @@ html_title: Registration Authorities Implementation
 description: Implement Registration Authorities for distributed PKI. Scale certificate issuance across multiple locations and security zones.
 ---
 
+<Alert severity="info">
+  <AlertTitle>Registration authorities are documented under Trust</AlertTitle>
+  <div>A registration authority in front of a hosted authority is a Trust concept; the step-ca registration authority mode is in the open-source section. These pages stay while that move completes.</div>
+</Alert>
+
 Smallstep Registration Authorities (RA) provide automated enrollment and renewal of certificates using modern techniques while extending your existing internal PKI. Smallstep RAs act narrowly as a _registration authority_, accepting certificate orders, and authenticating certificate requests. Smallstep RAs do not sign certificates. Instead, certificate requests are passed to your existing PKI infrastructure to sign and catalog. Benefits of this approach include:
 
 * Issued certificates are trusted by anything that trusts your PKI root certificate.
