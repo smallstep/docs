@@ -1,0 +1,34 @@
+---
+updated_at: September 13, 2026
+title: Windows does not attempt 802.1X on the wired interface
+html_title: "Wired: Windows does not attempt 802.1X on the wired interface"
+description: Windows only does 802.1X on Ethernet while the Wired AutoConfig service is running; it is stopped by default on many builds.
+kind: troubleshooting
+---
+
+The wired profile is on the device, the certificate is issued, and the switch sees no EAP response from the Windows device.
+Event Viewer shows nothing under **Applications and Services Logs → Microsoft → Windows → Wired-AutoConfig**.
+
+## Cause
+
+The **Wired AutoConfig** service (`dot3svc`) is not running.
+Windows performs 802.1X on Ethernet only through this service, and it is stopped by default on many installations.
+
+## Fix
+
+Start the service and set it to start automatically, from an elevated PowerShell:
+
+```powershell
+Set-Service -Name dot3svc -StartupType Automatic
+Start-Service -Name dot3svc
+```
+
+Then unplug and plug the cable.
+
+## Check
+
+Event Viewer's **Wired-AutoConfig** log shows an authentication attempt and success, and the switch shows the session as authorized.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/wired.mdx#deliver) in the wired guide.
