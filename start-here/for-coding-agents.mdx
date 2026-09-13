@@ -2,7 +2,78 @@
 updated_at: September 13, 2026
 title: For coding agents
 html_title: For coding agents
-description: How an agent reads these docs: llms.txt, Markdown per page, the docs MCP, and one skill per use case.
+description: What an AI coding agent can read and call today, what is planned, and a prompt to paste.
+kind: reference
 ---
 
-Everything on this site will be readable by an agent: an index at `llms.txt`, every page as Markdown, a docs MCP endpoint, and one skill per use-case guide. This page describes them once they exist.
+This page is for people who set up Smallstep with an AI coding agent beside them, and for the agents themselves.
+It says what exists today, and, separately, what is planned.
+
+## What exists today
+
+### The documentation is Markdown source on GitHub
+
+Every page on this site is an MDX file in the public repository [github.com/smallstep/docs](https://github.com/smallstep/docs).
+An agent can fetch any page as raw text.
+The path in the repository matches the URL:
+`https://smallstep.com/docs/tutorials/protect-wireless-networks` is `tutorials/protect-wireless-networks.mdx`.
+
+```text
+https://raw.githubusercontent.com/smallstep/docs/main/tutorials/protect-wireless-networks.mdx
+```
+
+The sidebar tree is `manifest.json` in the same repository; it lists every page in order.
+
+### An `llms.txt` for the company site
+
+[smallstep.com/llms.txt](https://smallstep.com/llms.txt) exists.
+It indexes the product and platform pages of the marketing site, not this documentation.
+Use it for orientation; use the repository for the docs.
+
+### The API has a published specification
+
+The [Smallstep API](../platform/smallstep-api.mdx) is a versioned REST API with an OpenAPI specification.
+Every operation has a stable reference URL, for example [Create Wi-Fi](https://gateway.smallstep.com/v2025-01-01/operations/PostWifi).
+The guides on this site use `curl` against it, so an agent can follow a guide literally.
+The same objects are available through the [Terraform provider](https://registry.terraform.io/providers/smallstep/smallstep/latest/docs).
+
+### The `step` CLI reference
+
+The [step CLI reference](../step-cli/reference/README.mdx) is generated from the CLI itself and is complete for every command and flag.
+
+## A prompt to paste
+
+Give your agent the guide for your use case and an API token with the scopes the guide names.
+For Wi-Fi:
+
+```text
+Read https://raw.githubusercontent.com/smallstep/docs/main/start-here/quickstart.mdx
+and https://raw.githubusercontent.com/smallstep/docs/main/tutorials/protect-wireless-networks.mdx.
+Help me set up certificate-based Wi-Fi with Smallstep.
+My API token is in the environment variable SMALLSTEP_API_TOKEN.
+Before each API call, show me the request and wait for my go-ahead.
+Do not change my access point; tell me what to enter.
+```
+
+Two habits make this go well.
+Ask the agent to show each request before it sends it, because a credential or a RADIUS server is a real object once created.
+And keep the access-point change in your own hands; the guide tells the agent which values to hand you.
+
+## Planned
+
+<Alert severity="warning">
+  <AlertTitle>Not available yet</AlertTitle>
+  <div>
+    The items in this section are part of the documentation redesign and are not live.
+    Do not build against them until this page says they exist.
+  </div>
+</Alert>
+
+- **Markdown for every page at a predictable URL**, so an agent reads the rendered page rather than the MDX source.
+- **A generated `llms.txt` and `llms-full.txt`** for this documentation, built from the manifest, replacing the marketing-site index above for docs work.
+- **A public docs MCP endpoint** that answers a search and returns a page.
+  This is distinct from the customer-facing MCP gateway product.
+- **One skill per use-case guide**, whose steps are the guide's steps, published under a discoverable index.
+- **Open-in-agent affordances** on every page: copy as Markdown, open in Claude, ChatGPT, or Cursor.
+
+When these land, this page will say so, and the prompt above will shrink to a single link.
