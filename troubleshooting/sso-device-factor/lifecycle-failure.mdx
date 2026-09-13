@@ -1,0 +1,26 @@
+---
+updated_at: September 13, 2026
+title: The person lands on the lifecycle failure page
+html_title: "SSO device factor: the person lands on the lifecycle failure page"
+description: The device presented a certificate but its lifecycle in Smallstep is not active, so the device factor sent the person to the client's lifecycle failure address.
+kind: troubleshooting
+---
+
+Instead of returning to the identity provider, the browser lands on the address you set as the client's `lifecycleFailureURI`, or the device check fails after the certificate is presented.
+
+## Cause
+
+The certificate verified, but the device's lifecycle state in Smallstep is not active: the device was unapproved, retired, or otherwise moved out of the active state, so the device factor declines it.
+
+## Fix
+
+1. Find the device under [Devices](https://smallstep.com/app/?next=/devices) and check its lifecycle state.
+2. If the device should have access, return it to the active state; if it should not, the failure is correct and the person needs an enrolled device.
+
+## Check
+
+The sign-in from the device completes once its lifecycle state is active again.
+
+## Go back to
+
+[Roll out and operate](../../use-cases/sso-device-factor.mdx#operate) in the SSO device factor guide.

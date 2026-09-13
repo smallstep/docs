@@ -1,0 +1,27 @@
+---
+updated_at: September 13, 2026
+title: A certificate selection dialog appears during the device check
+html_title: "SSO device factor: a certificate selection dialog appears during the device check"
+description: The browser has no auto-select rule for the device factor's address, so it asks the person which certificate to present.
+kind: troubleshooting
+---
+
+When the identity provider redirects to Smallstep, the browser shows a certificate picker before the device check completes.
+
+## Cause
+
+The browser's auto-select policy does not cover the device factor's address (`https://<<team-slug>>.id.smallstep.com`), or names an issuer that does not match the certificate.
+The check still succeeds when the person picks the Smallstep certificate.
+
+## Fix
+
+1. Add the device factor's address to the `AutoSelectCertificateForUrls` policy (Chrome, Edge) or the Firefox preferences, as the [web apps guide](../../use-cases/web-apps.mdx#deliver) shows, with the exact intermediate CA name as the issuer.
+2. Restart the browser.
+
+## Check
+
+The next sign-in completes the device check with no dialog.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/sso-device-factor.mdx#deliver) in the SSO device factor guide.

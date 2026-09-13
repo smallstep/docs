@@ -1,0 +1,33 @@
+---
+updated_at: September 13, 2026
+title: The identity provider rejects the factor because the certificate's email does not match the username
+html_title: "SSO device factor: the certificate's email does not match the sign-in username"
+description: The device factor identifies the person by the certificate's first email SAN, which must equal the username they signed in with at the identity provider.
+kind: troubleshooting
+---
+
+The device check completes, but the identity provider reports that the factor was not satisfied, or that the identity returned does not match the signed-in user.
+
+## Cause
+
+The device factor takes the person's identity from the **first email SAN** of the browser certificate.
+The credential's SANs do not put `smallstep:identity` first, or the device's bound user is not the same person who signed in, or the user synced from the identity provider has a different email than the sign-in username.
+
+## Fix
+
+1. Inspect the certificate on the device and read its first email SAN:
+
+   ```bash
+   step certificate inspect --bundle /path/to/cert.crt
+   ```
+
+2. If the SAN is not the sign-in username: put `smallstep:identity` first in the credential's `sans` (`PUT /credential/{credentialID}`) and let the agent renew, or fix the device's bound user under **Devices**.
+3. If the synced user's email differs from the sign-in username, correct the mapping in the user sync for [Okta](../../tutorials/sync-okta-users-to-smallstep.mdx) or [Entra ID](../../tutorials/sync-entra-id-users-to-smallstep.mdx).
+
+## Check
+
+The certificate's first email SAN equals the username, and the sign-in completes with Smallstep as the factor.
+
+## Go back to
+
+[Create it in Smallstep](../../use-cases/sso-device-factor.mdx#create) in the SSO device factor guide.
