@@ -1,0 +1,28 @@
+---
+updated_at: September 13, 2026
+title: Windows does not pick up the profile until it restarts
+html_title: "Wi-Fi: Windows does not pick up the Intune profile until it restarts"
+description: A Windows device that has been online or asleep for a long time can lose its push-notification channel and miss new profiles until it syncs or restarts.
+kind: troubleshooting
+---
+
+Profiles assigned in Intune reach new devices, but a device that has been running for a while does not receive them and shows no error.
+
+## Cause
+
+The device has been disconnected from Windows push notifications (WNS), which happens after a long uptime or a long sleep, so it receives no notification that new profiles are waiting.
+
+## Fix
+
+1. On the device, go to **Settings → Accounts → Access work or school**, expand the signed-in account, choose **Info**, and select **Sync**.
+2. If the profiles still do not arrive, restart Windows to re-establish the channel.
+
+Give it a minute after the sync for certificates to appear in the trust store.
+
+## Check
+
+The **Info** screen shows a recent successful sync, and the expected certificates are in the right stores: trusted roots and intermediates in the computer's root store, the client certificate in the personal store of the account the profile targets.
+
+## Go back to
+
+[Deliver to devices, Intune](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.

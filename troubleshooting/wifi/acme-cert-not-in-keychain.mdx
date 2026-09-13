@@ -1,0 +1,31 @@
+---
+updated_at: September 13, 2026
+title: The ACME certificate does not appear in Keychain Access
+html_title: "Wi-Fi: the ACME device attestation certificate does not appear in Keychain Access"
+description: Certificates issued through ACME device attestation on macOS are managed by the MDM client and are not shown in Keychain Access.
+kind: troubleshooting
+---
+
+The Jamf profile with the ACME certificate payload installed, but Keychain Access shows no certificate from your device authority.
+
+## Cause
+
+This is how managed device attestation works on macOS.
+The certificate is held by the MDM client, not the login or system keychain, so Keychain Access does not list it.
+
+## Fix
+
+Nothing to fix.
+Inspect the certificate with the MDM client instead:
+
+```bash
+sudo /usr/libexec/mdmclient QueryCertificates
+```
+
+## Check
+
+The profile appears under **Profiles** in System Settings with an ACME certificate whose subject common name is the device serial number and whose **Hardware Bound** property says **Yes**.
+
+## Go back to
+
+[Deliver to devices, Jamf Pro](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.

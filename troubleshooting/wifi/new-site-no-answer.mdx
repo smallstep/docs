@@ -1,0 +1,39 @@
+---
+updated_at: September 13, 2026
+title: Access points at a new site get no answer from Smallstep RADIUS
+html_title: "Wi-Fi: access points at a new site get no answer"
+description: Requests from a public IP that is not registered on the RADIUS server are not attributed to your team and go unanswered.
+kind: troubleshooting
+---
+
+Devices at a new office, or at an office whose internet provider changed, cannot join, and the access points there report RADIUS timeouts.
+Other sites work.
+
+## Cause
+
+Smallstep RADIUS attributes incoming requests to your team by the source IP address.
+The new site's public IP is not in the server's `nasIPs` list, so its requests are not attributed to you.
+
+## Fix
+
+Add the site's public IP address to the RADIUS server:
+
+```bash
+curl -sH @api_headers --request PUT \
+  --url "https://gateway.smallstep.com/api/managed-radius/<<radius-server-id>>" \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-smallstep-api-version: 2025-01-01' \
+  --data '{"name": "Corporate RADIUS", "nasIPs": ["<<nas-ip>>", "203.0.113.20"], "clientCA": "..."}' | jq
+```
+
+Send the full object; `PUT` replaces it.
+Each IP must be unique across Smallstep customers.
+
+## Check
+
+Access points at the new site receive Access-Accept, and the activity appears on the network's page under **Protect → Wi-Fi**.
+
+## Go back to
+
+[Create the RADIUS server](../../use-cases/wifi.mdx#create) in the Wi-Fi guide.

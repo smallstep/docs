@@ -1,0 +1,36 @@
+---
+updated_at: September 13, 2026
+title: No RADIUS traffic reaches Smallstep when a device tries to join
+html_title: "Wi-Fi: no RADIUS traffic reaches Smallstep"
+description: The RADIUS server sees nothing when the device tries to join, so the problem is on the device or the access point, not the server.
+kind: troubleshooting
+---
+
+The device shows the network, tries to join, and fails, and the RADIUS server records no request at all.
+
+## Cause
+
+The device never completed association, so the access point never relayed a handshake.
+Two device-side causes account for most cases:
+
+- **Certificate selection failed.**
+  The profile's issuer pattern (ChromeOS), issuer hash (Windows), or identity certificate (macOS) does not match the certificate on the device, so the supplicant has nothing to present.
+- **No certificate was issued.**
+  The device is not in the credential's assignment policy, the agent has not synced, or the MDM's certificate payload has not completed.
+
+A third cause is on the access point: the SSID is not configured for WPA Enterprise with the RADIUS server, or the access point sends from an IP that is not registered.
+
+## Fix
+
+1. Open the device in the Console and check its **Certificates** tab for a valid certificate from the credential.
+   If there is none, check the credential's assignment policy and, for MDM delivery, the MDM's payload status for the device.
+2. If a certificate exists, recheck the selector in the profile: the issuer pattern must equal the intermediate CA's common name exactly, with locality, organization, organizational unit, and subject pattern left empty (ChromeOS); the `IssuerHash` must be the intermediate's SHA-1 fingerprint (Windows).
+3. On the access point, confirm the SSID uses WPA2 or WPA3 Enterprise and the RADIUS server IP, port, and secret from the guide.
+
+## Check
+
+A join attempt now produces a request on the RADIUS server: either Access-Accept, or a reject with a reason you can act on.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide; for the access point, [Configure your access points](../../use-cases/wifi.mdx#configure-external).

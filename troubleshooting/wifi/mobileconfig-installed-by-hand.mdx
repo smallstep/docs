@@ -1,0 +1,28 @@
+---
+updated_at: September 13, 2026
+title: The `.mobileconfig` installed by hand does not connect
+html_title: "Wi-Fi: the mobileconfig installed by hand does not connect"
+description: The Jamf profile template only works when Jamf delivers it, because the SCEP challenge is fetched by Jamf through its webhook.
+kind: troubleshooting
+---
+
+You downloaded the configuration profile template from the Wi-Fi network's page, double-clicked it on a Mac to test, and the device does not get a certificate or join the network.
+
+## Cause
+
+The template is meant to be uploaded to Jamf.
+Jamf fills in the single-use SCEP challenge through the `SCEPChallenge` webhook when it delivers the profile; a profile installed by hand has no challenge, so the SCEP payload fails.
+
+## Fix
+
+1. Upload the `.mobileconfig` under **Configuration Profiles** in Jamf.
+2. Scope it to a test device that already has a basic Jamf MDM profile.
+3. Let Jamf deliver it.
+
+## Check
+
+The device shows the profile under **Profiles** in System Settings, a certificate is issued, and the network joins without a password.
+
+## Go back to
+
+[Deliver to devices, Jamf Pro](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.

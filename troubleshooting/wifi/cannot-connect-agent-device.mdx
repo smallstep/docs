@@ -1,0 +1,37 @@
+---
+updated_at: September 13, 2026
+title: "`I can't connect to Wi-Fi` on an agent-managed device"
+html_title: "Wi-Fi: an agent-managed device cannot connect"
+description: Where to look when a device with the agent cannot join the network, in the order that rules out the most causes first.
+kind: troubleshooting
+---
+
+A device that runs the agent cannot join the network, or joined once and cannot rejoin.
+
+## Cause
+
+One of three things, in order of likelihood: the device is not in a healthy state in the Console, the device has no valid certificate for the network, or the certificate exists but the network profile on the device does not use it.
+
+## Fix
+
+1. Find the device under [Devices](https://smallstep.com/app/?next=/devices) and confirm it shows a green status, is awake, and is online.
+2. Open the device's **Certificates** tab and look for the Wi-Fi credential's certificate.
+   - **No certificate**: the credential may not be assigned to this device; check the credential's assignment policy and the device's **Resources** tab.
+     Then run the doctor on the device.
+   - **A certificate exists**: the problem is between the agent and the network profile.
+     Run the doctor; a failing **Verify issued certificates** row means the certificate expired while the device was offline or the clock is wrong.
+3. Run the doctor:
+
+   ```bash
+   sudo step-agent doctor
+   ```
+
+   To force renewal of every certificate, add `--renew`.
+
+## Check
+
+Every doctor row reports `PASS`, the **Certificates** tab shows a current certificate, and selecting the SSID connects without a password.
+
+## Go back to
+
+[Verify](../../use-cases/wifi.mdx#verify) in the Wi-Fi guide; for doctor rows that fail, the [agent troubleshooting page](../../platform/troubleshooting-agent.mdx#understanding-doctor-output).

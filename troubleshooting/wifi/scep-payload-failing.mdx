@@ -1,0 +1,28 @@
+---
+updated_at: September 13, 2026
+title: "`The SCEP Certificate payload is failing for every device`"
+html_title: "Wi-Fi: the SCEP certificate payload is failing for every device"
+description: Every MDM-managed device fails the SCEP payload because the SCEP URL or the SCEP credentials differ between the MDM and Smallstep.
+kind: troubleshooting
+---
+
+The MDM reports the SCEP certificate payload as failed on every device, not just one.
+
+## Cause
+
+The MDM and Smallstep disagree on the SCEP settings: the SCEP URL in the MDM does not match the one Smallstep shows for the network, or the SCEP username and password differ, or the credentials expired.
+
+## Fix
+
+1. Open the Wi-Fi network under **Protect → Wi-Fi** and compare the SCEP URL with the one in your MDM's certificate profile.
+2. Compare the SCEP username and password in both places; if they expired, update them in both.
+3. Retry the SCEP payload from the MDM.
+
+## Check
+
+The MDM's payload report shows success for a test device, and the device's **Certificates** tab in the Console lists the certificate.
+A single device that still fails is a device problem, not a settings problem; continue with the [agent troubleshooting page](../../platform/troubleshooting-agent.mdx).
+
+## Go back to
+
+[Deliver to devices](../../use-cases/wifi.mdx#deliver) in the Wi-Fi guide.
