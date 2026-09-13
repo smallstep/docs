@@ -1,0 +1,46 @@
+---
+updated_at: September 13, 2026
+title: Chrome or Firefox does not see the Smallstep certificate
+html_title: "Web apps: Chrome or Firefox does not see the Smallstep certificate"
+description: The certificate is issued but the browser's certificate list does not show it, because the browser has not reloaded its store or, on Linux, cannot reach the agent's PKCS#11 module.
+kind: troubleshooting
+---
+
+The device's **Certificates** tab in the Console shows a certificate from the browser credential, but `chrome://settings/certificates`, Edge's certificate manager, or Firefox's `about:certificate` does not list it, and the app fails the handshake.
+
+## Cause
+
+On macOS and Windows, the browser was open when the certificate was installed and has not reread the keychain or certificate store.
+On Linux, browsers reach the certificate through the agent's PKCS#11 interface, and the module is not reachable: the PKCS#11 socket is missing, `P11_KIT_SERVER_ADDRESS` is not set for the browser's environment, or p11-kit is not installed.
+
+## Fix
+
+1. Restart the browser.
+2. On Linux, check the PKCS#11 path:
+
+   ```bash
+   ls -l /run/step-agent/step-agent-pkcs11.sock
+   echo $P11_KIT_SERVER_ADDRESS
+   pkcs11-tool --module /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-client.so --list-slots
+   ```
+
+   If the variable is empty, set it for the session that starts the browser:
+
+   ```bash
+   export P11_KIT_SERVER_ADDRESS=unix:path=/run/step-agent/step-agent-pkcs11.sock
+   ```
+
+   The [agent troubleshooting page](../../platform/troubleshooting-agent.mdx#pkcs11-not-working-linuxmacos) covers p11-kit installation and a failed `modutil` add.
+3. Run the doctor; the **Enumerate PKCS#11 objects** row must pass on Linux and macOS:
+
+   ```bash
+   sudo step-agent doctor
+   ```
+
+## Check
+
+The browser's certificate list shows the certificate issued by your authority's intermediate, and the app connects.
+
+## Go back to
+
+[Verify](../../use-cases/web-apps.mdx#verify) in the web apps guide.

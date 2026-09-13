@@ -1,0 +1,33 @@
+---
+updated_at: September 13, 2026
+title: "`chrome://policy` does not list `AutoSelectCertificateForUrls`"
+html_title: "Web apps: chrome://policy does not list the auto-select policy"
+description: The policy was written to the wrong registry key or file, or the browser has not been restarted since.
+kind: troubleshooting
+---
+
+`chrome://policy` (or `edge://policy`) does not show `AutoSelectCertificateForUrls`, and the app prompts for a certificate.
+
+## Cause
+
+The policy is not where the browser reads it, or the browser has not restarted since it was written:
+
+- Windows: the string value is under the wrong key.
+  Chrome reads `HKEY_LOCAL_MACHINE\Software\Policies\Google\Chrome`; Edge reads `HKEY_CURRENT_USER\SOFTWARE\Policies\Microsoft\Edge`; a missing `Google\Chrome` or `Edge` key was not created.
+- Linux: the JSON file is not under `/etc/opt/chrome/policies/managed/`, or is not valid JSON.
+- macOS: the configuration profile is not scoped to this device, or the preference domain is not `com.google.Chrome`.
+- ChromeOS: the device has not synced since the Admin console change.
+
+## Fix
+
+1. Put the policy in the location for the browser and operating system as the guide's Deliver step shows.
+2. Restart the browser.
+3. Reload `chrome://policy` and choose **Reload policies** if it is offered.
+
+## Check
+
+`chrome://policy` lists `AutoSelectCertificateForUrls` with your pattern and issuer, with no error next to it.
+
+## Go back to
+
+[Deliver to devices](../../use-cases/web-apps.mdx#deliver) in the web apps guide.
