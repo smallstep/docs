@@ -1,0 +1,74 @@
+---
+updated_at: September 13, 2026
+title: RadSec
+html_title: RadSec (RADIUS over TLS)
+description: What RADIUS over TLS is, why it exists, when you want it, and what the platform supports today.
+kind: learn
+---
+
+RADIUS was designed for a network access server talking to an authentication server down the hall.
+Today the access point is in your office and the RADIUS server is in a cloud region, and the protocol is carrying your fleet's Wi-Fi authentications across the internet.
+RadSec is how you make that safe.
+
+## What RADIUS does in a certificate-based network
+
+In an 802.1X network, the access point or switch does not verify the device's certificate itself.
+It relays the EAP-TLS handshake to a RADIUS server, which completes the TLS handshake with the device, checks the certificate against the trust roots it was given, and answers Access-Accept or Access-Reject.
+The access point only opens the port when it hears Accept.
+
+The device's certificate and keys are protected by that inner TLS handshake.
+Everything around it is plain RADIUS.
+
+## What plain RADIUS lacks
+
+Classic RADIUS runs over UDP and secures itself with a shared secret and MD5.
+That was adequate on a LAN in 1997.
+Over the internet it means:
+
+- **Attributes travel in the clear.**
+  The EAP payload is encrypted by TLS, but the RADIUS attributes around it, including the device's identity, the access point's identity, and any VLAN assignment coming back, are not.
+- **A shared secret is the only authentication**, and it is shared by every access point that talks to the server.
+- **The server identifies the client by source IP.**
+  A cloud RADIUS service has to know the public IP of every site that will send it traffic, and a change of ISP or a new office means updating that list before anyone can join the network.
+- **UDP across the internet drops and reorders**, and RADIUS has no session to recover in; the client retries and the user waits.
+
+## What RadSec changes
+
+RadSec ([RFC 6614](https://datatracker.ietf.org/doc/html/rfc6614)) is RADIUS over TLS, on TCP port 2083.
+The access point or controller opens a TLS connection to the RADIUS server, both sides present certificates, and every RADIUS packet flows inside that tunnel.
+
+- Attributes are encrypted end to end between the access point and the server.
+- The server authenticates the access point by its certificate, not by its source IP, so sites can move and NAT can change without a registration step.
+- The access point authenticates the server by its certificate, so an impostor RADIUS server cannot harvest handshakes.
+- TCP gives ordered, reliable delivery and a long-lived connection instead of a fresh UDP exchange per authentication.
+
+The shared secret still exists in RadSec for protocol compatibility, but it is fixed and no longer carries the security.
+
+## When you want it
+
+RadSec is the right choice when the path between your access points and the RADIUS server crosses a network you do not control, which is every cloud-hosted RADIUS deployment.
+It also removes the operational chore of keeping a list of public IPs current across offices and internet providers.
+
+The cost is that the access point or controller has to support it, has to be given the RADIUS server's CA so it can verify the server, and has to hold a client certificate the server will accept.
+Not every access point does; most enterprise controllers do.
+Check your vendor's documentation before planning on it.
+
+## What the platform supports today
+
+Smallstep RADIUS is offered in two forms, and the [Wi-Fi guide](../tutorials/protect-wireless-networks.mdx#step-2-configure-the-enforcement-point) documents both.
+
+- The multi-tenant service (**Managed RADIUS** in the guide) speaks RADIUS over UDP.
+  It attributes traffic to your team by the public IP addresses you register, which is the `nasIPs` list you set when you create the server.
+  You can create it yourself with the API.
+- The dedicated deployment (**Enterprise RADIUS** in the guide) adds **RadSec transport with a dedicated hostname**, beside standard RADIUS over UDP, on infrastructure with static IPs in the regions you choose.
+  It also adds reply attributes for VLAN assignment and authorization webhooks.
+  Smallstep provisions it for your team; it is an add-on rather than something you create in the Console today.
+
+Both forms verify EAP-TLS only and check the full chain and revocation on every authentication.
+The [wired guide](../tutorials/protect-wired-networks.mdx) uses the same servers for 802.1X on switches.
+
+## Where this shows up in Smallstep
+
+- The RADIUS server is the verifier for [Wi-Fi](../tutorials/protect-wireless-networks.mdx) and [wired](../tutorials/protect-wired-networks.mdx) networks; [Verifiers](../platform/concepts/verifiers.mdx) describes it beside the others.
+- The trust roots the RADIUS server needs, and the server CA your devices need, are the subject of [Trust roots and chains](./trust-roots-and-chains.mdx).
+- The per-vendor [access point reference](../tutorials/protect-wireless-networks.mdx#access-point-configuration-reference) shows where each vendor takes the RADIUS server settings.

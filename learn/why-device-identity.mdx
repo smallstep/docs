@@ -1,0 +1,79 @@
+---
+updated_at: September 13, 2026
+title: Why device identity
+html_title: Why device identity
+description: Why a credential that can be copied proves nothing about a device, and what changes when identity is attested by hardware.
+kind: learn
+---
+
+Most access control answers one question: is this the right person?
+Passwords, one-time codes, and passkeys all answer it.
+None of them answers the second question that matters just as much:
+is this person on a device we trust?
+Device identity is how you answer the second question with the same rigor as the first.
+
+## Identity that can move is not identity
+
+Many products offer something they call device identity.
+Look closely and it is usually one of two things.
+Either the device reports an identifier about itself, such as a serial number, a MAC address, or a hostname, and the system takes its word for it.
+Or the device holds a credential, a certificate or a token, that was placed there during setup.
+
+Both fall apart under the same question: can it be moved?
+A self-reported identifier can be typed by anyone.
+A credential stored on disk, or in a keychain that will export it, can be copied to another machine, and that machine becomes "the device" as far as every system is concerned.
+Phishing does not need to steal a password if it can steal the thing that stands in for the device.
+
+Think of a passport.
+A person does not prove citizenship by stating their name; they present a document that their government attested to and signed, tied to them by a photo and biometrics.
+A device should have to present the same kind of evidence: a statement about itself that it could not have forged, signed by a party the verifier already trusts.
+
+## What attestation changes
+
+Modern devices ship with a secure element:
+a TPM 2.0 on Windows and Linux machines, the Secure Enclave on Apple hardware, a comparable chip on ChromeOS.
+It is isolated from the main processor and the operating system.
+It can generate a private key that never leaves it, and it can sign a statement, backed by a key the manufacturer burned in at the factory, that says "this key lives inside me, on this device".
+
+That statement is an attestation.
+An authority that receives one can check the manufacturer's signature, confirm the device is one it expects, and then issue a certificate whose private key is provably bound to that hardware.
+The certificate cannot be copied in any useful way, because the key it belongs to cannot be exported.
+Presenting it proves not just "someone has this certificate" but "this device, the one we enrolled, is the one connecting now".
+
+The standard that carries this between the device and the authority is ACME with the `device-attest-01` challenge.
+The device sends the attestation with its certificate request; the authority verifies it before signing.
+Apple ships it natively for managed devices; Smallstep co-developed the standard and performs the attestation through the agent on devices with a TPM.
+[Attestation explained](./attestation-explained.mdx) walks through the levels of assurance and what each one requires.
+
+## What that buys you
+
+**Only enrolled devices get credentials.**
+An attacker with a stolen password, a stolen configuration profile, or a stolen SCEP challenge cannot enroll a device you have not approved, because the authority will not sign for hardware it does not recognize.
+[SCEP versus attestation](./scep-versus-attestation.mdx) explains the gap in the protocol most MDMs still use.
+
+**Credentials cannot be exfiltrated.**
+A hardware-bound key can be used on the device to sign or decrypt, and that is all.
+Malware that reads the disk gets nothing it can reuse elsewhere.
+
+**Access decisions can name the device.**
+Because the certificate is tied to an inventory record, a Wi-Fi network, an identity provider, an SSH host, or a web app can decide based on which device is asking, not just who claims to be typing.
+When a laptop is lost or an employee leaves, revoking that device's certificates ends its access everywhere at once.
+
+**Nobody types anything.**
+The device proves itself during the handshake.
+Users stop entering Wi-Fi passwords, stop juggling VPN certificates, stop being the weak point of an enrollment flow.
+
+## What it does not replace
+
+Device identity is not a substitute for user identity.
+The strongest posture requires both: this user, on this device.
+On the platform they combine, for example when an identity provider requires a device certificate at sign-in and then issues the user a session, or when an SSH certificate carries both the user's principal and the device it was issued to.
+[Certificates for people, devices, and workloads](./certificates-for-people-devices-and-workloads.mdx) describes the three kinds and how they combine.
+
+## Where this shows up in Smallstep
+
+- The **Devices** list shows each device's assurance level; high assurance means the device attested.
+  [Inventory](../platform/concepts/inventory.mdx) explains the states.
+- A **credential** asks for a hardware-attested key by default; [Credentials](../platform/concepts/credentials.mdx) explains the choices.
+- Every use-case guide starts from this argument: [Wi-Fi](../tutorials/protect-wireless-networks.mdx), [wired networks](../tutorials/protect-wired-networks.mdx), [VPN](../tutorials/vpn-setup-guide.mdx), and [web apps](../tutorials/browser-certificate-setup-guide.mdx).
+- [How Smallstep works](../start-here/how-smallstep-works.mdx) shows where the attested identity enters the loop.

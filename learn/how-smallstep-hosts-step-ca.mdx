@@ -2,7 +2,89 @@
 updated_at: September 13, 2026
 title: How Smallstep hosts step-ca
 html_title: How Smallstep hosts step-ca
-description: What a hosted authority shares with open-source step-ca, what the platform adds, and which page to read for each job.
+description: What a hosted authority shares with open-source step-ca, what the platform adds around it, what is different, and which page to read for each job.
+kind: boundary
 ---
 
-A hosted authority is a step-ca. This page will say what is the same (provisioner types, which the platform calls issuance methods; templates; ACME; issuance policies; webhooks), what the platform adds (an inventory, hardware-attested issuance, credentials, verifiers, policy modes, audit), and which page to read for each job. Until it lands, the open-source [step-ca documentation](../step-ca/README.mdx) describes the shared mechanics.
+A hosted Smallstep authority is a `step-ca`.
+The open-source documentation on this site describes how that certificate authority works, and this documentation does not repeat it.
+This page is the seam:
+what is the same and documented once on the open-source side, what the platform builds around the authority, where the two differ, and which page to open for each job.
+
+## What is shared
+
+Everything below works the same way on a hosted authority as on a `step-ca` you run, and is documented on the open-source page linked.
+
+- **Provisioners**, the mechanisms by which a requester proves it may have a certificate.
+  The platform calls them *issuance methods* and shows the raw provisioner under Advanced and in the API.
+  The types and their options are on [Provisioners](../step-ca/provisioners.mdx).
+- **Templates**, which set the fields and extensions of an issued certificate: [Templates](../step-ca/templates.mdx).
+- **ACME**, including the `http-01`, `dns-01`, `tls-alpn-01`, and `device-attest-01` challenges: [ACME basics](../step-ca/acme-basics.mdx).
+- **Issuance policies**, the allow and deny rules over the names an authority will sign: [Policies](../step-ca/policies.mdx).
+- **Webhooks** called during signing to enrich or authorize a request: [Webhooks](../step-ca/webhooks.mdx).
+- **Renewal** semantics, including renewal with the existing certificate and the daemon mode: [Renewal](../step-ca/renewal.mdx).
+- **Revocation**, passive and active: [Revocation](../step-ca/revocation.mdx).
+- **The `step` CLI**, which talks to any `step-ca`, hosted or self-run, and is used throughout the platform guides: [step CLI](../step-cli/README.mdx).
+
+## What the platform adds
+
+The authority is one piece.
+Around it the platform runs the surfaces that [How Smallstep works](../start-here/how-smallstep-works.mdx) describes:
+
+- **An inventory** of devices and users, so a certificate is issued *to a device you enrolled* rather than to whoever presented a valid token.
+  [Inventory](../platform/concepts/inventory.mdx).
+- **Hardware-attested issuance.**
+  Each team has an attestation authority that verifies TPM and Secure Enclave attestations, and the agent completes ACME `device-attest-01` against it on platforms without native support.
+  [Attestation explained](./attestation-explained.mdx).
+- **Credentials** as the unit of configuration: a template, an issuance method, and an assignment policy that says which devices and users get the certificate.
+  You configure a credential; the platform configures the provisioner.
+  [Credentials](../platform/concepts/credentials.mdx).
+- **Verifiers that Smallstep runs**, RADIUS for Wi-Fi and wired networks, the device factor for identity providers, relays, and the trust roots they need from your authorities.
+  [Verifiers](../platform/concepts/verifiers.mdx).
+- **Delivery.**
+  The agent enrolls, renews, stores keys in hardware, and reloads services; MDM profiles do it for devices without the agent; the step-ssh package does it for SSH hosts.
+- **Policy** beyond issuance: which devices get which credential, who may log in where, what happens when a device is quarantined.
+  [Policy](../platform/concepts/policy.mdx).
+- **Audit**: events for every issuance and authentication, SSH sessions, webhooks to your systems.
+  [Audit](../platform/concepts/audit.mdx).
+
+## What is different
+
+Where an operator who knows `step-ca` will notice a divergence:
+
+- **Policy scope.**
+  A self-run `step-ca` takes an issuance policy at the authority level.
+  A hosted authority takes one at the authority, on each provisioner, and on each ACME account.
+- **Administration.**
+  There is no `ca.json` to edit.
+  Provisioners, admins, and templates are managed in the Console and the API; `step ca provisioner` commands also work against a hosted authority after an admin sign-in.
+- **Key custody.**
+  Signing keys are held in a cloud key management service and never leave it; an Advanced authority can be created with your own root, and the root's private key stays with you.
+  [Bring your own root](../certificate-manager/byo-root.mdx).
+- **Renewal after expiry and active revocation** (CRL and OCSP) are options of an Advanced authority, enabled when it is created.
+- **Linked authorities.**
+  A `step-ca` you run can be linked to the platform.
+  Its keys and signing stay on your infrastructure; the platform manages its provisioners and admins.
+  It is listed with your hosted authorities.
+- **A registration authority** in front of a hosted authority is a platform object; the `step-ca` RA mode that fronts your own CA is documented at [Registration authority mode](../step-ca/registration-authority-ra-mode.mdx).
+
+## Which page?
+
+| I want to | Hosted authority | Self-run step-ca |
+|---|---|---|
+| Configure ACME for my servers | [ACME on a hosted authority](../certificate-manager/acme/README.mdx) | [ACME basics](../step-ca/acme-basics.mdx) |
+| Write a certificate template | [Templates for credentials](../certificate-manager/custom-certs.mdx) | [Templates](../step-ca/templates.mdx) |
+| Set an issuance policy | [Policies](../step-ca/policies.mdx), which covers both | same |
+| Receive webhooks | [Webhook events](../certificate-manager/webhook-events.mdx) for platform events; [Webhooks](../step-ca/webhooks.mdx) for signing-time hooks | [Webhooks](../step-ca/webhooks.mdx) |
+| Renew certificates | The agent, or [Issue certificates with your own clients](../certificate-manager/basic-ops.mdx) | [Renewal](../step-ca/renewal.mdx) |
+| Revoke a certificate | [Issue certificates with your own clients](../certificate-manager/basic-ops.mdx) | [Revocation](../step-ca/revocation.mdx) |
+| Run a registration authority | [Registration authorities](../registration-authorities/README.mdx) | [Registration authority mode](../step-ca/registration-authority-ra-mode.mdx) |
+| Bring my own root | [Bring your own root](../certificate-manager/byo-root.mdx) | [Import an existing root or intermediate](../tutorials/intermediate-ca-new-ca.mdx) |
+| Issue certificates to people with single sign-on | [Single sign-on certificates](../certificate-manager/oidc.mdx) | [OAuth/OIDC provisioner](../step-ca/provisioners.mdx#oauthoidc-single-sign-on) |
+| Use `step` against my authority | [Issue certificates with your own clients](../certificate-manager/basic-ops.mdx) | [Basic certificate authority operations](../step-ca/basic-certificate-authority-operations.mdx) |
+
+## Running your own
+
+Run `step-ca` yourself when the signing keys must stay on hardware you own, when the authority must work without a connection to the internet, when you are building a lab, or when a certificate authority is all you need and an inventory, verifiers, and audit would be weight.
+Everything you need is in the open-source section, starting at [step-ca](../step-ca/README.mdx).
+If you later want the platform around it, link it as an authority and the rest of this documentation applies.

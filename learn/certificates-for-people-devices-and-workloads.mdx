@@ -1,0 +1,87 @@
+---
+updated_at: September 13, 2026
+title: Certificates for people, devices, and workloads
+html_title: Certificates for people, devices, and workloads
+description: The three kinds of subject a certificate can name, what each one proves, how each is issued, and how they combine.
+kind: learn
+---
+
+A certificate binds a key to a name.
+Everything else depends on whose name it is.
+The platform issues certificates to three kinds of subject, and each one is proven differently, lives a different length of time, and answers a different question at the verifier.
+
+## Devices
+
+A device certificate says: this is the laptop, phone, server, or instance we enrolled.
+The proof is hardware.
+The device attests, through its TPM or Secure Enclave, that the private key was generated inside it, and an authority signs only after verifying that attestation.
+[Attestation explained](./attestation-explained.mdx) covers the mechanism.
+
+A device certificate is what a Wi-Fi network, a wired switch, a VPN, or a browser presents.
+It is delivered and renewed by the Smallstep agent, or by an MDM profile where the agent is not present.
+It carries the device's identity, usually its serial number and the email of the user bound to it, so a verifier can decide by device, by user, or by both.
+
+The question it answers: *is this a device we trust?*
+
+## People
+
+A user certificate says: this is the person who just signed in.
+The proof is your identity provider.
+The person authenticates with single sign-on; the identity provider returns an OpenID Connect token; the authority verifies the token and issues a certificate whose subject is the person's email.
+No password is stored or shared anywhere in the exchange.
+
+User certificates are short-lived by design.
+An SSH user certificate lasts 16 hours by default, so each workday starts with a fresh sign-in and access ends without anyone revoking anything.
+X.509 user certificates for mutual TLS to APIs, databases, or a proxy follow the same shape.
+Renewal is off for these on purpose: re-authenticating with the identity provider is the point.
+
+The question it answers: *is this the person they say they are, right now?*
+
+For SSH specifically, the certificate also carries the person's principals, the account names they may log in as, and, with the GitHub integration, their GitHub username.
+[How SSH certificates work](../ssh/how-it-works.mdx) walks the login.
+
+## Workloads
+
+A workload certificate says: this is the nginx, the PostgreSQL, the `sshd`, the Kubernetes ingress running on that host.
+The proof depends on where the workload runs.
+On a host with the agent, the agent's device identity vouches for the workload it manages.
+On a cloud instance, the instance identity document from AWS, GCP, or Azure does.
+In Kubernetes, a service account token does.
+For anything that speaks ACME, control of a DNS name does.
+
+A workload certificate is a server or client certificate for TLS between services.
+It is renewed automatically, by the agent, by an ACME client, or by `step ca renew`, and it is usually short-lived because nobody has to type anything to renew it.
+
+The question it answers: *is this the service that should be on this connection?*
+
+## Side by side
+
+| | Device | Person | Workload |
+|---|---|---|---|
+| Proven by | Hardware attestation | Your identity provider | The host's identity, the cloud, Kubernetes, or DNS |
+| Typical lifetime | Hours to days, renewed by the agent | Hours, renewed by signing in again | Hours to days, renewed automatically |
+| Delivered by | Agent or MDM profile | `step ssh login` or the agent | Agent, ACME client, or `step` |
+| Presented to | RADIUS, VPN, identity provider, web app | SSH host, API, proxy | Another service |
+| Kind | X.509 | SSH or X.509 | X.509 or SSH host |
+
+## How they combine
+
+The strongest policy names both a person and a device.
+
+At sign-in, an identity provider can require a device certificate before it issues the person a session.
+The session is then a bearer token, which the device certificate cannot follow, so the device is proven at login and the token is what reaches the app.
+That is the pattern behind the SSO device factor.
+
+For SSH, an SSH user certificate can be issued through the agent on an enrolled device rather than through a browser login, so the certificate is bound to hardware as well as to a person.
+Today the two are separate ways of getting an SSH user certificate; issuing one certificate with both proofs at once, the sign-in and the attestation, is planned and not yet available.
+
+For workloads, the host's device identity is what authorizes the workload's certificate, which is why a server enrolled with the agent can get its nginx certificate with nothing configured on the server but the agent.
+
+## Where this shows up in Smallstep
+
+- All three are **credentials**, defined by a template, an issuance method, and an assignment policy: [Credentials](../platform/concepts/credentials.mdx).
+- Devices and the users bound to them are the [Inventory](../platform/concepts/inventory.mdx); a host is a device with a workload configured on it.
+- Device certificates: the [Wi-Fi](../tutorials/protect-wireless-networks.mdx), [wired](../tutorials/protect-wired-networks.mdx), [VPN](../tutorials/vpn-setup-guide.mdx), and [web app](../tutorials/browser-certificate-setup-guide.mdx) guides.
+- Person certificates: the [SSH client quickstart](../ssh/client.mdx) and [single sign-on certificates](../certificate-manager/oidc.mdx) for X.509.
+- Workload certificates: [Kubernetes TLS](../certificate-manager/kubernetes-tls/README.mdx) and, for a cloud instance, [X.509 certificates for cloud VMs](../tutorials/cloud-vm-certificate.mdx).
+- The open-source [provisioners](../step-ca/provisioners.mdx) page documents each issuance mechanism underneath.

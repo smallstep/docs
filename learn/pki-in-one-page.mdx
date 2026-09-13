@@ -1,0 +1,95 @@
+---
+updated_at: September 13, 2026
+title: PKI in one page
+html_title: PKI in one page
+description: Certificates, keys, authorities, chains, issuance, renewal, and revocation, in the order you meet them.
+kind: learn
+---
+
+Public key infrastructure is the set of things that lets a stranger check a claim without a shared secret.
+This page defines the seven words you will meet on every other page, in the order they depend on each other.
+For the full treatment, read [Everything you should know about certificates and PKI](https://smallstep.com/blog/everything-pki/).
+
+## Keys
+
+Everything starts with a key pair.
+The **private key** signs and decrypts; the **public key** verifies and encrypts.
+Anyone may hold the public key.
+Whoever holds the private key *is*, for every practical purpose, the identity.
+That is why where the private key lives matters more than anything else on this page:
+a key on disk can be copied, a key in a secure element cannot.
+[Attestation explained](./attestation-explained.mdx) covers the levels.
+
+## Certificates
+
+A **certificate** is a signed statement that binds a public key to a name.
+For X.509, the format used by TLS, the names are a subject and a list of subject alternative names: DNS names, IP addresses, email addresses, URIs.
+For SSH, the names are principals.
+A certificate also says what the key may be used for (server authentication, client authentication), when it becomes valid, and when it expires.
+
+A certificate proves nothing by itself.
+It is a claim, and the signature on it is what makes the claim checkable.
+
+## Authorities
+
+A **certificate authority** is the party that signs certificates.
+It holds a private key of its own and a certificate for the matching public key.
+When a verifier trusts an authority, it accepts every certificate that authority signed, within the constraints the certificate carries.
+
+Authorities come in two roles.
+A **root** signs only other authorities' certificates and is kept as far from the network as possible.
+An **intermediate** is signed by the root and does the daily work of issuing certificates to devices, people, and workloads.
+The indirection is what lets you rotate or retire an intermediate without touching every trust store.
+
+## Chains
+
+A verifier does not know your intermediate; it knows your root, because the root is what was installed in its trust store.
+A presented certificate therefore has to arrive with the intermediate's certificate too, and the verifier walks the **chain**:
+leaf signed by intermediate, intermediate signed by root, root in the trust store.
+One missing link and the handshake fails with an error that looks like a bad certificate.
+[Trust roots and chains](./trust-roots-and-chains.mdx) is about that failure and how to avoid it.
+
+## Issuance
+
+**Issuance** is how a requester proves to an authority that it is entitled to a certificate for a name.
+The proof is the whole security of the system: sign for the wrong requester and the authority has minted an identity for an attacker.
+
+Methods differ by who the requester is.
+A web server proves control of a DNS name (ACME).
+A person proves who they are by signing in to the identity provider (OIDC).
+A cloud instance presents its instance identity document.
+A device presents a hardware attestation.
+On a Smallstep authority these are *issuance methods*; the open-source `step-ca` calls them [provisioners](../step-ca/provisioners.mdx), and the mechanics are documented there.
+
+Issuance also decides what goes in the certificate.
+A **template** sets the fields and extensions; an **issuance policy** sets what names an authority will and will not sign.
+
+## Renewal
+
+Certificates expire, on purpose.
+A short lifetime bounds the damage from a key that leaks and keeps the fleet honest about which systems can still reach the authority.
+**Renewal** replaces a certificate before it expires, authenticated by the certificate being renewed.
+Automating it is the difference between a PKI that works and one that causes the outage everyone remembers.
+On the platform, the agent renews device credentials; for anything else, `step ca renew` and ACME clients do it.
+
+## Revocation
+
+Sometimes a certificate must stop working before it expires:
+the device was lost, the person left, the key leaked.
+There are two ways.
+
+**Passive revocation** refuses to renew.
+The certificate keeps working until it expires, so it depends on short lifetimes to be useful.
+It is simple and it always works.
+
+**Active revocation** publishes a list (a CRL) or answers queries (OCSP) so verifiers can reject a certificate immediately.
+It is what incident response wants, and it is only as good as the verifiers that check it.
+Many do not, or cache the answer.
+For systems that support it, revoking *authorization* (removing the device from the inventory, the user from the group) is often faster and more reliable than revoking the certificate.
+
+## Where this shows up in Smallstep
+
+- Your authorities, their roots and intermediates, and the certificates they have issued are under [Trust](../platform/concepts/trust.mdx).
+- Templates, issuance methods, and lifetimes are set on a [credential](../platform/concepts/credentials.mdx).
+- Renewal and revocation for device credentials are the agent's job; for certificates you issue with your own clients, see [Issue certificates with your own clients](../certificate-manager/basic-ops.mdx).
+- The open-source [certificate authority core concepts](../step-ca/certificate-authority-core-concepts.mdx) page defines the same terms from the point of view of running `step-ca` yourself.

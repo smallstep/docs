@@ -1,0 +1,107 @@
+---
+updated_at: September 13, 2026
+title: Attestation explained
+html_title: Attestation explained
+description: Assurance levels, secure elements, what a high-assurance device identity requires, and how key protection differs by platform.
+kind: learn
+---
+
+Trust in a device's identity is a gradient, not a switch.
+This page walks the gradient from identifiers nobody can rely on to keys a manufacturer vouches for, and says which level each platform can reach.
+
+## Assurance levels
+
+**No assurance.**
+For decades devices were identified by a MAC address or an IP address.
+Both are self-reported and both can be changed, so a policy built on them stands on nothing.
+
+**Low assurance.**
+A user tells IT the serial number of their laptop.
+The identifier is now permanent, immutable, and unique, which is an improvement, but the team has to take the user's word that it belongs to that laptop.
+
+**Inspected.**
+An administrator reads the serial number off a company-purchased device before handing it out.
+The inventory record is now trustworthy at the moment of inspection.
+It says nothing about who is presenting that serial number over the network later.
+
+**High assurance.**
+The device proves its identity cryptographically, using a secure element the manufacturer attested to.
+Nothing in the operating system can forge the proof.
+This is the level the platform calls *high assurance*, and the rest of this page is about how it is reached.
+
+## Secure elements
+
+A secure element is a cryptoprocessor, as a chip or as firmware, isolated from the main processor.
+TPM 2.0 and Apple's Secure Enclave are the common examples.
+It holds permanent identifiers and keys that can be proven to a third party, and it keeps working as designed even if the operating system around it is compromised.
+
+Each secure element carries a key pair created at manufacture.
+The manufacturer signs a certificate for the public half.
+That certificate is the root of every attestation the element will ever produce.
+
+## What a high-assurance identity requires
+
+Four proofs, together:
+
+1. **Proof of the device's identity**, from a platform certificate issued by the device maker (Lenovo, Dell, Apple).
+2. **Proof of the secure element's identity**, from an endorsement key certificate issued by the element's maker (Infineon, STMicro, Apple).
+3. **A binding between the two**, provided by the platform, so the verifier knows this element is inside this device.
+4. **Proof that a private key is hardware-bound** on that element: usable by the device, never extractable without an exploit or destructive disassembly.
+
+Once these hold and a certificate is issued, a verifier can trust both the identity of the device and the residency of the key.
+A side effect is zero-touch provisioning:
+a new device can enroll itself on first boot with no credentials handed to it, because the hardware is the credential.
+
+## Which identifiers the platform attests
+
+- On Apple platforms, the device's serial number or hardware UDID, through Apple's Managed Device Attestation.
+- On Windows, Linux, and ChromeOS devices with a TPM, the TPM endorsement key and, where present, the platform certificate.
+
+The protocol that carries the attestation to an authority is ACME with the `device-attest-01` challenge.
+The device includes its attestation with the certificate order; the authority verifies the chain back to the manufacturer before it signs.
+On the platform that authority is a dedicated attestation authority in your team, and the certificate it issues is what the agent then uses to obtain credentials for resources.
+
+## Key protection levels
+
+Getting a device identity is half the story.
+The credentials a device then uses for Wi-Fi, SSH, or a browser each have a private key, and how well that key is protected varies by platform and application.
+
+| Level | What it means | What you are trusting |
+|---|---|---|
+| Software protected | The key is in memory or on disk (an SSH agent, an NSS database) | The OS, the application, and the user |
+| Hardware bound | The key was generated in a secure element and cannot be exported; no proof of that exists | The local system's claim |
+| Smallstep attested | The agent proves possession of a key it generated in the Secure Enclave to Smallstep's attestation authority; it cannot prove the key is inside a genuine Secure Enclave | System integrity protection, the agent, and the element |
+| Hardware attested | The secure element itself produces a statement proving the key is hardware bound | The element's manufacturer |
+| Device attested | The statement also proves which device or element holds the key, with a hardware identifier | The element's manufacturer |
+
+"Smallstep attested" exists because some applications on Apple platforms cannot use a device-attested key.
+It is the weakest level the platform offers, used only where nothing stronger is available.
+
+<Alert severity="info">
+  <div>
+    Apple does not expose device attestation to user-space software, for privacy reasons.
+    Hardware attestation on Apple platforms is limited to the Managed Device Attestation workflow, which requires a supervised, MDM-managed device.
+  </div>
+</Alert>
+
+Because support is uneven, a credential can ask for hardware protection *with fallback*:
+the agent uses the strongest level the environment supports.
+For example, Apple platforms offer device-attested keys for Wi-Fi, while Windows has no native ACME device attestation, so a Windows Wi-Fi credential issued through the agent is hardware bound but attested by a different route.
+The Devices list reports the assurance the device reached, not the level you asked for.
+
+## Bring-your-own devices
+
+A personal device used for work raises a privacy problem:
+its permanent hardware identifiers should not be exposed to the employer.
+Continuity is enough.
+A cryptographically secure software identifier, scoped to your organization, can anchor policy and authentication for that device from then on.
+What it cannot do is bootstrap trust:
+the owner has to prove possession before the identity is trusted, because there is no manufacturer chain to lean on.
+
+## Where this shows up in Smallstep
+
+- The **Devices** list shows *high* or *normal* assurance per device.
+  [Inventory](../platform/concepts/inventory.mdx) describes the enrollment states around it.
+- A credential's key protection (`HARDWARE_ATTESTED` or `HARDWARE_WITH_FALLBACK` in the API) picks the level; see [Credentials](../platform/concepts/credentials.mdx) and the credential step of the [Wi-Fi guide](../tutorials/protect-wireless-networks.mdx#create-the-credential).
+- An MDM-managed Apple device can enroll with ACME device attestation and no agent; the [Wi-Fi guide](../tutorials/protect-wireless-networks.mdx#macos-with-jamf-pro-acme-device-attestation) shows it with Jamf Pro.
+- [Why device identity](./why-device-identity.mdx) makes the case; [SCEP versus attestation](./scep-versus-attestation.mdx) compares this with the enrollment most MDMs still use.

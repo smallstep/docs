@@ -13,16 +13,19 @@
         },
         {
           "title": "How Smallstep works",
-          "path": "/platform/README.mdx"
+          "path": "/start-here/how-smallstep-works.mdx"
         },
         {
           "title": "Quickstart",
-          "path": "/start-here/quickstart.mdx",
-          "hideFromSidebar": true
+          "path": "/start-here/quickstart.mdx"
         },
         {
           "title": "For coding agents",
-          "path": "/start-here/for-coding-agents.mdx",
+          "path": "/start-here/for-coding-agents.mdx"
+        },
+        {
+          "title": "What is Smallstep?",
+          "path": "/platform/README.mdx",
           "hideFromSidebar": true
         },
         {
@@ -30,12 +33,40 @@
           "title": "Learn"
         },
         {
+          "title": "Why device identity",
+          "path": "/learn/why-device-identity.mdx"
+        },
+        {
           "title": "Attestation explained",
-          "path": "/platform/core-concepts.mdx"
+          "path": "/learn/attestation-explained.mdx"
+        },
+        {
+          "title": "SCEP versus attestation",
+          "path": "/learn/scep-versus-attestation.mdx"
+        },
+        {
+          "title": "PKI in one page",
+          "path": "/learn/pki-in-one-page.mdx"
+        },
+        {
+          "title": "Trust roots and chains",
+          "path": "/learn/trust-roots-and-chains.mdx"
+        },
+        {
+          "title": "RadSec",
+          "path": "/learn/radsec.mdx"
+        },
+        {
+          "title": "Certificates for people, devices, and workloads",
+          "path": "/learn/certificates-for-people-devices-and-workloads.mdx"
         },
         {
           "title": "How Smallstep hosts step-ca",
-          "path": "/learn/how-smallstep-hosts-step-ca.mdx",
+          "path": "/learn/how-smallstep-hosts-step-ca.mdx"
+        },
+        {
+          "title": "Core concepts",
+          "path": "/platform/core-concepts.mdx",
           "hideFromSidebar": true
         },
         {
@@ -180,12 +211,44 @@
           "title": "Concepts"
         },
         {
+          "title": "Concepts",
+          "path": "/platform/concepts/README.mdx",
+          "routes": [
+            {
+              "title": "Inventory",
+              "path": "/platform/concepts/inventory.mdx"
+            },
+            {
+              "title": "Trust",
+              "path": "/platform/concepts/trust.mdx"
+            },
+            {
+              "title": "Credentials",
+              "path": "/platform/concepts/credentials.mdx"
+            },
+            {
+              "title": "Verifiers",
+              "path": "/platform/concepts/verifiers.mdx"
+            },
+            {
+              "title": "Policy",
+              "path": "/platform/concepts/policy.mdx"
+            },
+            {
+              "title": "Audit",
+              "path": "/platform/concepts/audit.mdx"
+            }
+          ]
+        },
+        {
           "title": "Trust (Certificate Manager core concepts)",
-          "path": "/certificate-manager/core-concepts.mdx"
+          "path": "/certificate-manager/core-concepts.mdx",
+          "hideFromSidebar": true
         },
         {
           "title": "Trust (Certificate Manager how it works)",
-          "path": "/certificate-manager/how-it-works.mdx"
+          "path": "/certificate-manager/how-it-works.mdx",
+          "hideFromSidebar": true
         },
         {
           "heading": true,
