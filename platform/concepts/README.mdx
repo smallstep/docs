@@ -1,0 +1,56 @@
+---
+updated_at: September 13, 2026
+title: Concepts
+html_title: Platform concepts
+description: "One page per surface of the platform: what it is, how it relates to the others, and where it appears in the Console and the API."
+kind: concept
+---
+
+Six words carry the platform.
+Each page below says what the word means, how it relates to the others, and where you meet it in the Console and the API.
+[How Smallstep works](../../start-here/how-smallstep-works.mdx) shows the six together in one loop; the [Learn](../../learn/why-device-identity.mdx) section explains why they are shaped this way.
+
+<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-spacing-6">
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="Inventory"
+    description="What the team has: devices, the users bound to them, and how each device got in."
+    href="/docs/platform/concepts/inventory/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_certificate_manager_1_86b2f377b7.svg"
+    title="Trust"
+    description="What the team trusts and who relies on it: authorities, issuance methods, trust roots, certificates."
+    href="/docs/platform/concepts/trust/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_certificate_manager_1_86b2f377b7.svg"
+    title="Credentials"
+    description="The certificate a device, user, or host gets: a template, an issuance method, and an assignment policy."
+    href="/docs/platform/concepts/credentials/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_mutual_tls_1_0960977120.svg"
+    title="Verifiers"
+    description="What checks the credential: Smallstep RADIUS, your RADIUS, the device factor, relays, your own apps and hosts."
+    href="/docs/platform/concepts/verifiers/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="Policy"
+    description="What is allowed: issuance, assignment, access, and lifecycle rules, and where each lives today."
+    href="/docs/platform/concepts/policy/"
+  />
+  <IndexCard
+    className="text-blue-500"
+    iconSrc="https://smallstep-cms-images.s3.us-east-2.amazonaws.com/icon_platforms_2.svg"
+    title="Audit"
+    description="What happened: events, sessions, and the exports built from them."
+    href="/docs/platform/concepts/audit/"
+  />
+</div>
