@@ -339,7 +339,8 @@ so on a host with no <code>/dev/tpmrm0</code> the service exits with <code>flag 
     ```
 
     This declares the `step-agent` system user, the systemd service and its PKCS#11 socket, the `polkit` rules the agent needs, and the `p11-kit` module that publishes the agent's PKCS#11 server.
-    `settings` is written to `/etc/step-agent/agent.yaml`.
+    The module renders `settings` to `agent.yaml` in the Nix store and links it at `/etc/step-agent/agent.yaml`,
+    which is where the daemon and the `step-agent` CLI look for it.
     Every host in a fleet gets the same two values; nothing in the file is per-device.
     The agent uses the standard systemd directories:
     it reads its config from `/etc/step-agent`, keeps its state in `/var/lib/step-agent`, and puts its sockets in `/run/step-agent`.
@@ -387,10 +388,10 @@ point `services.step-agent.package` at the release tarball on `packages.smallste
 
 ```nix
 services.step-agent.package = pkgs.step-agent.overrideAttrs (final: prev: rec {
-  version = "0.69.2";
+  version = "0.69.3";
   src = pkgs.fetchurl {
     url = "https://packages.smallstep.com/edge/step-agent/linux/${version}/step-agent_${version}_linux_amd64.tar.gz";
-    hash = "sha256-HIIXGIczw6bqVY05mTaCW0JhZNbgHW8cDKSmeUTzSf0=";
+    hash = "sha256-BVJdru3gVVeiGGOPA+Vn9HZFQwusMPfjp3izSLmoOiY=";
   };
 });
 ```
