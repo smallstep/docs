@@ -1,5 +1,5 @@
 ---
-updated_at: July 08, 2026
+updated_at: September 02, 2026
 title: Protect GitHub with SSH Certificates
 html_title: Protect GitHub Repositories with Hardware-Bound SSH Certificates
 description: Authenticate to GitHub with short-lived SSH certificates backed by your device's TPM or Secure Enclave, issued and managed by the Smallstep Agent.
@@ -117,15 +117,9 @@ echo "Authorization: Bearer [your API token]" > api_headers
 set -o history
 ```
 
-Find the authority that should issue your SSH certificates with the
-[List Authorities](https://gateway.smallstep.com/v2025-01-01/operations/GetAuthorities) endpoint:
-
-```bash
-curl -sH @api_headers --request GET \
-  --url https://gateway.smallstep.com/api/authorities \
-  --header 'Accept: application/json' \
-  --header 'x-smallstep-api-version: 2025-01-01' | jq '.[] | {id, name, domain}'
-```
+Next, choose the SSH authority that should issue your SSH certificates.
+In the Smallstep dashboard, go to **Certificate Manager → Authorities**, open the authority,
+and copy its **Authority ID** from the **Authority Settings** panel.
 
 Then create the credential with the [Create Credential](https://gateway.smallstep.com/v2025-01-01/operations/PostCredentials) endpoint:
 

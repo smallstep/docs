@@ -1,5 +1,5 @@
 ---
-updated_at: July 08, 2026
+updated_at: September 02, 2026
 title: Protect Wireless Networks with 802.1X EAP-TLS
 html_title: Protect Wireless Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Wi-Fi end to end. Issue client certificates via the Smallstep API, configure RADIUS and access points, and deploy to clients.
@@ -100,29 +100,15 @@ set -o history
 ## Find your authority
 
 Certificates are issued by one of your team's X.509 authorities.
-Use the [List Authorities](https://gateway.smallstep.com/v2025-01-01/operations/GetAuthorities) endpoint to find the authority
-that should issue your Wi-Fi client certificates:
+In the Smallstep dashboard, go to **Certificate Manager → Authorities**
+and open the authority that should issue your Wi-Fi client certificates.
 
-```bash
-curl -sH @api_headers --request GET \
-  --url https://gateway.smallstep.com/api/authorities \
-  --header 'Accept: application/json' \
-  --header 'x-smallstep-api-version: 2025-01-01' | jq '.[] | {id, name, domain}'
-```
+Save two values from the **Authority Settings** panel:
 
-Save two values from the authority you choose:
-
-- The `id`, which you'll use as the `authorityID` when creating the credential.
-- The `root` certificate (PEM), which you'll register with your RADIUS server in Step 2
-  so it can verify client certificates issued by this authority:
-
-```bash
-curl -sH @api_headers --request GET \
-  --url https://gateway.smallstep.com/api/authorities \
-  --header 'Accept: application/json' \
-  --header 'x-smallstep-api-version: 2025-01-01' \
-  | jq -r '.[] | select(.id == "[your authority ID]") | .root' > client_ca.crt
-```
+- The **Authority ID**, which you'll use as the `authorityID` when creating the credential.
+- The **Root Certificate**, which you'll register with your RADIUS server in Step 2
+  so it can verify client certificates issued by this authority.
+  Download it and save it as `client_ca.crt`.
 
 ## Create the credential
 

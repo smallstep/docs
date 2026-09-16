@@ -1,5 +1,5 @@
 ---
-updated_at: July 08, 2026
+updated_at: September 02, 2026
 title: Protect Wired Networks with 802.1X EAP-TLS
 html_title: Protect Wired Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Ethernet access. Issue client certificates via the Smallstep API, configure RADIUS and your switches, and deploy to clients.
@@ -47,16 +47,11 @@ echo "Authorization: Bearer [your API token]" > api_headers
 set -o history
 ```
 
-Find the authority that should issue your client certificates with the
-[List Authorities](https://gateway.smallstep.com/v2025-01-01/operations/GetAuthorities) endpoint,
-and save its `id` and `root` certificate:
-
-```bash
-curl -sH @api_headers --request GET \
-  --url https://gateway.smallstep.com/api/authorities \
-  --header 'Accept: application/json' \
-  --header 'x-smallstep-api-version: 2025-01-01' | jq '.[] | {id, name, domain}'
-```
+Next, choose the authority that should issue your client certificates.
+In the Smallstep dashboard, go to **Certificate Manager → Authorities** and open the authority.
+From the **Authority Settings** panel, copy the **Authority ID**,
+and download the **Root Certificate** as `client_ca.crt`.
+You'll register the root certificate with your RADIUS server in Step 2.
 
 Then create the credential with the [Create Credential](https://gateway.smallstep.com/v2025-01-01/operations/PostCredentials) endpoint:
 

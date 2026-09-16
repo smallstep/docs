@@ -96,6 +96,7 @@ JWSs
 JWT
 JWTs
 Jamf
+JumpCloud
 Jamf Pro
 JavaScript
 Juniper Mist
