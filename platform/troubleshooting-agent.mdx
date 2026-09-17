@@ -407,6 +407,10 @@ This outputs check results in JSON format:
 4. Restart the system if the TPM is in an inconsistent state
 5. On Linux, check for conflicting services using the same ports
 
+<Alert severity="info">
+On Windows, the agent service can be running while a per-user component is not, which causes a distinct failure mode — see [Certificate storage fails with "cannot find the file specified" (Windows)](#certificate-storage-fails-with-cannot-find-the-file-specified-windows).
+</Alert>
+
 #### Network connectivity issues
 
 **Symptoms:**
@@ -434,6 +438,73 @@ This outputs check results in JSON format:
 3. If agent was offline for extended period, certificates may have expired
 4. Check agent logs for renewal errors
 5. Verify connectivity to your team's CA
+
+<Alert severity="info">
+On Windows, "cannot find the file specified" errors on a named pipe (`\\.\pipe\step-agent-reloader-...`) are a different failure mode — see [Certificate storage fails with "cannot find the file specified" (Windows)](#certificate-storage-fails-with-cannot-find-the-file-specified-windows).
+</Alert>
+
+#### Certificate storage fails with "cannot find the file specified" (Windows)
+
+**Symptom:** an operation that stores a certificate (for example, a non-attested certificate destined for the user's Windows certificate store) fails with an error from the agent. Recent agent versions surface a wrapped message naming the failure mode:
+
+```
+failed to store certificate: the per-user reloader is not running
+(the named pipe \\.\pipe\step-agent-reloader-<SID> was not found).
+Verify the "\Smallstep" scheduled task is registered and that an interactive user is signed in.
+Run `step-agent doctor` for a guided diagnosis. Underlying error: rpc error: code = Unavailable ...
+```
+
+Older agent versions surface only the underlying gRPC dial error:
+
+```
+failed to store certificate: rpc error: code = Unavailable desc = connection error:
+  desc = "transport: Error while dialing:
+  open \\.\pipe\step-agent-reloader-S-1-12-1-...: The system cannot find the file specified."
+```
+
+Both indicate the same condition: the system service tried to reach the per-user reloader and the reloader's named pipe was not present for that SID. Either the per-user scheduled task hasn't fired for that session, the `step-agent start user` process crashed before binding the pipe, or the user has signed out.
+
+See [Windows agent architecture](#windows-agent-architecture) for background on the two-process model that produces this error.
+
+**Troubleshooting steps:**
+
+1. Run `step-agent doctor` and look at `Windows service running`, `Per-user scheduled task registered`, `Interactive user signed in`, and `Reloader named pipe reachable`. A failing check tells you which side is broken.
+
+2. Verify the system service is running:
+   ```powershell
+   Get-Service "Smallstep Agent"
+   ```
+   Expect `Status: Running`.
+
+3. Verify the scheduled task is registered and last ran successfully:
+   ```powershell
+   schtasks /Query /TN \Smallstep /V /FO LIST
+   ```
+   Expect `Status: Ready` (or `Running`) and `Last Result: 0`. A non-zero `Last Result` indicates the user-session process exited with an error; its log will explain why (see step 5).
+
+4. Verify a user is interactively signed in. The per-user reloader only runs while someone has an active interactive session. RDP-disconnected sessions don't count. Enumerate sessions with:
+   ```powershell
+   query session
+   ```
+
+5. Inspect the per-user log at `%LOCALAPPDATA%\Smallstep\logs\step-agent-user-*.log` (the file lives in the *user's* profile, so you may need to read it as that user). Look for the most recent file and check for `reloader exited` or pipe-binding errors near the bottom.
+
+6. Inspect the system service log at `C:\ProgramData\Smallstep\logs\step-agent-system-*.log`, and the Application event log filtered to `Source = SmallstepAgent`:
+   ```powershell
+   Get-WinEvent -FilterHashtable @{LogName='Application'; ProviderName='SmallstepAgent'} -MaxEvents 50
+   ```
+
+7. Confirm the pipes are present. Both pipes should appear:
+   ```powershell
+   Get-ChildItem \\.\pipe\ | Where-Object {$_.Name -match "step-agent"}
+   ```
+   You should see one entry for the IPC pipe and at least one for the reloader pipe (named `step-agent-reloader-<user-SID>`).
+
+**Recovery:** sign out and back in — the system service re-emits the bootstrapped event on console connect, which re-fires the task. If signing out isn't an option, kick the task manually:
+
+```powershell
+schtasks /Run /TN \Smallstep
+```
 
 #### TPM/Secure Enclave access issues
 
@@ -579,6 +650,25 @@ Quick reference for platform-specific commands and file locations.
 | Run doctor | `& "C:\Program Files\Smallstep\SmallstepAgent\smallstep-agent.exe" doctor` |
 | Certificate location | Windows Certificate Store (`certmgr.msc` for Current User, `certlm.msc` for Local Machine) |
 | Collect logs | `& "C:\Program Files\Smallstep\SmallstepAgent\smallstep-agent.exe" logs collect` |
+
+#### Windows agent architecture
+
+The agent runs as two cooperating processes on Windows:
+
+1. **System service** — `Smallstep Agent`, runs as `LocalSystem`. Hosts the main IPC pipe (`\\.\pipe\step-agent-ipc-<system-SID>`) and drives certificate enrollment, renewal, and Mission Control communication.
+2. **Per-user reloader** — launched by the scheduled task `\Smallstep` inside each signed-in user's interactive session. Runs the `step-agent start user` command and hosts the reloader pipe `\\.\pipe\step-agent-reloader-<user-SID>`.
+
+```
+┌─────────────────────────────┐         ┌──────────────────────────────────┐
+│ Smallstep Agent (service)   │ ──────▶ │ "\Smallstep" scheduled task      │
+│ runs as LocalSystem         │  fires  │ runs as the signed-in user       │
+│ pipe: step-agent-ipc-<SID>  │         │ pipe: step-agent-reloader-<SID>  │
+└─────────────────────────────┘         └──────────────────────────────────┘
+```
+
+The scheduled task is triggered by `EventID=200` from the `SmallstepAgent` event source. The system service re-emits that event on user sign-in and console/RDP connect, so the per-user reloader picks up new sessions automatically.
+
+Some operations — most notably storing non-attested certificates into the user's Windows certificate store — require **both** halves to be running. When the per-user reloader is absent for a session, those operations fail even though the system service is healthy. See [Certificate storage fails with "cannot find the file specified" (Windows)](#certificate-storage-fails-with-cannot-find-the-file-specified-windows) for diagnosis.
 
 ### Linux
 
