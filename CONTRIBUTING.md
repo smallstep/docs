@@ -39,6 +39,26 @@ The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) >= 18
+- [pnpm](https://pnpm.io/) (`corepack enable` will activate it)
+- [Vale](https://vale.sh/)
+- [markdown-link-check](https://github.com/tcort/markdown-link-check) (`pnpm add -g markdown-link-check`)
+
+## Linting scripts
+
+After cloning the repository, run `pnpm install` and `vale sync`.
+
+```bash
+pnpm check          # lint prose + check links on changed files
+pnpm check:all      # lint prose + check links on all files
+pnpm vale           # lint all prose
+pnpm vale:changed   # lint prose in changed files only
+pnpm links          # check links in all files
+pnpm links:changed  # check links in changed files only
+```
+
 ## Prose linting with vale
 
 We use [Vale](https://vale.sh/) to enforce consistent prose style.
@@ -72,27 +92,29 @@ pnpm add -g mdx2vast
 
 ### Usage
 
+The simplest way to run Vale is via pnpm scripts (see above). You can also run it directly:
+
 ```bash
-# Check all files
-vale .
+# Check all files (excluding auto-generated CLI reference)
+vale --no-wrap --glob='!step-cli/reference/**' .
 
 # Check specific folder
-vale step-ca/
+vale --no-wrap --glob='!step-cli/reference/**' step-ca/
 
 # Check changed files only
-git diff --name-only HEAD | grep '\.mdx$' | xargs vale
+git diff --name-only origin/main -- '*.mdx' '*.md' | xargs -r vale --no-wrap --glob='!step-cli/reference/**'
 ```
 
 ## Checking links locally
 
-First:
+Install markdown-link-check:
 
 ```
-npm install -g markdown-link-check
+pnpm add -g markdown-link-check
 ```
 
-Then run:
+The simplest way to check links is via pnpm scripts (see above). You can also run it directly:
 
 ```
-find . -name \*.mdx -not -path './node_modules/*' -print0 | xargs -0 -n1 markdown-link-check -q -c .github/mdl.config.json
+find . -name '*.mdx' -not -path './node_modules/*' -print0 | xargs -0 -n1 markdown-link-check -q -c .github/mdl.config.json
 ```
