@@ -143,11 +143,18 @@ If unset, default is EC.
 
 `kty` is a case-sensitive string and must be one of:
 
-- **EC**: Create an **elliptic curve** keypair
+- **EC**: Create an **elliptic curve** key pair
 
 - **OKP**: Create an octet key pair (for **"Ed25519"** curve)
 
-- **RSA**: Create an **RSA** keypair
+- **RSA**: Create an **RSA** key pair
+
+- **ML-DSA-44**: Create an ML-DSA key pair using the **ML-DSA-44** parameter set.
+
+- **ML-DSA-65**: Create an ML-DSA key pair using the **ML-DSA-65** parameter set.
+
+- **ML-DSA-87**: Create an ML-DSA key pair using the **ML-DSA-87** parameter set.
+  
 
 **--crv**=`curve`, **--curve**=`curve`
 The elliptic `curve` to use for EC and OKP key types. Corresponds
