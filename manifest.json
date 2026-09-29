@@ -30,11 +30,11 @@
             {
               "title": "Smallstep API",
               "path": "/platform/smallstep-api.mdx"
-            }
+            },
             {
               "title": "Release Notes",
               "path": "/platform/release-notes.mdx"
-            },
+            }
           ]
         },
         {
