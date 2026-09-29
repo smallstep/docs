@@ -31,6 +31,10 @@
               "title": "Smallstep API",
               "path": "/platform/smallstep-api.mdx"
             }
+            {
+              "title": "Release Notes",
+              "path": "/platform/release-notes.mdx"
+            },
           ]
         },
         {
@@ -88,10 +92,6 @@
             {
               "title": "Install the Smallstep Agent",
               "path": "/platform/smallstep-agent.mdx"
-            },
-            {
-              "title": "Agent Release Notes",
-              "path": "/platform/smallstep-agent-release-notes.mdx"
             },
             {
               "title": "Troubleshooting Guide",
