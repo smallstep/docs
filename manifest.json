@@ -163,6 +163,10 @@
             {
               "title": "Set up Azure VPN with Smallstep",
               "path": "/tutorials/vpn-setup-guide-azure-vng.mdx"
+            },
+            {
+              "title": "Set up GlobalProtect VPN with Smallstep",
+              "path": "/tutorials/vpn-setup-guide-globalprotect.mdx"
             }
           ]
         },
