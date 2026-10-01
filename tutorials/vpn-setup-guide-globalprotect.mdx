@@ -1,0 +1,450 @@
+---
+title: Configure Palo Alto Networks GlobalProtect VPN with Smallstep
+updated_at: October 01, 2026
+html_title: GlobalProtect VPN Certificate Authentication with Smallstep
+description: Configure Palo Alto Networks GlobalProtect for certificate-only authentication with hardware-bound Smallstep device certificates on Windows, macOS, and Linux.
+---
+
+This guide configures Smallstep to issue client certificates for Palo Alto Networks GlobalProtect on Windows, macOS, and Linux.
+It then configures PAN-OS to authenticate GlobalProtect users with only those certificates.
+
+Intended audience: enterprise IT administrators
+
+The guide has three parts:
+
+1. [Client support](#client-support): which GlobalProtect clients can use Smallstep certificates.
+2. [Smallstep configuration](#smallstep-configuration): create a credential and a VPN configuration with the Smallstep API.
+3. [PAN-OS configuration](#pan-os-configuration): configure the GlobalProtect portal and gateway for certificate authentication.
+
+## Client support
+
+### Windows
+
+The GlobalProtect client reads certificates from the Windows certificate store.
+The Smallstep agent registers the TPM-bound key through a CNG key storage provider.
+
+<Alert severity="info" mb={4}>
+  <div>
+    <strong>On Windows, a hardware-attested credential goes into the machine certificate store.</strong>
+    The agent puts the certificate in <code>LocalMachine\My</code>, not in the user store,
+    because the TPM key uses the machine scope of the Microsoft Platform Crypto Provider.
+    Look for the certificate in <code>certlm.msc</code>, not <code>certmgr.msc</code>.
+    The GlobalProtect client searches the machine store by default.
+    See <a href="#4-configure-the-portal">Configure the portal</a>.
+  </div>
+</Alert>
+
+### macOS
+
+The GlobalProtect client uses the CryptoTokenKit identity that the Smallstep agent manages.
+The key is held in the Secure Enclave.
+
+### Linux: GlobalProtect client
+
+The GlobalProtect client for Linux cannot use a hardware-attested key.
+It accepts only a `.p12` or `.pfx` file on the filesystem, imported with `globalprotect import-certificate`,
+and keeps the key in software memory.
+See the [GlobalProtect documentation for Linux](https://docs.paloaltonetworks.com/globalprotect/user-guide/6-3/globalprotect-app-for-linux/use-the-globalprotect-app-for-linux).
+
+The client has no other key source:
+it does not support PKCS#11 or p11-kit token URIs,
+it offers no way to load an OpenSSL engine (it statically links OpenSSL 1.1.1, so OpenSSL 3 providers such as the TPM2 provider do not apply),
+and it does not use an NSS database.
+
+<Alert severity="info" mb={4}>
+  <div>
+    <strong>The official GlobalProtect client for Linux cannot use attestation.</strong>
+    A PKCS#12 file contains the private key, and a TPM key cannot be exported to a file.
+    A Smallstep credential for this client must therefore use a software key without attestation.
+    The Smallstep API does not accept <code>HARDWARE_ATTESTED</code> with the PKCS#12 format.
+    See <a href="#linux-options">Linux options</a>.
+  </div>
+</Alert>
+
+### Linux: OpenConnect client
+
+On Linux, we recommend the [OpenConnect VPN client](https://www.infradead.org/openconnect) instead of the GlobalProtect client.
+OpenConnect supports the [GlobalProtect protocol](https://www.infradead.org/openconnect/globalprotect.html).
+It reads a certificate file and a key file,
+and it supports [TPM 2.0 keys in TSS2 files](https://www.infradead.org/openconnect/tpm.html) and [PKCS#11 keys](https://www.infradead.org/openconnect/pkcs11.html).
+
+The Smallstep agent writes the certificate and key files in its state directory.
+With the standard systemd service, the files are:
+
+- Certificate: `/var/lib/step-agent/certificates/globalprotect/service.crt`
+- Key: `/var/lib/step-agent/certificates/globalprotect/service.key`
+
+The directory name `globalprotect` is the credential `slug` from [Step 1](#step-1-create-the-credential).
+The files are owned by the `step-agent` user, with mode `0640`.
+
+To connect, run OpenConnect as root.
+It needs root access to read the key file, to use the TPM, and to create the tunnel interface.
+
+```bash
+sudo openconnect --protocol=gp \
+  -c /var/lib/step-agent/certificates/globalprotect/service.crt \
+  -k /var/lib/step-agent/certificates/globalprotect/service.key \
+  <portal-fqdn>
+```
+
+Requirements:
+
+- OpenConnect must support TPM 2.0 keys, because the key file is a TPM 2.0 key in TSS2 format.
+  Run `openconnect --version`; the feature list must include `TPMv2`.
+- The device must have a hardware TPM at `/dev/tpmrm0`.
+  OpenConnect cannot use a key from the software TPM (`swtpm`) that the Smallstep agent can use on devices without a TPM.
+
+This procedure applies when the certificate is the only authentication factor.
+If the portal also requires SAML or a username and password, OpenConnect may need more configuration.
+
+## Smallstep configuration
+
+This part uses Smallstep API version `2026-05-01`.
+It makes two API requests:
+
+1. Create a credential. The credential defines the certificate and the key for Windows, macOS, and Linux.
+2. Create a VPN configuration. The VPN configuration links the credential to the portal FQDN.
+
+The credential issues X.509 certificates that are valid for 4380 hours (6 months).
+The key is a hardware-bound key with attestation:
+
+- On macOS, the Secure Enclave holds the key.
+- On Windows and Linux, the TPM 2.0 holds the key.
+
+### Before you start
+
+You need:
+
+- **Registered devices.**
+  Install the Smallstep agent on each device, register each device with your Smallstep team, and approve each device in the Smallstep console.
+  Assign a user to each device that must authenticate as a user.
+  The certificate common name is the email of the assigned user.
+- **Authority UUID.**
+  In the Smallstep console, go to **Certificate Manager → Authorities**.
+  Select the authority that will issue the client certificates, and copy its UUID.
+- **Portal FQDN.**
+  Use the FQDN in the certificate of the GlobalProtect portal, not an IP address.
+  The client compares the server certificate to the name that it connects to.
+- **API token.**
+  1. Sign in to the Smallstep console.
+  2. Go to **Settings → API Clients**.
+  3. Under **API tokens**, click **Add Token**.
+  4. Enter a name, for example `GlobalProtect setup`.
+  5. Under **Scopes**, select these two scopes:
+     - `post-credentials`, in the **Credentials** group.
+     - `post-vpn`, in the **Managed Endpoints** group.
+  6. Copy the token and keep it in a secure location.
+
+### Step 1: Create the credential
+
+Create the credential with the [Create Credential](https://gateway.smallstep.com/v2026-05-01/operations/PostCredentials) endpoint.
+Replace `YOUR_API_TOKEN` and `YOUR_AUTHORITY_UUID` with your values.
+
+```bash
+curl -X POST https://gateway.smallstep.com/api/credentials \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "X-Smallstep-Api-Version: 2026-05-01" \
+  -d '{
+    "slug": "globalprotect",
+    "certificate": {
+      "type": "X509",
+      "authorityID": "YOUR_AUTHORITY_UUID",
+      "duration": "4380h",
+      "fields": {
+        "commonName": {
+          "expression": "[identity, device.serial, \"unknown-device\"].filter(v, v != \"\")[0]"
+        },
+        "sans": {
+          "deviceMetadata": ["Device.Serial", "Device.PermanentIdentifier"]
+        }
+      }
+    },
+    "key": {
+      "type": "ECDSA_P256",
+      "protection": "HARDWARE_ATTESTED"
+    },
+    "files": {
+      "keyFormat": "TSS2"
+    },
+    "policy": {
+      "operatingSystem": ["Windows", "macOS", "Linux"]
+    }
+  }'
+```
+
+The response contains an `id` field. Copy this value for Step 2.
+
+Field notes:
+
+- `fields.commonName.expression` sets the certificate common name to the first non-empty value of:
+  1. The email of the device's assigned user.
+  2. The device serial number.
+  3. The static value `unknown-device`.
+
+  The PAN-OS certificate profile reads the username from the common name,
+  so a device with no assigned user and no serial number authenticates as the user `unknown-device`.
+  Change this value if necessary.
+- The expression replaces `static` and `deviceMetadata` for this field, so the static fallback must be inside the expression.
+- The Smallstep API validates the expression when you create the credential.
+  An invalid expression fails at that point, not when the agent requests a certificate.
+- `fields.sans` adds the device serial number and the device permanent identifier as subject alternative names.
+- `key.protection` is `HARDWARE_ATTESTED`.
+  Each device must have a Secure Enclave (macOS) or a TPM 2.0 (Windows and Linux).
+  If a device has neither, the agent does not create the credential on that device; it does not fall back to a software key.
+- On Linux, if the device has no TPM and the `swtpm` package is installed, the Smallstep agent uses a software TPM.
+  Smallstep then records the device with normal assurance, not high assurance.
+  OpenConnect cannot use a key from this software TPM.
+- `files.keyFormat: TSS2` makes the agent write the Linux TPM key as a TSS2 file (it begins with `-----BEGIN TSS2 PRIVATE KEY-----`).
+  This is also the Linux default for hardware-attested keys.
+  The agent ignores this value on Windows and macOS.
+- On Windows, the agent puts hardware-attested certificates in the machine certificate store (`LocalMachine\My`).
+  See [Configure the portal](#4-configure-the-portal).
+- Do not set `files.crtFile`, `files.keyFile`, or `files.rootFile`.
+  The credential applies to every operating system, and a Linux path such as `/etc` is not valid on Windows or macOS.
+- `policy.operatingSystem` limits the credential to Windows, macOS, and Linux devices. The `policy` object is optional.
+
+### Linux options
+
+Choose one of these two options for Linux devices.
+
+#### Option A: OpenConnect with a hardware-attested key (recommended)
+
+Use the credential from Step 1 without changes.
+On Linux, the agent writes the TPM key to a TSS2 file, and OpenConnect uses this file.
+See [Linux: OpenConnect client](#linux-openconnect-client).
+
+#### Option B: Official GlobalProtect client with a software key
+
+This option does not use attestation.
+The key is a software key in a password-protected PKCS#12 file.
+
+1. In Step 1, remove `"Linux"` from `policy.operatingSystem`, so the Step 1 credential applies only to Windows and macOS.
+2. Create a second credential for Linux, using the same authority as in Step 1.
+   Replace `YOUR_API_TOKEN` and `YOUR_AUTHORITY_UUID` with your values.
+
+   ```bash
+   curl -X POST https://gateway.smallstep.com/api/credentials \
+     -H "Authorization: Bearer YOUR_API_TOKEN" \
+     -H "Content-Type: application/json" \
+     -H "X-Smallstep-Api-Version: 2026-05-01" \
+     -d '{
+       "slug": "globalprotect-linux",
+       "certificate": {
+         "type": "X509",
+         "authorityID": "YOUR_AUTHORITY_UUID",
+         "duration": "4380h",
+         "fields": {
+           "commonName": {
+             "expression": "[identity, device.serial, \"unknown-device\"].filter(v, v != \"\")[0]"
+           },
+           "sans": {
+             "deviceMetadata": ["Device.Serial", "Device.PermanentIdentifier"]
+           }
+         }
+       },
+       "key": {
+         "type": "ECDSA_P256",
+         "protection": "NONE"
+       },
+       "files": {
+         "keyFormat": "PKCS12"
+       },
+       "policy": {
+         "operatingSystem": ["Linux"]
+       }
+     }'
+   ```
+
+3. Copy the `id` from the response. In Step 2, add this `id` to the `credentials` list.
+4. On each Linux device, the agent writes two files, owned by the `step-agent` user with mode `0640`:
+   - The PKCS#12 file: `/var/lib/step-agent/certificates/globalprotect-linux/service.p12`
+   - The password: `/var/lib/step-agent/certificates/globalprotect-linux/password.txt`
+5. Copy the PKCS#12 file to a location that your user can read:
+
+   ```bash
+   sudo install -m 0600 -o "$USER" /var/lib/step-agent/certificates/globalprotect-linux/service.p12 ~/globalprotect.p12
+   ```
+
+6. Show the password:
+
+   ```bash
+   sudo cat /var/lib/step-agent/certificates/globalprotect-linux/password.txt
+   ```
+
+7. Import the PKCS#12 file:
+
+   ```bash
+   globalprotect import-certificate --location ~/globalprotect.p12
+   ```
+
+8. At the prompt `Please input passcode:`, enter the password from step 6.
+
+Field notes for Option B:
+
+- `protection` must be `NONE`. The API accepts `PKCS12` only with `NONE`.
+- `PKCS12` is accepted for `files.keyFormat`, though it is not yet listed in the API reference.
+- If the import fails, use `PKCS12_LEGACY`. This format uses older encryption for older PKCS#12 parsers.
+- The client keeps its own copy of the PKCS#12 file.
+  When the agent renews the certificate, it writes a new PKCS#12 file with a new password,
+  and you must repeat steps 5 to 8.
+
+### Step 2: Create the VPN configuration
+
+Create the VPN configuration with the [Create VPN](https://gateway.smallstep.com/v2026-05-01/operations/PostVPN) endpoint.
+Replace `YOUR_API_TOKEN`, `YOUR_PORTAL_FQDN`, and `CREDENTIAL_ID` with your values.
+If you use Linux Option B, add the `id` of the second credential to the `credentials` list.
+
+```bash
+curl -X POST https://gateway.smallstep.com/api/protect/vpn \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "Content-Type: application/json" \
+  -H "X-Smallstep-Api-Version: 2026-05-01" \
+  -d '{
+    "name": "GlobalProtect",
+    "connectionType": "SSL",
+    "vendor": "F5",
+    "remoteAddress": "YOUR_PORTAL_FQDN",
+    "autojoin": true,
+    "credentials": ["CREDENTIAL_ID"]
+  }'
+```
+
+Field notes:
+
+- The VPN configuration shows the GlobalProtect VPN and its credential in the Smallstep console.
+  The Smallstep agent does not configure the GlobalProtect client or OpenConnect.
+  On Windows and macOS, the agent puts the certificate in the certificate store, and the GlobalProtect client reads it from there.
+  On Linux, the client reads the files that the agent writes.
+- `vendor` has no Palo Alto value. The permitted values are `F5`, `Cisco`, and `Juniper`.
+  Use `F5`; the GlobalProtect client does not use this value.
+
+### Step 3: Download the CA certificates
+
+The agent gets each client certificate from the intermediate CA of your authority,
+which chains to the root CA. PAN-OS needs both certificates.
+
+1. In the Smallstep console, go to **Certificate Manager → Authorities**.
+2. Select the authority from Step 1.
+3. Download the **Root Certificate**.
+4. Download the **Intermediate Certificate**.
+
+## PAN-OS configuration
+
+This part changes a working GlobalProtect portal and gateway to use client certificate authentication (mutual TLS).
+The menu paths are from PAN-OS 12.1.
+
+You need:
+
+- A GlobalProtect portal and gateway that clients can connect to.
+  The portal must have a server TLS certificate for its FQDN, for example from Let's Encrypt.
+- The root and intermediate certificates from [Step 3](#step-3-download-the-ca-certificates).
+- Administrator access to PAN-OS, through the web interface or the XML API.
+
+### 1. Import the client CA certificates
+
+1. Go to **Device → Certificate Management → Certificates → Import**.
+2. Import the root certificate as a PEM certificate, with the name `gp-client-root`.
+3. Import the intermediate certificate as a PEM certificate, with the name `gp-client-intermediate`.
+
+A passphrase is not necessary, because a CA certificate has no private key.
+
+If you use the XML API to upload a server certificate, note that PAN-OS rejects an unencrypted private key.
+Encrypt the server key with a temporary passphrase before you upload it.
+
+### 2. Create a certificate profile
+
+The certificate profile connects the client CA certificates to GlobalProtect authentication.
+
+1. Go to **Device → Certificate Management → Certificate Profile → Add**.
+2. Set **Name** to `gp-client-cert-profile`.
+3. Set **Username Field** to `Subject` → `common-name`.
+   The credential from Step 1 puts the user email in the common name.
+   For a device without an assigned user, the common name is the device serial number.
+   If the device has neither, the common name is `unknown-device`.
+4. In **CA Certificates**, add `gp-client-root` and `gp-client-intermediate`.
+5. Select the options that block sessions with expired certificates and with unknown certificate status.
+6. Configure OCSP or CRL if your CA publishes one. If not, keep the default values.
+
+### 3. Create a placeholder authentication profile
+
+PAN-OS requires an authentication profile on the portal and on the gateway, even when you use only certificates.
+This profile satisfies that requirement.
+PAN-OS does not use it for the authentication decision; the certificate profile makes that decision.
+
+1. Go to **Device → Authentication Profile → Add**.
+2. Set **Name** to `no-auth`.
+3. Set **Type** to `Local Database`. Any type works.
+4. Go to **Advanced → Allow List** and add `all`.
+
+### 4. Configure the portal
+
+1. Go to **Network → GlobalProtect → Portals → `<your portal>` → Authentication**.
+2. Set **SSL/TLS Service Profile** to your server certificate profile.
+3. Set **Certificate Profile** to `gp-client-cert-profile`.
+4. Under **Client Authentication**, add an entry.
+5. Set **Authentication Profile** to `no-auth`.
+6. Set **Allow Authentication with User Credentials OR Client Certificate** to **Yes**.
+
+<Alert severity="warning" mb={4}>
+  <div>
+    <strong>This setting name is misleading.</strong>
+    <code>Yes</code> means that credentials <em>or</em> a client certificate is sufficient.
+    With the certificate profile and the <code>no-auth</code> profile, <code>Yes</code> gives certificate-only authentication.
+    <code>No</code> means that the user must supply a certificate <em>and</em> credentials:
+    the certificate check passes, but then the client asks for a password,
+    which fails against the local database, and the user sees "Invalid username or password".
+  </div>
+</Alert>
+
+**Windows certificate store.**
+On Windows, the agent puts the certificate in the machine certificate store.
+The default value of **Client Certificate Store Lookup** in the portal agent configuration is **User and machine**,
+so the client searches the user store first and then the machine store.
+Keep the default value.
+If a user-store certificate from the same CA exists, set **Client Certificate Store Lookup** to **Machine**,
+so the client searches only the machine store.
+
+### 5. Configure the gateway
+
+1. Go to **Network → GlobalProtect → Gateways → `<your gateway>` → Authentication**.
+2. Set **SSL/TLS Service Profile** to your server certificate profile.
+3. Set **Certificate Profile** to `gp-client-cert-profile`.
+4. Add a **Client Authentication** entry with `no-auth`.
+5. Set **Allow Authentication with User Credentials OR Client Certificate** to **Yes**.
+
+You must configure both the portal and the gateway.
+The client connects to the portal first to get its configuration, then connects to the gateway to build the tunnel,
+and the portal and the gateway each do their own certificate check.
+
+### 6. Commit and test
+
+1. Commit the candidate configuration.
+2. On a client device, confirm that the Smallstep agent issued a certificate:
+   - On macOS, the certificate is in the Keychain.
+   - On Windows, it is in the machine certificate store, `LocalMachine\My`. Open `certlm.msc` to see it. It is not in the user store.
+   - On Linux with Option A, it is at `/var/lib/step-agent/certificates/globalprotect/service.crt`.
+   - On Linux with Option B, it is at `/var/lib/step-agent/certificates/globalprotect-linux/service.p12`.
+3. Connect to the portal FQDN:
+   - On Windows, macOS, and Linux with Option B, use the GlobalProtect client.
+   - On Linux with Option A, run the OpenConnect command in [Linux: OpenConnect client](#linux-openconnect-client).
+
+Expected result: the GlobalProtect client selects the certificate automatically
+and builds the tunnel without asking for credentials.
+If the client asks for a username and password, recheck [step 4](#4-configure-the-portal).
+That setting is the most frequent cause of this problem.
+
+### Troubleshooting
+
+- **PAN-OS GlobalProtect log.**
+  Run `show log globalprotect`, or go to **Monitor → Logs → GlobalProtect**.
+  A successful connection shows these events in order:
+  `portal-prelogin` success, `portal-auth` success, `gateway-prelogin` success, `gateway-auth` success.
+  If `portal-auth failure auth_method=local-database` follows a successful `portal-prelogin`,
+  the setting in [step 4](#4-configure-the-portal) is incorrect.
+- **macOS client logs.**
+  Look in `~/Library/Logs/PaloAltoNetworks/GlobalProtect/`.
+  `PanGPS.log` is the service log, and `PanGPA.log` is the user interface log.
+- **Server certificate algorithm.**
+  Some GlobalProtect client versions do not accept ECDSA server certificates.
+  If the client aborts the TLS handshake, issue an RSA server certificate for the portal and import it again.
