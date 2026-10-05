@@ -199,8 +199,6 @@ You provide:
 - **`nasIPs`**: the public (WAN) IP addresses your access points or wireless controllers will send RADIUS traffic from.
   This is how the service attributes incoming requests to your team, so each IP must be unique across Smallstep customers.
 - **`clientCA`**: the CA bundle the RADIUS server will trust to verify clients—the authority root you saved in Step 1.
-  If Workspace ONE UEM issues certificates to iOS or Android devices, include your team's Agents authority root as well
-  (see [iOS and Android with Workspace ONE UEM](#ios-and-android-with-workspace-one-uem-scep)).
 
 ```bash
 jq -n --rawfile ca client_ca.crt \
@@ -548,7 +546,7 @@ Enrolled devices in the assigned groups will receive the profile and be ready to
 ### iOS and Android with Workspace ONE UEM (SCEP)
 
 In this workflow, Workspace ONE UEM deploys a profile that gets a client certificate from Smallstep's SCEP server,
-installs the RADIUS server CA, and configures the Wi-Fi network.
+trusts your RADIUS server's CA, and configures the Wi-Fi network.
 Workspace ONE fetches a single-use SCEP challenge from Smallstep for each device, so no shared secret is embedded in the profile.
 The Smallstep Agent is not required on the device.
 
@@ -565,10 +563,8 @@ You will need:
   (**Groups & Settings → All Settings → Devices & Users → Android → Android EMM Registration**),
   and a test device enrolled with a work profile or as a fully managed device.
   The device must have a screen lock set, or Android won't install the client certificate.
-- Your RADIUS server details: the CA certificate that issued your RADIUS server's certificate,
-  and the name on that certificate.
-  For Smallstep Managed RADIUS, these are the `serverCA` and `serverHostname` from [Step 2](#step-2-configure-the-enforcement-point)
-  (the [Smallstep RADIUS Root CA](https://dl.smallstep.com/radius.smallstep.com-root.crt) and `radius.smallstep.com`).
+- Your RADIUS server's CA certificate, and the hostname on your RADIUS server's certificate
+  (see [Step 2](#step-2-configure-the-enforcement-point)).
 
 #### Trust the Agents authority on your RADIUS server
 
@@ -579,10 +575,7 @@ Your RADIUS server must trust it:
 1. In the Smallstep dashboard, go to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices),
    choose **Manage** on the Omnissa Workspace ONE integration, and open the **Settings** tab.
 2. Under **Authority Certificates**, choose **Download Root**.
-3. Add that root to your RADIUS server's trusted client CA bundle.
-   For Smallstep Managed RADIUS, append it to the `clientCA` with the
-   [Put Managed RADIUS](https://gateway.smallstep.com/v2025-01-01/operations/PutManagedRadius) endpoint.
-   The request body must include `name`, `nasIPs`, and the full `clientCA` bundle, so send back the existing values with the new root appended.
+3. Add that root to the CAs your RADIUS server trusts for client certificates.
 
 #### Add a Workspace ONE CA resource
 
@@ -631,18 +624,18 @@ Smallstep uses the Workspace ONE device UUID to link each certificate to the dev
     - **Credential Source**: **Defined Certificate Authority**
     - **Certificate Authority**: the Smallstep CA resource
     - **Certificate Template**: the Smallstep template
-5. Add a **Credentials** payload for the RADIUS server CA:
+5. Add a **Credentials** payload to trust your RADIUS server's CA:
     - **Credential Source**: **Upload**
-    - **Credential Name**: for example, `Smallstep RADIUS Root CA`
-    - **Certificate**: upload your RADIUS server CA certificate with **Choose File**, then choose **Attach Certificate**
+    - **Credential Name**: for example, `RADIUS Server CA`
+    - **Certificate**: upload your RADIUS server's CA certificate with **Choose File**, then choose **Attach Certificate**
 6. Add a **Wi-Fi** payload:
     - **Service Set Identifier**: your SSID
     - **Auto-Join**: enabled
     - **Security Type**: **WPA2 Enterprise** or **WPA3 Enterprise**, to match your network
     - **Protocols**: select **EAP-TLS**
     - **Identity Certificate**: **SCEP**
-    - **Trusted Certificates**: select **Credentials** (the RADIUS server CA)
-    - **Trusted Server Certificate Names**: the name on your RADIUS server's certificate, for example `radius.smallstep.com`
+    - **Trusted Certificates**: select **Credentials** (your RADIUS server's CA)
+    - **Trusted Server Certificate Names**: the hostname on your RADIUS server's certificate
     - **TLS Certificate Required**: enabled
 7. Choose **Next**, select a **Smart Group** containing your test devices, and choose **Save & Publish**
 
@@ -655,15 +648,15 @@ Smallstep uses the Workspace ONE device UUID to link each certificate to the dev
     - **Credential Source**: **Defined Certificate Authority**
     - **Certificate Authority**: the Smallstep CA resource
     - **Certificate Template**: the Smallstep template
-5. In the same payload, choose **+ ADD** to add **Credentials 2** for the RADIUS server CA:
+5. In the same payload, choose **+ ADD** to add **Credentials 2**, which trusts your RADIUS server's CA:
     - **Credential Source**: **Upload**
-    - **Certificate**: upload your RADIUS server CA certificate with **Choose File**, then choose **Attach Certificate**
+    - **Certificate**: upload your RADIUS server's CA certificate with **Choose File**, then choose **Attach Certificate**
 6. Add a **Wi-Fi** payload:
     - **Service Set Identifier**: your SSID
     - **Security Type**: **WPA/WPA2 Enterprise**
     - **SFA Type**: **TLS**
     - **Identity**: `{DeviceUuid}`
-    - **Trusted Server Domain**: the name on your RADIUS server's certificate, for example `radius.smallstep.com`
+    - **Trusted Server Domain**: the hostname on your RADIUS server's certificate
     - **Identity Certificate**: **Credentials 1**
     - **Root Certificates**: **Credentials 2**
 7. Choose **Next**, select a **Smart Group** containing your test devices, and choose **Save & Publish**
@@ -676,7 +669,10 @@ Current Android versions refuse to join an enterprise network that doesn't valid
 When a device receives the profile, Workspace ONE requests a single-use challenge from Smallstep,
 and the device enrolls for its certificate and joins the network without prompting.
 
-- In Workspace ONE, open the device's details. The **Profiles** tab shows the install status, and the **Certificates** tab shows the certificate issued by your Agents authority.
+- In the Smallstep dashboard, [Audit](https://smallstep.com/app/?next=/audit) shows an **X.509 certificate issued** event for each certificate.
+- In Workspace ONE, open the device's details. The **Profiles** tab shows the install status,
+  and **More → Troubleshooting → Event Log** shows each step, from **Profiles Install Initialized** to **Profiles Install Processed**.
+- If the profile stays pending, select it on the device's **Profiles** tab and choose **Install** to push it to the device.
 - On iOS, go to **Settings → General → VPN & Device Management**, open the Workspace ONE profile, and check for the SCEP certificate.
 - If the certificate is installed but the device can't join the network, check that your RADIUS server trusts your Agents authority root
   (see [Trust the Agents authority on your RADIUS server](#trust-the-agents-authority-on-your-radius-server)).
