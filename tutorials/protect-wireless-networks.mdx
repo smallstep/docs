@@ -1,5 +1,5 @@
 ---
-updated_at: September 02, 2026
+updated_at: October 05, 2026
 title: Protect Wireless Networks with 802.1X EAP-TLS
 html_title: Protect Wireless Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Wi-Fi end to end. Issue client certificates via the Smallstep API, configure RADIUS and access points, and deploy to clients.
@@ -561,7 +561,8 @@ You will need:
   (**Groups & Settings → All Settings → Devices & Users → Apple → APNs For MDM**), and a test device enrolled in Workspace ONE.
 - For Android: Workspace ONE registered as your Android Enterprise EMM
   (**Groups & Settings → All Settings → Devices & Users → Android → Android EMM Registration**),
-  and a test device enrolled with a work profile or as a fully managed device.
+  and a test device managed through Android Enterprise, with a work profile or as a fully managed device.
+  In the device's details in Workspace ONE, **Android Management** should show **Work Profile** (or another Android Enterprise mode), not **Android (Legacy)**.
   The device must have a screen lock set, or Android won't install the client certificate.
 - Your RADIUS server's CA certificate, and the hostname on your RADIUS server's certificate
   (see [Step 2](#step-2-configure-the-enforcement-point)).
@@ -672,8 +673,16 @@ and the device enrolls for its certificate and joins the network without prompti
 - In the Smallstep dashboard, [Audit](https://smallstep.com/app/?next=/audit) shows an **X.509 certificate issued** event for each certificate.
 - In Workspace ONE, open the device's details. The **Profiles** tab shows the install status,
   and **More → Troubleshooting → Event Log** shows each step, from **Profiles Install Initialized** to **Profiles Install Processed**.
+  On Android, the log also shows **Certificate Issued** for your Smallstep CA resource.
 - If the profile stays pending, select it on the device's **Profiles** tab and choose **Install** to push it to the device.
 - On iOS, go to **Settings → General → VPN & Device Management**, open the Workspace ONE profile, and check for the SCEP certificate.
+- If an Android device shows **Hub Registered** or **Android Management: Android (Legacy)**, it isn't managed through Android Enterprise and won't receive the profile.
+  Check that Android EMM registration is complete, and that
+  **Groups & Settings → All Settings → Devices & Users → General → Enrollment → Management Mode**
+  doesn't enroll Android devices without MDM management. Then re-enroll the device.
+- To add a work profile to an Android device that's already set up, enroll it as employee-owned.
+  Corporate-owned Android Enterprise modes are provisioned during setup of a new or factory-reset device.
+- If the work profile is paused (**Work apps** turned off on the device), the device won't check in or install profiles.
 - If the certificate is installed but the device can't join the network, check that your RADIUS server trusts your Agents authority root
   (see [Trust the Agents authority on your RADIUS server](#trust-the-agents-authority-on-your-radius-server)).
 
