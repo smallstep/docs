@@ -71,8 +71,10 @@ see [Connect Jamf Pro to Smallstep](../tutorials/connect-jamf-pro-to-smallstep.m
 
 ### Use osquery-based enrollment
 
-For [Fleet-managed](../tutorials/connect-fleet-dm-to-smallstep.mdx) Linux and Windows hosts, deploy the Smallstep osquery extension.
-The osquery extension will report each device's TPM Endorsement Key to Fleet.
+For [Fleet-managed](../tutorials/connect-fleet-dm-to-smallstep.mdx) macOS, Linux, and Windows hosts, deploy the Smallstep osquery extension alongside the agent.
+The osquery extension reports each device's identity to Fleet:
+the TPM Endorsement Key on Linux and Windows,
+and the serial number and agent attestation key on macOS.
 Smallstep then syncs the data into your inventory.
 
 ### Add devices via API
