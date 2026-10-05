@@ -567,15 +567,16 @@ You will need:
 - Your RADIUS server's CA certificate, and the hostname on your RADIUS server's certificate
   (see [Step 2](#step-2-configure-the-enforcement-point)).
 
-#### Trust the Agents authority on your RADIUS server
+#### Trust your issuing authority on your RADIUS server
 
-Certificates that Workspace ONE requests through the Smallstep integration are issued by your team's **Agents** authority
-(`agents.[your team].ca.smallstep.com`), not by the authority behind a credential you created in Step 1.
-Your RADIUS server must trust it:
+Certificates that Workspace ONE requests through the Smallstep integration are signed by your integration's issuing authority.
+It may not be the authority behind a credential you created in Step 1, so make sure your RADIUS server trusts it.
 
-1. In the Smallstep dashboard, go to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices),
+Find your issuing authority in the Smallstep console:
+
+1. Go to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices),
    choose **Manage** on the Omnissa Workspace ONE integration, and open the **Settings** tab.
-2. Under **Authority Certificates**, choose **Download Root**.
+2. Under **Authority Certificates**, choose **Download Root** to get your issuing authority's root certificate.
 3. Add that root to the CAs your RADIUS server trusts for client certificates.
 
 #### Add a Workspace ONE CA resource
@@ -684,8 +685,8 @@ and the device enrolls for its certificate and joins the network without prompti
 - To add a work profile to an Android device that's already set up, enroll it as employee-owned.
   Corporate-owned Android Enterprise modes are provisioned during setup of a new or factory-reset device.
 - If the work profile is paused (**Work apps** turned off on the device), the device won't check in or install profiles.
-- If the certificate is installed but the device can't join the network, check that your RADIUS server trusts your Agents authority root
-  (see [Trust the Agents authority on your RADIUS server](#trust-the-agents-authority-on-your-radius-server)).
+- If the certificate is installed but the device can't join the network, check that your RADIUS server trusts your issuing authority's root
+  (see [Trust your issuing authority on your RADIUS server](#trust-your-issuing-authority-on-your-radius-server)).
 
 ### Windows with Intune (SCEP)
 
