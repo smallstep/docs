@@ -581,7 +581,8 @@ Your RADIUS server must trust it:
 #### Add a Workspace ONE CA resource
 
 If you already added a Smallstep CA resource and request template while following
-[Connect Workspace ONE UEM to Smallstep](./connect-workspace-one-to-smallstep.mdx), you can reuse them and skip to [Create the iOS profile](#create-the-ios-profile).
+[Connect Workspace ONE UEM to Smallstep](./connect-workspace-one-to-smallstep.mdx), you can reuse them
+and skip to creating the [iOS profile](#create-the-ios-profile) or the [Android profile](#create-the-android-profile).
 
 For compatibility with Workspace ONE, Smallstep emulates a Microsoft NDES server, including its dynamic challenges.
 
@@ -613,8 +614,8 @@ For compatibility with Workspace ONE, Smallstep emulates a Microsoft NDES server
     - **Publish Private Key**: **Disabled**
 2. Choose **Save**
 
-Keep the `{DeviceUuid}` subject and SAN as shown.
-Smallstep uses the Workspace ONE device UUID to link each certificate to the device in your inventory.
+Keep the `{DeviceUuid}` subject and SAN as shown,
+so Smallstep can associate each certificate with the Workspace ONE device that requested it.
 
 #### Create the iOS profile
 
