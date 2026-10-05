@@ -1,5 +1,5 @@
 ---
-updated_at: September 02, 2026
+updated_at: October 05, 2026
 title: Protect GitHub with SSH Certificates
 html_title: Protect GitHub Repositories with Hardware-Bound SSH Certificates
 description: Authenticate to GitHub with short-lived SSH certificates backed by your device's TPM or Secure Enclave, issued and managed by the Smallstep Agent.
@@ -238,10 +238,8 @@ The agent's SSH socket location per platform:
 <Alert severity="info" mb={4}>
   <div>
     The steps below make the Smallstep Agent's keys your only SSH agent keys.
-    For gradual adoption, you can instead scope the agent to specific projects:
-    tools like <code>direnv</code> can set <code>SSH_AUTH_SOCK</code> per directory,
-    and <code>git</code> supports conditional configuration with
-    <code>[includeIf "env:SSH_AUTH_SOCK=..."]</code> directives.
+    To keep your existing agent for other hosts, see
+    <a href="#optional-scope-the-agent-to-github">Optional: Scope the agent to GitHub</a> instead.
   </div>
 </Alert>
 
@@ -275,6 +273,24 @@ Set the environment variable for your user:
     - **Variable name:** `SSH_AUTH_SOCK`
     - **Variable value:** `\\.\pipe\step-agent-ssh`
 4. Click **OK**, and restart any open terminal windows
+
+## Optional: Scope the agent to GitHub
+
+If you'd rather not replace your default SSH agent,
+leave `SSH_AUTH_SOCK` alone and point only `github.com` connections at the Smallstep Agent
+with an `IdentityAgent` directive in `~/.ssh/config`.
+For example, on macOS:
+
+```
+Host github.com
+  IdentityAgent "~/Library/Application Support/Smallstep/step-agent-ssh.sock"
+```
+
+Use the socket path for your platform from the table above.
+All other SSH connections continue to use your existing agent.
+
+For project-scoped adoption, tools like `direnv` can set `SSH_AUTH_SOCK` per directory,
+and `git` supports conditional configuration with `[includeIf "env:SSH_AUTH_SOCK=..."]` directives.
 
 ## Verify SSH authentication
 
