@@ -1,5 +1,5 @@
 ---
-updated_at: September 02, 2026
+updated_at: October 05, 2026
 title: Protect GitHub with SSH Certificates
 html_title: Protect GitHub Repositories with Hardware-Bound SSH Certificates
 description: Authenticate to GitHub with short-lived SSH certificates backed by your device's TPM or Secure Enclave, issued and managed by the Smallstep Agent.
@@ -178,15 +178,16 @@ your GitHub Enterprise organization is configured to trust SSH certificates sign
 
 ## Retrieve your SSH CA public key
 
-On a machine with the [`step` CLI](../step-cli/README.mdx) installed,
-bootstrap with your team and print your SSH user CA public key:
+In the Smallstep dashboard, go to **Protect → SSH** and copy the **SSH User CA pub Key**.
+
+Alternatively, on a machine with the [`step` CLI](../step-cli/README.mdx) installed,
+bootstrap with your team and print the key:
 
 ```bash
 step ssh config --team [your team slug]
 step ssh config --roots
 ```
 
-The output is your SSH CA's public key.
 Copy the entire key; it will look similar to:
 
 ```
@@ -198,7 +199,7 @@ ecdsa-sha2-nistp256 AAAAE2VjZHNhLXNoYTItbmlzdHAyNTYAAAAIbmlzdHAyNTYAAABBBK...
 1. On GitHub, navigate to your organization's **Settings**
 2. Under **Authentication security**, find **SSH certificate authorities**
 3. Click **New CA**
-4. Paste the public key from `step ssh config --roots` into the **Key** field
+4. Paste your SSH user CA public key into the **Key** field
 5. Click **Add CA**
 
 The CA now appears in your list of SSH certificate authorities,
@@ -207,6 +208,15 @@ will be accepted for authentication to your organization's repositories.
 
 For more information,
 see [GitHub's documentation on SSH certificate authorities](https://docs.github.com/en/enterprise-cloud@latest/organizations/managing-git-access-to-your-organizations-repositories/about-ssh-certificate-authorities).
+
+<Alert severity="info" mb={4}>
+  <div>
+    To trust the CA across every organization in your enterprise,
+    an enterprise owner can instead add it under
+    <b>Your enterprises → Settings → Authentication security → SSH certificate authorities</b>.
+    See <a href="https://docs.github.com/en/enterprise-cloud@latest/admin/enforcing-policies/enforcing-policies-for-your-enterprise/enforcing-policies-for-security-settings-in-your-enterprise#managing-ssh-certificate-authorities-for-your-enterprise">Managing SSH certificate authorities for your enterprise</a>.
+  </div>
+</Alert>
 
 ## Optional: Require SSH certificates
 
@@ -238,10 +248,8 @@ The agent's SSH socket location per platform:
 <Alert severity="info" mb={4}>
   <div>
     The steps below make the Smallstep Agent's keys your only SSH agent keys.
-    For gradual adoption, you can instead scope the agent to specific projects:
-    tools like <code>direnv</code> can set <code>SSH_AUTH_SOCK</code> per directory,
-    and <code>git</code> supports conditional configuration with
-    <code>[includeIf "env:SSH_AUTH_SOCK=..."]</code> directives.
+    To keep your existing agent for other hosts, see
+    <a href="#optional-scope-the-agent-to-github">Optional: Scope the agent to GitHub</a> instead.
   </div>
 </Alert>
 
@@ -275,6 +283,24 @@ Set the environment variable for your user:
     - **Variable name:** `SSH_AUTH_SOCK`
     - **Variable value:** `\\.\pipe\step-agent-ssh`
 4. Click **OK**, and restart any open terminal windows
+
+## Optional: Scope the agent to GitHub
+
+If you'd rather not replace your default SSH agent,
+leave `SSH_AUTH_SOCK` alone and point only `github.com` connections at the Smallstep Agent
+with an `IdentityAgent` directive in `~/.ssh/config`.
+For example, on macOS:
+
+```
+Host github.com
+  IdentityAgent "~/Library/Application Support/Smallstep/step-agent-ssh.sock"
+```
+
+Use the socket path for your platform from the table above.
+All other SSH connections continue to use your existing agent.
+
+For project-scoped adoption, tools like `direnv` can set `SSH_AUTH_SOCK` per directory,
+and `git` supports conditional configuration with `[includeIf "env:SSH_AUTH_SOCK=..."]` directives.
 
 ## Verify SSH authentication
 
