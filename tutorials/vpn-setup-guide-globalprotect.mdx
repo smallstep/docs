@@ -1,6 +1,6 @@
 ---
 title: Configure Palo Alto Networks GlobalProtect VPN with Smallstep
-updated_at: October 01, 2026
+updated_at: October 06, 2026
 html_title: GlobalProtect VPN Certificate Authentication with Smallstep
 description: Configure Palo Alto Networks GlobalProtect for certificate-only authentication with hardware-bound Smallstep device certificates on Windows, macOS, and Linux.
 ---
@@ -364,7 +364,8 @@ The certificate profile connects the client CA certificates to GlobalProtect aut
    If the device has neither, the common name is `unknown-device`.
 4. In **CA Certificates**, add `gp-client-root` and `gp-client-intermediate`.
 5. Select the options that block sessions with expired certificates and with unknown certificate status.
-6. Configure OCSP or CRL if your CA publishes one. If not, keep the default values.
+6. Leave **Use CRL** and **Use OCSP** cleared for now.
+   After the VPN works, turn on the revocation check in [step 7](#7-check-certificate-revocation).
 
 ### 3. Create a placeholder authentication profile
 
@@ -433,6 +434,113 @@ Expected result: the GlobalProtect client selects the certificate automatically
 and builds the tunnel without asking for credentials.
 If the client asks for a username and password, recheck [step 4](#4-configure-the-portal).
 That setting is the most frequent cause of this problem.
+
+### 7. Check certificate revocation
+
+Without a revocation check, a certificate that you revoke in Smallstep keeps working on the VPN until it expires.
+This step makes the firewall ask Smallstep for the status of each client certificate.
+Smallstep tested this step on PAN-OS 12.1.5.
+
+#### What Smallstep publishes
+
+An authority with active revocation puts two URLs in each certificate that it issues:
+
+- An OCSP responder: `http://ocsp.smallstep.com/<authority-id>`
+- A CRL distribution point: `http://crl.smallstep.com/<authority-id>/<file>.crl`
+
+To confirm that your authority does this, inspect a client certificate:
+
+```bash
+step certificate inspect service.crt | grep -A1 -E "OCSP|CRL Distribution"
+```
+
+If the output is empty, the authority does not have active revocation, and the firewall has nothing to check.
+
+#### Use OCSP, not the CRL
+
+<Alert severity="warning" mb={4}>
+  <div>
+    <strong>Do not select Use CRL.</strong>
+    PAN-OS 12.1.5 cannot read the Smallstep CRL and gives every certificate the status <code>unknown</code>.
+    With <strong>Block session if certificate status is unknown</strong> selected, the firewall then refuses every client.
+    The system log shows <code>CRL status unknown: unhandled critical CRL extension: issuingDistributionPoint</code>.
+  </div>
+</Alert>
+
+1. Go to **Device → Certificate Management → Certificate Profile → `gp-client-cert-profile`**.
+2. Select **Use OCSP**. Leave **Use CRL** cleared.
+3. Keep **Block session if certificate status is unknown** selected.
+4. Decide what the firewall does when it cannot reach the OCSP responder.
+   This is the option **Block session if certificate status cannot be retrieved within timeout**:
+   - Selected: the firewall refuses a certificate when it cannot get the status. An outage of the responder, or of the path to it, locks out clients.
+   - Cleared: the firewall accepts a certificate when it cannot get the status, including a revoked certificate.
+5. Commit.
+
+The firewall sends the OCSP request, not the client.
+By default the request leaves from the management interface,
+so that interface needs outbound HTTP (TCP port 80) to `ocsp.smallstep.com`.
+
+#### Revoke a certificate and confirm the result
+
+Revoke the certificate in the Smallstep console, or with the API:
+
+```bash
+curl -X POST https://gateway.smallstep.com/api/certificates/SERIAL_NUMBER/revoke \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  -H "X-Smallstep-Api-Version: 2026-05-01"
+```
+
+`SERIAL_NUMBER` is the serial number in decimal, as the Smallstep API returns it.
+PAN-OS and OpenSSL show the same number in hexadecimal, and the API does not accept that form.
+The token needs the `revoke-certificate` scope.
+
+The Smallstep OCSP responder reports the certificate as revoked within seconds.
+On the firewall, a refused connection adds this line to the system log (**Monitor → Logs → System**):
+
+```
+SSLMGR certificate ocsp verification failed. OCSP status revoked: cessationOfOperation
+```
+
+The client is not told the reason. It is asked for a username and a password, and that login cannot succeed.
+
+#### The firewall caches the status
+
+<Alert severity="warning" mb={4}>
+  <div>
+    <strong>A revocation does not reach the firewall immediately.</strong>
+    The firewall keeps each OCSP answer until the <code>Next Update</code> time in the answer.
+    For Smallstep that is 24 hours.
+    A certificate that the firewall saw as valid keeps working after you revoke it, until the firewall asks again.
+  </div>
+</Alert>
+
+To make the firewall ask again now, clear both of its caches from the PAN-OS command line:
+
+```
+debug sslmgr delete ocsp all
+debug dataplane reset ssl-decrypt certificate-status
+```
+
+The first command alone is not enough.
+The firewall also keeps the status in a second cache, and it does not send a new OCSP request until that cache is cleared too.
+
+To see what the firewall holds, and whether it asked the responder:
+
+```
+debug sslmgr view ocsp all
+debug sslmgr statistics
+```
+
+#### When the firewall cannot reach the responder
+
+- A certificate with a cached status keeps working until the cached status expires.
+- A certificate with no cached status is refused or accepted according to
+  **Block session if certificate status cannot be retrieved within timeout**.
+  The option **Block session if certificate status is unknown** does not apply to this case.
+- After five failed requests in a row, the firewall stops asking the responder for one hour,
+  even if the connection returns sooner.
+  `debug sslmgr view ocsp-host all` shows the responder as `OFFLINE`.
+  To make the firewall ask again, run `debug sslmgr delete ocsp-host all`.
 
 ### Troubleshooting
 
