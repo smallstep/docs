@@ -460,8 +460,9 @@ If the output is empty, the authority does not have active revocation, and the f
 <Alert severity="warning" mb={4}>
   <div>
     <strong>Do not select Use CRL.</strong>
-    PAN-OS 12.1.5 cannot read the Smallstep CRL and gives every certificate the status <code>unknown</code>.
-    With <strong>Block session if certificate status is unknown</strong> selected, the firewall then refuses every client.
+    PAN-OS does not support the Issuing Distribution Point extension in the Smallstep CRL,
+    so it gives every certificate that is not listed on the CRL the status <code>unknown</code>.
+    With <strong>Block session if certificate status is unknown</strong> selected, the firewall then refuses every valid client.
     The system log shows <code>CRL status unknown: unhandled critical CRL extension: issuingDistributionPoint</code>.
   </div>
 </Alert>
