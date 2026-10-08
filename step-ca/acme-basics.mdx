@@ -159,6 +159,53 @@ Finalizing Order .. done!
 ✔ Private Key: example.key
 ```
 
+### Use a specific DNS resolver for `dns-01` validation
+
+By default, `step-ca` uses the system DNS resolver to look up `dns-01` challenge records.
+In a split-horizon DNS environment, the internal resolver may not see the `TXT` records that your ACME client creates at a public DNS provider.
+To send DNS queries to a different resolver, start `step-ca` with the `--resolver` flag:
+
+```shell
+step-ca --resolver 1.1.1.1 $(step path)/config/ca.json
+```
+
+The flag applies to all DNS queries that `step-ca` makes, including `http-01` and `tls-alpn-01` validation and outbound connections to an upstream CA or to webhook servers.
+
+If systemd runs `step-ca`, add the flag to the `ExecStart=` line that systemd actually uses.
+A drop-in file in `/etc/systemd/system/step-ca.service.d/` replaces the `ExecStart=` line of the main unit file.
+For example, the [RA install script](../registration-authorities/acme-for-certificate-manager.mdx#option-1-use-our-linux-ra-install-script) creates the drop-in file `/etc/systemd/system/step-ca.service.d/local.conf`.
+To see the command line that systemd uses, run:
+
+```shell
+systemctl cat step-ca
+```
+
+To change the command line, edit the drop-in file and restart the service:
+
+```shell
+sudo systemctl edit step-ca
+sudo systemctl restart step-ca
+```
+
+### DNS propagation and challenge retries
+
+`step-ca` validates a challenge one time each time the ACME client requests it.
+It does not try the validation again in the background.
+If the `TXT` record is not yet visible to the resolver, the challenge stays in the `pending` state and shows an error.
+The client can then request validation again.
+
+Some ACME clients, such as `certbot`, request validation only one time, and then wait for the challenge to change state.
+If the DNS record is not visible at that time, the request fails when the client times out.
+To prevent this, configure the client to wait for DNS propagation before it requests validation.
+For example, the `certbot` DNS plugins have a `--dns-<provider>-propagation-seconds` flag:
+
+```shell
+certbot certonly --dns-cloudflare --dns-cloudflare-propagation-seconds 60 ...
+```
+
+DNS provider API rate limits can make propagation slower.
+If you get certificates for many hosts at the same time, get them one after the other, or add a delay between requests.
+
 
 ## Next steps
 
