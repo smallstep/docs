@@ -954,3 +954,4 @@ testuser
 disallow
 osquery
 fleetctl
+APNs

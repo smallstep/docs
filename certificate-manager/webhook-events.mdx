@@ -1,5 +1,5 @@
 ---
-updated_at: February 03, 2026
+updated_at: October 8, 2026
 title: Webhook Events
 html_title: Configure Certificate Webhook Events Guide
 description: Integrate certificate lifecycle events via webhooks. Automate workflows based on certificate issuance, renewal, and revocation.
@@ -136,7 +136,12 @@ Where:
       "type": "DNS",
       "value": "myservice.internal.mycompany.net"
     }
-  ]
+  ],
+  "provisioner": {
+    "id": "e5b0a6b4-3a2f-4a1e-9d8b-1f2c3d4e5f60",
+    "name": "jamfpro-prod-users-bd8ff965",
+    "type": "SCEP"
+  }
 }
 ```
 
@@ -166,7 +171,12 @@ Where:
       "type": "DNS",
       "value": "myservice.internal.mycompany.net"
     }
-  ]
+  ],
+  "provisioner": {
+    "id": "e5b0a6b4-3a2f-4a1e-9d8b-1f2c3d4e5f60",
+    "name": "jamfpro-prod-users-bd8ff965",
+    "type": "SCEP"
+  }
 }
 ```
 
@@ -215,6 +225,10 @@ Where:
         <TableRow>
             <TableCell>sans</TableCell>
             <TableCell>An array of the details of the certificate's subject alternative names</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>provisioner</TableCell>
+            <TableCell>An object identifying the provisioner that issued the certificate, with `id`, `name`, and `type`. The `name` is omitted when it cannot be resolved.</TableCell>
         </TableRow>
     </TableBody>
 </Table>
