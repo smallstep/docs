@@ -952,4 +952,6 @@ publicKey
 serialNumber
 testuser
 disallow
+osquery
+fleetctl
 APNs
