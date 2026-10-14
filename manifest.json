@@ -142,6 +142,10 @@
             {
               "title": "SSH for GitHub",
               "path": "/tutorials/protect-github-ssh.mdx"
+            },
+            {
+              "title": "Claude Code Telemetry",
+              "path": "/tutorials/protect-claude-code-telemetry.mdx"
             }
           ]
         },
