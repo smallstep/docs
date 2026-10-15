@@ -1,11 +1,11 @@
 ---
-updated_at: July 16, 2026
+updated_at: October 15, 2026
 title: Connect Iru (Kandji) to Smallstep
 html_title: Integrate Iru (Kandji) with Smallstep Tutorial
-description: Integrate Iru (Kandji) with Smallstep for Apple device security. Complete guide for enforcing device trust in macOS environments.
+description: Integrate Iru (Kandji) with Smallstep for device security. Complete guide for enforcing device trust on macOS and Windows endpoints.
 ---
 
-Smallstep can integrate with Iru (Kandji) to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Iru instance for use with your Smallstep team.
+Smallstep can integrate with Iru (Kandji) to synchronize your device inventory, and enroll your fleet with Smallstep using the Smallstep Agent. In this document, we will configure your Iru instance for use with your Smallstep team, on macOS and on Windows.
 
 This document also contains [uninstall instructions](#uninstall-smallstep-agent-with-iru).
 
@@ -31,12 +31,16 @@ Client requirements:
   tel.smallstep.com
   ```
 
+Supported platforms:
+
+- macOS — SCEP profile and agent, with agent configuration delivered through a `.mobileconfig` profile
+- Windows 10 (Anniversary Edition) or higher, Pro or Enterprise — SCEP profile and agent, with agent configuration delivered through registry policy values.
+
 Limitations:
 
 - Devices must be assigned to a Blueprint in Iru to be synced with Smallstep. Devices not in any Blueprint will not appear in your Smallstep inventory.
 - Iru supports static SCEP for enrollment. This limitation only relates to the Smallstep provisional enrollment certificate for each device. Once the Smallstep agent is enrolled, all credentials are hardware-bound and attested.
-
-## Step-by-step instructions
+- Iru Library items are specific to one operating system. If you manage both macOS and Windows endpoints, create a separate set of items for each platform, and assign each set only to devices running that platform.
 
 ## Create an API Token in Iru
 
@@ -70,22 +74,27 @@ Let's add the Iru credentials to Smallstep. You'll need the API URL and the API 
 
 Your Smallstep team is now linked to Iru. Smallstep will do a partial sync of your device inventory every hour, and a full sync every 8 hours.
 
-## Configure Certificates in Iru
+## Get Smallstep CA Details
 
-### Get Smallstep CA Details
-
-After connecting Iru to Smallstep, you'll find all the certificate details you need on the Platform Settings page:
+After connecting Iru to Smallstep, you'll find most of the certificate details you need on the Platform Settings page:
 
 1. In the Smallstep console, go to [**Device Management**](https://smallstep.com/app/?next=/settings/devices) in **Settings**
 2. Click on your Iru connection
 3. From this page, you can:
    - Copy the **SCEP URL** (for example, `https://agents.example.ca.smallstep.com/scep/integration-iru-abc123`)
    - Copy the **SCEP Challenge** value
-   - Copy the **Root Certificate Fingerprint**
+   - Copy the **Root Certificate Fingerprint** (macOS only)
+
+For Windows, Iru pins the SCEP server on the SHA-1 fingerprint of the issuing intermediate CA instead of the SHA-256 fingerprint of the root:
+
+1. In the Smallstep console, go to [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities) and open your **Agents** authority
+2. Copy the **SHA-1 fingerprint** of the intermediate certificate
 
 Keep this page open or save these values temporarily — you'll need them for the Iru configuration steps below.
 
-### Create a SCEP Profile in Iru
+# macOS
+
+## Create a SCEP Profile in Iru (macOS)
 
 1. In the Iru sidebar, choose **Library**
 2. Choose **Add Library Item**, then select **SCEP**, and click **Add and Configure**
@@ -107,6 +116,7 @@ Keep this page open or save these values temporarily — you'll need them for th
 7. Choose **Save**
 
 A note on the Subject: Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `L=step-agent-bootstrap` is a fixed marker value. In the agent configuration below, the agent uses these fields to look up the certificate on the device.
+
 ## Install the Smallstep Agent
 
 There are two ways to install the agent:
@@ -114,9 +124,7 @@ There are two ways to install the agent:
 - **via Iru** (below): Use Iru's package distribution and policy management
 - **separately**: Use a separate software management tool like [Munki](https://www.munki.org/munki/), or install the agent manually via scripts. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#macos-installation) guide for detailed macOS installation instructions.
 
-### Install the Agent via Iru
-
-#### Upload the Agent Package
+### Upload the Agent Package
 
 1. Download the latest package from [packages.smallstep.com](https://packages.smallstep.com/stable/darwin/step-agent_latest.pkg)
 2. In the Iru sidebar, choose **Library**
@@ -126,7 +134,7 @@ There are two ways to install the agent:
 6. Select **Installer Package** and upload the `.pkg` file you downloaded
 7. Choose **Save**
 
-#### Configure the Agent Settings
+## Configure the Agent Settings
 
 The Smallstep Agent requires configuration settings to connect to your Smallstep team. Deploy these via a Custom Profile:
 
@@ -177,7 +185,7 @@ The Smallstep Agent requires configuration settings to connect to your Smallstep
 
 7. Choose **Save**
 
-#### Configure Login Items (macOS)
+## Configure Login Items
 
 To ensure the Smallstep Agent starts automatically on macOS devices:
 
@@ -190,21 +198,150 @@ To ensure the Smallstep Agent starts automatically on macOS devices:
     - **Identifier**: `com.smallstep.Agent`
 6. Choose **Save** in the modal, then **Save** the profile
 
-## Confirmation
+## Confirmation (macOS)
 
 There are two ways to confirm installation on an endpoint:
 
 - In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
 - Alternatively, on the device itself, run `/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent version` to see that the agent is installed. And, in **System Settings**, check **Login Items** to confirm that there is a **Smallstep Agent** entry.
 
-## Uninstall Smallstep Agent with Iru
+# Windows
 
-You can remove the Smallstep Agent from macOS endpoints managed by Iru by deleting the Library items you created during setup.
+Windows enrollment uses the same SCEP flow as macOS: Iru issues a provisional enrollment certificate to the device, and the Smallstep agent uses that certificate to register with your team. The differences are in how the certificate is pinned and requested, and in how the agent is configured and distributed.
+
+## Create a SCEP Profile in Iru (Windows)
+
+1. In the Iru sidebar, choose **Library**
+2. Choose **Add Library Item**, then select **SCEP**, and click **Add and Configure**
+3. Set a title (e.g., `Smallstep (Windows)`)
+4. Set the item to apply to **Windows** devices only
+5. Under **Assignment**, choose a Blueprint that only contains Windows devices
+6. Configure the following settings:
+    - **URL**: Paste the SCEP URL from the previous step
+    - **Challenge**: Paste the SCEP Challenge from the previous step
+    - **Fingerprint**: Paste the SHA-1 fingerprint of the **intermediate** certificate of your Agents authority
+    - **Subject**: `CN=step-agent-bootstrap,OU=$BLUEPRINT_ID`
+    - **Subject Alternative Names (SAN)**:
+      - Key: `Uniform Resource Identifier`
+      - Value: `deviceid:$DEVICE_ID`
+    - **Hash Algorithm**: `SHA-256`
+    - **Key Usage**: `Client Authentication`
+    - **Key Storage**: `TPM or Fail`
+    - **Validity period**: `30 days`
+7. Enable **Retries** and set it to a value between `3` and `5`, with a retry delay of `5` minutes. Retries make enrollment resilient to a device being offline or the TPM being busy when the profile first arrives.
+8. Enable **Automatic profile redistribution** and set it to `20` days. Keep this value comfortably inside the certificate's validity period, so the enrollment certificate is renewed before it expires. The example above assumes a 30-day certificate; adjust it if your authority issues certificates with a different lifetime.
+9. Choose **Save**
+
+Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `$DEVICE_ID` with the Iru device ID. The agent uses the issuer and common name of this certificate to find it on the device, as configured in the next step.
+
+## Install the Smallstep Agent on Windows
+
+As on macOS, you can distribute the agent with Iru, or with a separate software management tool. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide if you would rather install it outside of Iru.
+
+Iru distributes Windows apps as a `.zip` archive, so you'll download the agent MSI and compress it before uploading.
+
+1. Download the agent MSI for your target architecture:
+    - x64: [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
+    - ARM64: [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+    - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com)
+
+    The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com) if you want to pin the version you deploy.
+2. Note the MSI product code. You'll need it for the detection rule:
+
+    ```powershell
+    $db = (New-Object -ComObject WindowsInstaller.Installer).OpenDatabase("C:\path\to\step-agent_0.70.0_amd64.msi", 0)
+    $view = $db.OpenView("SELECT Value FROM Property WHERE Property = 'ProductCode'")
+    $view.Execute(); $view.Fetch().StringData(1)
+    ```
+
+    The product code is specific to the version and the architecture of the MSI, so read it from the exact file you are going to upload.
+3. Compress the MSI into a `.zip` archive
+4. In the Iru sidebar, choose **Library**
+5. Choose **Add Library Item**, then select **Custom App**, and click **Add and Configure**
+6. Set a title (e.g., `Smallstep Agent`)
+7. Under **Assignment**, choose the same Windows Blueprint you assigned the SCEP item to
+8. Configure the following settings:
+    - **Install details**: `Install and continuously enforce`, and install `Immediately`
+    - **Publisher**: `Smallstep Labs, Inc.`
+    - **Name**: `Smallstep Agent`
+    - **Version**: the version of the MSI you downloaded (e.g., `0.70.0`)
+    - **Icon**: upload an icon to show in the Iru app catalog
+    - **Architecture**: the architecture of the MSI you downloaded, `AMD64` or `ARM64`
+9. Upload the `.zip` archive you created
+10. Set the install command, matching the MSI filename inside the archive:
+
+    ```
+    msiexec /i step-agent_0.70.0_amd64.msi /qn /norestart
+    ```
+
+11. For **Detection rule**, choose `MSI` and enter the product code you noted above, including the surrounding braces. Leave the version check disabled, and leave the running-app detection unconfigured.
+12. Choose **Save**
+
+To upgrade the agent later, edit this Library item: upload a `.zip` with the new MSI, and update the version, the install command, and the product code in the detection rule. Iru then distributes and installs the new version, and the updated agent starts automatically.
+
+## Configure the Agent Settings on Windows
+
+Windows has no configuration profile equivalent for app settings, so the Windows agent reads its configuration from the registry, under `HKLM:\Software\Policies\Smallstep`. Deploy those values with an Iru **Custom Script** Library item.
+
+The agent needs two values:
+
+- `TeamSlug` — your Smallstep team slug, found in [**Settings → Team**](https://smallstep.com/app/?next=/settings/team)
+- `Certificate` — a URI that tells the agent where to find the enrollment certificate that the SCEP item issued
+
+1. In the Iru sidebar, choose **Library**
+2. Choose **Add Library Item**, then select **Custom Script**, and click **Add and Configure**
+3. Set a title (e.g., `Smallstep Agent Configuration`)
+4. Under **Assignment**, choose the same Windows Blueprint you assigned the SCEP item to
+5. Add the following PowerShell script, replacing `<team-slug>` with your team slug and `<team-name>` with your full team name:
+
+    ```powershell
+    $RegistryPath = "HKLM:\Software\Policies\Smallstep"
+
+    If (-NOT (Test-Path $RegistryPath)) {
+        New-Item -Path $RegistryPath -Force | Out-Null
+    }
+
+    Set-ItemProperty -Path $RegistryPath -Name "TeamSlug"    -Value "<team-slug>"
+    Set-ItemProperty -Path $RegistryPath -Name "Certificate" -Value "capi:store-location=machine;store=My;issuer=Smallstep (<team-name>) Agents Intermediate CA;cn=step-agent-bootstrap"
+    ```
+
+6. Choose **Save**
+
+<Alert severity="info">
+<div>
+If your team was created before October, 2024, your issuer CA may have a common name without the team name ("Smallstep Agents Intermediate CA"). Not sure? Check your [Authority list](https://smallstep.com/app/?next=/cm/authorities).
+</div>
+</Alert>
+
+Set the script to run continuously, so the registry values are restored if they are removed or changed on a device.
+
+## Confirmation (Windows)
+
+On a Windows endpoint in the assigned Blueprint:
+
+1. Open **certlm.msc** and, under **Personal → Certificates**, confirm there is a certificate issued by your Smallstep Agents Intermediate CA with `CN=step-agent-bootstrap`
+2. Confirm the registry values were written:
+
+    ```powershell
+    Get-ItemProperty -Path HKLM:\Software\Policies\Smallstep
+    ```
+
+3. Confirm the agent service is running:
+
+    ```powershell
+    sc query "Smallstep Agent"
+    ```
+
+4. In the Smallstep UI, go to the device's profile page. In the **Device Registration** section, you'll see an **Enrolled At** timestamp.
+
+# Uninstall Smallstep Agent with Iru
+
+You can remove the Smallstep Agent from endpoints managed by Iru by deleting the Library items you created during setup.
 
 1. In the Iru sidebar, choose **Library**
 2. Select the **Library Items** tab
 3. Find and delete the following items:
    - **Smallstep Agent** (Custom App)
-   - **Smallstep Agent Configuration** (Custom Profile)
-   - **Smallstep** (SCEP)
-   - **Smallstep Login Item** (Login & Background Items)
+   - **Smallstep Agent Configuration** (Custom Profile on macOS, Custom Script on Windows)
+   - **Smallstep** (SCEP), and **Smallstep (Windows)** (SCEP) if you created a separate item for Windows
+   - **Smallstep Login Item** (Login & Background Items, macOS only)
