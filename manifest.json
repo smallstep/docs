@@ -98,6 +98,10 @@
               "path": "/platform/troubleshooting-agent.mdx"
             },
             {
+              "title": "Device IdP Troubleshooting Guide",
+              "path": "/platform/troubleshooting-device-idp.mdx"
+            },
+            {
               "title": "Configure Browser Certificates",
               "path": "/tutorials/browser-certificate-setup-guide.mdx"
             },
