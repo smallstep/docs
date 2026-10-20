@@ -1,0 +1,80 @@
+extends: script
+message: "Numbered list is out of order. Number the items 1, 2, 3, ... without skipping or repeating a number."
+level: error
+scope: raw
+script: |
+  text := import("text")
+
+  matches := []
+  // expected[indent] is the next number for the list at that indentation.
+  expected := {}
+  // broken[indent] is true when other text came after the last item of the
+  // list at that indentation, so a new list may start there at 1.
+  broken := {}
+  in_fence := false
+  offset := 0
+
+  // Lists nested deeper than indent belong to the previous item: forget them.
+  forget_deeper := func(indent) {
+    for k, _ in expected {
+      if text.atoi(k) > indent {
+        delete(expected, k)
+        delete(broken, k)
+      }
+    }
+  }
+
+  // Text at indent interrupts the lists at that indentation and deeper.
+  interrupt := func(indent) {
+    for k, _ in expected {
+      if text.atoi(k) >= indent {
+        broken[k] = true
+      }
+    }
+  }
+
+  for line in text.split(scope, "\n") {
+    trimmed := text.trim_space(line)
+    indent := len(line) - len(text.trim_left(line, " \t"))
+
+    if text.has_prefix(trimmed, "```") || text.has_prefix(trimmed, "~~~") {
+      in_fence = !in_fence
+      interrupt(indent)
+    } else if in_fence || trimmed == "" {
+      // Fenced code and blank lines do not change list state.
+    } else if text.has_prefix(line, "#") {
+      // A heading starts a new section, so any list after it starts over.
+      expected = {}
+      broken = {}
+    } else {
+      m := text.re_find(`^[ \t]*([0-9]+)[.)][ \t]`, line)
+      if m != undefined {
+        num := text.atoi(m[0][1].text)
+        forget_deeper(indent)
+
+        key := string(indent)
+        want := expected[key]
+        // An item must follow the previous item at the same level. Item 1
+        // may start a new list when there is no list at this level or when
+        // other text separates it from the previous list.
+        ok := num == want || (num == 1 && (want == undefined || broken[key]))
+        if !ok {
+          matches = append(matches, {
+            begin: offset + m[0][1].begin,
+            end: offset + m[0][1].end
+          })
+        }
+        expected[key] = num + 1
+        broken[key] = false
+      } else if text.re_match(`^[-*+][ \t]`, trimmed) {
+        // A bullet item owns the lists nested under it, and it interrupts a
+        // numbered list at its own level.
+        forget_deeper(indent)
+        interrupt(indent)
+      } else {
+        interrupt(indent)
+      }
+    }
+
+    offset += len(line) + 1
+  }

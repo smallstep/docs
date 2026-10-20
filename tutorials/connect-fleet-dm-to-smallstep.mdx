@@ -172,12 +172,12 @@ Alternatively, you can use a separate software management system such as [Munki]
 Smallstep provides an osquery extension that registers additional device identity information directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a seamless enrollment experience on macOS.
 
 1. Download the `step-agent-osquery` package for macOS from [Smallstep's releases](https://releases.smallstep.com).
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**.
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**.
 
 A modal should appear, showing the package upload progress.
 
@@ -245,12 +245,12 @@ If your fleet includes multiple Linux distributions or architectures, create sep
 Smallstep provides an osquery extension that registers additional device identity information, including the TPM Endorsement Key (EK)—directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a more seamless enrollment experience on Linux.
 
 1. Download the `step-agent-osquery` package for your Linux distribution and target architecture from [Smallstep's releases](https://releases.smallstep.com).
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**. 
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**. 
 
 A modal should appear, showing the package upload progress.
 
@@ -372,12 +372,12 @@ The osquery extension can be installed by distributing the MSI to your devices, 
 NOTE: the osquery extension MSI distribution is currently work in progress.
 
 1. Download the `step-agent-osquery.ext.exe` MSI for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` MSI that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**. 
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` MSI that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**. 
 
 A modal should appear, showing the upload progress.
 
@@ -388,8 +388,8 @@ See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-st
 ### The Update Framework (TUF) auto-update server
 
 1. Download the `step-agent-osquery.ext.exe` binary for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
-1. Upload the binary to your TUF server
-1. Configure the `extensions` under `agent_options` in Fleet to include the `step-agent-osquery.ext.exe` binaries for your Windows target architecture(s)
+2. Upload the binary to your TUF server
+3. Configure the `extensions` under `agent_options` in Fleet to include the `step-agent-osquery.ext.exe` binaries for your Windows target architecture(s)
 
 See https://fleetdm.com/docs/configuration/agent-configuration#extensions for more information on how to configure extensions through TUF.
 
