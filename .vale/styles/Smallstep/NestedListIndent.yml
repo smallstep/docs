@@ -1,0 +1,55 @@
+extends: script
+message: "Nested list item is not indented enough. Indent it to the column where the text of the parent item starts, or Markdown will not nest it."
+level: error
+scope: raw
+script: |
+  text := import("text")
+
+  matches := []
+  // stack holds the open list items, outermost first. For each item, indent
+  // is the column of its marker and content is the column where its text
+  // starts. A nested item must start at or after content.
+  stack := []
+  in_fence := false
+  offset := 0
+
+  for line in text.split(scope, "\n") {
+    trimmed := text.trim_space(line)
+    indent := len(line) - len(text.trim_left(line, " "))
+
+    if text.has_prefix(trimmed, "```") || text.has_prefix(trimmed, "~~~") {
+      in_fence = !in_fence
+    } else if in_fence || trimmed == "" {
+      // Fenced code and blank lines do not change list state.
+    } else if text.has_prefix(line, "#") {
+      stack = []
+    } else {
+      m := text.re_find(`^ *([-*+]|[0-9]+[.)])( +)\S`, line)
+      if m != undefined {
+        // Close the items at this indentation or deeper.
+        for len(stack) > 0 && indent <= stack[len(stack)-1].indent {
+          stack = stack[:len(stack)-1]
+        }
+        if len(stack) > 0 && indent < stack[len(stack)-1].content {
+          matches = append(matches, {
+            begin: offset + m[0][1].begin,
+            end: offset + m[0][1].end
+          })
+        }
+        stack = append(stack, {
+          indent: indent,
+          content: indent + len(m[0][1].text) + len(m[0][2].text)
+        })
+      } else if indent == 0 {
+        // Text at the left margin ends all lists.
+        stack = []
+      } else {
+        // Indented text ends the items that are not its parents.
+        for len(stack) > 0 && indent <= stack[len(stack)-1].indent {
+          stack = stack[:len(stack)-1]
+        }
+      }
+    }
+
+    offset += len(line) + 1
+  }

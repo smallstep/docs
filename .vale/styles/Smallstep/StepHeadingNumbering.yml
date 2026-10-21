@@ -1,0 +1,52 @@
+extends: script
+message: "Step heading is out of order. Number the step headings 1, 2, 3, ... (or 0, 1, 2, ...) without skipping or repeating a number."
+level: error
+scope: raw
+script: |
+  text := import("text")
+
+  matches := []
+  // last[level] is the number of the last step heading at that heading level.
+  last := {}
+  in_fence := false
+  offset := 0
+
+  for line in text.split(scope, "\n") {
+    trimmed := text.trim_space(line)
+
+    if text.has_prefix(trimmed, "```") || text.has_prefix(trimmed, "~~~") {
+      in_fence = !in_fence
+    } else if !in_fence && text.has_prefix(line, "#") {
+      level := len(line) - len(text.trim_left(line, "#"))
+
+      // A higher-level heading starts a new section, so the step headings
+      // under it count from the start again.
+      for k, _ in last {
+        if text.atoi(k) > level {
+          delete(last, k)
+        }
+      }
+
+      m := text.re_find(`(?i)^#+[ \t]+(?:\*\*)?step[ \t]+([0-9]+)\b`, line)
+      if m != undefined {
+        num := text.atoi(m[0][1].text)
+        key := string(level)
+        prev := last[key]
+        ok := false
+        if prev == undefined {
+          ok = num == 0 || num == 1
+        } else {
+          ok = num == prev + 1
+        }
+        if !ok {
+          matches = append(matches, {
+            begin: offset + m[0][1].begin,
+            end: offset + m[0][1].end
+          })
+        }
+        last[key] = num
+      }
+    }
+
+    offset += len(line) + 1
+  }
