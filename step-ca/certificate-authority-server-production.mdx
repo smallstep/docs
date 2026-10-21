@@ -27,6 +27,7 @@ safely and securely in a production environment.
   - [High Availability](#high-availability)
   - [Proxying `step-ca` traffic](#proxying-step-ca-traffic)
   - [Exposing `step-ca` to the internet](#exposing-step-ca-to-the-internet)
+  - [Using an alternative DNS resolver](#using-an-alternative-dns-resolver)
 - [Certificate Lifecycle Management](#certificate-lifecycle-management)
   - [Automate Certificate Renewal](#automate-x509-certificate-lifecycle-management)
   - [Certificate Revocation](#certificate-revocation)
@@ -279,7 +280,7 @@ the CRL will be hosted at `/1.0/crl`.
         $(step path)/secrets/intermediate_ca_key
    ```
 
-2. Restart `step-ca`.
+3. Restart `step-ca`.
    Clients will be able to renew certificates that were issued by your previous Intermediate CA.
 
 #### Enable CRL for leaf certificates
@@ -304,7 +305,7 @@ the CRL will be hosted at `/1.0/crl`.
    Reload the configuration by restarting `step-ca` or sending it a `HUP` signal.
 
 
-1. Add an X.509 certificate template, and enable `crlDistributionPoints` in the template:
+2. Add an X.509 certificate template, and enable `crlDistributionPoints` in the template:
 
    ```bash
    cd $(step path)/templates
@@ -649,7 +650,6 @@ When connecting an ACME provisioner to the internet, you will need to take preca
       echo https://ca.example.com/acme/$PROVISIONER_NAME/directory
       }
       ```
-  
 
 ### Alternative: Use federation
 
@@ -658,6 +658,19 @@ eg. in multi-cloud environments—
 there's no need to expose your CA to the internet.
 
 Use [multiple autonomous federated CAs](../tutorials/pki-trust-model-federation.mdx) instead.
+
+## Using an alternative DNS resolver
+
+By default, `step-ca` uses the system DNS resolver to look up `dns-01` challenge records.
+In a split-horizon DNS environment, the internal resolver may not see the `TXT` records that your ACME client creates at a public DNS provider.
+To send DNS queries to a different resolver, start `step-ca` with the `--resolver` flag:
+
+```shell
+step-ca --resolver 1.1.1.1 $(step path)/config/ca.json
+```
+
+The flag applies to all DNS queries that `step-ca` makes, including `http-01` and `tls-alpn-01` validation and outbound connections to an upstream CA or to webhook servers.
+
 
 ## Certificate lifecycle management
 
@@ -802,8 +815,8 @@ If you have PEM bundles containing both your root and intermediate CAs, you will
 1. **Create your new intermediate CA** certificate and key, but do not start issuing certificates with it yet.
 2. **Append the new intermediate certificate** to the bundles that need it.
 3. **Configure `step-ca` to use your new intermediate**.
-3. **Wait** for all certificates issued by the old intermediate to expire.
-3. It is now safe to **remove the old intermediate from the bundles**.
+4. **Wait** for all certificates issued by the old intermediate to expire.
+5. It is now safe to **remove the old intermediate from the bundles**.
 
 ## Sane cryptographic defaults
 

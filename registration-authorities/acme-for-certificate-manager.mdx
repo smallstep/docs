@@ -48,7 +48,7 @@ The script will:
 - Help you choose a JWK provisioner on your CA to link your RA to
 - Create RA configuration files in `/etc/step-ca`
 - Create a `step` user and group
-- Add a systemd service called `step-ca.service`
+- Add a systemd service called `step-ca.service`, with a drop-in file at `/etc/systemd/system/step-ca.service.d/local.conf` that sets the `step-ca` command line. To change `step-ca` flags, edit the drop-in file.
 - Enable and start `step-ca.service`
 - Export a `STEPPATH` variable in `/root/.bash_profile`
 

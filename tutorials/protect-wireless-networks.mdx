@@ -1,5 +1,5 @@
 ---
-updated_at: September 02, 2026
+updated_at: October 05, 2026
 title: Protect Wireless Networks with 802.1X EAP-TLS
 html_title: Protect Wireless Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Wi-Fi end to end. Issue client certificates via the Smallstep API, configure RADIUS and access points, and deploy to clients.
@@ -357,6 +357,7 @@ The subsections below cover the common combinations:
 - [macOS and iOS with Jamf Pro (SCEP)](#macos-and-ios-with-jamf-pro-scep)
 - [macOS with Jamf Pro (ACME Device Attestation)](#macos-with-jamf-pro-acme-device-attestation)
 - [macOS with Workspace ONE UEM](#macos-with-workspace-one-uem)
+- [iOS and Android with Workspace ONE UEM (SCEP)](#ios-and-android-with-workspace-one-uem-scep)
 - [Windows with Intune (SCEP)](#windows-with-intune-scep)
 - [Windows with Intune (agent credential + OMA-URI profile)](#windows-with-intune-agent-credential--oma-uri-profile)
 - [Windows with Workspace ONE UEM](#windows-with-workspace-one-uem)
@@ -541,6 +542,154 @@ In Workspace ONE UEM:
 7. Assign the uploaded profile to the desired device groups, and click **Publish**
 
 Enrolled devices in the assigned groups will receive the profile and be ready to join the network.
+
+### iOS and Android with Workspace ONE UEM (SCEP)
+
+In this workflow, Workspace ONE UEM deploys a profile that gets a client certificate from Smallstep's SCEP server,
+trusts your RADIUS server's CA, and configures the Wi-Fi network.
+Workspace ONE fetches a single-use SCEP challenge from Smallstep for each device, so the profile doesn't contain a shared secret.
+You don't need the Smallstep Agent on the device.
+
+#### Before you begin
+
+You will need:
+
+- Workspace ONE UEM [connected to Smallstep](./connect-workspace-one-to-smallstep.mdx) (steps 1 and 2 of that guide).
+  Keep the SCEP URL, SCEP Challenge URL, and challenge username and password from your
+  [Workspace ONE integration settings](https://smallstep.com/app/?next=/settings/devices) handy.
+- For iOS and iPadOS: a valid Apple Push Notification service (APNs) certificate in Workspace ONE
+  (**Groups & Settings → All Settings → Devices & Users → Apple → APNs For MDM**), and a test device enrolled in Workspace ONE.
+- For Android: Workspace ONE registered as your Android Enterprise EMM
+  (**Groups & Settings → All Settings → Devices & Users → Android → Android EMM Registration**),
+  and a test device managed through Android Enterprise, either with a work profile or as a fully managed device.
+  In the device's details in Workspace ONE, **Android Management** should read **Work Profile** or another Android Enterprise mode, not **Android (Legacy)**.
+  Android won't install the client certificate unless the device has a screen lock.
+- Your RADIUS server's CA certificate, and the hostname on your RADIUS server's certificate
+  (see [Step 2](#step-2-configure-the-enforcement-point)).
+
+#### Trust your issuing authority on your RADIUS server
+
+Your Workspace ONE integration's issuing authority signs the certificates that Workspace ONE requests from Smallstep.
+It may differ from the authority behind a credential you created in Step 1, so make sure your RADIUS server trusts it.
+
+Find your issuing authority in the Smallstep console:
+
+1. Go to [Settings → Device Management](https://smallstep.com/app/?next=/settings/devices),
+   choose **Manage** on the Omnissa Workspace ONE integration, and open the **Settings** tab.
+2. Under **Authority Certificates**, choose **Download Root** to get your issuing authority's root certificate.
+3. Add that root to the CAs your RADIUS server trusts for client certificates.
+
+#### Add a Workspace ONE CA resource
+
+If you already added a Smallstep CA resource and request template while following
+[Connect Workspace ONE UEM to Smallstep](./connect-workspace-one-to-smallstep.mdx), you can reuse them
+and skip to creating the [iOS profile](#create-the-ios-profile) or the [Android profile](#create-the-android-profile).
+
+For compatibility with Workspace ONE, Smallstep emulates a Microsoft NDES server, including its dynamic challenges.
+
+1. In Workspace ONE UEM, go to **Resources → Certificates → Certificate Authorities** and choose **Add**
+2. Fill out the form:
+    - **Name**: a descriptive name, for example `Smallstep`
+    - **Authority Type**: `Microsoft ADCS`
+    - **Protocol**: `SCEP`
+    - **Version**: `NDES 2008/2012`
+    - **SCEP URL**: the SCEP URL from your Smallstep integration settings
+    - **Challenge Type**: `Dynamic`
+    - **Challenge Username**, **Challenge Password**, and **Confirm Challenge Password**: the challenge username and password from Smallstep
+    - **SCEP Challenge URL**: the SCEP Challenge URL from Smallstep
+    - Select **Show Advanced Options**, and set **SCEP Challenge Length** to `32`
+    - Leave **Enable Proxy** disabled. Smallstep's SCEP server is reachable from the public internet.
+3. Choose **Test Connection** and wait for a success message
+4. Choose **Save and Add Template**
+
+#### Add a certificate request template
+
+1. Fill out the **Certificate Template** form:
+    - **Name**: for example, `Smallstep Wi-Fi`
+    - **Certificate Authority**: the CA resource you just added
+    - **Subject Name**: `CN={DeviceUuid}`
+    - **Private Key Length**: `2048`
+    - **Private Key Type**: select both **Signing** and **Encryption**
+    - **SAN Type**: choose **Add**, select **URL**, and enter `deviceid://{DeviceUuid}`
+    - **Automatic Certificate Renewal**: **Enabled**, with an **Auto Renewal Period (days)** of `5`
+    - **Publish Private Key**: **Disabled**
+2. Choose **Save**
+
+Keep the `{DeviceUuid}` subject and SAN as shown,
+so Smallstep can associate each certificate with the Workspace ONE device that requested it.
+
+#### Create the iOS profile
+
+1. In Workspace ONE UEM, go to **Resources → Profiles & Baselines → Profiles**, then choose **Add → Add Profile**
+2. Select **Apple iOS**, leave **Management Type** set to **Imperative** and **Context** set to **Device**, and choose **Next**
+3. Name the profile, for example **EAP-TLS Wi-Fi with Smallstep**
+4. Add a **SCEP** payload:
+    - **Credential Source**: **Defined Certificate Authority**
+    - **Certificate Authority**: the Smallstep CA resource
+    - **Certificate Template**: the Smallstep template
+5. Add a **Credentials** payload to trust your RADIUS server's CA:
+    - **Credential Source**: **Upload**
+    - **Credential Name**: for example, `RADIUS Server CA`
+    - **Certificate**: upload your RADIUS server's CA certificate with **Choose File**, then choose **Attach Certificate**
+6. Add a **Wi-Fi** payload:
+    - **Service Set Identifier**: your SSID
+    - **Auto-Join**: enabled
+    - **Security Type**: **WPA2 Enterprise** or **WPA3 Enterprise**, to match your network
+    - **Protocols**: select **EAP-TLS**
+    - **Identity Certificate**: **SCEP**
+    - **Trusted Certificates**: select **Credentials** (your RADIUS server's CA)
+    - **Trusted Server Certificate Names**: the hostname on your RADIUS server's certificate
+    - **TLS Certificate Required**: enabled
+7. Choose **Next**, select a **Smart Group** containing your test devices, and choose **Save & Publish**
+
+#### Create the Android profile
+
+1. In Workspace ONE UEM, go to **Resources → Profiles & Baselines → Profiles**, then choose **Add → Add Profile**
+2. Select **Android**
+3. Name the profile, for example **EAP-TLS Wi-Fi with Smallstep (Android)**
+4. Add a **Credentials** payload for the client certificate (this becomes **Credentials 1**):
+    - **Credential Source**: **Defined Certificate Authority**
+    - **Certificate Authority**: the Smallstep CA resource
+    - **Certificate Template**: the Smallstep template
+5. In the same payload, choose **+ ADD** to add **Credentials 2**, which trusts your RADIUS server's CA:
+    - **Credential Source**: **Upload**
+    - **Certificate**: upload your RADIUS server's CA certificate with **Choose File**, then choose **Attach Certificate**
+6. Add a **Wi-Fi** payload:
+    - **Service Set Identifier**: your SSID
+    - **Security Type**: **WPA/WPA2 Enterprise**
+    - **SFA Type**: **TLS**
+    - **Identity**: `{DeviceUuid}`
+    - **Trusted Server Domain**: the hostname on your RADIUS server's certificate
+    - **Identity Certificate**: **Credentials 1**
+    - **Root Certificates**: **Credentials 2**
+7. Choose **Next**, select a **Smart Group** containing your test devices, and choose **Save & Publish**
+
+Set both **Root Certificates** and **Trusted Server Domain**,
+because current Android versions won't join an enterprise network unless they can validate the RADIUS server.
+
+#### Verify
+
+When a device receives the profile, Workspace ONE requests a single-use challenge from Smallstep.
+The device then enrolls for its certificate and joins the network without prompting the user.
+
+- In the Smallstep dashboard, [Audit](https://smallstep.com/app/?next=/audit) shows an **X.509 certificate issued** event for each certificate.
+- In Workspace ONE, open the device's details. The **Profiles** tab shows the install status.
+  **More → Troubleshooting → Event Log** lists each step from **Profiles Install Initialized** to **Profiles Install Processed**,
+  and on Android it also shows **Certificate Issued** for your Smallstep CA resource.
+- On iOS, go to **Settings → General → VPN & Device Management**, open the Workspace ONE profile, and look for the SCEP certificate.
+
+#### Troubleshoot
+
+- If the profile stays pending, select it on the device's **Profiles** tab and choose **Install** to push it to the device.
+- If the certificate is installed but the device can't join the network, check that your RADIUS server trusts your issuing authority's root
+  (see [Trust your issuing authority on your RADIUS server](#trust-your-issuing-authority-on-your-radius-server)).
+- An Android device that shows **Hub Registered** or **Android Management: Android (Legacy)** isn't managed through Android Enterprise and won't receive the profile.
+  Check that Android EMM registration is complete, and that
+  **Groups & Settings → All Settings → Devices & Users → General → Enrollment → Management Mode**
+  doesn't enroll Android devices without MDM management. Then re-enroll the device.
+- To add a work profile to an Android device that's already set up, enroll it as employee-owned.
+  Corporate-owned Android Enterprise modes are provisioned when a new or factory-reset device is set up.
+- While the work profile is paused (**Work apps** turned off on the device), the device doesn't check in or install profiles.
 
 ### Windows with Intune (SCEP)
 

@@ -1,5 +1,5 @@
 ---
-updated_at: February 03, 2026
+updated_at: October 19, 2026
 title: Webhook Events
 html_title: Configure Certificate Webhook Events Guide
 description: Integrate certificate lifecycle events via webhooks. Automate workflows based on certificate issuance, renewal, and revocation.
@@ -8,7 +8,7 @@ description: Integrate certificate lifecycle events via webhooks. Automate workf
 
 Webhook Events allow for real-time logging of SSH sessions, 
 
-certificate creation, and certificate expirations events.
+certificate creation, certificate expiration, and certificate revocation events.
 You can use Webhook Events to:
 
 - **Alert on certificate expiry** - Prevent certificate expiry related outages with proactive notifications on upcoming expirations.
@@ -21,7 +21,7 @@ We currently have four webhook event types, namely:
 - **SSH**: Sends a webhook event for SSH start and stop sessions and user change events.
 - **Expiration**: Sends a webhook event for Certificate Manager when a certificate is within the last 25% of its lifetime, and again when it expires.
 
-- **Certificate**: Sends a webhook event for Certificate Manager with basic certificate details whenever a certificate is created or expires.
+- **Certificate**: Sends a webhook event for Certificate Manager with basic certificate details whenever a certificate is created, expires, or is revoked.
 
 - **All**: Sends events for everything above, for both SSH and Certificate Manager.
 
@@ -84,7 +84,7 @@ Where:
     <TableBody>
         <TableRow>
             <TableCell>category</TableCell>
-            <TableCell>The webhook event type. One of `ssh-session`, `certificate-request`, or `certificate-expiration`. </TableCell>
+            <TableCell>The webhook event type. One of `ssh-session`, `certificate-request`, `certificate-expiration`, or `certificate-revocation`. </TableCell>
         </TableRow>
         <TableRow>
             <TableCell>hostname</TableCell>
@@ -136,7 +136,12 @@ Where:
       "type": "DNS",
       "value": "myservice.internal.mycompany.net"
     }
-  ]
+  ],
+  "provisioner": {
+    "id": "e5b0a6b4-3a2f-4a1e-9d8b-1f2c3d4e5f60",
+    "name": "jamfpro-prod-users-bd8ff965",
+    "type": "SCEP"
+  }
 }
 ```
 
@@ -166,7 +171,48 @@ Where:
       "type": "DNS",
       "value": "myservice.internal.mycompany.net"
     }
-  ]
+  ],
+  "provisioner": {
+    "id": "e5b0a6b4-3a2f-4a1e-9d8b-1f2c3d4e5f60",
+    "name": "jamfpro-prod-users-bd8ff965",
+    "type": "SCEP"
+  }
+}
+```
+
+**Certificate revocation event**
+
+Smallstep sends this event one time when a certificate is revoked from the dashboard, the API, or `step-ca`.
+It has no `provisioner` field.
+```json
+{
+  "category": "certificate-revocation",
+  "authorityId": "5c780190-4e4e-4c5a-9331-50be29b28e21",
+  "serialNumber": "3b25f3c5712ca4e01f8bfd74fa13cc2e",
+  "id": "4f2f0c29-704a-46f8-8f90-f7f74675b169",
+  "notBefore": "2022-08-01T20:36:51.000Z",
+  "notAfter": "2022-08-01T20:42:51.000Z",
+  "certificate": "-----BEGIN CERTIFICATE-----\nMIICITCCAcegAwIBAgIQOyXzxXEspOAfi/10+hPMLjAKBggqhkjOPQQDAjAhMR8w\nHQYDVQQDExZKV0sgU0EgSW50ZXJtZWRpYXRlIENBMB4XDTIyMDgwMTIwMzY1MVoX\nDTIyMDgwMTIwNDI1MVowFDESMBAGA1UEAxMJbXlzZXJ2aWNlMFkwEwYHKoZIzj0C\nAQYIKoZIzj0DAQcDQgAEfDkIN/DlpolcxVqMu5iZ0zJqVlAXfasCJvGxwBJKpQdS\nZJOLsenrguwJJpLqNuj3icIhI6gFodqvLpNAcaJ/zKOB7TCB6jAOBgNVHQ8BAf8E\nBAMCB4AwHQYDVR0lBBYwFAYIKwYBBQUHAwEGCCsGAQUFBwMCMB0GA1UdDgQWBBRM\nO8Ak/HRgQ9j8iIK4xgONh+/W8DAfBgNVHSMEGDAWgBSNeT/nLC3Z+iRpVXVdvgpH\nlJRzwjArBgNVHREEJDAigiBteXNlcnZpY2UuaW50ZXJuYWwubXljb21wYW55Lm5l\ndDBMBgwrBgEEAYKkZMYoQAEEPDA6AgECBA9hdXRob3JpdHktYWRtaW4EJGQzMTc0\nMjM2LTE1YzEtNDEzOC04OTJkLTVlZDIzNDcxN2M5YTAKBggqhkjOPQQDAgNIADBF\nAiEA5kXI0dB6xMnEMAiwEigy0vYMHXYvX97BderaMFGdmSECIH2FQ/5A7RyxdkbE\nNVOdaxxFAW8YBCiyiKxnu0BzOM+C\n-----END CERTIFICATE-----\n",
+  "subject": {
+    "commonName": "myservice",
+    "country": "",
+    "organization": "",
+    "organizationalUnit": "",
+    "locality": "",
+    "province": "",
+    "street": "",
+    "state": "",
+    "email": ""
+  },
+  "sans": [
+    {
+      "type": "DNS",
+      "value": "myservice.internal.mycompany.net"
+    }
+  ],
+  "revokedAt": "2022-08-01T20:39:12.000Z",
+  "reasonCode": "KEY_COMPROMISE",
+  "reason": "Private key found in a public repository"
 }
 ```
 
@@ -186,7 +232,7 @@ Where:
         </TableRow>
         <TableRow>
             <TableCell>authorityId</TableCell>
-            <TableCell>The ID of the certificate authority responsible for the issuance of the created, about to expire, or already expired certificate.</TableCell>
+            <TableCell>The ID of the certificate authority responsible for the issuance of the created, about to expire, already expired, or revoked certificate.</TableCell>
         </TableRow>
         <TableRow>
             <TableCell>serialNumber</TableCell>
@@ -215,6 +261,22 @@ Where:
         <TableRow>
             <TableCell>sans</TableCell>
             <TableCell>An array of the details of the certificate's subject alternative names</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>provisioner</TableCell>
+            <TableCell>An object identifying the provisioner that issued the certificate, with `id`, `name`, and `type`. The `name` is omitted when it cannot be resolved. Revocation events do not include this field.</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>revokedAt</TableCell>
+            <TableCell>Revocation events only. The time at which the certificate was revoked.</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>reasonCode</TableCell>
+            <TableCell>Revocation events only. The revocation reason code. One of `UNSPECIFIED`, `KEY_COMPROMISE`, `CA_COMPROMISE`, `AFFILIATION_CHANGED`, `SUPERSEDED`, `CESSATION_OF_OPERATION`, `CERTIFICATE_HOLD`, `PRIVILEGE_WITHDRAWN`, or `AA_COMPROMISE`. If no reason code was given, the value is `UNSPECIFIED`.</TableCell>
+        </TableRow>
+        <TableRow>
+            <TableCell>reason</TableCell>
+            <TableCell>Revocation events only. The revocation reason text, if one was given.</TableCell>
         </TableRow>
     </TableBody>
 </Table>

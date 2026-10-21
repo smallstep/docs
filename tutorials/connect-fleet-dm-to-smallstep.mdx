@@ -1,5 +1,5 @@
 ---
-updated_at: May 21, 2026
+updated_at: September 8, 2026
 title: Connect Fleet DM to Smallstep
 html_title: Integrate Fleet DM with Smallstep Tutorial
 description: Connect Fleet DM with Smallstep for device security. Complete guide for deploying certificates and syncing device inventory using Fleet's device management platform.
@@ -110,12 +110,12 @@ Create a Fleet report to collect the enrollment data. Smallstep reads this repor
    ```
 5. Click **Save**; a modal should appear
 6. In the modal, enter the following details:
-  - A **Name** for the query, such as "Smallstep Enrollment"
-  - Optionally, a **Description**
-  - The **Interval** can be set to **Every hour**. While testing, a shorter interval is helpful
-  - Optionally, enable the **Observers can run** checkbox
-  - Enable **macOS** as **Target**
-  - Select **All hosts**
+   - A **Name** for the query, such as "Smallstep Enrollment"
+   - Optionally, a **Description**
+   - The **Interval** can be set to **Every hour**. While testing, a shorter interval is helpful
+   - Optionally, enable the **Observers can run** checkbox
+   - Enable **macOS** as **Target**
+   - Select **All hosts**
 7. Click **Save**
 8. Note the numeric ID of the Smallstep enrollment report that was just created
 
@@ -146,7 +146,7 @@ Fleet deploys certificates and configuration to devices using a configuration pr
 
 The downloaded profile bundles everything required to enroll a device: your root and intermediate CA certificates, the Smallstep agent settings, and the Login Items entry for the agent.
 
-## Step 6. Upload the configuration profile to Fleet
+## Step 5. Upload the configuration profile to Fleet
 
 1. In the Fleet console, go to **Controls → OS settings → Configuration profiles**
 2. Click **Add profile**
@@ -155,7 +155,7 @@ The downloaded profile bundles everything required to enroll a device: your root
 
 The profile will be deployed to devices at their next MDM check-in.
 
-## Step 7. Deploy the Smallstep agent
+## Step 6. Deploy the Smallstep agent
 
 The macOS Smallstep agent picks up the configuration that Fleet deployed to the device, and uses it to register the device with Smallstep.
 
@@ -167,17 +167,17 @@ Deploy the agent using Fleet's [software deployment](https://fleetdm.com/guides/
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the agent. See the [Smallstep Agent manual installation guide](../platform/smallstep-agent.mdx#macos-installation) for detailed instructions.
 
-## Step 8. Deploy the osquery extension
+## Step 7. Deploy the osquery extension
 
 Smallstep provides an osquery extension that registers additional device identity information directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a seamless enrollment experience on macOS.
 
 1. Download the `step-agent-osquery` package for macOS from [Smallstep's releases](https://releases.smallstep.com).
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**.
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**.
 
 A modal should appear, showing the package upload progress.
 
@@ -187,7 +187,7 @@ See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-st
 
 Alternatively, you can use a separate software management system such as [Munki](https://github.com/munki/munki) to deploy the osquery extension.
 
-## Step 9. Confirmation
+## Step 8. Confirmation
 
 To confirm certificate deployment:
 
@@ -245,12 +245,12 @@ If your fleet includes multiple Linux distributions or architectures, create sep
 Smallstep provides an osquery extension that registers additional device identity information, including the TPM Endorsement Key (EK)—directly in Fleet. When Smallstep syncs your device inventory from Fleet, it reads this data to enable a more seamless enrollment experience on Linux.
 
 1. Download the `step-agent-osquery` package for your Linux distribution and target architecture from [Smallstep's releases](https://releases.smallstep.com).
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**. 
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` package that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**. 
 
 A modal should appear, showing the package upload progress.
 
@@ -273,12 +273,12 @@ Once the extension is active on your Linux devices, create a Fleet report to col
    ```
 5. Click **Save**; a modal should appear
 6. In the modal, enter the following details:
-  - A **Name** for the query, such as "Smallstep Enrollment"
-  - Optionally, a **Description**
-  - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
-  - Optionally, enable the **Observers can run** checkbox
-  - Enable **Linux** as **Target**
-  - Select **All hosts**
+   - A **Name** for the query, such as "Smallstep Enrollment"
+   - Optionally, a **Description**
+   - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
+   - Optionally, enable the **Observers can run** checkbox
+   - Enable **Linux** as **Target**
+   - Select **All hosts**
 7. Click **Save**
 
 ## Step 4. Link enrollment report in Smallstep
@@ -289,10 +289,13 @@ Once the enrollment report is configured in Fleet, the Smallstep platform needs 
 2. In the Smallstep console, edit your Fleet configuration
 3. Set the **Enrollment Query ID** to the numeric ID
 
+Your fleet's TPM information will begin syncing to Smallstep.
 
 ## Step 5. Linux agent configuration
 
-Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux registers directly using TPM attestation. After installing the agent package and the osquery extension, you must configure the agent with your Smallstep team slug and CA fingerprint.
+Linux does not support MDM configuration profiles, so the SCEP enrollment flow used for macOS and Windows does not apply. Instead, the Smallstep agent on Linux uses ACME Device Attestation with the system's TPM.
+
+After installing the agent package and the osquery extension, you must configure the agent with your Smallstep team slug and CA fingerprint.
 
 When adding a Linux agent package in Fleet, add the following **post-install script** to configure and start the agent:
 
@@ -311,8 +314,34 @@ systemctl daemon-reload
 systemctl enable --now step-agent
 ```
 
+When the agent starts, it attests with the endpoint's TPM. Smallstep matches the attestation to the inventory data you just synced. By default, devices synced from Fleet need admin approval: if the host shows as `pending` in the [Smallstep console](https://smallstep.com/app/?next=/devices), approve it there.
 
-After deployment, Linux devices will self-register with your Smallstep team via TPM attestation. By default, new devices require admin approval in the [Smallstep console](https://smallstep.com/app/?next=/devices). To automate approval, you can [pre-register devices via API](../platform/smallstep-agent.mdx#pre-registration-via-api).
+To approve Fleet-synced devices automatically, add `Fleet` to `autoApproveSources` in your team's device enrollment policy. This setting isn't exposed in the Smallstep console. Use the [Device Enrollment Policy API](https://gateway.smallstep.com/v2026-05-01/operations/PutDeviceEnrollmentPolicy) with an [API token](https://smallstep.com/app/?next=/settings/api/tokens/add) that has the `get-device-enrollment-policy` and `put-device-enrollment-policy` scopes. The `PUT` replaces the whole policy, so fetch the current policy first and resubmit it with `Fleet` added to `autoApproveSources`:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your API token]" > api_headers
+set -o history
+
+# Fetch the current policy
+curl -sH @api_headers --request GET \
+  --url https://gateway.smallstep.com/api/device-enrollment-policy \
+  --header 'Accept: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' | jq
+
+# Resubmit it with Fleet in autoApproveSources.
+# Adjust both lists to match the policy you fetched.
+curl -sH @api_headers --request PUT \
+  --url https://gateway.smallstep.com/api/device-enrollment-policy \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' \
+  --data '{
+    "allowedSources": ["Smallstep API", "Smallstep Agent", "Fleet"],
+    "autoApproveSources": ["Fleet"],
+    "requireUserBinding": true
+  }' | jq
+```
 
 ## Step 6. Confirmation (Linux)
 
@@ -343,12 +372,12 @@ The osquery extension can be installed by distributing the MSI to your devices, 
 NOTE: the osquery extension MSI distribution is currently work in progress.
 
 1. Download the `step-agent-osquery.ext.exe` MSI for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
-1. In Fleet, go to **Software**
-1. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
-1. Select **Custom package**
-1. Click **Choose file**, and select the `step-agent-osquery` MSI that was downloaded before
-1. Enable **Deploy**
-1. Click **Add software**. 
+2. In Fleet, go to **Software**
+3. Click **Add software**. Ensure a fleet is selected; software is configured per-fleet
+4. Select **Custom package**
+5. Click **Choose file**, and select the `step-agent-osquery` MSI that was downloaded before
+6. Enable **Deploy**
+7. Click **Add software**. 
 
 A modal should appear, showing the upload progress.
 
@@ -359,8 +388,8 @@ See https://fleetdm.com/guides/deploying-custom-osquery-extensions-in-fleet-a-st
 ### The Update Framework (TUF) auto-update server
 
 1. Download the `step-agent-osquery.ext.exe` binary for your Windows target architecture(s) from [Smallstep's releases](https://releases.smallstep.com)
-1. Upload the binary to your TUF server
-1. Configure the `extensions` under `agent_options` in Fleet to include the `step-agent-osquery.ext.exe` binaries for your Windows target architecture(s)
+2. Upload the binary to your TUF server
+3. Configure the `extensions` under `agent_options` in Fleet to include the `step-agent-osquery.ext.exe` binaries for your Windows target architecture(s)
 
 See https://fleetdm.com/docs/configuration/agent-configuration#extensions for more information on how to configure extensions through TUF.
 
@@ -378,12 +407,12 @@ Once the extension is active on your Windows devices, create a Fleet report to c
    ```
 5. Click **Save**; a modal should appear
 6. In the modal, enter the following details:
-  - A **Name** for the query, such as "Smallstep Enrollment"
-  - Optionally, a **Description**
-  - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
-  - Optionally, enable the **Observers can run** checkbox
-  - Enable **Windows** as **Target**
-  - Select **All hosts**
+   - A **Name** for the query, such as "Smallstep Enrollment"
+   - Optionally, a **Description**
+   - The **Interval** can be set to **Every hour**. While testing, a shorter interval can be helpful
+   - Optionally, enable the **Observers can run** checkbox
+   - Enable **Windows** as **Target**
+   - Select **All hosts**
 7. Click **Save**
 8. Note the numeric ID of the Smallstep enrollment report that was just created
 
@@ -444,7 +473,34 @@ Add the Smallstep agent MSI as Fleet software so it installs on enrollment:
 2. In the Fleet console, go to **Software**, choose **Add software → Custom package**, and upload the MSI
 3. Scope the install to your Windows hosts
 
-The agent reads the registry values written in Step 3 on startup, and completes TPM-attested registration with your Smallstep team.
+On startup, the agent reads the registry values to find the team information, then attests with the endpoint's TPM. Smallstep matches the attestation to the inventory data synced from Fleet.
+
+By default, devices synced from Fleet need admin approval: if the host shows as pending in the [Smallstep console](https://smallstep.com/app/?next=/devices), approve it there. To approve Fleet-synced devices automatically, add `Fleet` to `autoApproveSources` in your team's device enrollment policy. This setting isn't exposed in the Smallstep console. Use the [Device Enrollment Policy API](https://gateway.smallstep.com/v2026-05-01/operations/PutDeviceEnrollmentPolicy) with an [API token](https://smallstep.com/app/?next=/settings/api/tokens/add) that has the `get-device-enrollment-policy` and `put-device-enrollment-policy` scopes. The `PUT` replaces the whole policy, so fetch the current policy first and resubmit it with `Fleet` added to `autoApproveSources`:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your API token]" > api_headers
+set -o history
+
+# Fetch the current policy
+curl -sH @api_headers --request GET \
+  --url https://gateway.smallstep.com/api/device-enrollment-policy \
+  --header 'Accept: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' | jq
+
+# Resubmit it with Fleet in autoApproveSources.
+# Adjust both lists to match the policy you fetched.
+curl -sH @api_headers --request PUT \
+  --url https://gateway.smallstep.com/api/device-enrollment-policy \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' \
+  --data '{
+    "allowedSources": ["Smallstep API", "Smallstep Agent", "Fleet"],
+    "autoApproveSources": ["Fleet"],
+    "requireUserBinding": true
+  }' | jq
+```
 
 ## Step 6. Confirmation (Windows)
 
@@ -518,7 +574,7 @@ export SMALLSTEP_CHALLENGE_PASSWORD='your-challenge-password'
 
 ## Add configuration profiles
 
-Download the configuration profile for your Fleet connection from the Smallstep dashboard, as described in **Step 5** of the macOS section above, and place the `fleet-<connection-id>.mobileconfig` file in your `lib/` directory. Then reference it from your team YAML file:
+Download the configuration profile for your Fleet connection from the Smallstep dashboard, as described in **Step 4** of the macOS section above, and place the `fleet-<connection-id>.mobileconfig` file in your `lib/` directory. Then reference it from your team YAML file:
 
 ```yaml
 controls:
