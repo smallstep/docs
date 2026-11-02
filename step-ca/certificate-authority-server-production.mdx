@@ -280,7 +280,7 @@ the CRL will be hosted at `/1.0/crl`.
         $(step path)/secrets/intermediate_ca_key
    ```
 
-2. Restart `step-ca`.
+3. Restart `step-ca`.
    Clients will be able to renew certificates that were issued by your previous Intermediate CA.
 
 #### Enable CRL for leaf certificates
@@ -305,7 +305,7 @@ the CRL will be hosted at `/1.0/crl`.
    Reload the configuration by restarting `step-ca` or sending it a `HUP` signal.
 
 
-1. Add an X.509 certificate template, and enable `crlDistributionPoints` in the template:
+2. Add an X.509 certificate template, and enable `crlDistributionPoints` in the template:
 
    ```bash
    cd $(step path)/templates
@@ -815,8 +815,8 @@ If you have PEM bundles containing both your root and intermediate CAs, you will
 1. **Create your new intermediate CA** certificate and key, but do not start issuing certificates with it yet.
 2. **Append the new intermediate certificate** to the bundles that need it.
 3. **Configure `step-ca` to use your new intermediate**.
-3. **Wait** for all certificates issued by the old intermediate to expire.
-3. It is now safe to **remove the old intermediate from the bundles**.
+4. **Wait** for all certificates issued by the old intermediate to expire.
+5. It is now safe to **remove the old intermediate from the bundles**.
 
 ## Sane cryptographic defaults
 

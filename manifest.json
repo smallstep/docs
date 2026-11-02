@@ -94,6 +94,10 @@
               "path": "/platform/smallstep-agent.mdx"
             },
             {
+              "title": "Credential Files",
+              "path": "/platform/credential-files.mdx"
+            },
+            {
               "title": "Troubleshooting Guide",
               "path": "/platform/troubleshooting-agent.mdx"
             },

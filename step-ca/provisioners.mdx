@@ -1108,10 +1108,10 @@ step ca provisioner add acme-da \
 
 To get a client certificate for a hardware-bound private key on your YubiKey:
  
-0. Create a `device-attest-01` provisioner as described above.
-1. Install [`step-kms-plugin`](https://github.com/smallstep/step-kms-plugin/)
-2. Insert the YubiKey.
-3. Generate a private key in one of the YubiKey's slots, if you haven't already.
+1. Create a `device-attest-01` provisioner as described above.
+2. Install [`step-kms-plugin`](https://github.com/smallstep/step-kms-plugin/)
+3. Insert the YubiKey.
+4. Generate a private key in one of the YubiKey's slots, if you haven't already.
    In this example, we'll use slot `9a`.
    Run:
 
@@ -1119,7 +1119,7 @@ To get a client certificate for a hardware-bound private key on your YubiKey:
    step kms create 'yubikey:slot-id=9a' \
        --kms 'yubikey:?pin-value=123456'
    ```
-4. Get a certificate for the YubiKey from `step-ca`.
+5. Get a certificate for the YubiKey from `step-ca`.
    Substitute the serial number of your YubiKey here:
 
    ```bash

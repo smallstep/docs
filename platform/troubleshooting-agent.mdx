@@ -1,5 +1,5 @@
 ---
-updated_at: September 8, 2026
+updated_at: October 23, 2026
 title: Troubleshooting Guide
 html_title: Smallstep Troubleshooting Guide
 description: Troubleshoot Smallstep Device Identity issues. Diagnose platform, MDM, and endpoint problems with step-by-step guidance.
@@ -542,6 +542,32 @@ If you ran `modutil -add` before exporting `P11_KIT_SERVER_ADDRESS` (see [PKCS#1
 5. Open the device's **Certificates** tab in the console. Verify the resource you're trying to access is listed and has a valid certificate.
    - **If a certificate exists**: The issue is between the Smallstep Agent and the client application. Check the client's certificate configuration. See [Platform-Specific Reference](#platform-specific-reference) for certificate locations.
    - **If no certificate exists**: The resource may not be assigned to this device, or there may be an agent issue. Check the device's **Resources** tab and run `doctor`.
+
+#### Credential files not written
+
+**Symptoms:**
+- A credential with [custom files](./credential-files.mdx) shows an error or warning status on the device
+- An app can't find or read its key or certificate
+- Event ID 801 from `SmallstepAgent` in the Windows Application log
+
+**Troubleshooting steps:**
+1. Run `step-agent status` on the device. Under a credential that reported an error or warning, a `last report:` line gives the file, its path, and the reason.
+2. On Windows, read the agent's file events:
+   ```powershell
+   Get-WinEvent -FilterHashtable @{ LogName = 'Application'; ProviderName = 'SmallstepAgent'; ID = 800, 801 }
+   ```
+   Event 801 (Error) carries `file` (`key`, `certificate`, or `root`), `path`, `fault`, `principal`, and `error`. Event 800 (Information) means the files were written as configured again.
+3. Fix the cause the `fault` names:
+
+   | `fault` | Cause | Fix |
+   | --- | --- | --- |
+   | `directory-missing` | The folder of a custom path doesn't exist. The agent never creates it. | Create the folder with the ownership and permissions the app expects. |
+   | `principal-not-found` | An owner, group, or Windows principal doesn't exist on the device. A domain account also fails while no domain controller is reachable. | Create the account, check its spelling, or use its numeric ID or SID. An `NT SERVICE\<name>` account exists only once its service is installed. |
+   | `acl-unsupported` | The file system can't hold the configured ACL entries. | Move the file to a file system with ACL support, or remove the `acl` entries. |
+   | `write-failed` | Anything else, such as a file another program holds open on Windows, or no space left. | Read `error` for the reason. |
+
+The agent writes a credential's files again at its next issuance, renewal, or restart, so a fix made on the device alone is picked up then. To retry right away, run `step-agent doctor --renew`.
+Until a write succeeds, the previous files stay in place, and the agent never writes a file with broader permissions than configured.
 
 ---
 
