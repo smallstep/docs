@@ -250,18 +250,11 @@ Iru distributes Windows apps as a `.zip` archive, so you'll download the agent M
 1. Download the agent MSI for your target architecture:
     - x64: [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
     - ARM64: [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
-    - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com)
+    - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows)
 
-    The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com) if you want to pin the version you deploy.
-2. Note the MSI product code. You'll need it for the detection rule:
+    The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows) if you want to pin the version you deploy.
 
-    ```powershell
-    $db = (New-Object -ComObject WindowsInstaller.Installer).OpenDatabase("C:\path\to\step-agent_0.70.0_amd64.msi", 0)
-    $view = $db.OpenView("SELECT Value FROM Property WHERE Property = 'ProductCode'")
-    $view.Execute(); $view.Fetch().StringData(1)
-    ```
-
-    The product code is specific to the version and the architecture of the MSI, so read it from the exact file you are going to upload.
+    Note the MSI product code. The product code is specific to each MSI file. You can find it in the file details at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows).
 3. Compress the MSI into a `.zip` archive
 4. In the Iru sidebar, choose **Library**
 5. Choose **Add Library Item**, then select **Windows Custom App**, and click **Add and Configure**
@@ -356,14 +349,10 @@ On a Windows endpoint in the assigned Blueprint:
 
 # Uninstall Smallstep Agent with Iru
 
-You can remove the Smallstep Agent from endpoints managed by Iru by deleting the Library items you created during setup.
+To remove the Smallstep Agent from endpoints managed by Iru:
 
 1. In the Iru sidebar, choose **Library**
 2. Select the **Library Items** tab
-3. Find and delete the following items:
-   - **Smallstep Agent** (Custom App)
-   - **Smallstep Agent Configuration** (Custom Profile on macOS, Custom Script on Windows)
-   - **Smallstep** (SCEP), and **Smallstep (Windows)** (SCEP) if you created a separate item for Windows
-   - **Smallstep Login Item** (Login & Background Items, macOS only)
+3. Find and delete all Smallstep items
 
-On Windows, deleting the Library items removes only the SCEP certificate. The Smallstep Agent stays installed on the device. To remove it, follow the uninstall steps in [Smallstep Agent Windows installation](../platform/smallstep-agent.mdx#windows-installation).
+Note: On Windows, deleting the Library items removes only the SCEP certificate. The Smallstep Agent stays installed on the device. To remove it, follow the uninstall steps in [Smallstep Agent Windows installation](../platform/smallstep-agent.mdx#windows-installation).
