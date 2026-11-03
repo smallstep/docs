@@ -245,39 +245,46 @@ Iru replaces `$BLUEPRINT_ID` with the ID of the assigned Blueprint, and `$DEVICE
 
 As on macOS, you can distribute the agent with Iru, or with a separate software management tool. See the [Smallstep Agent Manual Installation](../platform/smallstep-agent.mdx#windows-installation) guide if you would rather install it outside of Iru.
 
-Iru distributes Windows apps as a `.zip` archive, so you'll download the agent MSI and compress it before uploading.
+Iru distributes Windows apps as a `.zip` archive. Smallstep publishes the agent MSI as a ready-to-upload `.zip` archive, which contains the signed MSI.
 
-1. Download the agent MSI for your target architecture:
-    - x64: [step-agent_amd64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi)
-    - ARM64: [step-agent_arm64_latest.msi](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi)
+1. Download the agent `.zip` archive for your target architecture:
+    - x64: [step-agent_amd64_latest.msi.zip](https://packages.smallstep.com/stable/windows/step-agent_amd64_latest.msi.zip)
+    - ARM64: [step-agent_arm64_latest.msi.zip](https://packages.smallstep.com/stable/windows/step-agent_arm64_latest.msi.zip)
     - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows)
 
-    The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows) if you want to pin the version you deploy.
+    The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows) if you want to pin the version you deploy. The MSI inside the archive always has a versioned filename (e.g., `step-agent_0.70.0_amd64.msi`), even when you download a `_latest` archive.
+2. Copy the MSI product code from the file details at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows). You'll need it for the detection rule. The product code is specific to the version and the architecture of the MSI, so copy it from the exact file you are going to upload.
 
-    Note the MSI product code. The product code is specific to each MSI file. You can find it in the file details at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows).
-3. Compress the MSI into a `.zip` archive
-4. In the Iru sidebar, choose **Library**
-5. Choose **Add Library Item**, then select **Windows Custom App**, and click **Add and Configure**
-6. Set a title (e.g., `Smallstep Agent`)
-7. Under **Assignment**, choose the same Windows Blueprint you assigned the SCEP item to
-8. Configure the following settings:
+    If your MSI comes from another source, compress it into a `.zip` archive yourself, and read its product code with PowerShell:
+
+    ```powershell
+    $db = (New-Object -ComObject WindowsInstaller.Installer).OpenDatabase("C:\path\to\step-agent_0.70.0_amd64.msi", 0)
+    $view = $db.OpenView("SELECT Value FROM Property WHERE Property = 'ProductCode'")
+    $view.Execute(); $view.Fetch().StringData(1)
+    ```
+
+3. In the Iru sidebar, choose **Library**
+4. Choose **Add Library Item**, then select **Windows Custom App**, and click **Add and Configure**
+5. Set a title (e.g., `Smallstep Agent`)
+6. Under **Assignment**, choose the same Windows Blueprint you assigned the SCEP item to
+7. Configure the following settings:
     - **Install details**: `Install and continuously enforce`, and install `Immediately`
     - **Publisher**: `Smallstep Labs, Inc.`
     - **Name**: `Smallstep Agent`
     - **Version**: the version of the MSI you downloaded (e.g., `0.70.0`)
     - **Icon**: upload an icon to show in the Iru app catalog
     - **Architecture**: the architecture of the MSI you downloaded, `x64` or `ARM64`
-9. Upload the `.zip` archive you created
-10. Set the install command, matching the MSI filename inside the archive:
+8. Upload the `.zip` archive you downloaded
+9. Set the install command, matching the versioned MSI filename inside the archive:
 
     ```
     msiexec /i step-agent_0.70.0_amd64.msi /qn /norestart
     ```
 
-11. For **Detection rule**, choose `MSI` and enter the product code you noted above, including the surrounding braces. Leave the version check disabled, and leave the running-app detection unconfigured.
-12. Choose **Save**
+10. For **Detection rule**, choose `MSI` and enter the product code you copied above, including the surrounding braces. Leave the version check disabled, and leave the running-app detection unconfigured.
+11. Choose **Save**
 
-To upgrade the agent later, edit this Library item: upload a `.zip` with the new MSI, and update the version, the install command, and the product code in the detection rule. Iru then distributes and installs the new version, and the updated agent starts automatically.
+To upgrade the agent later, edit this Library item: upload the `.zip` archive of the new version, and update the version, the install command, and the product code in the detection rule. Iru then distributes and installs the new version, and the updated agent starts automatically.
 
 ## Configure the Agent Settings on Windows
 
