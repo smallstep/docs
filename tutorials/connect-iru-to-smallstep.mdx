@@ -253,16 +253,7 @@ Iru distributes Windows apps as a `.zip` archive. Smallstep publishes the agent 
     - All past versions are available at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows)
 
     The Iru configuration below refers to the version and filename of the MSI, so download a specific version from [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows) if you want to pin the version you deploy. The MSI inside the archive always has a versioned filename (e.g., `step-agent_0.70.0_amd64.msi`), even when you download a `_latest` archive.
-2. Copy the MSI product code from the file details at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows). You'll need it for the detection rule. The product code is specific to the version and the architecture of the MSI, so copy it from the exact file you are going to upload.
-
-    If your MSI comes from another source, compress it into a `.zip` archive yourself, and read its product code with PowerShell:
-
-    ```powershell
-    $db = (New-Object -ComObject WindowsInstaller.Installer).OpenDatabase("C:\path\to\step-agent_0.70.0_amd64.msi", 0)
-    $view = $db.OpenView("SELECT Value FROM Property WHERE Property = 'ProductCode'")
-    $view.Execute(); $view.Fetch().StringData(1)
-    ```
-
+2. Copy the MSI product code from the file details at [releases.smallstep.com](https://releases.smallstep.com/#step-agent/windows). You'll need it for the detection rule. The product code is specific to the version and the architecture of the MSI, so copy it from the exact file you are going to upload. These codes are also published in the [releases JSON manifest tree](https://packages.smallstep.com/index.json).
 3. In the Iru sidebar, choose **Library**
 4. Choose **Add Library Item**, then select **Windows Custom App**, and click **Add and Configure**
 5. Set a title (e.g., `Smallstep Agent`)
@@ -284,7 +275,7 @@ Iru distributes Windows apps as a `.zip` archive. Smallstep publishes the agent 
 10. For **Detection rule**, choose `MSI` and enter the product code you copied above, including the surrounding braces. Leave the version check disabled, and leave the running-app detection unconfigured.
 11. Choose **Save**
 
-To upgrade the agent later, edit this Library item: upload the `.zip` archive of the new version, and update the version, the install command, and the product code in the detection rule. Iru then distributes and installs the new version, and the updated agent starts automatically.
+To upgrade the agent later, simply edit this Library item: upload the new `.msi.zip` file, and update the version, the install command, and the product code in the detection rule. Iru then distributes and installs the new version, and the updated agent starts automatically.
 
 ## Configure the Agent Settings on Windows
 
