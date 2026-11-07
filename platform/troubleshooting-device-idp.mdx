@@ -1,0 +1,274 @@
+---
+updated_at: October 13, 2026
+title: Device IdP Troubleshooting Guide
+html_title: Troubleshoot the Smallstep Device IdP (SSO Device Factor)
+description: Diagnose failed device checks during sign-in or factor enrollment. Find the Device IdP event in the Audit log, read its reason, and take the next step.
+---
+
+The Smallstep Device IdP is the device factor your identity provider (for example, Okta) uses to require an enrolled device at sign-in.
+When it can't verify a device, the person sees **We were unable to verify your device identity**, followed by a reference.
+Once the browser has connected and the request names a valid client, every attempt records an event in the **Audit** log, with the reason it failed and the certificate, device, and user involved.
+
+This guide shows how to find that event and what to do for each reason.
+Some failures happen before that point and record no event, notably TLS handshake errors; the guide covers how to diagnose those from the device.
+
+## Where to begin?
+
+Start from what the person sees:
+
+- **The Smallstep page "We were unable to verify your device identity", with a reference.** [Find the event in the Audit log](#find-the-event-in-the-audit-log), then look up its reason in [Reasons and next steps](#reasons-and-next-steps).
+- **A browser connection error instead of a Smallstep page**, for example `ERR_BAD_SSL_CLIENT_AUTH_CERT` in Chrome. The connection failed before the Device IdP could record anything. Go to [Failures with no Audit event](#failures-with-no-audit-event).
+- **A plain-text error such as `Invalid client_id` or `Redirect URI not registered with client`.** Your identity provider's configuration doesn't match the Device IdP client. Go to [Identity provider configuration](#identity-provider-configuration).
+- **The sign-in returns to your identity provider, which then rejects the factor.** The Device IdP succeeded. Go to [The identity provider rejects a successful device check](#the-identity-provider-rejects-a-successful-device-check).
+
+Failures while a person enrolls (registers) the Smallstep factor in your identity provider go through the same device check and record the same events.
+See [Failures when a person enrolls the factor](#failures-when-a-person-enrolls-the-factor).
+
+## How the device check works
+
+Each step can fail for its own reason, so it helps to know the order:
+
+1. Your identity provider redirects the browser to `https://<team-slug>.id.smallstep.com/authorize`.
+2. The browser presents a client certificate over mutual TLS.
+   The certificate must chain to one of the **trust roots** configured for your team's Device IdP.
+3. The Device IdP checks the request against the client your identity provider uses: its client ID and redirect URI.
+4. The Device IdP identifies the device from the certificate, using the first of these that is present:
+   - the Smallstep device ID extension (OID `1.3.6.1.4.1.37476.9000.64.4`)
+   - a URI SAN of the form `urn:smallstep:host:<host-id>`
+   - the subject common name, matched against device serial numbers
+
+   It reads the device from your inventory only when the client enforces device lifecycle, or when the request includes a `login_hint` (to check whether the device is shared).
+5. If the client enforces device lifecycle, the device must be **Active**.
+6. The Device IdP decides who the person is:
+   - On a device that isn't shared, from the certificate's first email SAN.
+   - On a shared device, from the identity provider's `login_hint`, if it matches an email SAN on the certificate or an active user in your team's directories.
+     If the certificate has an organizational unit (OU), the user must also be in a directory group with that name.
+7. The browser returns to your identity provider, which exchanges the result at `/token` within 15 minutes.
+
+## Find the event in the Audit log
+
+1. Note the **Reference** on the failure page and roughly when it happened.
+2. Open [Audit](https://smallstep.com/app/?next=/audit) in the Smallstep console.
+3. Set the category filter to **Device IdP**, and set a time range that covers the failure.
+   To see only failures, filter the type to **Device IdP authentication failed**.
+4. Narrow the list with the search box.
+   Search matches an event's message and error text, which include the client ID, the certificate's common name (or first SAN), and the failure description.
+   Search for the device's hostname, the person's email address, or a phrase from the failure description.
+5. Open the event whose **Request ID** matches the reference from the failure page.
+
+<Alert severity="info">
+  <div>
+    The search box doesn't match request IDs.
+    Use the category, time range, and search filters to find nearby events, then compare the <strong>Request ID</strong> field.
+  </div>
+</Alert>
+
+### What the event contains
+
+- **Error**: the OAuth error code and a description of the failure, for example `access_denied: device user is not authorized: certificate has no email SAN and the device is not marked as shared`.
+  The person's browser only ever sees a generic message, so the Audit event is the place to read the actual reason.
+- **Resource ID**: the Device IdP client ID, which tells you which identity provider integration sent the request.
+- **Context**: structured details about the request.
+
+| Context field | What it tells you |
+|---|---|
+| `reason` | A stable identifier for the failure. See [Reasons and next steps](#reasons-and-next-steps). |
+| `client_id`, `redirect_uri` | The client and redirect URI from the request. |
+| `login_hint` | The username your identity provider asked about, if it sent one. |
+| `device_lifecycle` | Whether the client enforces device lifecycle, and its failure mode (`DEVICE_LIFECYCLE_FAILURE_MODE_OPEN` or `DEVICE_LIFECYCLE_FAILURE_MODE_CLOSED`). |
+| `certificate` | The certificate the browser presented: subject, issuer, serial number, validity, SANs, SHA-256 fingerprint, and `device_identifier`, the identifier the Device IdP extracted from it (`type` is `deviceid`, `hostid`, or `serial`). |
+| `device` | The device read from your inventory: `found`, `id`, `shared`, and `lifecycle_status`, or an `error` if it couldn't be read. Absent when the device didn't need to be read (see step 4 of [How the device check works](#how-the-device-check-works)). |
+| `user` | Once the person is identified, the email returned to your identity provider and its `source`: `certificate` (an email SAN) or `directory` (a shared-device user found in your directories). |
+| `user_agent` | The browser that made the request. |
+
+`certificate` and `user_agent` are only recorded once the Device IdP has confirmed that the certificate was verified against your team's trust roots.
+Failures before that point, such as an unregistered redirect URI, record what your identity provider sent but not the browser's details.
+
+## Reasons and next steps
+
+### `missing_client_certificate`
+
+The browser didn't present a client certificate.
+Browsers only offer certificates whose chain leads to one of the CA names the Device IdP asks for, so this is also what you see when the device's certificate isn't issued under your trust roots.
+
+1. Confirm the device has a current browser certificate from Smallstep.
+   On an agent-managed device, run `step-agent doctor` (see the [Troubleshooting Guide](./troubleshooting-agent.mdx#using-the-doctor-command)).
+2. Confirm the browser can see the certificate: it should appear in the browser's certificate manager.
+   Chrome and Firefox on Linux reach the agent's keys through its PKCS#11 module, which must be registered in the browser's NSS database (see [PKCS#11 support](./smallstep-agent.mdx#pkcs11-support)).
+   The browser process itself needs `P11_KIT_SERVER_ADDRESS`; setting it in a terminal doesn't affect a browser started from the desktop.
+   With Chrome running, check its environment:
+
+   ```shell
+   tr '\0' '\n' < /proc/$(pgrep -o chrome)/environ | grep P11_KIT_SERVER_ADDRESS
+   ```
+
+   If it's missing, add it to `/etc/environment`, sign out and back in, and restart the browser.
+   For other PKCS#11 problems, see [PKCS#11 troubleshooting](./troubleshooting-agent.mdx#pkcs11-not-working-linuxmacos).
+3. Confirm the browser's certificate auto-select policy covers `https://<team-slug>.id.smallstep.com` and names the right issuer.
+4. Check which CA names the Device IdP asks for, and compare them with the certificate's chain:
+
+   ```shell
+   openssl s_client -connect <team-slug>.id.smallstep.com:443 \
+     -servername <team-slug>.id.smallstep.com </dev/null 2>/dev/null \
+     | sed -n '/Acceptable client certificate CA names/,/Requested/p'
+   ```
+
+   The certificate's root (or an intermediate, if you configured one) must appear in this list.
+   If it doesn't, add it to the Device IdP's trust roots with `PUT /sso`.
+5. If the person dismissed a certificate prompt earlier, the browser may keep sending no certificate until it restarts.
+   Quit and reopen the browser, then try again.
+
+### `no_email_san`
+
+The certificate has no email SAN, so the Device IdP can't tell who the person is.
+The error says `certificate has no email SAN and the device is not marked as shared` when the device was read, or `certificate has no email SAN` when it wasn't.
+
+1. Look at `certificate.subject` and `certificate.sans` in the event.
+   A device certificate (for example, one whose common name is the hostname) usually has no email SAN.
+   If the browser presented that certificate instead of the person's browser certificate, change the auto-select policy's issuer so the browser picks the right one.
+2. If the browser certificate itself has no email SAN, check that the device has a user bound to it under [Devices](https://smallstep.com/app/?next=/devices), and that the browser certificate is configured to include the user's email as a SAN.
+   The agent applies the change when it renews the certificate.
+3. If the device is meant to be used by several people, mark it as shared with the API (`PATCH /devices/{id}` with `"shared": true`), and have your identity provider send `login_hint`.
+4. If the device is already shared and the request had a `login_hint`, look at `device` in the event.
+   An `error` of `device not found` means the Device IdP couldn't match the certificate to the device, so it couldn't tell that the device is shared.
+   Follow the steps under [`device_identifier_missing` and `device_not_found`](#device_identifier_missing-and-device_not_found).
+
+### `shared_device_without_login_hint`
+
+The device is shared, but the request had no `login_hint` and the certificate has no email SAN.
+
+1. Check that your identity provider sends the person's username as `login_hint` when it redirects to the Device IdP.
+2. If the device isn't meant to be shared, set `"shared": false` with `PATCH /devices/{id}`, and give its certificate an email SAN.
+
+### `login_hint_user_not_found`
+
+The device is shared, and the `login_hint` matches neither an email SAN on the certificate nor an active user in your team's directories.
+
+1. Compare `login_hint` in the event with the person's email under [Users](https://smallstep.com/app/?next=/users).
+   The match must be exact.
+2. If the person is missing or inactive, check your directory sync for [Okta](../tutorials/sync-okta-users-to-smallstep.mdx) or [Entra ID](../tutorials/sync-entra-id-users-to-smallstep.mdx).
+
+### `login_hint_user_not_in_group`
+
+The device is shared and the user was found, but the certificate has an organizational unit (OU), and the user isn't in a directory group with that name.
+Group names are compared without regard to case.
+
+1. Read the OU from `certificate.subject.organizational_unit` in the event.
+2. Add the user to a directory group with that name in your identity provider, and wait for the next directory sync.
+
+### `directory_lookup_failed`
+
+The Device IdP couldn't search your team's directories for the `login_hint` user.
+This is a problem on the Smallstep side.
+Try again; if it continues, contact Smallstep support with the reference.
+
+### `device_identifier_missing` and `device_not_found`
+
+The client enforces device lifecycle, and the Device IdP couldn't match the certificate to a device in your inventory.
+Without lifecycle enforcement, the same problem appears as `device.found: false` with an `error` in the event of another failure, such as `no_email_san`.
+
+1. Read `certificate.device_identifier` in the event to see which identifier was used (`deviceid`, `hostid`, or `serial`) and its value.
+2. Find the device under [Devices](https://smallstep.com/app/?next=/devices) and compare:
+   - `deviceid` must equal the device's ID.
+   - `hostid` must equal the device's host ID.
+   - `serial` is the certificate's common name, which must equal the device's serial number.
+3. If `type` is `serial` and the certificate's common name isn't the device's serial number, the certificate needs the device ID extension or a `urn:smallstep:host:<host-id>` URI SAN for the Device IdP to find the device.
+   Check which certificate the browser presented, and contact Smallstep support with the reference if it's the certificate the agent issued for the device.
+4. If no identifier was found, the certificate has no device ID extension, no `urn:smallstep:host:` URI SAN, and no common name.
+
+### `device_not_active`
+
+The client enforces device lifecycle, and the device's lifecycle status (`device.lifecycle_status`) isn't **Active**.
+If the device should have access, return it to the active state under [Devices](https://smallstep.com/app/?next=/devices).
+If it shouldn't, the failure is expected.
+
+If the client has a lifecycle failure URI, the person is sent there instead of to the Smallstep failure page, and the event is recorded the same way.
+
+### `inventory_unavailable`
+
+The Device IdP couldn't read the device from your inventory.
+With the closed failure mode, the request is denied; with the open failure mode, it continues, and a successful event records the problem under `device.error`.
+This is a problem on the Smallstep side.
+Try again; if it continues, contact Smallstep support with the reference.
+
+### Identity provider configuration
+
+These failures mean the request your identity provider sent doesn't match the Device IdP client.
+The error description says what didn't match.
+
+| Error | Next step |
+|---|---|
+| `invalid_request: redirect_uri "…" does not match the client's registered redirect URI "…"` | Make the client's redirect URI and your identity provider's callback URL identical. For Okta, it is `https://<your-okta-domain>/oauth2/v1/authorize/callback`. |
+| `invalid_request: missing redirect_uri` | Your identity provider didn't send a redirect URI. Check its Device IdP configuration. |
+| `unauthorized_client: unregistered client_id` | The client ID belongs to a different team than the `<team-slug>` in the authorization URL. Use the issuer and endpoints returned by `GET /sso` for your team. |
+| `invalid_scope`, `unsupported_response_type`, `unsupported_code_challenge_method` | Your identity provider must request the `openid` scope with the `code` response type, and use `S256` if it sends a PKCE challenge. |
+| `invalid_request_object` or `request parameter required` | The client requires signed request objects (JAR), and the request object is missing or invalid. The description says which check failed. |
+| `invalid_request: nonce already used` | The same sign-in was submitted twice, usually by a browser back button or a retry. Start the sign-in again. |
+
+Failures at the `/token` endpoint are recorded the same way:
+
+| Error | Next step |
+|---|---|
+| `invalid_client: Incorrect client_secret` | The client secret in your identity provider doesn't match. Create a new client, update your identity provider, then delete the old client. |
+| `invalid_grant: Code expired` | Your identity provider exchanged the result more than 15 minutes after the device check. Start the sign-in again. |
+| `invalid_grant: Code already used` | Your identity provider exchanged the same result twice. Start the sign-in again. |
+| `invalid_client: Invalid client_id` | The client ID your identity provider sent doesn't exist, or the result was issued to a different client. |
+
+If the person sees a plain-text `Invalid client_id` page, the client ID in your identity provider doesn't exist.
+No Audit event is recorded, because the Device IdP can't tell which team the request is for.
+Check the client ID with `GET /sso/clients`.
+
+## Failures with no Audit event
+
+A failure during the TLS handshake happens before the Device IdP knows which client the request is for, so no event is recorded.
+The browser shows its own connection error instead of the Smallstep page.
+
+**The certificate isn't accepted.**
+The browser presented a certificate that the Device IdP's trust roots don't accept.
+The server rejects it with a TLS alert, which Chrome reports as `ERR_BAD_SSL_CLIENT_AUTH_CERT`:
+
+- `unknown ca`: the certificate doesn't chain to any of the trust roots.
+- `certificate expired`: the certificate, or a CA certificate in its chain, has expired.
+- `bad certificate`: the chain is otherwise invalid, for example the certificate isn't valid for client authentication.
+
+1. Check the certificate's validity dates and chain on the device.
+   `step certificate verify` needs the certificate followed by its intermediate CA certificate in one file:
+
+   ```shell
+   step certificate inspect --short <certificate.crt>
+   step certificate verify <certificate-and-intermediate.crt> --roots <device-idp-roots.pem>
+   ```
+
+2. Compare the certificate's issuer with the CA names the Device IdP asks for, using the `openssl s_client` command under [`missing_client_certificate`](#missing_client_certificate).
+3. If the certificate was issued by a CA that isn't in the list, add its root to the trust roots with `PUT /sso`.
+   Changes to the trust roots take effect within a minute.
+
+**The address is wrong.**
+If the team slug in `https://<team-slug>.id.smallstep.com` doesn't exist, the handshake fails with the TLS alert `internal error`.
+Use the issuer and endpoints returned by `GET /sso` in your identity provider's configuration.
+
+## The identity provider rejects a successful device check
+
+If the Audit log shows **Device IdP authentication succeeded** but your identity provider still rejects the factor, compare `user.email` in the event with the username the person signed in with.
+The Device IdP returns that email as the ID token's `sub`, `email`, and `preferred_username`, and Okta requires it to match the signed-in user.
+
+- If `user.source` is `certificate`, the email comes from the certificate's first email SAN.
+  Make the browser certificate's first email SAN the person's username, or correct the device's bound user.
+- If `user.source` is `directory`, the email comes from the shared-device `login_hint`.
+  Check that your identity provider sends the person's username.
+
+## Failures when a person enrolls the factor
+
+When a person enrolls the Smallstep factor in your identity provider (for Okta, an IdP authenticator), the identity provider runs the same device check.
+Enrollment failures show the same Smallstep page and record the same Audit events, so use this guide the same way.
+
+The person must enroll from a device that already has its Smallstep browser certificate.
+The most common enrollment failures are `missing_client_certificate`, when the browser isn't configured to present the certificate yet, and `no_email_san`, when it presents the wrong certificate.
+
+## Contact Smallstep support
+
+If these steps don't resolve the failure, send Smallstep support:
+
+- The reference from the failure page, and when it happened.
+- The Audit event's error and context.
+- For a failure with no Audit event, the exact browser error and the output of `step-agent doctor` from the device.
