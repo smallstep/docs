@@ -155,6 +155,10 @@ In this step, we'll create macOS configuration profiles in Intune to enroll devi
             
                 **Replace `<team-slug>` with your Team Slug value.**
 
+                **Replace the two `PayloadUUID` values with new UUIDs.** Run `uuidgen` in Terminal two times to make them.
+
+                The `Certificate` value tells the agent to use the certificate from the **Smallstep SCEP** profile. Its label, `step-agent-bootstrap`, must be the same as the common name in that profile.
+
                 ```xml
                 <?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -170,13 +174,13 @@ In this step, we'll create macOS configuration profiles in Intune to enroll devi
                             <key>PayloadIdentifier</key>
                             <string>com.smallstep.Agent.settings</string>
                             <key>PayloadUUID</key>
-                            <string>A1B2C3D4-E5F6-7890-ABCD-EF1234567890</string>
+                            <string><payload-uuid-1></string>
                             <key>PayloadDisplayName</key>
                             <string>Smallstep Agent Settings</string>
                             <key>TeamSlug</key>
                             <string><team-slug></string>
                             <key>Certificate</key>
-                            <string>mackms:label=$PROFILE_IDENTIFIER;se=false;tag=</string>
+                            <string>mackms:label=step-agent-bootstrap;se=false;tag=</string>
                         </dict>
                     </array>
                     <key>PayloadDisplayName</key>
@@ -186,7 +190,7 @@ In this step, we'll create macOS configuration profiles in Intune to enroll devi
                     <key>PayloadType</key>
                     <string>Configuration</string>
                     <key>PayloadUUID</key>
-                    <string>12345678-1234-1234-1234-123456789ABC</string>
+                    <string><payload-uuid-2></string>
                     <key>PayloadVersion</key>
                     <integer>1</integer>
                 </dict>
