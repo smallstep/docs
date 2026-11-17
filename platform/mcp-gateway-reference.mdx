@@ -1,0 +1,397 @@
+---
+updated_at: November 17, 2026
+title: MCP Gateway Reference
+html_title: Smallstep MCP Gateway Reference for Policies, Sessions, and Errors
+description: Reference for the Smallstep MCP gateway. Covers the Cedar policy schema, actions, modes, session and decision values, limits, roles, and error messages.
+---
+
+This page lists the values, limits, and messages you meet when you run the [Smallstep MCP gateway](./mcp-gateway.mdx).
+
+<Alert severity="info">
+<div>
+The MCP gateway is in early access.
+<a href="https://support.smallstep.com/en/contact-us">Contact Smallstep</a> to turn it on for your team.
+</div>
+</Alert>
+
+## Policy schema
+
+Access policies are written in [Cedar](https://www.cedarpolicy.com/) and validated against schema version `2026-09-01`.
+The schema is the same for every team.
+Every name is in the `Smallstep` namespace.
+
+### Entities
+
+The principal of every request is the user.
+The device and the MCP client are in the request's context.
+
+| Entity | Identified by | Attributes |
+|---|---|---|
+| `Smallstep::User` | The user's email address | `email` |
+| `Smallstep::Device` | The device's ID in your inventory | `os`, `os_version`, `ownership`, `assurance`, `lifecycle`, `enrollment`, `tags`, `shared`, and optionally `serial`, `hostname`, `agent_version` |
+| `Smallstep::Client` | The MCP client's name | `name`, and optionally `version` |
+| `Smallstep::Upstream` | The MCP server's URL | `identifier`, `host` |
+| `Smallstep::Tool` | The MCP server's URL, then `#`, then the tool name | `name`, `upstream_host` |
+| `Smallstep::Team` | Your team's ID | None |
+
+In a policy, an MCP server is a `Smallstep::Upstream`.
+A tool belongs to its MCP server, so `resource in Smallstep::Upstream::"<url>"` matches every tool of that server.
+
+Device attributes hold the values from your device inventory, in upper case.
+`ownership` is `COMPANY_OWNED`, `USER_OWNED`, or `UNKNOWN`.
+`assurance` is `HIGH`, `NORMAL`, or `NO_ASSURANCE`.
+`tags` is a set of strings, and `shared` is a boolean.
+
+The MCP client reports its own name and version when it opens a session.
+The gateway can't verify them.
+A rule on `context.client` separates well-behaved clients, and it isn't a security boundary.
+
+### Request context
+
+| Attribute | Value | Present |
+|---|---|---|
+| `context.device` | The device that presented the certificate | Always |
+| `context.client` | The MCP client | When the client reported a name |
+| `context.upstream` | The MCP server | Always |
+| `context.method` | The JSON-RPC method of the call | Always |
+| `context.tool` | A record with the tool's `name` | For `tools/call` |
+| `context.session_id` | The gateway's session ID | Always |
+| `context.request_id` | The gateway's ID for this call | Always |
+| `context.amr` | How the device authenticated. The set contains `"mtls"` | Always |
+| `context.source_ip` | The address the connection came from | When known |
+| `context.time` | When the gateway evaluated the call | Always |
+| `context.protocol_version` | The MCP protocol version the client asked for | When the client sent one |
+
+A tool call's arguments aren't available to policy.
+
+### Actions
+
+The gateway evaluates one action for each JSON-RPC call.
+The action is named after the call's method.
+
+| JSON-RPC method | Action | Resource |
+|---|---|---|
+| `initialize` | `Smallstep::Action::"initialize"` | The MCP server |
+| `tools/list` | `Smallstep::Action::"tools/list"` | The MCP server |
+| `resources/list` | `Smallstep::Action::"resources/list"` | The MCP server |
+| `resources/templates/list` | `Smallstep::Action::"resources/templates/list"` | The MCP server |
+| `prompts/list` | `Smallstep::Action::"prompts/list"` | The MCP server |
+| `tools/call` | `Smallstep::Action::"tools/call"` | The tool |
+| `resources/read` | `Smallstep::Action::"resources/read"` | The MCP server |
+| `prompts/get` | `Smallstep::Action::"prompts/get"` | The MCP server |
+| `completion/complete` | `Smallstep::Action::"completion/complete"` | The MCP server |
+| Any other method | `Smallstep::Action::"other"` | The MCP server |
+
+The four list actions are also in the group `Smallstep::Action::"Discovery"`.
+Write `action in Smallstep::Action::"Discovery"` to match all of them.
+
+For `"other"`, `context.method` still holds the method the client sent.
+
+Notifications aren't evaluated.
+
+### Rules to know
+
+- **A session starts with `initialize`, and the policy applies to it.**
+  A policy set that permits only `tools/call` denies `initialize`, so in Enforce no session can open.
+  Start from a policy that permits every action, then add `forbid` statements.
+- **Cedar denies by default.**
+  A call goes ahead only when a `permit` statement matches and no `forbid` statement matches.
+- **Write the MCP server's URL without a trailing slash.**
+  The gateway reduces a URL to lower-case scheme and host, no default port, no trailing slash, and no query string.
+  `https://api.githubcopilot.com/mcp/` is `Smallstep::Upstream::"https://api.githubcopilot.com/mcp"` in a policy.
+  A statement that names the URL with a trailing slash never matches.
+- **Check an optional attribute before you read it.**
+  Write `context has client && context.client.name == "claude-code"`.
+  Without the `has` check the statement doesn't pass validation.
+- **`resource.name` exists only for `tools/call`.**
+  For every other action the resource is the MCP server, which has no `name`.
+- **Match tools by name.**
+  The schema declares `read_only`, `destructive`, `idempotent`, and `open_world` on a tool.
+  The gateway doesn't set them, so don't write rules on them.
+
+## Example policies
+
+### The baseline
+
+The console offers three statements when you choose **Start from the baseline**.
+It saves all three and activates only `baseline-allow`.
+
+Allow everything, as a base for `forbid` statements:
+
+```text
+@id("baseline-allow")
+@description("Allow everything; add forbid policies to restrict.")
+permit (principal, action, resource);
+```
+
+Allow tool calls only from company-owned devices with high assurance:
+
+```text
+@id("example-managed-devices-only")
+@description("Only company-owned, high-assurance devices may call tools.")
+forbid (principal, action == Smallstep::Action::"tools/call", resource)
+unless { context.device.ownership == "COMPANY_OWNED" && context.device.assurance == "HIGH" };
+```
+
+Make one MCP server read-only for a group of users:
+
+```text
+@id("example-github-read-only-for-contractors")
+forbid (principal, action == Smallstep::Action::"tools/call",
+        resource in Smallstep::Upstream::"https://api.githubcopilot.com/mcp")
+when { principal.email like "*@contractor.example" && !(resource.name like "get_*" || resource.name like "list_*" || resource.name like "search_*") };
+```
+
+### Block tools by name
+
+This statement refuses calls to tools on one MCP server whose names start with `save_`, `create_`, `update_`, or `delete_`, for every user:
+
+```text
+@id("linear-block-writes")
+@description("Refuse Linear tools whose names start with save_, create_, update_, or delete_.")
+forbid (
+  principal,
+  action == Smallstep::Action::"tools/call",
+  resource in Smallstep::Upstream::"https://mcp.linear.app/mcp"
+)
+when {
+  resource.name like "save_*" ||
+  resource.name like "create_*" ||
+  resource.name like "update_*" ||
+  resource.name like "delete_*"
+};
+```
+
+A statement that matches by name blocks only the names it matches.
+Read the MCP server's tool list before you rely on a statement like this one, and check it again when the server adds tools.
+To allow a fixed set of tools and refuse the rest, write the statement the way `example-github-read-only-for-contractors` does.
+
+## Policies, versions, and activations
+
+| Object | What it is |
+|---|---|
+| Policy | One Cedar statement. Its `@id` annotation is the policy's ID |
+| Version | The text of a policy at one save. Versions never change |
+| Activation | A fixed list of policy versions. The gateway evaluates one activation at a time |
+| Mode | Off, Monitor, or Enforce, for the whole team |
+
+Saving a policy creates a new version and changes nothing else.
+The gateway evaluates a version only after you activate a set that includes it.
+Activating never changes the mode.
+
+Changing the `@id` in the editor creates a different policy.
+A policy can be archived and never deleted.
+You can't archive a policy while the live activation includes it.
+
+### Modes
+
+| Mode | Calls the policy allows | Calls the policy denies |
+|---|---|---|
+| Off | Forwarded. No decision is recorded | Forwarded. No decision is recorded |
+| Monitor | Forwarded. The decision is recorded | Forwarded. The decision is recorded as "would refuse" |
+| Enforce | Forwarded. The decision is recorded | Refused. The decision is recorded as "deny" |
+
+Off is the starting mode.
+A team with no activation behaves as Off, and you can't choose Enforce until you activate a policy set.
+
+In Enforce, the gateway also refuses a request it can't read as a single JSON-RPC message.
+That includes a JSON-RPC batch and a request body larger than 1 MiB.
+
+If a `forbid` statement fails while it's being evaluated, the gateway denies the call.
+
+### What a refused call looks like
+
+The gateway answers a refused call with a JSON-RPC error, so the MCP client receives it as part of the conversation:
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 7,
+  "error": {
+    "code": -32003,
+    "message": "denied by policy linear-block-writes for https://mcp.linear.app/mcp tool save_issue",
+    "data": {
+      "session_id": "3f2b9c1e-7a54-4d0b-9e61-5c8a2d417f90",
+      "request_id": "b81d4e06-2c9a-4f37-a5d2-6e0f93c17a48",
+      "policies": ["linear-block-writes"]
+    }
+  }
+}
+```
+
+The message names the `forbid` policies that matched.
+When no `permit` statement matched, the message names no policy: `denied by policy for https://mcp.linear.app/mcp`.
+
+### Limits
+
+| Item | Limit |
+|---|---|
+| Statements in one policy | 1 |
+| Policy ID | 1 to 128 characters from `A-Z`, `a-z`, `0-9`, `_`, `.`, `:`, `-` |
+| Policy text | 65,536 characters |
+| Policy description | 1,024 characters |
+| Policies in one activation | 256 |
+| Request body the gateway evaluates | 1 MiB |
+| Captured tool arguments | 4,096 bytes for each call. Larger arguments aren't stored |
+
+### Messages when a policy doesn't save
+
+| Message | Cause |
+|---|---|
+| `policy is missing the required @id("...") annotation` | The statement has no `@id` |
+| `policy document must contain exactly one policy, found 2` | The text holds more than one statement |
+| `validating policy against schema 2026-09-01: … unrecognized action …` | The action isn't in the table of actions |
+| `validating policy against schema 2026-09-01: … attribute name on entity type Smallstep::Upstream not found` | The statement reads `resource.name` for an action other than `tools/call` |
+| `validating policy against schema 2026-09-01: … unable to guarantee safety of access to optional attribute …` | The statement reads an optional attribute without a `has` check |
+| `ENFORCE requires an activation` | You chose Enforce before activating a policy set |
+| `policy is part of the active activation` | You tried to archive a policy the live activation includes |
+
+## Sessions
+
+A session is one conversation between an MCP client and an MCP server through the gateway.
+It belongs to the user and the device that opened it.
+
+### Status
+
+| Status | Meaning |
+|---|---|
+| active | The session is open |
+| ended | The MCP client closed it |
+| expired | Nothing was sent for 24 hours, or the MCP server dropped its side |
+| revoked | An administrator ended it |
+| denied | The session couldn't open. The policy refused it, or the user hasn't approved access to the MCP server yet |
+| failed | The MCP server, or the gateway's token exchange, returned an error while the session was opening |
+
+### End reason
+
+| End reason | Meaning |
+|---|---|
+| closed by client | The MCP client ended the session |
+| idle timeout | No request for 24 hours |
+| upstream gone | The MCP server reported that its session no longer exists |
+| revoked | An administrator revoked the session. The console shows who |
+| policy deny | The access policy refused the session in Enforce |
+| consent required | The user has to approve access to the MCP server first |
+| upstream error | The MCP server refused or failed the opening request |
+| exchange error | The gateway couldn't get an access token for the MCP server |
+| policy unavailable | The gateway couldn't read the team's policy |
+| timeout | The session didn't finish opening within 5 minutes |
+
+### Timeline entries
+
+| Entry | What it records |
+|---|---|
+| session | A change in the session's status |
+| A method name, such as `tools/call · save_issue` | One call, with the MCP server's HTTP status and the time it took |
+| decision | One policy evaluation: the outcome, the policies that determined it, the mode, and whether it was enforced |
+| token exchange | The gateway asked for an access token: "token issued" or "exchange failed" |
+| consent | The user has to approve access first |
+
+A call's arguments appear in the timeline only when **Capture tool arguments** is on.
+Otherwise the entry shows a hash and the size of the arguments.
+
+### Revoking a session
+
+Revoking ends one session.
+The next request in that session is refused, and the MCP client has to open a new one.
+Revoking doesn't block the user or the device.
+To keep someone out, use a `forbid` statement in Enforce, or remove the device from your inventory.
+
+## Decisions
+
+| Outcome | Meaning |
+|---|---|
+| allow | The policy allowed the call |
+| would refuse | The policy denied the call, the mode was Monitor, and the call went ahead |
+| deny | The policy denied the call, the mode was Enforce, and the call was refused |
+
+A decision marked "partial" means at least one statement failed while it was being evaluated.
+
+A decision names the policies that determined it.
+Those are the `forbid` statements that matched, or the `permit` statements that matched when no `forbid` did.
+A decision with "no matching policy" means no `permit` statement matched.
+
+Each decision records the activation it was evaluated against, so you can read back the exact policy text that was in force.
+A decision record holds IDs and hashes.
+It doesn't hold policy text or user attributes.
+
+## Audit events
+
+MCP activity appears under **Audit → Events** in the category MCP.
+
+| Event type | When it's recorded |
+|---|---|
+| `SESSION_RESOLVED` | The gateway matched a device certificate to a device and a user |
+| `SESSION_STARTED` | The MCP server accepted a new session |
+| `SESSION_ENDED` | A session ended |
+| `CONSENT_REQUIRED` | A user has to approve access to an MCP server |
+| `TOKEN_ISSUED` | The token broker returned an access token |
+| `TOOL_CALLED` | A tool call passed the policy |
+| `POLICY_DECISION` | The gateway evaluated a call in Monitor or Enforce |
+
+## How quickly changes apply
+
+| Change | Takes effect within |
+|---|---|
+| Revoking a session | 10 seconds |
+| Changing the mode, activating a policy set, or rolling back | 30 seconds |
+| A device leaving your inventory, or its attributes changing | 60 seconds |
+| Saving or removing trust roots | The next connection |
+
+| Item | Lifetime |
+|---|---|
+| Device certificate for an MCP server | 24 hours, renewed by the agent |
+| Link to approve access to an MCP server | 10 minutes |
+| Idle session | Expires after 24 hours |
+| Sessions, timelines, and decisions | Kept for 30 days after the session ends |
+
+## Roles
+
+| Task | Owner | Admin | Device admin |
+|---|---|---|---|
+| Set or remove trust roots | Yes | Yes | No |
+| Add or delete an MCP server | Yes | Yes | No |
+| Read sessions, timelines, and decisions under **Audit** | Yes | Yes | Yes |
+| Revoke a session | Yes | Yes | No |
+| Save or archive a policy, activate a set, change the mode | Yes | Yes | No |
+
+## Commands on the device
+
+| Command | What it does |
+|---|---|
+| `step-agent mcp proxy --upstream <key>` | Runs the agent's MCP proxy for one MCP server. An MCP client starts this command as a local MCP server |
+| `step-agent mcp tools list --upstream <key>` | Opens a session through the gateway and lists the MCP server's tools. Use it to check the whole path from a device |
+
+`<key>` is the **Upstream** value of the MCP server in the console, such as `linear`.
+It has to match exactly, including case.
+
+### Messages from the agent
+
+| Message | Cause | What to do |
+|---|---|---|
+| `consent required: open <link> to authorize this upstream` | The user hasn't approved access to this MCP server | Open the link, approve, and try again. Each user does this once for each MCP server |
+| `denied by policy for <url>` | The access policy refused the session or the call, and no `permit` statement matched | Check that the live activation permits `initialize`, and read the decision under **Audit → Decisions** |
+| `denied by policy <id> for <url> tool <name>` | A `forbid` statement refused the call | Read the decision under **Audit → Decisions** |
+| `no MCP proxy configured for upstream "<key>"` | The device has no MCP server with that **Upstream** value | Check the value in the console, and wait for the agent to pick up new configuration |
+| `endpoint "<id>" has no usable certificate` | The agent doesn't have a certificate for this MCP server yet | Check the device's assurance level and that it has a user assigned |
+
+When a user opens the approval link for an MCP server that has no OAuth client, the page says `this upstream is not configured for your tenant`.
+Delete the MCP server in the console and add it again with the client ID and client secret of your OAuth app.
+
+## Catalog entries
+
+The catalog fills in the form when you add an MCP server.
+Use the URL in the last column when you name the server in a policy.
+
+| Catalog entry | Upstream | URL in a policy |
+|---|---|---|
+| GitHub | `github` | `https://api.githubcopilot.com/mcp` |
+| Linear | `linear` | `https://mcp.linear.app/mcp` |
+| Notion | `notion` | `https://mcp.notion.com/mcp` |
+| Slack | `slack` | `https://mcp.slack.com/mcp` |
+| Sentry | `sentry` | `https://mcp.sentry.dev/mcp` |
+| Figma | `figma` | `https://mcp.figma.com/mcp` |
+| Atlassian Jira | `jira` | `https://mcp.atlassian.com/v1/mcp/authv2` |
+| Stripe | `stripe` | `https://mcp.stripe.com` |
+
+Choose **Custom** to add any other MCP server that uses OAuth.
