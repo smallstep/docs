@@ -150,6 +150,31 @@
           ]
         },
         {
+          "title": "Smallstep MCP Gateway",
+          "routes": [
+            {
+              "title": "How the MCP Gateway Works",
+              "path": "/platform/mcp-gateway.mdx"
+            },
+            {
+              "title": "Protect MCP Servers",
+              "path": "/tutorials/protect-mcp-servers.mdx"
+            },
+            {
+              "title": "Control MCP Access with Policy",
+              "path": "/tutorials/mcp-gateway-policy.mdx"
+            },
+            {
+              "title": "Audit MCP Activity",
+              "path": "/tutorials/mcp-gateway-audit.mdx"
+            },
+            {
+              "title": "MCP Gateway Reference",
+              "path": "/platform/mcp-gateway-reference.mdx"
+            }
+          ]
+        },
+        {
           "title": "Smallstep for Certificate-Based VPN",
           "routes": [
             {
