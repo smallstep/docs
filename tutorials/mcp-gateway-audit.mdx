@@ -1,0 +1,170 @@
+---
+updated_at: November 17, 2026
+title: Audit MCP Activity
+html_title: Audit AI Agent Activity Through the Smallstep MCP Gateway
+description: Read MCP sessions, per-call timelines, policy decisions, and audit events for AI agents that reach MCP servers through the Smallstep MCP gateway, and end a session.
+---
+
+The Smallstep MCP gateway records what AI agents do with the MCP servers behind it.
+This guide shows where to find those records in the Smallstep console and how to end a session.
+
+<Alert severity="info" mb={4}>
+  <div>
+    The MCP gateway is in early access.
+    <a href="https://support.smallstep.com/en/contact-us">Contact Smallstep</a> to turn it on for your team.
+  </div>
+</Alert>
+
+## Before you begin
+
+You will need:
+
+- An MCP server behind the gateway.
+  See [Protect MCP Servers](./protect-mcp-servers.mdx).
+- The Owner, Admin, or Device Admin role in Smallstep.
+  Only an Owner or Admin can end a session.
+
+## What is recorded
+
+The **Audit** page in the Smallstep console has three tabs:
+
+| Tab | What it shows | Recorded when |
+|---|---|---|
+| **Sessions** | One row for each connection between an MCP client and an MCP server, with a timeline of its calls | Always |
+| **Decisions** | The outcome of each policy evaluation | The policy mode is Monitor or Enforce |
+| **Events** | MCP activity next to your team's device and certificate events | Always |
+
+The gateway keeps sessions, timelines, and decisions for 30 days after a session ends.
+
+# Read sessions
+
+In the Smallstep console, go to **Audit → Sessions**.
+
+Each row is one session.
+A session belongs to the user and the device that opened it.
+
+| Column | What it shows |
+|---|---|
+| **Status** | Whether the session is active, and how it ended |
+| **Principal** | The user's email address, read from the device certificate |
+| **Device · client** | The device, and the name and version the MCP client reported, such as `claude-code 2.1.327` |
+| **Resource** | The MCP server's host |
+| **End reason** | Why the session ended, such as "closed by client" or "consent required" |
+| **Events** | The number of entries in the session's timeline |
+
+Search by user, device, or host, and filter by status.
+
+The MCP client reports its own name and version.
+The gateway can't verify them.
+
+The [MCP gateway reference](../platform/mcp-gateway-reference.mdx#sessions) explains each status and end reason.
+
+## Read a session's timeline
+
+Select a session to open its timeline.
+The timeline lists what happened in the session, in order:
+
+```text
+decision · initialize                      allow   baseline-allow · Monitor · not enforced
+token exchange                             token issued · → mcp.linear.app
+session                                    active
+initialize                                 HTTP 200 · 375 ms
+decision · tools/call · search_documentation   allow   baseline-allow · Monitor · not enforced
+tools/call · search_documentation          HTTP 200 · 1109 ms
+session                                    ended · closed by client
+```
+
+| Entry | What it records |
+|---|---|
+| A method name, such as `tools/call · save_issue` | One call, with the MCP server's HTTP status and the time it took |
+| **decision** | The policy's outcome for the call that follows it, the policy that determined it, and the mode |
+| **token exchange** | The gateway got the user's access token for the MCP server |
+| **consent** | The user has to approve access to the MCP server first |
+| **session** | A change in the session's status |
+
+Decision entries appear only when the policy mode is Monitor or Enforce.
+
+A call that the gateway refused reads **no upstream response**, because the call never reached the MCP server.
+The decision before it reads **deny** and **enforced**.
+
+While a session is active, the timeline updates as new calls arrive.
+
+## Record tool arguments
+
+By default, the timeline shows a hash and the size of a tool call's arguments.
+It doesn't show the arguments.
+
+To store the arguments:
+
+1. Go to **Protect → MCP Gateway**.
+2. Under **Mode**, turn on **Capture tool arguments**.
+
+The timeline then shows the arguments of each tool call, up to 4 KiB for each call.
+Arguments larger than that aren't stored.
+
+Tool arguments can hold sensitive data, such as the text of an issue or a search query.
+Turn capture on only if your team may store that data.
+
+# Read decisions
+
+Go to **Audit → Decisions**.
+
+The line at the top counts the decisions in the time range, by outcome.
+When the mode is Monitor, it also says how many calls Enforce would have refused.
+
+| Outcome | Meaning |
+|---|---|
+| **allow** | The policy allowed the call |
+| **would refuse** | The policy denied the call, the mode was Monitor, and the call went ahead |
+| **deny** | The policy denied the call, the mode was Enforce, and the call was refused |
+
+Each row shows the policy that determined the outcome, the MCP server and tool, the user, and the mode.
+A row that reads **no matching policy** means no `permit` statement matched the call.
+
+Select a row to see more:
+
+- The user, the device, the session, the MCP client, the tool, and the method.
+- The policies that determined the outcome.
+- The activation that was in force, so you can read back the exact policy text.
+
+A decision record holds IDs and hashes.
+It doesn't hold policy text or user attributes.
+
+# Read events
+
+Go to **Audit → Events** and filter by the category **MCP**.
+
+MCP events sit in the same list as your team's other events.
+You can read a device's enrollment, its certificates, and its MCP sessions in one place.
+
+| Type | When it's recorded |
+|---|---|
+| Session resolved | The gateway matched a device certificate to a device and a user |
+| Session started | The MCP server accepted a new session |
+| Session ended | A session ended |
+| Consent required | A user has to approve access to an MCP server |
+| Token issued | The gateway got an access token for the MCP server |
+| Tool called | A tool call passed the policy |
+| Policy decision | The gateway evaluated a call in Monitor or Enforce |
+
+# End a session
+
+1. Go to **Audit → Sessions**.
+2. On an active session, choose **Revoke**.
+3. Choose **Revoke session**.
+
+The gateway refuses the session's next request within 10 seconds.
+The agent's MCP proxy on the device stops with the message `session not found`, and the MCP client has to start it again.
+
+<Alert severity="warning" mb={4}>
+  <div>
+    Revoking ends one session.
+    It doesn't block the user or the device, and the MCP client can open a new session.
+    To keep someone out, use a <code>forbid</code> statement in Enforce, or remove the device from your inventory.
+  </div>
+</Alert>
+
+# Next steps
+
+- [Control MCP access with policy](./mcp-gateway-policy.mdx): decide which calls the gateway allows.
+- [MCP gateway reference](../platform/mcp-gateway-reference.mdx): every status, end reason, and message.

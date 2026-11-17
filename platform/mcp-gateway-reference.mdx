@@ -273,8 +273,8 @@ It belongs to the user and the device that opened it.
 | policy deny | The access policy refused the session in Enforce |
 | consent required | The user has to approve access to the MCP server first |
 | upstream error | The MCP server refused or failed the opening request |
-| exchange error | The gateway couldn't get an access token for the MCP server |
-| policy unavailable | The gateway couldn't read the team's policy |
+| `exchange_error` | The gateway couldn't get an access token for the MCP server |
+| `policy_unavailable` | The gateway couldn't read the team's policy |
 | timeout | The session didn't finish opening within 5 minutes |
 
 ### Timeline entries
@@ -287,6 +287,13 @@ It belongs to the user and the device that opened it.
 | token exchange | The gateway asked for an access token: "token issued" or "exchange failed" |
 | consent | The user has to approve access first |
 
+A decision entry comes before the call it decided.
+An allowed call reads "not enforced" in every mode.
+A call the gateway refused reads "enforced", and its call entry reads "no upstream response".
+
+The gateway keeps a user's access token for up to 60 seconds.
+A session that opens within that time has no token exchange entry.
+
 A call's arguments appear in the timeline only when **Capture tool arguments** is on.
 Otherwise the entry shows a hash and the size of the arguments.
 
@@ -294,6 +301,7 @@ Otherwise the entry shows a hash and the size of the arguments.
 
 Revoking ends one session.
 The next request in that session is refused, and the MCP client has to open a new one.
+The agent's MCP proxy on the device stops with the message `session not found`.
 Revoking doesn't block the user or the device.
 To keep someone out, use a `forbid` statement in Enforce, or remove the device from your inventory.
 
@@ -372,6 +380,7 @@ It has to match exactly, including case.
 | `consent required: open <link> to authorize this upstream` | The user hasn't approved access to this MCP server | Open the link, approve, and try again. Each user does this once for each MCP server |
 | `denied by policy for <url>` | The access policy refused the session or the call, and no `permit` statement matched | Check that the live activation permits `initialize`, and read the decision under **Audit → Decisions** |
 | `denied by policy <id> for <url> tool <name>` | A `forbid` statement refused the call | Read the decision under **Audit → Decisions** |
+| `failed to connect (session ID: <id>): session not found` | The session was revoked, or it expired | Start the MCP server again in the MCP client. The client opens a new session |
 | `no MCP proxy configured for upstream "<key>"` | The device has no MCP server with that **Upstream** value | Check the value in the console, and wait for the agent to pick up new configuration |
 | `endpoint "<id>" has no usable certificate` | The agent doesn't have a certificate for this MCP server yet | Check the device's assurance level and that it has a user assigned |
 

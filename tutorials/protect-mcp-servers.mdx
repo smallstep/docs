@@ -140,3 +140,86 @@ consent required: open https://… to authorize this upstream
 
 If the link shows `this upstream is not configured for your tenant`, the MCP server has no OAuth client.
 Delete it under **Protect → MCP Proxies** and add it again with the client ID and client secret.
+
+When access is approved, the command lists the MCP server's tools:
+
+```text
+✓ device certificate accepted; MCP session established through the gateway
+  upstream server: Linear 1.0.2
+  protocol version: 2025-11-25
+✓ 84 tool(s) available from the upstream:
+    • get_attachment
+    • list_comments
+    …
+```
+
+The device, the gateway, and the MCP server now work together.
+
+## Connect an MCP client
+
+An MCP client reaches the MCP server by running the agent's MCP proxy as a local MCP server.
+The command is the same for every client:
+
+```bash
+step-agent mcp proxy --upstream linear
+```
+
+This guide was tested with Claude Code.
+To add the MCP server to Claude Code, run:
+
+```bash
+claude mcp add linear -- step-agent mcp proxy --upstream linear
+```
+
+To share the configuration with a project, add `--scope project`.
+Claude Code then writes this `.mcp.json` file:
+
+```json
+{
+  "mcpServers": {
+    "linear": {
+      "type": "stdio",
+      "command": "step-agent",
+      "args": ["mcp", "proxy", "--upstream", "linear"]
+    }
+  }
+}
+```
+
+The configuration holds no token and no URL.
+You can commit it to a repository.
+
+For another MCP client, add a local MCP server that uses the standard input and output transport, with the same command and arguments.
+
+# Verify and troubleshoot
+
+## See the session
+
+Use a tool from the MCP server in your MCP client.
+Then, in the Smallstep console, go to **Audit → Sessions**.
+
+Each connection appears as one row.
+The row shows the user, the device, the MCP client and its version, and the MCP server's host.
+Select a row to read the session's timeline, which lists each call in order.
+
+[Audit MCP activity](./mcp-gateway-audit.mdx) explains what the timeline records.
+
+## Common problems
+
+| What you see | Cause | What to do |
+|---|---|---|
+| `no MCP proxy configured for upstream "linear"` | The device hasn't received the MCP server, or the **Upstream** value doesn't match | Check the **Upstream** value under **Protect → MCP Proxies**. Wait a few minutes after you add an MCP server |
+| `consent required: open … to authorize this upstream` | This person hasn't approved access to the MCP server | Open the link and approve |
+| `this upstream is not configured for your tenant` in the browser | The MCP server has no OAuth client | Delete the MCP server and add it again with the client ID and client secret |
+| `denied by policy for https://…` | The access policy refuses the session | Read the decision under **Audit → Decisions**. See [Control MCP access with policy](./mcp-gateway-policy.mdx) |
+| The connection fails before any message from the gateway | The device's certificate doesn't chain to the gateway's trust roots | Check the trust roots under **Protect → MCP Gateway** |
+
+The [MCP gateway reference](../platform/mcp-gateway-reference.mdx#messages-from-the-agent) lists more messages.
+
+# Next steps
+
+The gateway starts with its access policy turned off.
+Every enrolled device with a certificate can use every tool of the MCP servers you add.
+
+- [Control MCP access with policy](./mcp-gateway-policy.mdx): decide which users, devices, and tools are allowed, and test a policy before you enforce it.
+- [Audit MCP activity](./mcp-gateway-audit.mdx): read sessions, timelines, and decisions, and end a session.
