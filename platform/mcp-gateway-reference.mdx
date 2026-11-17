@@ -319,15 +319,15 @@ It doesn't hold policy text or user attributes.
 
 MCP activity appears under **Audit → Events** in the category MCP.
 
-| Event type | When it's recorded |
-|---|---|
-| `SESSION_RESOLVED` | The gateway matched a device certificate to a device and a user |
-| `SESSION_STARTED` | The MCP server accepted a new session |
-| `SESSION_ENDED` | A session ended |
-| `CONSENT_REQUIRED` | A user has to approve access to an MCP server |
-| `TOKEN_ISSUED` | The token broker returned an access token |
-| `TOOL_CALLED` | A tool call passed the policy |
-| `POLICY_DECISION` | The gateway evaluated a call in Monitor or Enforce |
+| Type | Message | When it's recorded |
+|---|---|---|
+| Session resolved | device session resolved | The gateway matched a device certificate to a device and a user. One connection can record this more than once |
+| Session started | session started | The MCP server accepted a new session |
+| Session ended | session, then the final status, such as "session denied" | A session ended |
+| Consent required | consent required | A user has to approve access to an MCP server |
+| Token issued | provider token issued | The token broker returned an access token |
+| Tool called | tool call, then the tool name | A tool call passed the policy |
+| Policy decision | policy allow or policy deny, then the method and tool | The gateway evaluated a call in Monitor or Enforce |
 
 ## How quickly changes apply
 
