@@ -53,6 +53,9 @@ You find all three in the Smallstep console under **Protect → MCP Gateway**.
 1. In the Smallstep console, go to **Protect → MCP Gateway**.
 2. Under **Policies**, choose **Start from the baseline**.
 
+The button appears while your team has no policies.
+If your team already has policies, check that the live activation includes a policy that permits every action, such as [`baseline-allow`](../platform/mcp-gateway-reference.mdx#the-baseline).
+
 The console saves three policies and activates one of them:
 
 - `baseline-allow` permits every call.
@@ -187,7 +190,8 @@ The decision appears under **Audit → Decisions** with the outcome **deny**.
 
 # Roll back
 
-To stop refusing calls at once, set **Mode** back to **Monitor**.
+To stop refusing calls, set **Mode** back to **Monitor**.
+The gateway applies the change within 30 seconds.
 
 To return to an earlier set of policies:
 
