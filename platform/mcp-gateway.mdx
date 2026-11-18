@@ -17,26 +17,22 @@ The MCP gateway is in early access.
 </div>
 </Alert>
 
-## The problem it solves
+## The problem
 
 An MCP client such as Claude Code usually authenticates to an MCP server with a personal access token or an OAuth token that sits in a configuration file on the laptop.
-That token proves who the user is.
-It doesn't prove which device is using it.
 Anyone who copies the token can use it from another machine, and you have no record of what an agent did with it.
 
-The MCP gateway changes three things:
+Smallstep MCP Gateway offers:
 
 - **No API key on the laptop.**
   The MCP client's configuration holds a command that starts the Smallstep Agent, and nothing else.
   The device's certificate opens the connection, and its private key can't be copied off the device.
 - **A record of what agents do.**
-  Each connection is a session tied to a user, a device, and an MCP client.
-  You can read every call in it, and end the session.
+  Smallstep logs every MCP session and tool call linked to the device and the user.
 - **Policy on every call.**
   You write rules about which users, devices, and clients may call which tools.
-  You can watch what a rule would refuse before you enforce it.
 
-## How a request flows
+## Request flow
 
 ```mermaid
 sequenceDiagram
@@ -70,7 +66,7 @@ sequenceDiagram
 Mutual TLS protects the connection between the device and the gateway.
 The connection from the gateway to the MCP server uses TLS and the user's access token.
 
-## The parts
+## Components
 
 **MCP server.**
 The service an agent calls, such as the GitHub or Linear MCP server, or one you host.
@@ -100,12 +96,6 @@ The service that holds each user's OAuth grant for each MCP server and hands the
 **Session.**
 One conversation between an MCP client and an MCP server through the gateway.
 A session belongs to the user and the device that opened it.
-
-**Access policy.**
-The rules that decide whether a call may go ahead, written in [Cedar](https://www.cedarpolicy.com/).
-
-**Decision.**
-The recorded outcome of evaluating the access policy for one call.
 
 ## What the device proves
 

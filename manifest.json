@@ -153,7 +153,7 @@
           "title": "Smallstep MCP Gateway",
           "routes": [
             {
-              "title": "How the MCP Gateway Works",
+              "title": "How it Works",
               "path": "/platform/mcp-gateway.mdx"
             },
             {
