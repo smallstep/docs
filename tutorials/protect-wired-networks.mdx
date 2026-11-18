@@ -1,5 +1,5 @@
 ---
-updated_at: September 02, 2026
+updated_at: November 18, 2026
 title: Protect Wired Networks with 802.1X EAP-TLS
 html_title: Protect Wired Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Ethernet access. Issue client certificates via the Smallstep API, configure RADIUS and your switches, and deploy to clients.
@@ -134,7 +134,7 @@ curl -sH @api_headers --request GET \
 ```
 
 The RADIUS service is EAP-TLS only, and it validates the full certificate chain and checks revocation on every authentication.
-For dynamic VLAN assignment, RadSec transport, dedicated static IPs, and authorization webhooks,
+For dynamic VLAN assignment, RadSec transport, dedicated static IPs, and authorization and enrichment webhooks,
 see [Enterprise RADIUS](./protect-wireless-networks.mdx#option-2-smallstep-enterprise-radius).
 You can also [bring your own RADIUS server](./protect-wireless-networks.mdx#option-3-bring-your-own-radius-server).
 
@@ -154,6 +154,8 @@ Every switch vendor exposes 802.1X differently, but the configuration follows th
 5. **(Enterprise RADIUS) Assign VLANs dynamically** with RADIUS reply attributes
    (`Tunnel-Type`, `Tunnel-Medium-Type`, `Tunnel-Private-Group-ID`)
    instead of configuring VLANs per port.
+   The VLAN ID can come from your own systems through an
+   [enrichment webhook](./protect-wireless-networks.mdx#reply-attributes-from-an-enrichment-webhook).
 
 Consult your switch vendor's 802.1X documentation for exact commands.
 
