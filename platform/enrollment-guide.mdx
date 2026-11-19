@@ -1,5 +1,5 @@
 ---
-updated_at: September 8, 2026
+updated_at: November 19, 2026
 title: Device Enrollment Guide
 html_title: Device Enrollment Implementation Guide
 description: Step-by-step guide for device enrollment and inventory management. Set up secure certificate enrollment for all enterprise devices.
@@ -111,3 +111,100 @@ curl -sH @api_headers --request GET \
 
 You'll also see new devices in the Smallstep console,
 under [Devices](https://smallstep.com/app/?next=/devices).
+
+### Enroll devices with an enrollment token
+
+Use a device enrollment token
+when you build devices from an image or a launch template,
+such as a pool of VMs or a render farm,
+and want each one to enroll itself
+without a user signing in
+and without adding it to your inventory first.
+
+One token enrolls any number of devices.
+Every device enrolled with it gets the token's `device` attributes:
+its tags, metadata, ownership, and whether it is shared.
+Tags and metadata are added to any the device already has.
+
+Devices enrolled with a token
+follow the approval settings in [Team Settings](https://smallstep.com/app/?next=/settings/team),
+like any other device the agent enrolls.
+
+#### Create a token
+
+You'll need [an API token](https://smallstep.com/app/?next=/settings/api/tokens/add) with the device enrollment token scopes
+(post-device-enrollment-tokens, list-device-enrollment-tokens, get-device-enrollment-token, and delete-device-enrollment-token).
+
+Use the [Create Device Enrollment Token](https://gateway.smallstep.com/v2026-05-01/operations/post-device-enrollment-tokens) endpoint:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your API token]" > api_headers
+set -o history
+curl -sH @api_headers --request POST \
+  --url https://gateway.smallstep.com/api/device-enrollment-tokens \
+  --header 'Content-Type: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' \
+  --data '{
+    "title": "render-pool-a",
+    "expiresAt": "2027-06-30T00:00:00Z",
+    "device": {
+      "tags": ["render-farm"],
+      "ownership": "company",
+      "shared": true,
+      "metadata": { "pool": "render-a" }
+    }
+  }' | jq
+```
+
+The response includes the token's `secret`.
+It's returned only when the token is created, so store it somewhere safe, such as your secrets manager.
+If you lose it, create a new token.
+
+If you omit `expiresAt`, the token expires in 10 years, the maximum.
+
+You can also manage tokens with Terraform,
+using the `smallstep_device_enrollment_token` resource
+in the [Smallstep Terraform provider](https://registry.terraform.io/providers/smallstep/smallstep/latest/docs).
+The resource's `secret` attribute holds the secret.
+
+#### Enroll a device
+
+On each device, write the secret to a file and register the device once:
+
+```bash
+sudo step-agent register [team name] --token-file /path/to/token
+```
+
+`--token-file` keeps the secret out of your shell history and the process list.
+You can pass it with `--token` instead.
+Then [start the agent](./smallstep-agent.mdx#start-the-agent) as usual.
+`register` saves the agent's configuration, so `start` doesn't need the token.
+
+On macOS, add `--save-managed-config`,
+so the agent's launch agent can read the configuration:
+
+```bash
+/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-slug> --token-file /path/to/token --save-managed-config
+```
+
+#### Keep the token safe
+
+Treat the secret like a password:
+anyone who holds it can enroll devices into your team until it expires or is deleted.
+Use a separate token for each pool of devices,
+so you can delete one without affecting the others.
+The token's `device` attributes can be read by anyone who holds the secret,
+so don't put secrets in `metadata`.
+
+#### Monitor and delete tokens
+
+[List Device Enrollment Tokens](https://gateway.smallstep.com/v2026-05-01/operations/list-device-enrollment-tokens)
+shows each token's `status`, `useCount` (the number of new devices it enrolled), and `lastUsedAt`.
+A device enrolled with a token shows the token's ID in its `enrollmentTokenID`.
+
+To stop a token from enrolling devices,
+delete it with [Delete Device Enrollment Token](https://gateway.smallstep.com/v2026-05-01/operations/delete-device-enrollment-token).
+This takes effect immediately.
+Devices that have already enrolled with the token keep working;
+remove them from your inventory if they should lose access too.

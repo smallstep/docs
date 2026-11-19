@@ -1,5 +1,5 @@
 ---
-updated_at: September 8, 2026
+updated_at: November 19, 2026
 title: Install the Smallstep Agent
 html_title: Install the Smallstep Agent on macOS, Windows, and Linux
 description: Install, configure, and deploy the Smallstep Agent on macOS, Windows, and Linux endpoints. Includes manual install, MDM integration, system requirements, and network endpoints.
@@ -416,6 +416,19 @@ sudo step-agent register [team name]
 By default, self-registration is not trust-on-first-use (TOFU).
 Devices must be approved by an admin before they can be used.
 
+### Registration with an enrollment token
+
+To enroll many devices without a user signing in on each one,
+for example devices built from an image,
+register them with a [device enrollment token](./enrollment-guide.mdx#enroll-devices-with-an-enrollment-token):
+
+```bash
+sudo step-agent register [team name] --token-file /path/to/token
+```
+
+Each device gets the token's tags, metadata, ownership, and shared attributes.
+Register once, then [start the agent](#start-the-agent).
+
 ### Pre-registration via API
 
 If your devices are inventoried in a system that Smallstep can't sync from, you can pre-register them via the API instead of having each device self-register:
@@ -539,6 +552,16 @@ To self-enroll a device, run:
    ```
 
    Replace `<team-slug>` with your team slug from the Smallstep UI (found in [Settings → Team](https://smallstep.com/app/?next=/settings/team)).
+
+To enroll without signing in, for example on Macs built from an image,
+register with a [device enrollment token](./enrollment-guide.mdx#enroll-devices-with-an-enrollment-token) instead:
+
+   ```
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent register <team-slug> --token-file /path/to/token --save-managed-config
+   ```
+
+   `--save-managed-config` saves the configuration to managed preferences, which the agent's launch agent reads.
+   If you deploy the configuration with an MDM profile instead, leave it out.
 
 ## Confirmation
 
