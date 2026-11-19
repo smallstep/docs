@@ -1,0 +1,215 @@
+---
+updated_at: November 18, 2026
+title: Control MCP Access with Policy
+html_title: Control Which Users, Devices, and Tools Can Use MCP Servers with Cedar Policy
+description: Write a Cedar access policy for the Smallstep MCP gateway, watch what it would refuse in Monitor mode, then enforce it and roll back if you need to.
+---
+
+The Smallstep MCP gateway can evaluate an access policy on every call an AI agent makes to an MCP server.
+A policy can refer to the user, the device, the MCP client, the MCP server, and the tool.
+
+This guide takes one policy from a draft to enforcement.
+You start from a baseline that allows everything, add a statement that refuses some tools, watch what it would refuse, and then enforce it.
+
+<Alert severity="info" mb={4}>
+  <div>
+    The MCP gateway is in early access.
+    <a href="https://support.smallstep.com/en/contact-us">Contact Smallstep</a> to turn it on for your team.
+  </div>
+</Alert>
+
+## Before you begin
+
+You will need:
+
+- An MCP server behind the gateway, and a device that can reach it.
+  See [Protect MCP Servers](./protect-mcp-servers.mdx).
+- The Owner or Admin role in Smallstep.
+
+This guide uses Linear as the MCP server.
+
+## How policy works
+
+A policy is one [Cedar](https://www.cedarpolicy.com/) statement.
+A `permit` statement allows calls, and a `forbid` statement refuses them.
+A call goes ahead only when a `permit` statement matches it and no `forbid` statement does.
+
+Three things decide what happens to a call:
+
+- **The policies you saved.**
+  Saving a policy doesn't change what the gateway does.
+- **The activation.**
+  An activation is the set of policies the gateway evaluates.
+  You choose which policies are in it.
+- **The mode.**
+  In **Off**, the gateway evaluates nothing.
+  In **Monitor**, it evaluates every call and records the decision, and refuses nothing.
+  In **Enforce**, it refuses the calls the policy denies.
+
+You find all three in the Smallstep console under **Protect → MCP Gateway**.
+
+# Step 1: Start from the baseline
+
+1. In the Smallstep console, go to **Protect → MCP Gateway**.
+2. Under **Policies**, choose **Start from the baseline**.
+
+The button appears while your team has no policies.
+If your team already has policies, check that the live activation includes a policy that permits every action, such as [`baseline-allow`](../platform/mcp-gateway-reference.mdx#the-baseline).
+
+The console saves three policies and activates one of them:
+
+- `baseline-allow` permits every call.
+  It is active.
+- `example-managed-devices-only` and `example-github-read-only-for-contractors` are examples of `forbid` statements.
+  They are saved and not active.
+
+The mode doesn't change.
+
+<Alert severity="warning" mb={4}>
+  <div>
+    Keep a policy that permits every action in your activation, and restrict with <code>forbid</code> statements.
+    The policy applies to the call that opens a session, as well as to tool calls.
+    The policy editor's starter template permits tool calls only.
+    If that template is the only active policy, Enforce refuses every session.
+  </div>
+</Alert>
+
+# Step 2: Turn on Monitor
+
+Under **Mode**, choose **Monitor**.
+
+The change saves at once, and the gateway applies it within 30 seconds.
+From then on, the gateway records a decision for every call.
+It doesn't refuse anything.
+
+# Step 3: Write a policy
+
+1. Under **Policies**, choose **New policy**.
+2. Replace the text under **Cedar** with your statement.
+3. Check the line under the editor.
+   It reads `Parsed as @id("…")` when the statement is valid.
+   Otherwise it shows **Cedar does not compile** and the reason.
+4. Choose **Save policy**.
+
+This example refuses Linear tools whose names start with `save_`, `create_`, `update_`, or `delete_`:
+
+```text
+@id("linear-block-writes")
+@description("Refuse Linear tools whose names start with save_, create_, update_, or delete_.")
+forbid (
+  principal,
+  action == Smallstep::Action::"tools/call",
+  resource in Smallstep::Upstream::"https://mcp.linear.app/mcp"
+)
+when {
+  resource.name like "save_*" ||
+  resource.name like "create_*" ||
+  resource.name like "update_*" ||
+  resource.name like "delete_*"
+};
+```
+
+Three rules apply to every statement:
+
+- The `@id` annotation is the policy's ID.
+  If you change it, you create a different policy.
+- One policy holds one statement.
+- Write the MCP server's URL without a trailing slash.
+  A statement that names the URL with a trailing slash never matches.
+
+<Alert severity="info" mb={4}>
+  <div>
+    This statement matches tools by name, so it refuses only the names it matches.
+    An MCP server can have other tools that change data.
+    Run <code>step-agent mcp tools list --upstream linear</code> on a device to read the tool names before you rely on a statement like this one.
+  </div>
+</Alert>
+
+The [MCP gateway reference](../platform/mcp-gateway-reference.mdx#policy-schema) lists everything a statement can refer to.
+
+# Step 4: Activate the policy
+
+Saving a policy doesn't activate it.
+
+1. Go back to **Protect → MCP Gateway**.
+2. Under **Activation**, select `baseline-allow` and `linear-block-writes`.
+   The line below the list reads `2 selected · 1 permit · 1 forbid`.
+3. Choose **Activate**.
+
+The console confirms that the new activation is live and that the mode is unchanged.
+Because the mode is Monitor, nothing is refused yet.
+
+# Step 5: See what the policy would refuse
+
+## Simulate one call
+
+1. Under **Policies**, choose **Simulate**.
+2. Enter a user's email address and a device.
+   For the device, paste its ID from the device's page under **Devices**.
+3. For **Upstream URL**, enter `https://mcp.linear.app/mcp`.
+4. Leave **Method** as `tools/call`, and enter `save_issue` for **Tool**.
+5. Choose **Run**.
+
+The result shows the outcome, the mode, and the policies that determined it.
+The simulator uses the device's attributes from your inventory, and it records nothing.
+
+## Watch real calls
+
+Use the MCP server from an MCP client for a while.
+Then go to **Audit → Decisions**.
+
+A call that the policy denied in Monitor has the outcome **would refuse**.
+The call still went ahead.
+The line above the table counts them:
+
+```text
+Enforcing would have refused 1 of 21 calls in the last 24 hours.
+```
+
+Select a decision to see the user, the device, the MCP client, the tool, and the policy that determined the outcome.
+
+# Step 6: Enforce the policy
+
+1. Go to **Protect → MCP Gateway**.
+2. Under **Mode**, choose **Enforce**.
+3. Read the confirmation, which names the activation the gateway will enforce, and choose **Enforce**.
+
+The gateway applies the change within 30 seconds.
+
+A refused call returns an error to the MCP client.
+The message names the policy:
+
+```text
+denied by policy linear-block-writes for https://mcp.linear.app/mcp tool save_issue
+```
+
+Claude Code shows this message to the model, so the agent can tell the person that a policy blocked the call.
+Other calls in the same session keep working.
+
+The decision appears under **Audit → Decisions** with the outcome **deny**.
+
+# Roll back
+
+To stop refusing calls, set **Mode** back to **Monitor**.
+The gateway applies the change within 30 seconds.
+
+To return to an earlier set of policies:
+
+1. Go to **Protect → MCP Gateway**.
+2. Under **Activation**, find the activation in **History**.
+3. Choose **Roll back to this**, then **Roll back**.
+
+A rollback doesn't change the mode.
+The gateway applies it within 30 seconds.
+
+# Retire a policy
+
+To remove a policy from the list, open it and choose **Archive**.
+You can't archive a policy while the live activation includes it.
+An archived policy can't be activated again.
+Its versions stay readable from the activations and decisions that used them.
+
+# Next steps
+
+- [Audit MCP activity](./mcp-gateway-audit.mdx): read sessions, timelines, and decisions.
+- [MCP gateway reference](../platform/mcp-gateway-reference.mdx): the policy schema, actions, limits, and error messages.
