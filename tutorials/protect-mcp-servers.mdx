@@ -1,0 +1,284 @@
+---
+updated_at: November 18, 2026
+title: Protect MCP Servers
+html_title: Protect MCP Servers with Device Identity and the Smallstep MCP Gateway
+description: Put an MCP server such as Linear behind the Smallstep MCP gateway, so AI agents on enrolled devices connect with a hardware-attested device certificate and no API key on the laptop.
+---
+
+This guide shows how to put a Model Context Protocol (MCP) server behind the Smallstep MCP gateway.
+When you finish, an AI agent on an enrolled device reaches the MCP server with the device's certificate.
+The MCP client's configuration holds no API key.
+
+The guide uses Linear as the example.
+The steps are the same for the other MCP servers in the console's catalog.
+
+[MCP Gateway](../platform/mcp-gateway.mdx) explains how the parts fit together.
+
+<Alert severity="info" mb={4}>
+  <div>
+    The MCP gateway is in early access.
+    <a href="https://support.smallstep.com/en/contact-us">Contact Smallstep</a> to turn it on for your team.
+    This guide was tested with Smallstep Agent 0.70.0 on Linux.
+  </div>
+</Alert>
+
+## Before you begin
+
+You will need:
+
+- The MCP gateway turned on for your team.
+- The Owner or Admin role in Smallstep.
+- A device enrolled in Smallstep with the [Smallstep Agent](../platform/smallstep-agent.mdx) 0.70.0 or later.
+  The device needs high assurance and a user assigned.
+- An account with the MCP server's provider that can register an OAuth app.
+
+# Step 1: Configure the gateway
+
+The gateway accepts a device only when its certificate chains to your team's trust roots.
+Set the trust roots once for the team.
+
+## Download the root certificate
+
+MCP server certificates come from your team's Accounts authority.
+
+1. In Certificate Manager, go to [Authorities](https://smallstep.com/app/?next=/cm/authorities).
+2. Select the Accounts authority.
+3. Download the **Root Certificate**.
+
+## Save the trust roots
+
+1. In the Smallstep console, go to **Protect → MCP Gateway**.
+2. Under **Device trust roots**, upload the root certificate.
+   You can also paste its text.
+3. If the file holds more than one certificate, the console asks you to pick one.
+   Pick the certificate marked **Root**.
+4. Choose **Save trust roots**.
+
+The same page shows your team's **Gateway endpoint**.
+Devices connect to this host.
+You don't need to copy it, because the agent receives it with each MCP server you add.
+
+# Step 2: Add an MCP server
+
+The gateway forwards each request with the user's own OAuth access token.
+To get those tokens, Smallstep needs an OAuth app that your team registers with the MCP server's provider.
+
+## Start the form
+
+1. In the Smallstep console, go to **Protect → MCP Proxies** and choose **Add MCP proxy**.
+2. Under **Pick an MCP server**, choose **Linear**.
+   The card fills in the name, the **Upstream** value, the MCP server's URL, and the provider's OAuth settings.
+3. Under **Provider OAuth client**, copy the callback URL.
+
+Keep the form open.
+
+## Register an OAuth app
+
+1. On the Linear card, follow **Register an OAuth app**.
+   It opens the provider's page for new OAuth apps.
+2. Create an app, and set its redirect or callback URL to the URL you copied.
+3. Copy the app's client ID and client secret.
+
+## Finish the form
+
+1. Back in the Smallstep console, enter the **Client ID** and the **Client secret**.
+2. Leave the other fields as the card set them.
+3. Choose **Add MCP proxy**.
+
+<Alert severity="warning" mb={4}>
+  <div>
+    Enter both the client ID and the client secret before you save.
+    Without them, nobody can approve access to the MCP server.
+    You can't edit an MCP server after you add it.
+    To change a setting, delete the MCP server and add it again.
+  </div>
+</Alert>
+
+Smallstep creates a credential for the MCP server.
+The Smallstep Agent on each of your team's devices requests a certificate from it and keeps the certificate renewed.
+A device can take a few minutes to receive a new MCP server.
+
+Note the **Upstream** value, `linear` in this example.
+Commands on the device use it to name the MCP server.
+
+# Step 3: Configure clients
+
+## Check that the device has its certificate
+
+On an enrolled device, run:
+
+```bash
+step-agent status
+```
+
+The MCP server appears by name with a check mark once the agent has its certificate:
+
+```text
+Linear (mcp-linear) ✔
+```
+
+## Approve access to the MCP server
+
+Each person approves access once for each MCP server.
+On the device, run:
+
+```bash
+step-agent mcp tools list --upstream linear
+```
+
+The first time, the command stops and prints a link:
+
+```text
+consent required: open https://… to authorize this upstream
+```
+
+1. Open the link in a browser.
+   The link is valid for 10 minutes.
+2. Sign in to the provider and approve access for the OAuth app.
+3. Run the command again.
+
+If the link shows `this upstream is not configured for your tenant`, the MCP server has no OAuth client.
+Delete it under **Protect → MCP Proxies** and add it again with the client ID and client secret.
+
+When access is approved, the command lists the MCP server's tools:
+
+```text
+✓ device certificate accepted; MCP session established through the gateway
+  upstream server: Linear 1.0.2
+  protocol version: 2025-11-25
+✓ 84 tool(s) available from the upstream:
+    • get_attachment
+    • list_comments
+    …
+```
+
+The device, the gateway, and the MCP server now work together.
+
+## Connect an MCP client
+
+An MCP client reaches the MCP server by running the agent's MCP proxy as a local MCP server.
+The MCP command is the same for every agent harness.
+For example, for the Linear upstream:
+
+```bash
+step-agent mcp proxy --upstream linear
+```
+
+This guide covers Claude Code and Claude Desktop. For another MCP client, add a local MCP server that uses the standard input and output transport, with the above command and arguments.
+
+### Claude Code
+
+To add the Linear upstream MCP server to Claude Code, run:
+
+```bash
+claude mcp add linear -- step-agent mcp proxy --upstream linear
+```
+
+### Claude Desktop
+
+For drag-and-drop install into Claude Desktop, you can make an MCP bundle (`.mcpb`) file.
+The bundle holds no token or URL, so you can send it by email or chat.
+
+You'll need one bundle for each MCP server.
+
+#### Create the bundle
+
+1. Make a folder, and in it make a file with the name `manifest.json` and this content:
+
+   ```json
+   {
+     "manifest_version": "0.3",
+     "name": "linear-via-smallstep",
+     "display_name": "Linear (via Smallstep)",
+     "version": "1.0.0",
+     "description": "Linear, through the Smallstep MCP Gateway.",
+     "author": {
+       "name": "Example Corp IT"
+     },
+     "server": {
+       "type": "binary",
+       "entry_point": "/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent",
+       "mcp_config": {
+         "command": "/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent",
+         "args": ["mcp", "proxy", "--upstream", "linear"],
+         "platform_overrides": {
+           "win32": {
+             "command": "C:\\Program Files\\Smallstep Agent\\smallstep-agent.exe"
+           }
+         }
+       }
+     },
+     "compatibility": {
+       "platforms": ["darwin", "win32"]
+     }
+   }
+   ```
+
+   For a different MCP server, change `name`, `display_name`, `description`, and the `--upstream` value.
+
+2. In the folder, make the bundle:
+
+   ```bash
+   zip linear.mcpb manifest.json
+   ```
+
+   You can also use the [MCPB command-line tool](https://github.com/modelcontextprotocol/mcpb). It checks the manifest before making the bundle:
+
+   ```bash
+   npx @anthropic-ai/mcpb pack . linear.mcpb
+   ```
+
+#### Install the bundle
+
+Send these steps with the bundle:
+
+1. Approve access to the MCP server one time, as in [Approve access to the MCP server](#approve-access-to-the-mcp-server).
+   On macOS, run:
+
+   ```bash
+   /Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent mcp tools list --upstream linear
+   ```
+
+   On Windows, run:
+
+   ```powershell
+   & "C:\Program Files\Smallstep Agent\smallstep-agent.exe" mcp tools list --upstream linear
+   ```
+
+2. Drag `linear.mcpb` into the Claude Desktop window, or open it.
+3. Choose **Install**.
+
+The MCP server's tools then show in Claude Desktop.
+
+# Verify and troubleshoot
+
+## See the session
+
+Use a tool from the MCP server in your MCP client.
+Then, in the Smallstep console, go to **Audit → Sessions**.
+
+Each connection appears as one row.
+The row shows the user, the device, the MCP client and its version, and the MCP server's host.
+Select a row to read the session's timeline, which lists each call in order.
+
+[Audit MCP activity](./mcp-gateway-audit.mdx) explains what the timeline records.
+
+## Common problems
+
+| What you see | Cause | What to do |
+|---|---|---|
+| `no MCP proxy configured for upstream "linear"` | The device hasn't received the MCP server, or the **Upstream** value doesn't match | Check the **Upstream** value under **Protect → MCP Proxies**. Wait a few minutes after you add an MCP server |
+| `consent required: open … to authorize this upstream` | This person hasn't approved access to the MCP server | Open the link and approve |
+| `this upstream is not configured for your tenant` in the browser | The MCP server has no OAuth client | Delete the MCP server and add it again with the client ID and client secret |
+| `denied by policy for https://…` | The access policy refuses the session | Read the decision under **Audit → Decisions**. See [Control MCP access with policy](./mcp-gateway-policy.mdx) |
+| The connection fails before any message from the gateway | The device's certificate doesn't chain to the gateway's trust roots | Check the trust roots under **Protect → MCP Gateway** |
+
+The [MCP gateway reference](../platform/mcp-gateway-reference.mdx#messages-from-the-agent) lists more messages.
+
+# Next steps
+
+The gateway starts with its access policy turned off.
+Every enrolled device with a certificate can use every tool of the MCP servers you add.
+
+- [Control MCP access with policy](./mcp-gateway-policy.mdx): decide which users, devices, and tools are allowed, and test a policy before you enforce it.
+- [Audit MCP activity](./mcp-gateway-audit.mdx): read sessions, timelines, and decisions, and end a session.
