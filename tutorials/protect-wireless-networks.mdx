@@ -1593,7 +1593,8 @@ An enrichment webhook can also return complete reply attributes, in a `replyAttr
 ```
 
 Smallstep sends these attributes with every allowed connection. They need no rule on the RADIUS server.
-They are sent in addition to the attributes your rules produce,
+They are sent in addition to the attributes your rules produce. Neither overrides the other:
+if a rule sets the same attribute, both values are sent and your network equipment decides which one applies,
 so don't return an attribute here that a rule also sets.
 
 If `replyAttributes` is present, it must be an array of objects with a `name` and a `value`.
