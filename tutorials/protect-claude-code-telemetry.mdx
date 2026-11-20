@@ -1,0 +1,334 @@
+---
+updated_at: September 29, 2026
+title: Protect Claude Code Telemetry with a Device-Bound Proxy
+html_title: Send Claude Code OpenTelemetry Through a Device-Authenticated Proxy
+description: Collect Claude Code usage metrics and events on a private OpenTelemetry collector that only trusted devices can reach, using the Smallstep Agent and a Caddy proxy.
+---
+
+[Claude Code](https://code.claude.com/docs/en/monitoring-usage) can export usage metrics and events with OpenTelemetry (OTLP): token usage, cost, sessions, prompts, tool decisions, and more.
+
+This guide shows how to collect that telemetry on a private OpenTelemetry collector
+that only your organization's devices can reach.
+
+Only your approved devices will be able to deliver telemetry,
+so you don't need to distribute collector tokens to endpoints.
+
+Here's the architecture:
+
+- Your OTel collector lives on your infrastructure, behind a [Caddy](https://caddyserver.com/) proxy.
+- A mutual TLS tunnel proxies OTel traffic between your endpoints and Caddy.
+- The Smallstep Agent manages your endpoint credentials and runs the tunnel client.
+- Caddy enforces mutual TLS authentication with your endpoints.
+- And, as usual, the Smallstep Agent keeps the client credentials fresh, hardware-bound, and non-exportable.
+
+With this setup, you can configure Claude Code to send telemetry to `localhost`.
+It needs no proxy configuration or certificates.
+
+![Claude Code on an endpoint sends OTLP/HTTP to the Smallstep Agent at 127.0.0.1:4318. The agent, whose device credential is stored in the Secure Enclave or TPM, carries it through an mTLS tunnel across the internet to a Caddy proxy at proxy.example.com, which trusts the Smallstep endpoint CA for device authentication. Caddy forwards OTLP/HTTP to the OTel collector on port 4318 in a private network.](/graphics/proxy-otel.png)
+
+## Before you begin
+
+You will need:
+
+- A [Smallstep team](https://smallstep.com/signup)
+- macOS devices enrolled in Smallstep with [Smallstep Agent](../platform/smallstep-agent.mdx) and [Claude Code](https://code.claude.com/docs/en/overview) installed
+- An OTel collector on a private network (this guide uses `otel.internal.example.com`)
+- A Linux server for Caddy, with:
+  - A public DNS name (this guide uses `proxy.example.com`)
+  - Access to your OTel collector
+- [A Smallstep API token](https://smallstep.com/app/?next=/settings/api/tokens/add). See [Smallstep API](../platform/smallstep-api.mdx) for details
+
+
+# Step 1: Configure credential issuance
+
+Create a **credential** that tells the Smallstep Agent to get a hardware-bound client certificate on each endpoint. 
+
+This tutorial assumes you'll issue client certificates from your Accounts authority, but you can use any Smallstep CA.
+
+Store your API token in a headers file for `curl`:
+
+```bash
+set +o history
+echo "Authorization: Bearer [your API token]" > api_headers
+set -o history
+```
+
+Next, find your Accounts authority:
+
+- In the Smallstep console, visit [**Certificate Manager → Authorities**](https://smallstep.com/app/?next=/cm/authorities) and open the authority detail page.
+- Copy the **Authority ID** shown on the page.
+- Download the **Root Certificate** and save it as `accounts_root_ca.crt`.
+
+Next, create the credential with the [Create Credential](https://gateway.smallstep.com/v2026-05-01/operations/PostCredentials) endpoint:
+
+```bash
+curl -sH @api_headers --request POST \
+  --url https://gateway.smallstep.com/api/credentials \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'x-smallstep-api-version: 2026-05-01' \
+  --data @- <<'EOF' | jq
+{
+  "slug": "claude-otel",
+  "certificate": {
+    "type": "X509",
+    "authorityID": "[your Accounts authority ID]",
+    "fields": {
+      "commonName": {
+        "deviceMetadata": "smallstep:identity"
+      },
+      "sans": {
+        "deviceMetadata": ["smallstep:identity"]
+      },
+      "extendedKeyUsage": ["clientAuth"]
+    }
+  },
+  "key": {
+    "protection": "HARDWARE_ATTESTED"
+  },
+  "managementMode": "agent",
+  "policy": {
+    "assurance": ["high"],
+    "operatingSystem": ["macOS"]
+  }
+}
+EOF
+```
+
+Here's what the fields mean:
+
+- **`slug: "claude-otel"`** names the credential. You'll pass this name to the agent's `proxy` command later.
+- **`fields.commonName`** and **`fields.sans`** put the email address of the device's assigned user in the certificate, so Caddy can log devices and users.
+- **`extendedKeyUsage: ["clientAuth"]`** limits the certificate to TLS client authentication.
+- **`key.protection: "HARDWARE_ATTESTED"`** generates the private key in the device's
+  Secure Enclave or TPM, where it can never be exported.
+- The **`policy`** section selects which devices receive this credential;
+  here, high-assurance macOS devices.
+
+Within a few minutes, the agent on each matching device will request a certificate.
+To confirm, run the following on a device:
+
+```bash
+/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent status
+```
+
+Output:
+
+```
+Certificates:
+	Device: ✔ (CN=urn:ak:sha256:...)
+	claude-otel (claude-otel) ✔
+```
+
+# Step 2: Configure the collector and proxy
+
+## Run an OTel collector
+
+If you haven't already, install your preferred OpenTelemetry Collector on your private server.
+
+## Install Caddy with the forward proxy plugin
+
+The standard Caddy build does not include forward proxy support.
+It's available as the [`forwardproxy`](https://github.com/caddyserver/forwardproxy) plugin.
+
+On a Debian or Ubuntu server, [install Caddy](https://caddyserver.com/docs/install#debian-ubuntu-raspbian) from the official package repository:
+
+```bash
+sudo apt install -y debian-keyring debian-archive-keyring apt-transport-https curl
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/gpg.key' | sudo gpg --dearmor -o /usr/share/keyrings/caddy-stable-archive-keyring.gpg
+curl -1sLf 'https://dl.cloudsmith.io/public/caddy/stable/debian.deb.txt' | sudo tee /etc/apt/sources.list.d/caddy-stable.list
+sudo apt update
+sudo apt install caddy
+```
+
+Then add the plugin, which replaces the `caddy` binary with a custom build:
+
+```bash
+sudo caddy add-package github.com/caddyserver/forwardproxy
+caddy list-modules | grep forward_proxy
+```
+
+The second command should print `http.handlers.forward_proxy`.
+
+<Alert severity="warning" mb={4}>
+  <div>
+    Upgrading the <code>caddy</code> package replaces your custom binary with the standard build,
+    which does not include the plugin.
+    Run <code>caddy add-package</code> again after each upgrade,
+    or <code>sudo apt-mark hold caddy</code> to hold the package at its current version.
+  </div>
+</Alert>
+
+## Configure Caddy
+
+Caddy will use the Accounts root certificate to verify client certificates.
+
+First, copy the `accounts_root_ca.crt` file to your Caddy server as `/etc/caddy/accounts_root_ca.crt`
+
+Then, replace `/etc/caddy/Caddyfile` with the following,
+substituting your proxy's DNS name and your collector's address:
+
+```
+{
+	servers {
+		strict_sni_host insecure_off
+	}
+}
+
+proxy.example.com, :443 {
+	tls {
+		client_auth {
+			mode require_and_verify
+			trust_pool file /etc/caddy/accounts_root_ca.crt
+		}
+	}
+
+	log
+
+	route {
+		forward_proxy {
+			ports 4318
+			acl {
+				allow otel.internal.example.com
+				deny all
+			}
+		}
+	}
+}
+```
+
+Here's what this configuration does:
+
+- **`client_auth`** rejects any TLS connection that doesn't present a valid certificate from your Accounts authority.
+  Unauthenticated clients never reach the proxy.
+- **`proxy.example.com, :443`** gets a Web PKI certificate for your proxy's name,
+  and answers requests for any host. This matters because a `CONNECT` request names its *destination* (here, `otel.internal.example.com:4318`), not the proxy.
+- **`strict_sni_host insecure_off`** lets the proxy accept requests whose destination differs from the TLS server name.
+  It's safe to disable strict SNI host checking because this server will have a single forward proxy route, and every connection must present a client certificate.
+- **`ports 4318`** and **`acl`** allow tunnels to your collector's OTLP/HTTP port only.
+  The plugin blocks private addresses by default, so you must allow your collector explicitly,
+  by hostname, IP address, or subnet.
+- **`log`** writes an access log entry for every tunnel, including the client certificate's common name.
+
+Validate the configuration and reload Caddy:
+
+```bash
+caddy validate --config /etc/caddy/Caddyfile
+sudo systemctl reload caddy
+```
+
+# Step 3: Configure clients
+
+On each device, the Smallstep Agent forwards a local port through Caddy to your collector,
+and Claude Code sends telemetry to that local port.
+
+## Forward a local port to the collector
+
+The agent's `proxy` command with the `--forward` flag listens on a local address
+and tunnels every connection it accepts to a fixed destination, similar to `ssh -L`.
+
+Test it in a terminal:
+
+```bash
+/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent proxy \
+  --workload-name claude-otel \
+  --relay https://proxy.example.com \
+  --system-roots \
+  --forward 4318:otel.internal.example.com:4318
+```
+
+The flags are:
+
+- **`--workload-name claude-otel`** uses the credential you created in Step 1.
+- **`--relay https://proxy.example.com`** is the URL of your Caddy proxy.
+- **`--system-roots`** verifies the proxy's server certificate against the operating system's Web PKI trust store. Otherwise, the agent only trusts your Accounts authority.
+- **`--forward 4318:otel.internal.example.com:4318`** is the destination, as resolved by the proxy.
+
+In another terminal, send an empty batch of events:
+
+```bash
+curl -X POST http://127.0.0.1:4318/v1/logs \
+  -H 'Content-Type: application/json' \
+  --data '{"resourceLogs":[]}'
+```
+
+The collector replies with `{"partialSuccess":{}}`.
+Press `Ctrl+C` to stop the forwarder.
+
+## Run the forwarder in the background
+
+To keep the forwarder running, install it as a launchd agent for each user.
+Save the following as `~/Library/LaunchAgents/com.example.otel-forward.plist`:
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.example.otel-forward</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/Applications/SmallstepAgent.app/Contents/MacOS/SmallstepAgent</string>
+    <string>proxy</string>
+    <string>--workload-name</string>
+    <string>claude-otel</string>
+    <string>--relay</string>
+    <string>https://proxy.example.com</string>
+    <string>--system-roots</string>
+    <string>--forward</string>
+    <string>4318:otel.internal.example.com:4318</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+</dict>
+</plist>
+```
+
+Then load it:
+
+```bash
+launchctl bootstrap gui/$(id -u) ~/Library/LaunchAgents/com.example.otel-forward.plist
+```
+
+## Configure Claude Code
+
+Point Claude Code's OTLP exporters at the local forwarder.
+To apply the settings to every user on a device,
+put them in the `env` block of Claude Code's [managed settings](https://code.claude.com/docs/en/managed-settings) file,
+`/Library/Application Support/ClaudeCode/managed-settings.json`,
+or deliver the same keys through your MDM:
+
+```json
+{
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
+    "OTEL_METRICS_EXPORTER": "otlp",
+    "OTEL_LOGS_EXPORTER": "otlp",
+    "OTEL_EXPORTER_OTLP_PROTOCOL": "http/protobuf",
+    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://127.0.0.1:4318"
+  }
+}
+```
+
+The endpoint uses plain `http`, because traffic only leaves the device inside the agent's mutually authenticated TLS tunnel.
+
+See [Claude Code's monitoring documentation](https://code.claude.com/docs/en/monitoring-usage) for the full list of metrics, events, and settings.
+
+# Verify and troubleshoot
+
+- Start a new Claude Code session and send a prompt.
+  Events arrive within seconds, and metrics every 60 seconds by default.
+  On the collector, run `sudo journalctl -u otelcol -f` and look for metrics named `claude_code.*` and events such as `user_prompt` and `api_request`.
+- On the Caddy server, run `sudo journalctl -u caddy -f`.
+  Each connection from the forwarder opens a tunnel, logged as a `CONNECT` request with `"host"` set to your collector and `"client_common_name"` set to the device's user.
+- If nothing arrives, start Claude Code with `claude --debug-file /tmp/claude-debug.log` and look for `[3P telemetry]` errors in that file.
+  A connection error means the forwarder isn't running; check it with `launchctl print gui/$(id -u)/com.example.otel-forward`.
+- **`endpoint name "proxy" not found`**: the agent has no `proxy` credential.
+  Run `SmallstepAgent status`, and confirm the device matches the credential's policy (assurance level and operating system).
+  See the [agent troubleshooting guide](../platform/troubleshooting-agent.mdx).
+- **`x509: certificate signed by unknown authority`**: add `--system-roots` to the `proxy` command.
+- **`CONNECT failed with status: 403 Forbidden`**: the destination's address or port isn't allowed by the `ports` and `acl` settings in your Caddyfile.
+- **`CONNECT failed with status: 421 Misdirected Request`**: add `strict_sni_host insecure_off` to your Caddyfile's global options.
