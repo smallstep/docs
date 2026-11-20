@@ -1,5 +1,5 @@
 ---
-updated_at: October 05, 2026
+updated_at: November 18, 2026
 title: Protect Wireless Networks with 802.1X EAP-TLS
 html_title: Protect Wireless Networks with 802.1X EAP-TLS Certificates and Smallstep
 description: Set up certificate-based Wi-Fi end to end. Issue client certificates via the Smallstep API, configure RADIUS and access points, and deploy to clients.
@@ -38,7 +38,7 @@ With EAP-TLS, the RADIUS server must complete a mutual TLS handshake with the de
 - [Verify and troubleshoot](#verify-and-troubleshoot)
 - Reference sections:
   - [Access point configuration reference](#access-point-configuration-reference)
-  - [RADIUS authorization webhooks](#radius-authorization-webhooks)
+  - [RADIUS webhooks](#radius-webhooks)
 
 # How it fits together
 
@@ -265,7 +265,8 @@ In addition to everything in Managed RADIUS, it provides:
 - **RadSec** (RADIUS over TLS) transport with a dedicated hostname, alongside standard RADIUS over UDP.
 - **Reply attributes**, including dynamic VLAN assignment.
   Attribute values can be static, extracted from a field of the client certificate by OID,
-  or sourced from your Smallstep device inventory.
+  sourced from your Smallstep device inventory,
+  or returned by an [enrichment webhook](#reply-attributes-from-an-enrichment-webhook).
   For example, to assign a VLAN based on a custom certificate extension:
 
   ```json
@@ -276,9 +277,10 @@ In addition to everything in Managed RADIUS, it provides:
   ]
   ```
 
-- **[Authorization webhooks](#radius-authorization-webhooks)**:
-  your own HTTP endpoint is consulted on every authentication,
-  so you can layer device posture or custom authorization checks on top of certificate verification.
+- **[Webhooks](#radius-webhooks)**:
+  your own HTTP endpoint is consulted on every authentication.
+  Authorization webhooks layer device posture or custom authorization checks on top of certificate verification.
+  Enrichment webhooks supply reply attribute values from your own systems.
 
 <Alert severity="info" mb={4}>
   <div>
@@ -1288,17 +1290,44 @@ Your new 802.1x EAP-TLS WPA-Enterprise Wi-Fi network is ready for use.
   </div>
 </Alert>
 
-# RADIUS authorization webhooks
+<span id="radius-authorization-webhooks"></span>
+
+# RADIUS webhooks
 
 > This feature is available to Smallstep Enterprise RADIUS customers.
 
-With RADIUS authorization webhooks, you can integrate Smallstep’s RADIUS authentication workflow with your own device posture or authorization checks during EAP-TLS connection requests. All you need is a webhook server that Smallstep can reach out to. Your webhook server will evaluate or log the presented client certificate, and return an authorization decision.
+With RADIUS webhooks, you can integrate Smallstep’s RADIUS authentication workflow with your own systems during EAP-TLS connection requests. All you need is a webhook server that Smallstep can reach out to.
 
-Smallstep can authenticate to your webhook server using a bearer token or HTTP basic authentication.
+There are two kinds of RADIUS webhook:
+
+- **Authorization webhooks** are called before a connection is allowed. Your webhook server evaluates or logs the presented client certificate, and returns an authorization decision. Use them for device posture or custom authorization checks.
+- **Enrichment webhooks** are called after a connection is allowed. Your webhook server returns data about the device, and Smallstep reads values from it to set [RADIUS reply attributes](#reply-attributes-from-an-enrichment-webhook), such as a VLAN ID or a firewall role.
+
+Both kinds receive the same request format, and you verify both the same way.
+
+Smallstep authenticates to your webhook server using a bearer token or HTTP basic authentication.
 
 ## Configuring a RADIUS webhook in Smallstep
 
-Our [customer support team](https://support.smallstep.com/en/contact-us) can configure a new RADIUS webhook for you.
+Add webhooks to your Enterprise RADIUS server in the Smallstep console, in the **Webhooks** section of the RADIUS server, or with the Smallstep API. Each webhook has:
+
+- A **type**: Authorization or Enrichment. In the API, this is the webhook's `kind`: `AUTHORIZING` or `ENRICHING`.
+- A **name**, unique on the RADIUS server. Don't use a dot (`.`) in the name, because reply attributes refer to a webhook's values as `name.path`. The console refuses a name with a dot. The API accepts one, but reply attributes can then never read from that webhook.
+- The **URL** of your webhook server. It must start with `https://`.
+- The **authentication** Smallstep uses when it calls your server: a bearer token, or a username and password. One of the two is required.
+
+Each webhook has its own signing secret, which Smallstep generates:
+
+- When you create a RADIUS server in the console, Smallstep shows the signing secret of each webhook once. Copy it before you close the dialog.
+- For a webhook that you add to an existing RADIUS server, or to read a secret again, request the RADIUS server from the API with `?secret=true`. The response includes the `secret` of each webhook:
+
+  ```bash
+  curl -sH @api_headers --request GET \
+    --url "https://gateway.smallstep.com/api/managed-radius/[your RADIUS server ID]?secret=true" \
+    | jq '.webhooks'
+  ```
+
+If you don't see webhooks in your console, our [customer support team](https://support.smallstep.com/en/contact-us) can configure a RADIUS webhook for you.
 
 ## RADIUS webhook specification
 
@@ -1313,9 +1342,10 @@ Your webhook server should expect the following request format:
 - Headers:
     - `X-Smallstep-Webhook-ID:` A UUID for the RADIUS webhook making the request
     - `X-Smallstep-Signature:` Hex‑encoded HMAC‑SHA256 of the raw request body using the webhook’s signing secret
-    - `Authorization:` Optional. Either "Bearer &lt;token&gt;" or HTTP Basic auth, if configured.
+    - `Authorization:` Either "Bearer &lt;token&gt;" or HTTP Basic auth, as configured on the webhook.
 - Body (JSON):
-    - `timestamp`: The RFC8222 timestamp of the request
+    - `timestamp`: The RFC 3339 timestamp of the request
+    - `clientIP`: Optional. Enrichment webhooks only. The source IP address of the RADIUS request. This is the address of the network equipment that sent the request, not of the connecting device. Authorization webhooks don't receive this field.
     - `x509Certificate`: A JSON representation of the certificate that follows [this data structure](https://github.com/smallstep/crypto/blob/master/x509util/certificate.go#L17). Additionally, there is a `raw`  field containing a base64-encoded DER representation of the client certificate.
 
 Example request body:
@@ -1396,10 +1426,11 @@ Example request body:
 
 ### Signature verification
 
-For signature verification, you will need the signing secret associated with `X-Smallstep-Webhook-ID`, which was given to you when your Smallstep support representative configured the webhook on your behalf. To verify the signature:
+For signature verification, you will need the signing secret associated with `X-Smallstep-Webhook-ID`. See [Configuring a RADIUS webhook in Smallstep](#configuring-a-radius-webhook-in-smallstep) for how to get it. The secret is base64-encoded. To verify the signature:
 
-1. Compute HMAC‑SHA256 over the raw request body bytes
-2. Hex‑encode the result and compare to the `X-Smallstep-Signature:` request header value
+1. Base64-decode the signing secret to get the HMAC key
+2. Compute HMAC‑SHA256 over the raw request body bytes, using that key
+3. Hex‑encode the result and compare to the `X-Smallstep-Signature:` request header value
 
 ### Response format
 
@@ -1431,17 +1462,157 @@ Your server should respond with the following:
            }
         }
         ```
-        
+
+    - `data`: object (optional). Enrichment webhooks only. The values Smallstep can use as reply attributes. See [Reply attributes from an enrichment webhook](#reply-attributes-from-an-enrichment-webhook).
+
+        Allow, and return data:
+
+        ```json
+        {
+          "allow": true,
+          "data": {
+            "custom": {
+              "firewallRole": "staff",
+              "vlan": 120
+            }
+          }
+        }
+        ```
+
+## Reply attributes from an enrichment webhook
+
+An enrichment webhook returns values in the `data` object of its response.
+`data` must be a JSON object. You choose its keys and how they are nested,
+with one exception: the key `replyAttributes` is reserved for
+[returning reply attributes directly](#return-reply-attributes-directly).
+A reply attribute rule on your RADIUS server then names the webhook and a *key path*:
+the location of one value inside `data`.
+When a device is allowed, Smallstep calls the webhook, reads the value at that key path,
+and sends it to your network equipment as the reply attribute.
+
+For example, suppose an enrichment webhook named `inventory` returns this response:
+
+```json
+{
+  "allow": true,
+  "data": {
+    "custom": {
+      "firewallRole": "staff",
+      "vlan": 120,
+      "groups": ["engineering", "on-call"]
+    }
+  }
+}
+```
+
+A `Filter-Id` rule that uses the `inventory` webhook with the key path `custom.firewallRole`
+sends `Filter-Id = "staff"`.
+
+### Key paths
+
+A key path is a list of keys separated by dots. Smallstep follows the keys one at a time, starting inside `data`.
+
+- Start the key path at the first key inside `data`. Don't include `data` itself.
+- To select an item of an array, use its position as a key. Positions start at `0`.
+- Keys are case-sensitive and must match exactly.
+- Point the key path at a string or a number. Smallstep sends the value as text.
+  Don't point it at an object or an array: Smallstep does not convert those into a usable attribute value.
+- A key that itself contains a dot cannot be selected, because the dot always separates two keys.
+
+With the response above:
+
+| Key path              | Value sent    |
+|-----------------------|---------------|
+| `custom.firewallRole` | `staff`       |
+| `custom.vlan`         | `120`         |
+| `custom.groups.0`     | `engineering` |
+
+### Use a webhook value in the Smallstep console
+
+1. In the **Webhooks** section of your RADIUS server, choose **Add webhook** and select the **Enrichment** type.
+   Give the webhook a name without dots, such as `inventory`.
+2. In the **Reply attributes** section, add a rule for the attribute you want to set.
+3. Choose **Webhook** as the source of the rule's value, then select your webhook.
+4. In the key path field next to the webhook, enter the path to the value, such as `custom.firewallRole`.
+5. Save the RADIUS server.
+
+### Use a webhook value with the API
+
+In the API, a reply attribute's `valueFromWebhook` holds the webhook name and the key path together,
+joined by a dot: `<webhook name>.<key path>`.
+
+```json
+"webhooks": [
+  {
+    "name": "inventory",
+    "url": "https://radius.example.com/enrich",
+    "kind": "ENRICHING",
+    "bearerToken": "[your bearer token]"
+  }
+],
+"replyAttributes": [
+  { "name": "Filter-Id", "valueFromWebhook": "inventory.custom.firewallRole" },
+  { "name": "Filter-Id", "value": "guest" }
+]
+```
+
+Smallstep treats everything before the first dot as the webhook name, and matches it exactly, including case.
+The API does not check a `valueFromWebhook` when you save it. A rule is ignored, without an error, when:
+
+- the `valueFromWebhook` has no dot, so it has no key path
+- no webhook on the RADIUS server has that name
+- the webhook with that name is an authorization webhook
+
+### When a webhook returns no value
+
+If the key path isn't in the response, or the value there is `null`, the rule produces nothing.
+Smallstep then tries the next rule for the same attribute, and the first rule that produces a value wins.
+To make sure an attribute is always sent, add a static rule after the webhook rule as a fallback.
+In the API example above, a device that the webhook has no `firewallRole` for receives `Filter-Id = "guest"`.
+
+`Reply-Message` is the exception: every rule for it that produces a value is sent.
+
+A fallback rule covers a missing value. It does not cover a webhook that fails.
+See [Operational guidance](#operational-guidance).
+
+### Return reply attributes directly
+
+An enrichment webhook can also return complete reply attributes, in a `replyAttributes` array inside `data`:
+
+```json
+{
+  "allow": true,
+  "data": {
+    "replyAttributes": [
+      { "name": "Tunnel-Type", "value": "VLAN" },
+      { "name": "Tunnel-Medium-Type", "value": "IEEE-802" },
+      { "name": "Tunnel-Private-Group-ID", "value": "120" }
+    ]
+  }
+}
+```
+
+Smallstep sends these attributes with every allowed connection. They need no rule on the RADIUS server.
+They are sent in addition to the attributes your rules produce. Neither overrides the other:
+if a rule sets the same attribute, both values are sent and your network equipment decides which one applies,
+so don't return an attribute here that a rule also sets.
+
+If `replyAttributes` is present, it must be an array of objects with a `name` and a `value`.
+Any other shape makes the whole response invalid.
+
 
 ## Example code
 
-As a starting point for your implementation, Smallstep offers an [example RADIUS webhook server](https://github.com/smallstep/radius-webhooks/), written in Go.
+As a starting point for your implementation, Smallstep offers an [example RADIUS webhook server](https://github.com/smallstep/radius-webhooks/), written in Go. The example implements an authorization webhook. For an enrichment webhook, verify the request the same way and add a `data` object to the response.
 
 ## Operational guidance
 
 - Multiple webhooks are supported. Webhooks are called after a client certificate is verified by Smallstep. They are called sequentially, but without any guarantee of order.
-- Timeouts (10 seconds) or non-`200` HTTP status codes result in a denial decision by Smallstep. Build for high availability and fast failover. Run at least two replicas behind a load balancer.
-- Smallstep may retry briefly if it receives a transient `5xx` HTTP status codes
+- Each enrichment webhook is called once per allowed connection, however many reply attribute rules read from it.
+- For authorization webhooks, timeouts (10 seconds) or HTTP error status codes (`4xx` or `5xx`) result in a denial decision by Smallstep. Build for high availability and fast failover. Run at least two replicas behind a load balancer.
+- An enrichment webhook fails when it times out (10 seconds), returns an HTTP error status code (`4xx` or `5xx`), returns a body that is not valid JSON, returns a `data` that is not an object, or returns `"allow": false`. When any enrichment webhook fails, Smallstep sends none of the reply attributes configured on the RADIUS server for that connection. This includes static rules, so a fallback rule does not help. Give enrichment webhooks the same availability as authorization webhooks.
+- Respond quickly. The 10 second timeout is an upper limit for one webhook, but webhooks are called one after another, and your network equipment has its own, usually shorter, RADIUS timeout for the whole exchange.
+- Smallstep does not retry a failed webhook request.
 - Deny known‑bad cases using `"allow": false`; reserve non‑`200` HTTP status codes for unexpected failures. This will avoid incidental denies.
 - Store the signing secret securely. Rotate the secret by creating a new webhook, distributing its secret, then decommissioning the old one.
 - It is recommended that you log request IDs, the webhook ID, and your decision for auditing. If possible, avoid logging full certificates.
