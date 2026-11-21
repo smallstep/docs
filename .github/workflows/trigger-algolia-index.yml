@@ -8,6 +8,7 @@ on:
     paths:
       - '**.mdx'
       - 'manifest.json'
+      - 'redirects.json'
 
 jobs:
   trigger:

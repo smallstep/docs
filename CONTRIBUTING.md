@@ -39,6 +39,31 @@ The Practical Zero Trust articles are a bit different.
 They are templated, rather than freeform Markdown.
 Look at existing examples in [`src/pzt`](src/pzt) for reference.
 
+## Removing or renaming a page
+
+A page is served at `https://smallstep.com/docs/...` when `manifest.json` has a route for it and the route's file exists.
+Deleting or renaming the file, or removing or changing the route, takes the old URL away.
+Other sites, search engines, and the Smallstep product link to these URLs, so every removed URL needs a redirect.
+
+Add the redirect to [`redirects.json`](redirects.json) in the same pull request:
+
+```json
+{
+  "from": "/docs/tutorials/old-page",
+  "to": "/docs/tutorials/new-page"
+}
+```
+
+- `from` is the old URL, starting with `/docs`, with no trailing slash.
+- `to` is a live docs page, another path on smallstep.com, or an `https://` URL. A docs page can include a `#fragment`.
+- Don't remove an entry from `redirects.json` unless a page is served at its `from` URL again.
+
+A pull request check enforces these rules. To run it locally, you need [Node.js](https://nodejs.org/) 20 or later:
+
+```bash
+node .github/scripts/check-removed-pages.mjs
+```
+
 ## Prose linting with vale
 
 We use [Vale](https://vale.sh/) to enforce consistent prose style.
