@@ -1,0 +1,25 @@
+name: Check for removed pages
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  removed-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Test the check
+        run: node --test .github/scripts/check-removed-pages.test.mjs
+      - name: Check that removed pages have redirects
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node .github/scripts/check-removed-pages.mjs "origin/$BASE_REF"

@@ -1,0 +1,80 @@
+{
+  "redirects": [
+    {
+      "from": "/docs/tutorials/wifi-setup-guide",
+      "to": "/docs/tutorials/protect-wireless-networks"
+    },
+    {
+      "from": "/docs/tutorials/intune-mdm-setup-guide",
+      "to": "/docs/tutorials/protect-wireless-networks"
+    },
+    {
+      "from": "/docs/tutorials/apple-mdm-jamf-setup-guide",
+      "to": "/docs/tutorials/protect-wireless-networks"
+    },
+    {
+      "from": "/docs/tutorials/wifi-authentication-webhooks",
+      "to": "/docs/tutorials/protect-wireless-networks"
+    },
+    {
+      "from": "/docs/tutorials/mutual-tls-aws",
+      "to": "/docs/mtls"
+    },
+    {
+      "from": "/docs/tutorials/acme-challenge",
+      "to": "/docs/tutorials/acme-protocol-acme-clients"
+    },
+    {
+      "from": "/docs/step-ca/ssh",
+      "to": "/docs/ssh"
+    },
+    {
+      "from": "/docs/step-ca/technology/ssh",
+      "to": "/docs/ssh"
+    },
+    {
+      "from": "/docs/step-certificates/kubernetes",
+      "to": "/docs/certificate-manager/kubernetes-tls"
+    },
+    {
+      "from": "/docs/design-doc.html",
+      "to": "/docs/design-document"
+    },
+    {
+      "from": "/docs/cli-installation",
+      "to": "/docs/step-cli/installation"
+    },
+    {
+      "from": "/docs/cli/install",
+      "to": "/docs/step-cli/installation"
+    },
+    {
+      "from": "/docs/step-cli/i",
+      "to": "/docs/step-cli/installation"
+    },
+    {
+      "from": "/docs/step-cli/reference/ca/sign/acme-www",
+      "to": "/docs/step-cli/reference/ca/sign"
+    },
+    {
+      "from": "/docs/step-cli/reference/ca/policy/acme/x509/smallstep.com/rss/feed.xml",
+      "to": "/docs/step-cli/reference/ca/policy/acme/x509"
+    },
+    {
+      "from": "/docs/platform/smallstep-agent/step-agent.nix",
+      "to": "/docs/platform/smallstep-agent"
+    },
+    {
+      "from": "/docs/step-ca/path/to/file.tpl",
+      "to": "/docs/step-ca/templates"
+    },
+    {
+      "from": "/docs/tutorials/protect-wired-networks/Device/Vendor/MSFT/WiredNetwork/LanXML",
+      "to": "/docs/tutorials/protect-wired-networks"
+    },
+    {
+      "from": "/docs/tutorials/protect-wired-networks/protect-wireless-networks.mdx",
+      "to": "/docs/tutorials/protect-wireless-networks"
+    }
+  ]
+}
