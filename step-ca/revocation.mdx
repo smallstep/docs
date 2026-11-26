@@ -178,6 +178,35 @@ $ step ca revoke --offline --cert localhost.crt --key localhost.key
 Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
 ```
 
+### Revoking a compromised key
+
+A renewal keeps the key of the certificate it renews.
+Revoking one certificate therefore doesn't stop someone who holds its private key
+from renewing another certificate with the same key:
+one renewed from it, or an earlier one.
+With [renewal after expiry](./renewal.mdx#renewal-after-expiry-for-intermittently-connected-devices) enabled,
+even expired certificates with that key can still be renewed.
+
+To revoke the key itself, revoke any one of its certificates with the reason code `keyCompromise` (1):
+
+```shell-session nocopy
+$ step ca revoke --reasonCode=1 --reason="laptop stolen" 59636004850364466675608080466579278406
+Certificate with Serial Number 59636004850364466675608080466579278406 has been revoked.
+```
+
+The CA records the certificate's public key as revoked, and from then on it refuses:
+
+- renewals of any certificate with that key, valid or expired
+- rekeys to that key
+- new certificates for that key
+
+The CA finds the key from the certificate it stored when it issued it,
+so this needs the CA's database.
+Other reason codes revoke only the certificate, as before.
+Use them when a certificate is replaced but its key stays in use.
+
+There's no way to undo a key revocation.
+
 ### Further reading
 
 - [Good Certificates Die Young](https://smallstep.com/blog/passive-revocation/)
