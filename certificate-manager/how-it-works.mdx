@@ -203,6 +203,20 @@ $ TOKEN=$(step ca token --provisioner jwk-provisioner --revoke $SERIAL)
 $ step ca revoke --token $TOKEN $SERIAL
 ```
 
+#### How fast a revocation takes effect
+
+Smallstep records a revocation immediately. The time until a system refuses the certificate depends on the method that the system uses to check it.
+
+**OCSP.** The OCSP responder reads the current status for each request. A new request gets the `revoked` status a short time after the revocation. Each OCSP response has a `Next Update` time that is 24 hours after the response. A system that caches OCSP responses can continue to accept a revoked certificate until that time, unless you clear its cache.
+
+**CRL.** Smallstep makes each CRL again one time each day, at 00:00 UTC. A revocation is not in the CRL until the subsequent run is complete. Each CRL has a `Next Update` time that is 24 hours after its issue. Thus a system that uses only the CRL can continue to accept a revoked certificate for up to 24 hours, and for longer if it caches the CRL.
+
+If a revocation must take effect quickly:
+
+- Use OCSP, not the CRL, on the system that checks the certificate.
+- Find how long that system caches OCSP responses, and how to clear the cache.
+- Use short-lived certificates. The certificate lifetime is the upper limit for all of these delays.
+
 ## Observability & alerting
 
 Certificate Manager is designed to support large, rapidly evolving
